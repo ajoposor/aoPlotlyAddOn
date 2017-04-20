@@ -1,5 +1,5 @@
  # Functions help working with Plotly. 
- These are functions to expand Plotly's current capabilities, in particular with time series. These functions would help rendering time-series charts in a similar way to highcharts / fred. Target is to add functions to add moving averages, change aggregation, download data.
+ These are functions to expand Plotly's current capabilities, in particular with time series. These functions would help rendering time-series charts in a similar way to highcharts / FRED. Goal is to add functions to add moving averages, change aggregation, download data.
  
  ## aoPlotlyAddOn.getTicktextAndTickvals
 This functions returns and object with the the tickvals and ticktext arrays for a specific time range, division width and margins, font type and size and a ratio for the space between ticks (specifically the ratio between (tick text + space between text) lenght to tick text length.<br><br>
