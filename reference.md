@@ -1,5 +1,5 @@
  # Functions help working with Plotly. 
- In particular with time series
+ These are functions to expand Plotly's current capabilities, in particular with time series. These functions would help rendering time-series charts in a similar way to highcharts / fred. Target is to add functions to add moving averages, change aggregation, download data.
  
  ## aoPlotlyAddOn.getTicktextAndTickvals
 This functions returns and object with the the tickvals and ticktext arrays for a specific time range, division width and margins, font type and size and a ratio for the space between ticks (specifically the ratio between (tick text + space between text) lenght to tick text length.<br><br>
@@ -8,7 +8,7 @@ This functions returns and object with the the tickvals and ticktext arrays for 
      
 ## aoPlotlyAddOn.transformSeriesByFrequencies
 This function will populate the data object with an originalData.x, y and objects for different frequencies and methods of aggregation. This data can be used to change the frequency of displayed data.<br><br>
-###Arguments:<br>
+### Arguments:<br>
 <b>data</b>: and array of data objects [{x[], y[]}, ....], with x as date strings 'yyyy-mm-dd' and y as values.<br><br><b>periodKeys</b>: and object with the frequencies to be calculated, set to true or false. {
   day: true/false,
   week: true/false,
