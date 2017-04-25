@@ -49,6 +49,8 @@ function padTo2(number) {
     return number < 10 ? '0' + number : '' + number;
   }
 
+aoPlotlyAddOn.padTo2 = padTo2;
+        
 // determine the ticktext and tickvals that best fit, given a target frequency display (annual, monthly, etc), and a space between tick text
 // the space between tick text (textAndSpaceToTextRatio) defined as
 // the ration of  (tick text length + space to next tick) to (tick text length)
