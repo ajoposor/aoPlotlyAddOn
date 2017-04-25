@@ -301,6 +301,7 @@ var months = ['Jan', 'Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov'
   
 }
 
+
 function createDataOriginal(data){
   var j;
   for (var i = 0; i < data.length; i++) {
@@ -315,6 +316,8 @@ function createDataOriginal(data){
     } 
   }
 }
+        
+aoPlotlyAddOn.createDataOriginal = createDataOriginal;
 
 // data object contains arrays x and y. x has dates as 'yyyy-mm-dd', and may have a time and timezone suffix.
 // periodKeys is an object with applicable keys as true
