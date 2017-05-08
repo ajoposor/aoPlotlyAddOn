@@ -323,7 +323,7 @@ aoPlotlyAddOn.createDataOriginal = createDataOriginal;
 
 // data object contains arrays x and y. x has dates as 'yyyy-mm-dd', and may have a time and timezone suffix.
 // periodKeys is an object with applicable keys as true
-// if populates data object with frequencies keys (as per periodKeys) and x, close, change, etc. attributes
+// it populates data object with frequencies keys (as per periodKeys) and x, close, change, etc. attributes
 // if an attribute is not calculated, it contains 'N/A', so as to be filtered when data.x, .y are updated.
 aoPlotlyAddOn.transformSeriesByFrequencies = function (data, originalPeriodKeys, endOfWeek) {
   var j = 0,
@@ -353,6 +353,8 @@ aoPlotlyAddOn.transformSeriesByFrequencies = function (data, originalPeriodKeys,
         //console.log(key,periodKeys[key]);
         if (originalPeriodKeys[key]) {
           if(typeof data[i][key] !== 'undefined') {
+						// if frequency data already exists, not to be calculated again.
+						// local periodKeys object is used, not to change originalPeriodKeys
             periodKeys[key]=false;
           } 
           else {
@@ -377,17 +379,16 @@ aoPlotlyAddOn.transformSeriesByFrequencies = function (data, originalPeriodKeys,
           }
         }
       }
-      //console.log(priorClose);
 
       // iterates over trace points
       for (j = data[i].xOriginal.length - 1; j > -1; j--) {
         //console.log('j',j);
         // get periods ranges and dates
         currentDate = stripDateIntoObject(data[i].xOriginal[j]);
-        priorXString = begin ? 'undefined' : data[i].xOriginal[j + 1];
-        nextXString = (j > 0) ? data[i].xOriginal[j - 1] : 'undefined';
+        priorXString = begin ? "undefined" : data[i].xOriginal[j + 1];
+        nextXString = (j > 0) ? data[i].xOriginal[j - 1] : "undefined";
 
-        currentY = data[i].yOriginal[j];
+        currentY = Number(data[i].yOriginal[j]);
         priorBankingDate = stripDateIntoObject(
           getPriorNonUSBankingWorkingDay(currentDate.year,
             currentDate.month,
@@ -397,7 +398,6 @@ aoPlotlyAddOn.transformSeriesByFrequencies = function (data, originalPeriodKeys,
             currentDate.month,
             currentDate.day));
 
-        //console.log(currentY, priorBankingDate, nextBankingDate);
         // checks and procedures for the first point in the trace
         if (begin) {
           priorLimits = getPeriodLimitsAsYYYYMMDD(currentDate.year,
@@ -421,8 +421,6 @@ aoPlotlyAddOn.transformSeriesByFrequencies = function (data, originalPeriodKeys,
           currentDate.month,
           currentDate.day,
           endOfWeek);
-        //console.log('nextXString',nextXString);
-        //console.log('currentLimits',currentLimits);
 
         for (key in periodKeys) {
           if (periodKeys.hasOwnProperty(key)) {
@@ -434,8 +432,8 @@ aoPlotlyAddOn.transformSeriesByFrequencies = function (data, originalPeriodKeys,
 
             // add value to average
             if(average[key].calculate=== true){
-              average[key].sum += currentY;
-              average[key].n += 1;
+              average[key].sum = Number(average[key].sum)+currentY;
+              average[key].n = Number(average[key].n)+1;
             }
 
             // case: period end found
@@ -458,7 +456,7 @@ aoPlotlyAddOn.transformSeriesByFrequencies = function (data, originalPeriodKeys,
               // add average if applicable
               if (average[key].calculate === true) {
                 data[i][key].average.unshift(average[key].sum / average[key].n);
-                average[key].sum=0;
+                average[key].sum=0.0;
                 average[key].n=0;
                 average[key].calculate= false;
               } else {
@@ -486,7 +484,7 @@ aoPlotlyAddOn.transformSeriesByFrequencies = function (data, originalPeriodKeys,
 
               //update priorClose
               priorClose[key] = currentY;
-              priorCumulative[key]+= currentY;
+              priorCumulative[key]=  priorCumulative[key]+currentY;
             }
             else { // case: within period
               // do something if applicable
