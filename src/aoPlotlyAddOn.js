@@ -266,26 +266,26 @@ var months = ['Jan', 'Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov'
       console.log('initial Date',frequencyData[i].initialDate);
       while(date <= toAsDate){
         result.tickvals.push(''+date.getFullYear()+'-'+padTo2(date.getMonth()+1)+'-'+padTo2(date.getDate()));
-        switch (frequencyData[i].stringName) {
-            case 'date':
-              result.ticktext.push(''+date.getFullYear()+'-'+padTo2(date.getMonth()+1)+'-'+padTo2(date.getDate()));
-              break;
-            case 'month':
-              result.ticktext.push(months[date.getMonth()]+' '+date.getFullYear());
-              break;
-          case 'quarter':
-              result.ticktext.push('Q' +Math.ceil((date.getMonth()+1)/3)+' '+date.getFullYear());
-              break;           
-          case 'semester':
-              result.ticktext.push('H'+Math.ceil((date.getMonth()+1)/6)+' '+date.getFullYear());
-              break;            
-          case 'year':
-              result.ticktext.push(''+date.getFullYear());
-              break;
-          case 'year-month':
-              result.ticktext.push(''+date.getFullYear()+'-'+padTo2(date.getMonth()+1));
-              break;
-      }
+				
+				if(frequencyData[i].stringName === "date"){
+					result.ticktext.push(''+date.getFullYear()+'-'+padTo2(date.getMonth()+1)+'-'+padTo2(date.getDate()));
+				}
+				else if (frequencyData[i].stringName === "month"){
+					result.ticktext.push(months[date.getMonth()]+' '+date.getFullYear());
+				}
+				else if (frequencyData[i].stringName === "quarter"){
+					result.ticktext.push('Q' +Math.ceil((date.getMonth()+1)/3)+' '+date.getFullYear());
+				}
+				else if (frequencyData[i].stringName === "semester"){
+					result.ticktext.push('H'+Math.ceil((date.getMonth()+1)/6)+' '+date.getFullYear());
+				}
+				else if (frequencyData[i].stringName === "year"){
+					result.ticktext.push(''+date.getFullYear());
+				}
+				else if (frequencyData[i].stringName === "year-month"){
+	      	result.ticktext.push(''+date.getFullYear()+'-'+padTo2(date.getMonth()+1));				
+				}
+				
         if (frequencyData[i].daysStep >0){
           date.setDate(date.getDate()+frequencyData[i].daysStep);
         }
