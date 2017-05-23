@@ -1,0 +1,88 @@
+ <h2><span style="color: #0000ff;">Functions</span></h2>
+<p>&nbsp;</p>
+<h3><span style="color: #0000ff;"><strong>aoPlotlyAddOn.newTimeseriesPlot</strong></span></h3>
+<p><strong>Description</strong></p>
+<p><br />This functions adds functionality, and applies to time series plots. It adds:</p>
+<ul>
+<li>Frequency resampling (daily, weekly, monthly, etc.) and various aggregations (close, average, change, %change, etc.).&nbsp;</li>
+</ul>
+<ul>
+<li>Log/linear yaxis button</li>
+</ul>
+<ul>
+<li>Real / Nominal button</li>
+</ul>
+<ul>
+<li>Compare / Uncompare button, a button to compare series to a base value at the beggining of the range</li>
+</ul>
+<ul>
+<li>Trim the series to be read from an initial date.</li>
+</ul>
+<ul>
+<li>It includes the display of xaxis ticks for a specific time range, naming quarters of half-years as the case may be.<br /><br /></li>
+</ul>
+<h4>Arguments (divInfo, series, settings, timeInfo, layout, options)</h4>
+<p style="padding-left: 30px;"><br /><strong>divInfo</strong>{</p>
+<p style="padding-left: 60px;">wholeDivID: "your whole div id" &nbsp;/*whole div name, where you will have your plot, including other html items, like your titles and footnotes.&nbsp;required to hide div while plot loads.*/<br /><br />plotDivID: "your plotly Div id" /* div in which plot will be included should be a div within 'wholeDiv'*/<br /><br />}</p>
+<p style="padding-left: 30px;"><br /><strong>series</strong>: array of objects, with information about traces. Each array object structured as follows:</p>
+<p style="padding-left: 60px;">{<br />urlType: "csv", &nbsp;/* could be 'direct', 'csv' or 'yqlJson', 'pureJson'. In case 'direct, provide trace x and y arrays directly under traceAttriblutes*/</p>
+<p style="padding-left: 60px;"><br />url: "full url",</p>
+<p style="padding-left: 60px;">xSeriesName: "Date", &nbsp;/* xSeriesName and ySeriesName are the labels for each variable as they appear in the CSV or Json files.*/</p>
+<p style="padding-left: 60px;"><br />ySeriesName: "header name",</p>
+<p style="padding-left: 60px;"><br />xDateSuffix: "", &nbsp; /* optional, could have content like :"T00:00:00-04:00" */</p>
+<p style="padding-left: 60px;"><br />toggleRealNominal: true /* true: trace could be converted to real / nominal. false: convertion to real nominal doesn't affect this series*/</p>
+<p style="padding-left: 60px;">deflactor: false, /* optional, set to true for one trace that would be the base for convertion to real values, in this case, set toogleRealNominal to false */<br /><br /> postProcessData: "end of month", /* optional, for series where dates at beginning of month, this property would allow the dates for the trace to be set at the end of month*/</p>
+<p style="padding-left: 60px;"><br />traceAttributes: object as per scatter attributes in Plotly, for example:</p>
+<p style="padding-left: 90px;">{<br />type: "scatter",<br />name: "S&amp;P 500",<br />mode: "lines",<br />opacity: 1,<br />fill: "tozeroy",<br />fillcolor: "rgba(205, 245,255, 0.20)", //#FAFCFD + 50% transparency<br />line: {<br />color: "#1A5488",<br />width: 3,<br />dash: "solid"<br />}</p>
+<p style="padding-left: 60px;"><br />}</p>
+<p style="padding-left: 30px;"><br /><br /><strong>settings</strong>:&nbsp;object with the following structure:</p>
+<p style="padding-left: 60px;"><br />{</p>
+<p style="padding-left: 60px;">series: {</p>
+<p style="padding-left: 60px;">// frequency and aggregation info of base traces.</p>
+<p style="padding-left: 90px;">baseFrequency: "base", /*could be 'daily', 'weekly', 'monthly', 'quarterly', 'annual' or your custom name. */</p>
+<p style="padding-left: 90px;">baseAggregation: "close", /* could be 'close', 'average', 'change', 'percChange', 'sqrPercChange', 'cumulative', or your custom name*/</p>
+<p style="padding-left: 90px;">targetFrequencyDisplay: "daily", /*maximum frequency for display of x axis., could be monthly, quarterly, etc.</p>
+<p style="padding-left: 90px;">}, */</p>
+<p style="padding-left: 60px;">// in case an initial change of frequency and aggregation is desired</p>
+<p style="padding-left: 60px;">changeFrequencyAggregationTo: {</p>
+<p style="padding-left: 90px;">frequency:'daily',</p>
+<p style="padding-left: 90px;">aggregation: 'close'</p>
+<p style="padding-left: 90px;">} ,</p>
+<p style="padding-left: 60px;">displayRecessions: true, /* displays area for recession periods*/</p>
+<p style="padding-left: 60px;">allowRealNominal: true, /* optional, displays button for convertion between real an nominal*/</p>
+<p style="padding-left: 60px;">initialRealNominal: "real", /*(could be set to "nominal" or "real", sets the initial display of traces to which real transformation is possible)*/</p>
+<p style="padding-left: 60px;">baseRealDate: "end of range", /* could be "end of range", "end of domain", "beggining of range", beggining of domain", or a date "yyyy-mm-dd hh:mm:ss.sss-04:00"*/</p>
+<p style="padding-left: 60px;">allowDownload: true, /* true or false, displays button to download displayed traces (full domain)*/</p>
+<p style="padding-left: 60px;">&nbsp;</p>
+<p style="padding-left: 60px;">downloadedFileName: "S&amp;P Sectors Data",</p>
+<p style="padding-left: 60px;">xAxisNameOnCSV: "Date",</p>
+<p style="padding-left: 60px;">allowCompare: true, /* displays button to allow comparison of traces to a base unit value*/</p>
+<p style="padding-left: 60px;">&nbsp;</p>
+<p style="padding-left: 60px;">transformToBaseIndex: true, /*optional , series would be transformed to common value of 1 at beginning*/</p>
+<p style="padding-left: 60px;">allowFrequencyResampling: true, /* optional, includes buttons to allow for calculation of aggregation and methods (monthly, quarterly), close, average, etc.*/</p>
+<p style="padding-left: 60px;">desiredFrequencies: [ "daily", "weekly", "monthly", "quarterly", "semiannual", "annual" ],</p>
+<p style="padding-left: 60px;">allowSelectorOptions: true, // buttons for time range selection, 3m, 6m, 1y, YTD, 5y, etc.</p>
+<p style="padding-left: 60px;">allowLogLinear: true,</p>
+<p style="padding-left: 60px;">textAndSpaceToTextRatio: 1.8,</p>
+<p style="padding-left: 60px;">endOfWeek: 5 // 0 Sunday, 1 Monday, etc.</p>
+<p style="padding-left: 60px;">}</p>
+<p style="padding-left: 30px;"><strong><strong><br /><strong>timeInfo</strong>:</strong></strong></p>
+<p style="padding-left: 60px;">{</p>
+<p style="padding-left: 60px;"><br />yearsToPlot: number of years to plot from current date backwards, if stated (optional)</p>
+<p style="padding-left: 60px;"><br />tracesInitialDate: 'yyyy-mm-dd' traces are trimmed for dates lower than (optional)</p>
+<p style="padding-left: 60px;"><br />initialDateForInitialDisplay: 'yyyy-mm-dd' (optional)</p>
+<p style="padding-left: 60px;"><br />endDateForInitialDisplay: 'yyyy-mm-dd' (optional)</p>
+<p style="padding-left: 60px;"><br />}</p>
+<p style="padding-left: 30px;"><br /><br /><strong>layout</strong>: pass layout information to be dealt with as per Plotly's layout definitions<br /><br /><br /><strong>options</strong>:&nbsp;&nbsp;pass options&nbsp;information to be dealt with as per Plotly's options definitions<br /><br /></p>
+<h3><span style="color: #0000ff;"><strong><strong><strong><strong><strong><strong><strong>aoPlotlyAddOn.getTicktextAndTickvals</strong></strong></strong></strong></strong></strong></strong></span></h3>
+<p><br /><strong><strong><strong><strong><strong><strong>This functions returns and object with the the tickvals and ticktext arrays for a specific time range, division width and margins, font type and size and a ratio for the space between ticks (specifically the ratio between (tick text + space between text) lenght to tick text length.</strong></strong></strong></strong></strong></strong><br /><br /></p>
+<h4><strong><strong><strong><strong><strong><strong>Arguments:</strong></strong></strong></strong></strong></strong></h4>
+<p style="padding-left: 30px;">&nbsp;</p>
+<p style="padding-left: 30px;"><strong><strong><strong><strong><strong><strong><strong>from, to</strong>: </strong></strong></strong></strong></strong></strong>date strings as 'yyyy-mm-dd'<strong><strong><strong><strong><strong><strong><br /><br /><strong>textAndSpaceToTextRatio</strong>:</strong></strong></strong></strong></strong></strong> ratio between (tick text + space between text) lenght to tick text length<br /><strong><strong><strong><strong><strong><strong><br /><strong>targetFrequency</strong>: </strong></strong></strong></strong></strong></strong>any of 'daily', 'everyOtherDay', 'weekly', 'biweekly', 'monthly', 'quarterly', 'semiannual', 'annual', 'biennial', 'quinquennial', 'decennial', 'quadranscentennial', 'semicentennial', 'centennial', 'bicentennial', 'sestercentennial', 'quincentenary', 'milennial'<strong><strong><strong><strong><strong><strong><br /><br />The returned ticktext and tickvals would be the best minimum fit, upwards from the targetFrequency, e.g., if 'monthly' is passed, it would return whichever fit best from monthly, quarterly, semiannual, annual and onwards<br /><br /><strong>fontFamily</strong>: </strong></strong></strong></strong></strong></strong>a font family name.<strong><strong><strong><strong><strong><strong><br /><br /><strong>fontSize:&nbsp;</strong><br /><br /><strong>divWidth</strong>: </strong></strong></strong></strong></strong></strong>width in pixels of the current division, can be read as jQuery('name of division').width()<br /><strong><strong><strong><strong><strong><strong><br /><strong>leftMargin, rightMargin</strong>:</strong></strong></strong></strong></strong></strong> margins from plot to division. If layout.margin.l/r are defined, read from there, otherwise use 80 (plotly's default)<br /><br /><br /></p>
+<h3><span style="color: #0000ff;"><strong><strong><strong><strong><strong><strong><strong>aoPlotlyAddOn.transformSeriesByFrequencies</strong></strong></strong></strong></strong></strong></strong></span></h3>
+<p><br /><strong><strong><strong><strong><strong><strong>This function will populate the data object with an originalData.x, y and objects for different frequencies and methods of aggregation. This data can be used to change the frequency of displayed data.</strong></strong></strong></strong></strong></strong><br /><br /></p>
+<h4><strong><strong><strong><strong><strong><strong>Arguments:</strong></strong></strong></strong></strong></strong></h4>
+<p style="padding-left: 30px;"><br /><strong><strong><strong><strong><strong><strong><strong>data</strong>: </strong></strong></strong></strong></strong></strong>and array of data objects [{x[], y[]}, ....], with x as date strings 'yyyy-mm-dd' and y as values.<br /><strong><strong><strong><strong><strong><strong><br /><strong>periodKeys</strong>: </strong></strong></strong></strong></strong></strong>and object with the frequencies to be calculated, set to true or false. { day: true/false, week: true/false, month: true/false, quarter: true/false, semester: true/false, year: true }<strong><strong><strong><strong><strong><strong><br /><br /><strong>endOfWeek</strong>: </strong></strong></strong></strong></strong></strong>day of week to be end of week period. 0 for Sunday, 1 for Monday, ....</p>
+<p style="padding-left: 30px;">&nbsp;</p>
+<p style="padding-left: 30px;">&nbsp;</p>
+<p style="padding-left: 30px;">&nbsp;</p>
