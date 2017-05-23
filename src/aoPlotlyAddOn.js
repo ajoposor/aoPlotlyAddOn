@@ -2767,7 +2767,8 @@ function deepCopy(obj) {
 	if (Object.prototype.toString.call(obj) === "[object Array]") {
 		var len = obj.length;
 		for (; i < len; i++) {
-			out[i] = arguments.callee(obj[i]);
+			//out[i] = arguments.callee(obj[i]);
+			out[i] = deepCopy(obj[i]);
 		}
 		return out;
 	}
@@ -2775,7 +2776,8 @@ function deepCopy(obj) {
 	if (typeof obj === "object") {
 		out = {};
 		for (i in obj) {
-			out[i] = arguments.callee(obj[i]);
+			//out[i] = arguments.callee(obj[i]);
+			out[i] = deepCopy(obj[i]);
 		}
 		return out;
 	}
@@ -2799,7 +2801,8 @@ function setJsonDefaults(jsonDefaults, json) {
 			json = {};
 		}
 		for (i in jsonDefaults) {
-			json[i] = arguments.callee(jsonDefaults[i], json[i]);
+			//json[i] = arguments.callee(jsonDefaults[i], json[i]);
+			json[i] = setJsonDefaults(jsonDefaults[i], json[i]);
 		}
 		return json;
 	}
