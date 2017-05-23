@@ -262,8 +262,8 @@ var months = ['Jan', 'Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov'
       j===0?0:(divWidth-leftMargin-rightMargin) /(j*stringLength(frequencyData[i].string,fontFamily,fontSize));    
     if(frequencyData[i].xSpace >= textAndSpaceToTextRatio){
       date = new Date(frequencyData[i].initialDate.getTime());
-      console.log('solution found at', frequencyData[i]);
-      console.log('initial Date',frequencyData[i].initialDate);
+      //console.log('solution found at', frequencyData[i]);
+      //console.log('initial Date',frequencyData[i].initialDate);
       while(date <= toAsDate){
         result.tickvals.push(''+date.getFullYear()+'-'+padTo2(date.getMonth()+1)+'-'+padTo2(date.getDate()));
 				
@@ -296,9 +296,9 @@ var months = ['Jan', 'Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov'
       i=frequencyData.length;
     }
   }
-  console.log(frequencyData.length);
-  console.log('target Frequency',targetFrequency);
-  console.log(frequencyData);
+  //console.log(frequencyData.length);
+  //console.log('target Frequency',targetFrequency);
+  //console.log(frequencyData);
   return result;
   
 };
@@ -1529,7 +1529,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 					settings.series.baseAggregation,
 					baseAggregationButtons
 				);
-			console.log("case 2d frequency update menu", frequencyUpdateMenu);
+			//console.log("case 2d frequency update menu", frequencyUpdateMenu);
 		
 	}
 		
@@ -3403,8 +3403,8 @@ function setYaxisLayoutRange(yAxisType, minMaxInitialY, layout, numberOfInterval
 	
 	minMaxInitialY[1] = yMinMax[1];
 	minMaxInitialY[0] = yMinMax[0];	
-	console.log("endY0", minMaxInitialY[0]);
-	console.log("endY1", minMaxInitialY[1]);
+	//console.log("endY0", minMaxInitialY[0]);
+	//console.log("endY1", minMaxInitialY[1]);
 	
 	if (yAxisType === "log") {
 		minMaxInitialY[0] =
@@ -3415,8 +3415,8 @@ function setYaxisLayoutRange(yAxisType, minMaxInitialY, layout, numberOfInterval
 			Math.log(10);
 	}
 	
-	console.log("resulting y range - y0",minMaxInitialY[0],"y1", minMaxInitialY[0]);
-	console.log("isNaN y0 y1",isNaN(minMaxInitialY[0]), isNaN(minMaxInitialY[0]));
+	//console.log("resulting y range - y0",minMaxInitialY[0],"y1", minMaxInitialY[0]);
+	//console.log("isNaN y0 y1",isNaN(minMaxInitialY[0]), isNaN(minMaxInitialY[0]));
 	
 
 	if(!isNaN(minMaxInitialY[0]) && !isNaN(minMaxInitialY[1] )){
@@ -3453,8 +3453,8 @@ function returnYaxisLayoutRange(yAxisType, yMinValue, yMaxValue,numberOfInterval
 
 	yMaxValue = yMinMax[1];
 	yMinValue = yMinMax[0];
-	console.log("endY0", yMinValue);
-	console.log("endY1", yMaxValue);
+	//console.log("endY0", yMinValue);
+	//console.log("endY1", yMaxValue);
 	
 	if (yAxisType === "log") {
 		yaxisRange.push(
@@ -4189,7 +4189,7 @@ function transformDataToReal(data, deflactorDictionary, baseRealNominalDate, ser
 	var j, iLimit, jLimit;
 	var base = Number(deflactorDictionary[baseRealNominalDate]);
 	
-	console.log("base", base);
+	//console.log("base", base);
 	
 	iLimit = data.length;
 	for (var i = 0; i < iLimit; i++) {
@@ -4407,7 +4407,7 @@ function readDataAndMakeChart(series, iS, data, param, callback) {
 			maxDateAsString,
 			timeInfo
 		);
-		console.log("xaxis range settings done");
+		//console.log("xaxis range settings done");
 
 		//console.log("xaxisRange", xaxisRangeAsString);
 
@@ -4436,7 +4436,7 @@ function readDataAndMakeChart(series, iS, data, param, callback) {
 			layout.margin.r
 		);
 		
-		console.log("tick vals and text done");
+		//console.log("tick vals and text done");
 
 		// set layout ticktext and tickvals
 		layout.xaxis.ticktext = ticktextAndTickvals.ticktext;
