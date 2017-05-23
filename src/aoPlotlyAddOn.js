@@ -57,16 +57,16 @@ aoPlotlyAddOn.padTo2 = padTo2;
 // from: initial date as string 'yyyy-mm-dd'
 // targetFrequency, a string, like  'annual', 'monthly', etc. see below in code for options.
 aoPlotlyAddOn.getTicktextAndTickvals = function (from, to, textAndSpaceToTextRatio, targetFrequency, fontFamily, fontSize, divWidth, leftMargin, rightMargin){
-  var initialDate = new Date();  
-  var daysStep = 0, monthsStep =0;
+  //var initialDate = new Date();  
+  //var daysStep = 0, monthsStep =0;
 
   var strippedFrom = stripDateIntoObject(from);
   var strippedTo = stripDateIntoObject(to);
   
   //console.log('parsed from to', strippedFrom, strippedTo);
   
-  var fromAsDate = new Date(strippedFrom.year, strippedFrom.month-1, strippedFrom.day),
-      toAsDate = new Date(strippedTo.year, strippedTo.month-1, strippedTo.day);
+  //var fromAsDate = new Date(strippedFrom.year, strippedFrom.month-1, strippedFrom.day);
+  var toAsDate = new Date(strippedTo.year, strippedTo.month-1, strippedTo.day);
   
   
 var months = ['Jan', 'Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -2244,7 +2244,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 
 	// After all settings ready, call function to read data, adjust ranges, set menus and make chart
 	var data = []; //, dataOriginal = [];
-	var dataOriginalModes = [];
+	// var dataOriginalModes = [];
 	var iS = {
 		value: 0
 	};
@@ -2784,7 +2784,7 @@ function deepCopy(obj) {
 
 // add default properties to Json Object
 function setJsonDefaults(jsonDefaults, json) {
-	var i = 0, len = 0;
+	var i = 0;
 	var jsonDefaultsType = Object.prototype.toString.call(jsonDefaults);
 
 	if (jsonDefaultsType === "[object Array]") {
@@ -2875,9 +2875,8 @@ function getYminYmax(x0, x1, data) {
 	function	preProcessDataDates(data){
 		var iLimit=0, j=0, jLimit =0;
 		var dateString = "";
-		var containsHour = false, containsTimeOffset = false;
 		var dateParts=["","",""];
-		var split=[], hourSide = "", timeOffsetPart = "";
+		var split=[];
 		var dateTimeTail = "";
 		var offset  = (new Date()).getTimezoneOffset();
 		var offsetText ="";
@@ -3892,7 +3891,7 @@ function convertDataToCSV(xName, data) {
   var endOfAllSeries = true;
   
   var iLimit = data.length;
-  var j=0, jLimit = 0;
+  var j=0;
   
   for (var i = 0; i < iLimit; i++){
     if(line!==""){
@@ -4241,7 +4240,6 @@ function readDataAndMakeChart(series, iS, data, param, callback) {
 		layout = {},
 		timeInfo = {},
 		divInfo = {},
-		update = {},
 		deflactorDictionary = {},
 		flag = false,
 		index = 0,
@@ -4257,7 +4255,6 @@ function readDataAndMakeChart(series, iS, data, param, callback) {
 
 	// initial variables
 	var isUnderRelayout = false;
-	var originalDataCreated = false;
 	var frequenciesDataCreated = false;
 	var uncomparedSaved = false;
 	var nominalSaved = false;
@@ -4606,8 +4603,6 @@ function readDataAndMakeChart(series, iS, data, param, callback) {
 		// set y axis range
 		setYAxisRange(layout, data, settings.numberOfIntervalsInYAxis, settings.possibleYTickMultiples, settings.rangeProportion);
 		//console.log("y axis range set");
-		
-		var yAxisBaseHoverFormat = layout.yaxis.hoverformat;
 		
 		//console.log("baseIndexDate", baseIndexDate);
 		//console.log("initialDate", initialDate);
