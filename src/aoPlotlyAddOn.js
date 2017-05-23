@@ -17,14 +17,14 @@ function stringLength(string, fontFamily, size) {
 
 // strip date as 'yyyy-mm-dd' into object
 function stripDateIntoObject(dateString) {
-  var obj = {};
-  
-  return obj = {
+  var obj = {
     string: dateString,
     year: Number(dateString.substr(0, 4)),
     month: Number(dateString.substr(5, 2)),
     day: Number(dateString.substr(8, 2))
   };
+  
+  return obj;
   
 }
 
