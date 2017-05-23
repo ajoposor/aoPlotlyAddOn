@@ -301,7 +301,7 @@ var months = ['Jan', 'Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov'
   console.log(frequencyData);
   return result;
   
-}
+};
 
 
 function createDataOriginal(data){
@@ -469,10 +469,10 @@ aoPlotlyAddOn.transformSeriesByFrequencies = function (data, originalPeriodKeys,
               data[i][key].cumulative.unshift(priorCumulative[key] + currentY);            
 
               // check if priorClose.key exists and update changes
-              if (priorClose[key] != 'undefined') {
+              if (priorClose[key] !== 'undefined') {
                 temp = currentY - priorClose[key];
                 data[i][key].change.unshift(temp);
-                temp = (priorClose[key] != 0) ? temp / priorClose[key] : 'N/A';
+                temp = (priorClose[key] !== 0) ? temp / priorClose[key] : 'N/A';
                 data[i][key].percChange.unshift(temp);
                 data[i][key].sqrPercChange.unshift(temp != 'N/A' ? temp * temp : 'N/A');
               } 
@@ -495,7 +495,7 @@ aoPlotlyAddOn.transformSeriesByFrequencies = function (data, originalPeriodKeys,
       } // next j
     } // end of doCalculations condition
   } // next i
-} // end of function
+}; // end of function
  
 
 
@@ -554,13 +554,13 @@ function checkIsUSBankingHoliday(year, month, day) {
 
   _USBankingHolidays.M = {};
 
-  if (holidaysWeekdays['New Year'] == 0) {
+  if (holidaysWeekdays['New Year'] === 0) {
     _USBankingHolidays.M['1/2'] = "New Year's Day";
   } else if (holidaysWeekdays['New Year'] < 6) {
     _USBankingHolidays.M['1/1'] = "New Year's Day";
   }
 
-  if (holidaysWeekdays['Independence Day'] == 0) {
+  if (holidaysWeekdays['Independence Day'] === 0) {
     _USBankingHolidays.M['7/5'] = "Independence Day";
   } else if (holidaysWeekdays['Independence Day'] == 6) {
     _USBankingHolidays.M['7/3'] = "Independence Day";
@@ -568,7 +568,7 @@ function checkIsUSBankingHoliday(year, month, day) {
     _USBankingHolidays.M['7/4'] = "Independence Day";
   }
 
-  if (holidaysWeekdays['Christmas Day'] == 0) {
+  if (holidaysWeekdays['Christmas Day'] === 0) {
     _USBankingHolidays.M['12/26'] = "Christmas Day";
   } else if (holidaysWeekdays['Christmas Day'] == 6) {
     _USBankingHolidays.M['12/24'] = "Christmas Day";
@@ -2266,7 +2266,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	readDataAndMakeChart(series, iS, data, passedParameters, function(message) {
 		console.log(message);
 	});
-} // END OF newTimeseriesPlot FUNCTION
+}; // END OF newTimeseriesPlot FUNCTION
 
 
 
@@ -2445,6 +2445,7 @@ function processCsvData(allRows, tracesInitialDate, serie) {
 	var timeOffsetText = getTimeOffsetText();
 	var readFlag = false;
 	var i = 0;
+	var row;
 
 	
 	if (tracesInitialDate !== "") {
@@ -4142,7 +4143,7 @@ function setBaseRealNominalDateAsString(baseRealDate,
 	}
 	else if (Object.prototype.toString.call(new Date(baseRealDate)) === "[object Date]" ) {
 		// it is a date
-		if ( isNaN( d.getTime() ) ) {  // d.valueOf() could also work
+		if ( isNaN( baseRealDate.getTime() ) ) {  // d.valueOf() could also work
 			// baseRealDate date is not valid, return default
 			return domainX1AsString;
 		}
