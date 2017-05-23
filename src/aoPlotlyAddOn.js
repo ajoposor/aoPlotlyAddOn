@@ -4607,7 +4607,7 @@ function readDataAndMakeChart(series, iS, data, param, callback) {
 		setYAxisRange(layout, data, settings.numberOfIntervalsInYAxis, settings.possibleYTickMultiples, settings.rangeProportion);
 		//console.log("y axis range set");
 		
-		yAxisBaseHoverFormat = layout.yaxis.hoverformat;
+		var yAxisBaseHoverFormat = layout.yaxis.hoverformat;
 		
 		//console.log("baseIndexDate", baseIndexDate);
 		//console.log("initialDate", initialDate);
