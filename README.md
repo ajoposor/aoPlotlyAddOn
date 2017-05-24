@@ -26,38 +26,37 @@ This functions adds functionality, and applies to time series plots. It adds:
 * **Trim** the series to be read from an initial date.
 * It includes the display of **xaxis ticks** for a specific time range, naming quarters of half-years as the case may be.
 
-> ### Arguments (divInfo, series, settings, timeInfo, layout, options)
+### Arguments (divInfo, series, settings, timeInfo, layout, options)
 >
->> **divInfo** {
->>
->>> **wholeDivID:** "your whole div id"  /*whole div name, where you will have your plot, including other html items, like your titles and footnotes. required to hide div while plot loads.*/
->>>
->>> **plotDivID:** "your plotly Div id" /* div in which plot will be included should be a div within 'wholeDiv'*/
->>>
->>> }
+> **divInfo** {
 >
->> **series:** array of objects, with information about traces. Each array object structured as follows:
+>> **wholeDivID:** "your whole div id"  /*whole div name, where you will have your plot, including other html items, like your titles and footnotes. required to hide div while plot loads.*/
 >>
->>> {
->>> **urlType:** "csv", /* could be 'direct', 'csv' or 'yqlJson', 'yqlGoogleCSV', 'pureJson'. In case 'direct, provide trace x and y arrays directly under traceAttriblutes*/
->>>
->>> **url:** "full url",
->>>
->>> **xSeriesName:** "Date",  /* xSeriesName and ySeriesName are the labels for each variable as they appear in the CSV or Json files.*/
->>>
->>> **ySeriesName:** "header name",
->>>
->>> **xDateSuffix:** "",   /* optional, could have content like :"T00:00:00-04:00" */
->>>
->>> **toggleRealNominal:** true /* true: trace could be converted to real / nominal. false: convertion to real nominal doesn't affect this series*/
->>>
->>> **deflactor:** false, /* optional, set to true for one trace that would be the base for convertion to real values, in this case, set toogleRealNominal to false */
->>>
->>> **postProcessData:** "end of month", /* optional, for series where dates at beginning of month, this property would allow the dates for the trace to be set at the end of month*/
->>>
->>>
->>> **traceAttributes:** object as per scatter attributes in Plotly, for example:
->>>
+>> **plotDivID:** "your plotly Div id" /* div in which plot will be included should be a div within 'wholeDiv'*/
+>>
+>> }
+>
+> **series:** array of objects, with information about traces. Each array object structured as follows:
+>
+>> {
+>> **urlType:** "csv", /* could be 'direct', 'csv' or 'yqlJson', 'yqlGoogleCSV', 'pureJson'. In case 'direct, provide trace x and y arrays directly under traceAttriblutes*/
+>>
+>> **url:** "full url",
+>>
+>> **xSeriesName:** "Date",  /* xSeriesName and ySeriesName are the labels for each variable as they appear in the CSV or Json files.*/
+>>
+>> **ySeriesName:** "header name",
+>>
+>> **xDateSuffix:** "",   /* optional, could have content like :"T00:00:00-04:00" */
+>>
+>> **toggleRealNominal:** true /* true: trace could be converted to real / nominal. false: convertion to real nominal doesn't affect this series*/
+>>
+>> **deflactor:** false, /* optional, set to true for one trace that would be the base for convertion to real values, in this case, set toogleRealNominal to false */
+>>
+>> **postProcessData:** "end of month", /* optional, for series where dates at beginning of month, this property would allow the dates for the trace to be set at the end of month*/
+>>
+>> **traceAttributes:** object as per scatter attributes in Plotly, for example:
+>>
 >>> {
 >>> type: "scatter",
 >>> name: "S&P 500",
@@ -71,35 +70,34 @@ This functions adds functionality, and applies to time series plots. It adds:
 >>> dash: "solid"
 >>> }
 >>> }
->>
->>
->> settings: object with the following structure:
->>
->>>{
+>
+>
+> **settings:** object with the following structure:
+>
+>{
+>> **series:** 
+>>> {
+>>> // frequency and aggregation info of base traces.
 >>>
->>> **series:** {
-
-// frequency and aggregation info of base traces.
-
-###### *baseFrequency:* "base", /*could be 'daily', 'weekly', 'monthly', 'quarterly', 'annual' or your custom name. */
-
-baseAggregation: "close", /* could be 'close', 'average', 'change', 'percChange', 'sqrPercChange', 'cumulative', or your custom name*/
-
-targetFrequencyDisplay: "daily", /*maximum frequency for display of x axis., could be monthly, quarterly, etc.
-
-}, */
-
-// in case an initial change of frequency and aggregation is desired
-
-changeFrequencyAggregationTo: {
-
-frequency:'daily',
-
-aggregation: 'close'
-
-} ,
-
-displayRecessions: true, /* displays area for recession periods*/
+>>> **baseFrequency:** "base", /*could be 'daily', 'weekly', 'monthly', 'quarterly', 'annual' or your custom name. */
+>>>
+>>> **baseAggregation:** "close", /* could be 'close', 'average', 'change', 'percChange', 'sqrPercChange', 'cumulative', or your custom name*/
+>>>
+>>> **targetFrequencyDisplay:** "daily", /*maximum frequency for display of x axis., could be monthly, quarterly, etc.
+>>>
+>>> },
+>>
+>> // in case an initial change of frequency and aggregation is desired
+>>
+>> **changeFrequencyAggregationTo:** {
+>>>
+>>> **frequency:**'daily',
+>>>
+>>> **aggregation:** 'close'
+>>>
+>>> } ,
+>>
+>> **displayRecessions:** true, /* displays area for recession periods*/
 
 allowRealNominal: true, /* optional, displays button for convertion between real an nominal*/
 
