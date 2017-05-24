@@ -29,12 +29,12 @@ This functions adds functionality, and applies to time series plots. It adds:
 ### Arguments (divInfo, series, settings, timeInfo, layout, options)
 
     **divInfo** {
+    
+    **wholeDivID:** "your whole div id"  /*whole div name, where you will have your plot, including other html items, like your titles and footnotes. required to hide div while plot loads.*/
 
-      **wholeDivID:** "your whole div id"  /*whole div name, where you will have your plot, including other html items, like your titles and footnotes. required to hide div while plot loads.*/
+    **plotDivID:** "your plotly Div id" /* div in which plot will be included should be a div within 'wholeDiv'*/
 
-      **plotDivID:** "your plotly Div id" /* div in which plot will be included should be a div within 'wholeDiv'*/
-
-      }
+    }
 
 
     **series:** array of objects, with information about traces. Each array object structured as follows:
