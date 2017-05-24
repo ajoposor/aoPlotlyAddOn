@@ -30,21 +30,21 @@ This functions adds functionality, and applies to time series plots. It adds:
 >
 > **divInfo** {
 >
->> **wholeDivID:** "your whole div id"  /*whole div name, where you will have your plot, including other html items, like your titles and footnotes. required to hide div while plot loads.*/
->>
->> **plotDivID:** "your plotly Div id" /* div in which plot will be included should be a div within 'wholeDiv'*/
->>
->> }
+> **wholeDivID:** "your whole div id"  /*whole div name, where you will have your plot, including other html items, like your titles and footnotes. required to hide div while plot loads.*/
 >
-> **series:** array of objects, with information about traces. Each array object structured as follows:
+> **plotDivID:** "your plotly Div id" /* div in which plot will be included should be a div within 'wholeDiv'*/
 >
->> {
->> **urlType:** "csv", /* could be 'direct', 'csv' or 'yqlJson', 'yqlGoogleCSV', 'pureJson'. In case 'direct, provide trace x and y arrays directly under traceAttriblutes*/
->>
->> **url:** "full url",
->>
->> **xSeriesName:** "Date",  /* xSeriesName and ySeriesName are the labels for each variable as they appear in the CSV or Json files.*/
->>
+> }
+>
+> **series:** array of objects, with information about traces, where data is located and to be read from. Each array object structured as follows:
+>
+> { 
+> **urlType:** "  " (any of "direct", "csv", "yqlJson", "yqlGoogleCSV", "pureJson". In case "direct", provide trace x and y arrays directly under traceAttriblutes)
+>
+> **url:** "full url",
+>
+> **xSeriesName:** "Date",  /* xSeriesName and ySeriesName are the labels for each variable as they appear in the CSV or Json files.*/
+>
 >> **ySeriesName:** "header name",
 >>
 >> **xDateSuffix:** "",   /* optional, could have content like :"T00:00:00-04:00" */
