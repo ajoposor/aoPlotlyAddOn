@@ -2423,11 +2423,28 @@ function readData(series, iS, data, param, tracesInitialDate, callback) {
 			iS.value++;
 			readDataAndMakeChart(series, iS, data, param, callback);
 		});
-	} else if (series[iS.value].urlType === "pureJson") {
+	}   
+	else if (series[iS.value].urlType === "yqlGoogleCSV") {
+		console.log("Googlecsv", iS.value);
+		Plotly.d3.json("https://query.yahooapis.com/v1/public/yql?q="+
+			encodeURIComponent("SELECT * from csv where url='"+series[iS.value].url+"'")+
+			"&format=json", 				
+			function(readData) {
+				data.push(
+					processYqlGoogleCsvData(
+						readData.query.results.row,
+						tracesInitialDate,
+						series[iS.value]
+					)
+			);
+		iS.value++;
+		readDataAndMakeChart(series, iS, data, param, callback);
+		});
+	else if (series[iS.value].urlType === "pureJson") {
 		$.getJSON(series[iS.value].url, function(readData) {
-			data.push(processJsonData(readData, tracesInitialDate, series[iS.value]));
-			iS.value++;
-			readDataAndMakeChart(series, iS, data, param, callback);
+		data.push(processJsonData(readData, tracesInitialDate, series[iS.value]));
+		iS.value++;
+		readDataAndMakeChart(series, iS, data, param, callback);
 		});
 	} else if (series[iS.value].urlType === "direct") {
 		data.push(processDirectData(tracesInitialDate, series[iS.value]));
@@ -2557,6 +2574,144 @@ function processJsonData(jsonData, tracesInitialDate, serie) {
 	trace.y = y;
 	return trace;
 }
+	    
+
+// // read data from google finance history csv files	    
+function processYqlGoogleCsvData(allRows, tracesInitialDate, serie) {
+	var x = [], y = [], trace = {}; //[];
+	var initialDateAsDate = new Date("0001-01-01");
+	var processedDate ="";
+	var timeOffsetText = getTimeOffsetText();
+	var readFlag = false;
+	var i = 0;
+	var row;
+	var xTag ="", yTag="";
+
+	var tags=allRows[0];
+	
+	
+	for (var key in tags){
+		if (tags.hasOwnProperty(key)) {
+			
+			if(tags[key].toString().trim() === serie.xSeriesName.toString()){
+				xTag = key;
+			}
+			
+			
+			if(tags[key].toString().trim() === serie.ySeriesName.toString()){
+				yTag = key;
+			}
+		}
+	}
+	
+	
+	if (tracesInitialDate !== "") {
+		initialDateAsDate = new Date(processDate(tracesInitialDate, timeOffsetText));
+	}
+
+	if(typeof serie.postProcessData !== "undefined"){
+		if(serie.postProcessData === "end of month"){
+			readFlag = true;
+			//console.log(allRows.length);
+			//console.log("allRows",allRows);
+			//console.log("initialDateAsDate",initialDateAsDate);
+			//console.log("tracesInitialDate",tracesInitialDate);
+			//console.log(serie);
+			
+			for (i = 1; i < allRows.length; i++) {
+				row = allRows[i];
+				processedDate = processDate(GoogleMDYToYMD(row[xTag]) + serie.xDateSuffix, timeOffsetText);
+				//console.log("processedDate",processedDate);
+				processedDate = changeDateToEndOfMonth(processedDate);
+				//console.log("processedDate",processedDate);
+				if (
+					tracesInitialDate === "" ||
+					new Date(processedDate) >= initialDateAsDate
+				) {
+					x.push(processedDate);
+					y.push(row[yTag]);
+				}
+			}
+		}
+	}
+	
+	
+	if(!readFlag) {
+		readFlag = true;
+		for (i = 1; i < allRows.length; i++) {
+			row = allRows[i];
+			//console.log("row",row);
+			processedDate = processDate(GoogleMDYToYMD(row[xTag]) + serie.xDateSuffix, timeOffsetText);
+			//console.log("processedDate",processedDate);
+
+			if (
+				tracesInitialDate === "" ||
+				new Date(processedDate) >= initialDateAsDate
+			) {
+				x.push(processedDate);
+				y.push(row[yTag]);
+			}
+		}
+	}	
+
+	trace = deepCopy(serie.traceAttributes);
+	trace.x = x;
+	trace.y = y;
+	return trace;
+}
+
+
+//transform google date format "day-monthString-year" into "yyyy-mm-dd"
+
+function GoogleMDYToYMD(googleDate){
+	
+	var year =0;
+	var monthString = "";
+	var month = "";
+	
+	googleDate=googleDate.trim();
+	var stringParts=googleDate.split("-");
+
+	
+	var newString ="";
+	
+	if((year = Number(stringParts[2])) < 100 ){
+		year += year< 50 ? 2000 : 1900;
+	}
+	
+	newString = year.toString();
+	
+		
+	monthString = stringParts[1];
+	if(monthString === "Jan") month = "01";
+	else if (monthString === "Feb") month = "02";
+	else if (monthString === "Mar") month = "03";
+	else if (monthString === "Apr") month = "04";
+	else if (monthString === "May") month = "05";
+	else if (monthString === "Jun") month = "06";
+	else if (monthString === "Jul") month = "07";
+	else if (monthString === "Aug") month = "08";
+	else if (monthString === "Sep") month = "09";
+	else if (monthString === "Oct") month = "10";
+	else if (monthString === "Nov") month = "11";
+	else if (monthString === "Dec") month = "12";
+	
+	newString +="-"+month+"-";
+
+	newString += Number(stringParts[0]) < 10 ? "0" + stringParts[0] : stringParts[0];
+	
+	return newString;
+	
+}
+
+
+
+
+	    
+	    
+	    
+	    
+	    
 
 // In case trace x and y are provided direct, and not to be read from a file.
 function processDirectData(tracesInitialDate, serie) {
