@@ -34,7 +34,7 @@ This functions adds functionality, and applies to time series plots. It adds:
 >
 > **plotDivID** "(string) "your plotly Div id". Div in which plot will be included should be a div within 'wholeDiv'.
 
-<br>
+
 **series** (array of objects) One object for each trace or trace section. Each object contains information about traces, where data is located and to be read from. Each object is structured as follows:
 >
 > **urlType** (string) Any of "direct", "csv", "yqlJson", "yqlGoogleCSV", "pureJson". In case "direct", provide trace x and y arrays directly under traceAttriblutes.
@@ -67,7 +67,7 @@ This functions adds functionality, and applies to time series plots. It adds:
 >>> dash: "solid"
 >>> }
 
-<br>
+
 **settings:** (object) Provide following structure:
 >
 > **allowFrequencyResampling:** (boolean) Optional. This will add buttons and calculate traces for different frequencies (weekly, monthly, ..., yearly) and aggregations (close, average, change, percentage change, etc.)
@@ -124,10 +124,10 @@ This functions adds functionality, and applies to time series plots. It adds:
 >
 > **endDateForInitialDisplay:** '(date string formatted as 'yyyy-mm-dd') Optional. Date at which initial display of traces will end.
 
-<br>
+
 **layout:** (object) Pass layout information to be dealt with as per Plotly's layout definitions.
 
-<br>
+
 **options:** (object) Pass options information to be dealt with as per Plotly's options definitions.
 
 
