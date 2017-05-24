@@ -29,22 +29,22 @@ It includes the display of xaxis ticks for a specific time range, naming quarter
 ### Arguments (divInfo, series, settings, timeInfo, layout, options)
 
 
-   **divInfo** {
+**divInfo** {
 
-###### **wholeDivID:** ######## "your whole div id"  /*whole div name, where you will have your plot, including other html items, like your titles and footnotes. required to hide div while plot loads.*/
+   **wholeDivID:** "your whole div id"  /*whole div name, where you will have your plot, including other html items, like your titles and footnotes. required to hide div while plot loads.*/
 
-**plotDivID:** "your plotly Div id" /* div in which plot will be included should be a div within 'wholeDiv'*/
+   **plotDivID:** "your plotly Div id" /* div in which plot will be included should be a div within 'wholeDiv'*/
 
-}
-
-
-#### *series*: array of objects, with information about traces. Each array object structured as follows:
-
-{
-##### *urlType:* "csv", /* could be 'direct', 'csv' or 'yqlJson', 'yqlGoogleCSV', 'pureJson'. In case 'direct, provide trace x and y arrays directly under traceAttriblutes*/
+   }
 
 
-##### *url:* "full url",
+**series:** array of objects, with information about traces. Each array object structured as follows:
+
+   {
+   **urlType:** "csv", /* could be 'direct', 'csv' or 'yqlJson', 'yqlGoogleCSV', 'pureJson'. In case 'direct, provide trace x and y arrays directly under traceAttriblutes*/
+
+
+   **url:** "full url",
 
 ##### *xSeriesName:* "Date",  /* xSeriesName and ySeriesName are the labels for each variable as they appear in the CSV or Json files.*/
 
