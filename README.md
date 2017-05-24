@@ -19,12 +19,12 @@ requires
 
 This functions adds functionality, and applies to time series plots. It adds:
 
-Frequency resampling (daily, weekly, monthly, etc.) and various aggregations (close, average, change, %change, etc.). 
-Log/linear yaxis button
-Real / Nominal button
-Compare / Uncompare button, a button to compare series to a base value at the beggining of the range
-Trim the series to be read from an initial date.
-It includes the display of xaxis ticks for a specific time range, naming quarters of half-years as the case may be.
+* Frequency resampling (daily, weekly, monthly, etc.) and various aggregations (close, average, change, %change, etc.). 
+* Log/linear yaxis button
+* Real / Nominal button
+* Compare / Uncompare button, a button to compare series to a base value at the beggining of the range
+* Trim the series to be read from an initial date.
+* It includes the display of xaxis ticks for a specific time range, naming quarters of half-years as the case may be.
 
 ### Arguments (divInfo, series, settings, timeInfo, layout, options)
 
