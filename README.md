@@ -12,9 +12,9 @@ requires
 
  
 
-aoPlotlyAddOn.newTimeseriesPlot
+## aoPlotlyAddOn.newTimeseriesPlot
 
-Description
+### Description
 
 
 This functions adds functionality, and applies to time series plots. It adds:
@@ -26,10 +26,10 @@ Compare / Uncompare button, a button to compare series to a base value at the be
 Trim the series to be read from an initial date.
 It includes the display of xaxis ticks for a specific time range, naming quarters of half-years as the case may be.
 
-Arguments (divInfo, series, settings, timeInfo, layout, options)
+### Arguments (divInfo, series, settings, timeInfo, layout, options)
 
 
-divInfo{
+#### divInfo{
 
 wholeDivID: "your whole div id"  /*whole div name, where you will have your plot, including other html items, like your titles and footnotes. required to hide div while plot loads.*/
 
@@ -38,10 +38,11 @@ plotDivID: "your plotly Div id" /* div in which plot will be included should be 
 }
 
 
-series: array of objects, with information about traces. Each array object structured as follows:
+#### series: array of objects, with information about traces. Each array object structured as follows:
 
 {
-urlType: "csv",  /* could be 'direct', 'csv' or 'yqlJson', 'pureJson'. In case 'direct, provide trace x and y arrays directly under traceAttriblutes*/
+##### urlType: "csv",  
+/* could be 'direct', 'csv' or 'yqlJson', 'pureJson'. In case 'direct, provide trace x and y arrays directly under traceAttriblutes*/
 
 
 url: "full url",
@@ -82,7 +83,7 @@ dash: "solid"
 
 
 
-settings: object with the following structure:
+#### settings: object with the following structure:
 
 
 {
@@ -146,7 +147,7 @@ endOfWeek: 5 // 0 Sunday, 1 Monday, etc.
 }
 
 
-timeInfo:
+#### timeInfo:
 
 {
 
@@ -167,54 +168,58 @@ endDateForInitialDisplay: 'yyyy-mm-dd' (optional)
 
 
 
-layout: pass layout information to be dealt with as per Plotly's layout definitions
+#### layout: pass layout information to be dealt with as per Plotly's layout definitions
 
 
-options:  pass options information to be dealt with as per Plotly's options definitions
+#### options:  pass options information to be dealt with as per Plotly's options definitions
 
 
-aoPlotlyAddOn.getTicktextAndTickvals
+## aoPlotlyAddOn.getTicktextAndTickvals
 
 
 This functions returns and object with the the tickvals and ticktext arrays for a specific time range, division width and margins, font type and size and a ratio for the space between ticks (specifically the ratio between (tick text + space between text) lenght to tick text length.
 
 
-Arguments:
+### Arguments:
 
  
 
-from, to: date strings as 'yyyy-mm-dd'
+#### from: date strings as 'yyyy-mm-dd'
 
-textAndSpaceToTextRatio: ratio between (tick text + space between text) lenght to tick text length
+#### to: date strings as 'yyyy-mm-dd'
 
-targetFrequency: any of 'daily', 'everyOtherDay', 'weekly', 'biweekly', 'monthly', 'quarterly', 'semiannual', 'annual', 'biennial', 'quinquennial', 'decennial', 'quadranscentennial', 'semicentennial', 'centennial', 'bicentennial', 'sestercentennial', 'quincentenary', 'milennial'
+#### textAndSpaceToTextRatio: ratio between (tick text + space between text) lenght to tick text length
+
+#### targetFrequency: any of 'daily', 'everyOtherDay', 'weekly', 'biweekly', 'monthly', 'quarterly', 'semiannual', 'annual', 'biennial', 'quinquennial', 'decennial', 'quadranscentennial', 'semicentennial', 'centennial', 'bicentennial', 'sestercentennial', 'quincentenary', 'milennial'
 
 The returned ticktext and tickvals would be the best minimum fit, upwards from the targetFrequency, e.g., if 'monthly' is passed, it would return whichever fit best from monthly, quarterly, semiannual, annual and onwards
 
-fontFamily: a font family name.
+#### fontFamily: a font family name.
 
-fontSize: 
+#### fontSize: 
 
-divWidth: width in pixels of the current division, can be read as jQuery('name of division').width()
+#### divWidth: width in pixels of the current division, can be read as jQuery('name of division').width()
 
-leftMargin, rightMargin: margins from plot to division. If layout.margin.l/r are defined, read from there, otherwise use 80 (plotly's default)
+#### leftMargin
+
+#### rightMargin: margins from plot to division in pixels. If layout.margin.l/r are defined, read from there, otherwise use 80 (plotly's default)
 
 
 
-aoPlotlyAddOn.transformSeriesByFrequencies
+## aoPlotlyAddOn.transformSeriesByFrequencies
 
 
 This function will populate the data object with an originalData.x, y and objects for different frequencies and methods of aggregation. This data can be used to change the frequency of displayed data.
 
 
-Arguments:
+### Arguments:
 
 
-data: and array of data objects [{x[], y[]}, ....], with x as date strings 'yyyy-mm-dd' and y as values.
+#### data: and array of data objects [{x[], y[]}, ....], with x as date strings 'yyyy-mm-dd' and y as values.
 
-periodKeys: and object with the frequencies to be calculated, set to true or false. { day: true/false, week: true/false, month: true/false, quarter: true/false, semester: true/false, year: true }
+#### periodKeys: and object with the frequencies to be calculated, set to true or false. { day: true/false, week: true/false, month: true/false, quarter: true/false, semester: true/false, year: true }
 
-endOfWeek: day of week to be end of week period. 0 for Sunday, 1 for Monday, ....
+#### endOfWeek: day of week to be end of week period. 0 for Sunday, 1 for Monday, ....
 
  
 
