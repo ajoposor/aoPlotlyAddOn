@@ -29,70 +29,62 @@ It includes the display of xaxis ticks for a specific time range, naming quarter
 ### Arguments (divInfo, series, settings, timeInfo, layout, options)
 
 
-#### divInfo{
+#### *divInfo* {
 
-wholeDivID: "your whole div id"  /*whole div name, where you will have your plot, including other html items, like your titles and footnotes. required to hide div while plot loads.*/
+##### *wholeDivID:* "your whole div id"  /*whole div name, where you will have your plot, including other html items, like your titles and footnotes. required to hide div while plot loads.*/
 
-plotDivID: "your plotly Div id" /* div in which plot will be included should be a div within 'wholeDiv'*/
+##### *plotDivID:* "your plotly Div id" /* div in which plot will be included should be a div within 'wholeDiv'*/
 
-}
-
-
-#### series: array of objects, with information about traces. Each array object structured as follows:
-
-{
-##### urlType: "csv",  
-/* could be 'direct', 'csv' or 'yqlJson', 'pureJson'. In case 'direct, provide trace x and y arrays directly under traceAttriblutes*/
+#### }
 
 
-url: "full url",
-
-xSeriesName: "Date",  /* xSeriesName and ySeriesName are the labels for each variable as they appear in the CSV or Json files.*/
-
-
-ySeriesName: "header name",
-
-
-xDateSuffix: "",   /* optional, could have content like :"T00:00:00-04:00" */
-
-
-toggleRealNominal: true /* true: trace could be converted to real / nominal. false: convertion to real nominal doesn't affect this series*/
-
-deflactor: false, /* optional, set to true for one trace that would be the base for convertion to real values, in this case, set toogleRealNominal to false */
-
-postProcessData: "end of month", /* optional, for series where dates at beginning of month, this property would allow the dates for the trace to be set at the end of month*/
-
-
-traceAttributes: object as per scatter attributes in Plotly, for example:
+#### *series*: array of objects, with information about traces. Each array object structured as follows:
 
 {
-type: "scatter",
-name: "S&P 500",
-mode: "lines",
-opacity: 1,
-fill: "tozeroy",
-fillcolor: "rgba(205, 245,255, 0.20)", //#FAFCFD + 50% transparency
-line: {
-color: "#1A5488",
-width: 3,
-dash: "solid"
-}
+##### *urlType:* "csv", /* could be 'direct', 'csv' or 'yqlJson', 'yqlGoogleCSV', 'pureJson'. In case 'direct, provide trace x and y arrays directly under traceAttriblutes*/
 
 
-}
+##### *url:* "full url",
 
+##### *xSeriesName:* "Date",  /* xSeriesName and ySeriesName are the labels for each variable as they appear in the CSV or Json files.*/
+
+##### *ySeriesName:* "header name",
+
+##### *xDateSuffix:* "",   /* optional, could have content like :"T00:00:00-04:00" */
+
+##### *toggleRealNominal:* true /* true: trace could be converted to real / nominal. false: convertion to real nominal doesn't affect this series*/
+
+##### *deflactor:* false, /* optional, set to true for one trace that would be the base for convertion to real values, in this case, set toogleRealNominal to false */
+
+##### *postProcessData:* "end of month", /* optional, for series where dates at beginning of month, this property would allow the dates for the trace to be set at the end of month*/
+
+
+##### *traceAttributes:* object as per scatter attributes in Plotly, for example:
+
+###### {
+###### type: "scatter",
+###### name: "S&P 500",
+###### mode: "lines",
+###### opacity: 1,
+###### fill: "tozeroy",
+###### fillcolor: "rgba(205, 245,255, 0.20)", //#FAFCFD + 50% transparency
+###### line: {
+####### color: "#1A5488",
+####### width: 3,
+####### dash: "solid"
+####### }
+###### }
 
 
 #### settings: object with the following structure:
 
+#####{
 
-{
-
-series: {
+##### *series:* {
 
 // frequency and aggregation info of base traces.
 
-baseFrequency: "base", /*could be 'daily', 'weekly', 'monthly', 'quarterly', 'annual' or your custom name. */
+###### *baseFrequency:* "base", /*could be 'daily', 'weekly', 'monthly', 'quarterly', 'annual' or your custom name. */
 
 baseAggregation: "close", /* could be 'close', 'average', 'change', 'percChange', 'sqrPercChange', 'cumulative', or your custom name*/
 
