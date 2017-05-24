@@ -33,7 +33,6 @@ This functions adds functionality, and applies to time series plots. It adds:
 > **wholeDivID** (string) "your whole div id".  Whole div name, where you will have your plot, including other html items, like your titles and footnotes. required to hide div while plot loads.
 >
 > **plotDivID** "(string) "your plotly Div id". Div in which plot will be included should be a div within 'wholeDiv'.
-
 <br><br>
 **series** (array of objects) One object for each trace or trace section. Each object contains information about traces, where data is located and to be read from. Each object is structured as follows:
 >
@@ -56,17 +55,27 @@ This functions adds functionality, and applies to time series plots. It adds:
 > **traceAttributes:** (object) Object as per scatter attributes in Plotly, for example:
 >>
 >> type: "scatter",
->> name: "S&P 500",
->>  mode: "lines",
->> opacity: 1,
->> fill: "tozeroy",
->> fillcolor: "rgba(205, 245,255, 0.20)", //#FAFCFD + 50% transparency
->> line: {
->>> color: "#1A5488",
->>> width: 3,
->>> dash: "solid"
->>> }
 
+>> name: "S&P 500",
+
+>>  mode: "lines",
+
+>> opacity: 1,
+
+>> fill: "tozeroy",
+
+>> fillcolor: "rgba(205, 245,255, 0.20)", //#FAFCFD + 50% transparency
+
+>> line: {
+
+>>> color: "#1A5488",
+
+>>> width: 3,
+
+>>> dash: "solid"
+
+>>> }
+<br><br>
 **settings:** (object) Provide following structure:
 >
 > **allowFrequencyResampling:** (boolean) Optional. This will add buttons and calculate traces for different frequencies (weekly, monthly, ..., yearly) and aggregations (close, average, change, percentage change, etc.)
@@ -112,8 +121,7 @@ This functions adds functionality, and applies to time series plots. It adds:
 > **allowLogLinear:** (boolean) If set to true, display button to toogle yaxis to log/linear.
 >
 > **textAndSpaceToTextRatio:** (number) Default 1.8. Sets spacing of text to void space in xaxis ticks.
-
-
+<br><br>
 **timeInfo:** (object) Include the following properties:
 >
 > **yearsToPlot:** (number) Optional. number of years to plot from current date backwards.
@@ -123,9 +131,9 @@ This functions adds functionality, and applies to time series plots. It adds:
 > **InitialDateForInitialDisplay:** (date string formatted as 'yyyy-mm-dd') Optional. Date at which initial display will begin.
 >
 > **endDateForInitialDisplay:** '(date string formatted as 'yyyy-mm-dd') Optional. Date at which initial display of traces will end.
-
+<br><br>
 **layout:** (object) Pass layout information to be dealt with as per Plotly's layout definitions.
-
+<br><br>
 **options:** (object) Pass options information to be dealt with as per Plotly's options definitions.
 
 
@@ -138,7 +146,6 @@ This functions returns and object with the the tickvals and ticktext arrays for 
 ### Arguments:
 
  
-
 **from:** (date strings as 'yyyy-mm-dd')
 
 **to:** (date strings as 'yyyy-mm-dd')
@@ -175,9 +182,3 @@ This function will populate the data object with an originalData.x, y and object
 **periodKeys:** (object) An object with the frequencies to be calculated, set to true or false. { day: true/false, week: true/false, month: true/false, quarter: true/false, semester: true/false, year: true }
 
 **endOfWeek:** (number between 0 and 6) Day of week to be end of week period. 0 for Sunday, 1 for Monday, ....
-
- 
-
- 
-
- 
