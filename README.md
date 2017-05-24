@@ -34,7 +34,7 @@ This functions adds functionality, and applies to time series plots. It adds:
 >>>
 >>> **plotDivID:** "your plotly Div id" /* div in which plot will be included should be a div within 'wholeDiv'*/
 >>>
->> }
+>>> }
 >
 >> **series:** array of objects, with information about traces. Each array object structured as follows:
 >>
@@ -43,41 +43,41 @@ This functions adds functionality, and applies to time series plots. It adds:
 >>>
 >>> **url:** "full url",
 >>>
->>> *xSeriesName:* "Date",  /* xSeriesName and ySeriesName are the labels for each variable as they appear in the CSV or Json files.*/
+>>> **xSeriesName:** "Date",  /* xSeriesName and ySeriesName are the labels for each variable as they appear in the CSV or Json files.*/
 >>>
->>> *ySeriesName:* "header name",
+>>> **ySeriesName:** "header name",
 >>>
->>> *xDateSuffix:* "",   /* optional, could have content like :"T00:00:00-04:00" */
+>>> **xDateSuffix:** "",   /* optional, could have content like :"T00:00:00-04:00" */
 >>>
->>> *toggleRealNominal:* true /* true: trace could be converted to real / nominal. false: convertion to real nominal doesn't affect this series*/
-
-##### *deflactor:* false, /* optional, set to true for one trace that would be the base for convertion to real values, in this case, set toogleRealNominal to false */
-
-##### *postProcessData:* "end of month", /* optional, for series where dates at beginning of month, this property would allow the dates for the trace to be set at the end of month*/
-
-
-##### *traceAttributes:* object as per scatter attributes in Plotly, for example:
-
-###### {
-###### type: "scatter",
-###### name: "S&P 500",
-###### mode: "lines",
-###### opacity: 1,
-###### fill: "tozeroy",
-###### fillcolor: "rgba(205, 245,255, 0.20)", //#FAFCFD + 50% transparency
-###### line: {
-####### color: "#1A5488",
-####### width: 3,
-####### dash: "solid"
-####### }
-###### }
-
-
-#### settings: object with the following structure:
-
-#####{
-
-##### *series:* {
+>>> **toggleRealNominal:** true /* true: trace could be converted to real / nominal. false: convertion to real nominal doesn't affect this series*/
+>>>
+>>> **deflactor:** false, /* optional, set to true for one trace that would be the base for convertion to real values, in this case, set toogleRealNominal to false */
+>>>
+>>> **postProcessData:** "end of month", /* optional, for series where dates at beginning of month, this property would allow the dates for the trace to be set at the end of month*/
+>>>
+>>>
+>>> **traceAttributes:** object as per scatter attributes in Plotly, for example:
+>>>
+>>> {
+>>> type: "scatter",
+>>> name: "S&P 500",
+>>>  mode: "lines",
+>>> opacity: 1,
+>>> fill: "tozeroy",
+>>> fillcolor: "rgba(205, 245,255, 0.20)", //#FAFCFD + 50% transparency
+>>> line: {
+>>> color: "#1A5488",
+>>> width: 3,
+>>> dash: "solid"
+>>> }
+>>> }
+>>
+>>
+>> settings: object with the following structure:
+>>
+>>>{
+>>>
+>>> **series:** {
 
 // frequency and aggregation info of base traces.
 
