@@ -33,7 +33,8 @@ This functions adds functionality, and applies to time series plots. It adds:
 > **wholeDivID** (string) "your whole div id".  Whole div name, where you will have your plot, including other html items, like your titles and footnotes. required to hide div while plot loads.
 >
 > **plotDivID** "(string) "your plotly Div id". Div in which plot will be included should be a div within 'wholeDiv'.
-<br><br>
+
+<br>
 **series** (array of objects) One object for each trace or trace section. Each object contains information about traces, where data is located and to be read from. Each object is structured as follows:
 >
 > **urlType** (string) Any of "direct", "csv", "yqlJson", "yqlGoogleCSV", "pureJson". In case "direct", provide trace x and y arrays directly under traceAttriblutes.
@@ -55,27 +56,18 @@ This functions adds functionality, and applies to time series plots. It adds:
 > **traceAttributes:** (object) Object as per scatter attributes in Plotly, for example:
 >>
 >> type: "scatter",
-
 >> name: "S&P 500",
-
 >>  mode: "lines",
-
 >> opacity: 1,
-
 >> fill: "tozeroy",
-
 >> fillcolor: "rgba(205, 245,255, 0.20)", //#FAFCFD + 50% transparency
-
 >> line: {
-
 >>> color: "#1A5488",
-
 >>> width: 3,
-
 >>> dash: "solid"
-
 >>> }
-<br><br>
+
+<br>
 **settings:** (object) Provide following structure:
 >
 > **allowFrequencyResampling:** (boolean) Optional. This will add buttons and calculate traces for different frequencies (weekly, monthly, ..., yearly) and aggregations (close, average, change, percentage change, etc.)
@@ -131,9 +123,11 @@ This functions adds functionality, and applies to time series plots. It adds:
 > **InitialDateForInitialDisplay:** (date string formatted as 'yyyy-mm-dd') Optional. Date at which initial display will begin.
 >
 > **endDateForInitialDisplay:** '(date string formatted as 'yyyy-mm-dd') Optional. Date at which initial display of traces will end.
-<br><br>
+
+<br>
 **layout:** (object) Pass layout information to be dealt with as per Plotly's layout definitions.
-<br><br>
+
+<br>
 **options:** (object) Pass options information to be dealt with as per Plotly's options definitions.
 
 
