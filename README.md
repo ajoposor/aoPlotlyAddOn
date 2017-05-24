@@ -26,26 +26,25 @@ This functions adds functionality, and applies to time series plots. It adds:
 * **Trim** the series to be read from an initial date.
 * It includes the display of **xaxis ticks** for a specific time range, naming quarters of half-years as the case may be.
 
-### Arguments (divInfo, series, settings, timeInfo, layout, options)
+> ### Arguments (divInfo, series, settings, timeInfo, layout, options)
 
-    **divInfo** {
-    
-    **wholeDivID:** "your whole div id"  /*whole div name, where you will have your plot, including other html items, like your titles and footnotes. required to hide div while plot loads.*/
+>> **divInfo** {
 
-    **plotDivID:** "your plotly Div id" /* div in which plot will be included should be a div within 'wholeDiv'*/
+>>> **wholeDivID:** "your whole div id"  /*whole div name, where you will have your plot, including other html items, like your titles and footnotes. required to hide div while plot loads.*/
 
-    }
+>>> **plotDivID:** "your plotly Div id" /* div in which plot will be included should be a div within 'wholeDiv'*/
 
-
-    **series:** array of objects, with information about traces. Each array object structured as follows:
-
-   {
-   **urlType:** "csv", /* could be 'direct', 'csv' or 'yqlJson', 'yqlGoogleCSV', 'pureJson'. In case 'direct, provide trace x and y arrays directly under traceAttriblutes*/
+>> }
 
 
-   **url:** "full url",
+>> **series:** array of objects, with information about traces. Each array object structured as follows:
 
-##### *xSeriesName:* "Date",  /* xSeriesName and ySeriesName are the labels for each variable as they appear in the CSV or Json files.*/
+>>> {
+>>> **urlType:** "csv", /* could be 'direct', 'csv' or 'yqlJson', 'yqlGoogleCSV', 'pureJson'. In case 'direct, provide trace x and y arrays directly under traceAttriblutes*/
+
+>>> **url:** "full url",
+
+>>> *xSeriesName:* "Date",  /* xSeriesName and ySeriesName are the labels for each variable as they appear in the CSV or Json files.*/
 
 ##### *ySeriesName:* "header name",
 
