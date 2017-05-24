@@ -2440,7 +2440,7 @@ function readData(series, iS, data, param, tracesInitialDate, callback) {
 		iS.value++;
 		readDataAndMakeChart(series, iS, data, param, callback);
 		});
-	else if (series[iS.value].urlType === "pureJson") {
+	} else if (series[iS.value].urlType === "pureJson") {
 		$.getJSON(series[iS.value].url, function(readData) {
 		data.push(processJsonData(readData, tracesInitialDate, series[iS.value]));
 		iS.value++;
