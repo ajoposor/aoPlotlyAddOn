@@ -2248,6 +2248,11 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	var iS = {
 		value: 0
 	};
+	
+	// handles tracesInitialDate default info
+	if (typeof timeInfo.tracesInitialDate === "undefined") {
+		timeInfo.tracesInitialDate = "";
+	}
 
 	var passedParameters = {
 		divInfo: divInfo,
@@ -2403,20 +2408,21 @@ function dateToString(date) {
 
 
 // 2. Read Data - support function, reads data and add it to data object, increases global iS variable
-function readData(series, iS, data, param, tracesInitialDate, callback) {
+function readData(series, iS, data, param, callback) {
 	if (series[iS.value].urlType === "csv") {
 		Plotly.d3.csv(series[iS.value].url, function(readData) {
 			console.log("csv", iS.value);
-			data.push(processCsvData(readData, tracesInitialDate, series[iS.value]));
+			data.push(processCsvData(readData, param.timeInfo.tracesInitialDate, series[iS.value]));
 			iS.value++;
 			readDataAndMakeChart(series, iS, data, param, callback);
 		});
-	} else if (series[iS.value].urlType === "yqlJson") {
+	} 
+	else if (series[iS.value].urlType === "yqlJson") {
 		$.getJSON(series[iS.value].url, function(readData) {
 			data.push(
 				processJsonData(
 					readData.query.results.json,
-					tracesInitialDate,
+					param.timeInfo.tracesInitialDate,
 					series[iS.value]
 				)
 			);
@@ -2433,21 +2439,23 @@ function readData(series, iS, data, param, tracesInitialDate, callback) {
 				data.push(
 					processYqlGoogleCsvData(
 						readData.query.results.row,
-						tracesInitialDate,
+						param.timeInfo.tracesInitialDate,
 						series[iS.value]
 					)
 			);
 		iS.value++;
 		readDataAndMakeChart(series, iS, data, param, callback);
 		});
-  } else if (series[iS.value].urlType === "pureJson") {
+  	} 
+	else if (series[iS.value].urlType === "pureJson") {
 		$.getJSON(series[iS.value].url, function(readData) {
-		data.push(processJsonData(readData, tracesInitialDate, series[iS.value]));
+		data.push(processJsonData(readData, param.timeInfo.tracesInitialDate, series[iS.value]));
 		iS.value++;
 		readDataAndMakeChart(series, iS, data, param, callback);
 		});
-	} else if (series[iS.value].urlType === "direct") {
-		data.push(processDirectData(tracesInitialDate, series[iS.value]));
+	} 
+	else if (series[iS.value].urlType === "direct") {
+		data.push(processDirectData(param.timeInfo.tracesInitialDate, series[iS.value]));
 		iS.value++;
 		readDataAndMakeChart(series, iS, data, param, callback);
 	}
@@ -4387,29 +4395,51 @@ function transformDataToReal(data, deflactorDictionary, baseRealNominalDate, ser
 
 // FUNCTION TO READ DATA, ADJUST RANGES, SET MENUS, MAKE CHARTS AND HANDLE EVENTS
 function readDataAndMakeChart(series, iS, data, param, callback) {
+	
+	
+	// first all files are to be read, in a recursive way, with iS < series.length
+
+	if (iS.value < series.length) {
+		readData(series, iS, data, param, callback);
+	} 
+	
+	else {
+		// once all files all read, i.e. iS === series.length, this section is executed
+		makeChart(series, data, param);
+		callback("all read and plotted");
+	
+	} // end of else after all read section
+} //  end of readDataAndMakeChart    
+	    
+	    
+
+function makeChart(series, data, param){
+	
+	console.log("issue #1");
+
 	// variable definitions
 	var x0 = "2000-01-01",
-		x1 = "2001-01-01",
-		yMinMax = [],
-		yMinValue = 0,
-		yMaxValue = 1,
-		settings = {},
-		options = {},
-		layout = {},
-		timeInfo = {},
-		divInfo = {},
-		deflactorDictionary = {},
-		flag = false,
-		index = 0,
-		transformToBaseIndex = false,
-		transformToReal = false,
-		deflactorValuesCreated = false,
-		originalLayout ={
-			yaxis:{
-				type:"",
-				hoverformat:""
-			}
-		};
+	x1 = "2001-01-01",
+	yMinMax = [],
+	yMinValue = 0,
+	yMaxValue = 1,
+	settings = {},
+	options = {},
+	layout = {},
+	timeInfo = {},
+	divInfo = {},
+	deflactorDictionary = {},
+	flag = false,
+	index = 0,
+	transformToBaseIndex = false,
+	transformToReal = false,
+	deflactorValuesCreated = false,
+	originalLayout ={
+		yaxis:{
+			type:"",
+			hoverformat:""
+		}
+	};
 
 	// initial variables
 	var isUnderRelayout = false;
@@ -4417,462 +4447,1566 @@ function readDataAndMakeChart(series, iS, data, param, callback) {
 	var uncomparedSaved = false;
 	var nominalSaved = false;
 
-	// handles tracesInitialDate default info
-	if (typeof param.timeInfo.tracesInitialDate === "undefined") {
-		param.timeInfo.tracesInitialDate = "";
+
+	settings = param.settings;
+	options = param.options;
+	layout = param.layout;
+	timeInfo = param.timeInfo;
+	divInfo = param.divInfo;
+
+	//console.log("settings", settings);
+
+	originalLayout.yaxis.hoverformat = layout.yaxis.hoverformat;
+	originalLayout.yaxis.type = layout.yaxis.type;
+	if(typeof layout.yaxis.tickformat !== "undefined"){
+		originalLayout.yaxis.tickformat = layout.yaxis.tickformat;
 	}
 
-	// sets tracesInitialDate variable
-	var tracesInitialDate = param.timeInfo.tracesInitialDate;
-	
-	// first all files are to be read, in a recursive way, with iS < series.length
-	//console.log(series.length);
-	//console.log(series);
-	//console.log(iS);
-	if (iS.value < series.length) {
-		readData(series, iS, data, param, tracesInitialDate, callback);
-	} 
-	
-	else {
-		// once all files all read, i.e. iS === series.length, this section is executed
 
-		settings = param.settings;
-		options = param.options;
-		layout = param.layout;
-		timeInfo = param.timeInfo;
-		divInfo = param.divInfo;
-		
-		//console.log("settings", settings);
-		
-		originalLayout.yaxis.hoverformat = layout.yaxis.hoverformat;
-		originalLayout.yaxis.type = layout.yaxis.type;
-		if(typeof layout.yaxis.tickformat !== "undefined"){
-			originalLayout.yaxis.tickformat = layout.yaxis.tickformat;
-		}
+	// POST PROCESS DATA
+	// Available options: postProcessData: "end of month"
+	//postProcessData(data, series); 
 
-		
-		// POST PROCESS DATA
-		// Available options: postProcessData: "end of month"
-		//postProcessData(data, series); 
-		
-		//console.log("log processed data");
-		
-		//console.log("data processed", data);
-		
-		
-		// SAVE ORIGINAL DATA
-		saveDataXYIntoPropertyXY(data, "xOriginal", "yOriginal");
-		//console.log("original data saved");
-		
-		//console.log("tracesInitialDate", tracesInitialDate);
+	//console.log("log processed data");
 
-		// HTML VARIABLES AND SETTINGS
-		var defaultDivHeight = "460px";
-		if(settings.allowCompare || settings.allowLogLinear || settings.allosFrequencyResampling){
-			defaultDivHeight = "480px";
-		}
-		
-		var defaultDivWidth = "100%";
+	//console.log("data processed", data);
 
-		var myPlot = document.getElementById(divInfo.plotlyDivID);
-		
 
-		var divHeightInStyle = divInfo.plotDivElement.style.height;
-		var divWidthInStyle = divInfo.plotDivElement.style.width;
-		//console.log("divHeightInStyle", divHeightInStyle);
-		
-		divInfo.plotDivElement.style.width =  
-			divWidthInStyle === "" ? defaultDivWidth : divWidthInStyle;
-		divInfo.plotDivElement.style.height = 
-			divHeightInStyle === "" ? defaultDivHeight : divHeightInStyle;
-		
-		myPlot.style.width  = divInfo.plotDivElement.style.width;
-		
-		if(settings.allowCompare || settings.allowLogLinear || settings.allowDownload){
-			divInfo.footerDivElement.style.width = myPlot.style.width;
-			divInfo.footerDivElement.style.height = "23px";
-			//console.log("plotDivElement height",divInfo.plotDivElement.style.height);
-			
-			myPlot.style.height =  ""+
-				(numberExPx(divInfo.plotDivElement.style.height) - 
-				numberExPx(divInfo.footerDivElement.style.height))+"px";
-			
-			//console.log("myPlot height",myPlot.style.height);
-		}
-		else{
-			myPlot.style.height = 
-				divInfo.plotDivElement.style.height;
-		}
-		
-		
-		//console.log("myPlot", myPlot);
+	// SAVE ORIGINAL DATA
+	saveDataXYIntoPropertyXY(data, "xOriginal", "yOriginal");
+	//console.log("original data saved");
 
-		var currentFrequency = settings.series.baseFrequency;
-		var currentAggregation = settings.series.baseAggregation;
-		
-		
+	//console.log("tracesInitialDate", tracesInitialDate);
 
-		// TEST WEATHER AN INITAL FREQUENCY TRANSFORMATION IS REQUIRED AND MAKE IT DOWN HERE
-		if (typeof settings.changeFrequencyAggregationTo !== "undefined"){
-			if (typeof settings.changeFrequencyAggregationTo.frequency !== "undefined") {
-				if (settings.changeFrequencyAggregationTo.frequency !== currentFrequency) {
-					// Original data already saved
+	// HTML VARIABLES AND SETTINGS
+	var defaultDivHeight = "460px";
+	if(settings.allowCompare || settings.allowLogLinear || settings.allosFrequencyResampling){
+		defaultDivHeight = "480px";
+	}
 
-					//console.log('settings.changeFrequencyAggregationTo.frequency',
-					//						settings.changeFrequencyAggregationTo.frequency);
-					//console.log('currentFrequency',currentFrequency);
-					//PENDING
-					//PENDING
-					//PENDING
-					//currentFrequency = settings.changeFrequencyAggregationTo.frequency;
-					//currentAggregation = settings.changeFrequencyAggregationTo.aggregation;
+	var defaultDivWidth = "100%";
 
-					// PENDING - RESET FREQUENCY AGGREGATION BUTTONS
-				}
+	var myPlot = document.getElementById(divInfo.plotlyDivID);
+
+
+	var divHeightInStyle = divInfo.plotDivElement.style.height;
+	var divWidthInStyle = divInfo.plotDivElement.style.width;
+	//console.log("divHeightInStyle", divHeightInStyle);
+
+	divInfo.plotDivElement.style.width =  
+		divWidthInStyle === "" ? defaultDivWidth : divWidthInStyle;
+	divInfo.plotDivElement.style.height = 
+		divHeightInStyle === "" ? defaultDivHeight : divHeightInStyle;
+
+	myPlot.style.width  = divInfo.plotDivElement.style.width;
+
+	if(settings.allowCompare || settings.allowLogLinear || settings.allowDownload){
+		divInfo.footerDivElement.style.width = myPlot.style.width;
+		divInfo.footerDivElement.style.height = "23px";
+		//console.log("plotDivElement height",divInfo.plotDivElement.style.height);
+
+		myPlot.style.height =  ""+
+			(numberExPx(divInfo.plotDivElement.style.height) - 
+			numberExPx(divInfo.footerDivElement.style.height))+"px";
+
+		//console.log("myPlot height",myPlot.style.height);
+	}
+	else{
+		myPlot.style.height = 
+			divInfo.plotDivElement.style.height;
+	}
+
+
+	//console.log("myPlot", myPlot);
+
+	var currentFrequency = settings.series.baseFrequency;
+	var currentAggregation = settings.series.baseAggregation;
+
+
+
+	// TEST WEATHER AN INITAL FREQUENCY TRANSFORMATION IS REQUIRED AND MAKE IT DOWN HERE
+	if (typeof settings.changeFrequencyAggregationTo !== "undefined"){
+		if (typeof settings.changeFrequencyAggregationTo.frequency !== "undefined") {
+			if (settings.changeFrequencyAggregationTo.frequency !== currentFrequency) {
+				// Original data already saved
+
+				//console.log('settings.changeFrequencyAggregationTo.frequency',
+				//						settings.changeFrequencyAggregationTo.frequency);
+				//console.log('currentFrequency',currentFrequency);
+				//PENDING
+				//PENDING
+				//PENDING
+				//currentFrequency = settings.changeFrequencyAggregationTo.frequency;
+				//currentAggregation = settings.changeFrequencyAggregationTo.aggregation;
+
+				// PENDING - RESET FREQUENCY AGGREGATION BUTTONS
 			}
 		}
-		
-		
-		// X RANGE DETERMINATIONS
-		var minDateAsString = "1000-01-01", maxDateAsString = "1000-01-01";
-		//var xDateValue = new Date();
+	}
 
-		// this section finds the x range for the traces (which is already trimmed by tracesInitialDate)
-		// range required in order to set the recession shapes.
-		var minMaxDatesAsString = getDataXminXmaxAsString(data);
-		//console.log(minMaxDatesAsString);
-		minDateAsString = makeDateComplete(minMaxDatesAsString[0]);
-		maxDateAsString = makeDateComplete(minMaxDatesAsString[1]);
 
-		//console.log("minMaxDates", minMaxDatesAsString);
+	// X RANGE DETERMINATIONS
+	var minDateAsString = "1000-01-01", maxDateAsString = "1000-01-01";
+	//var xDateValue = new Date();
 
-		// load recession shapes for the traces' x range
-		if (settings.displayRecessions) {
-			layout.shapes = setRecessions(
-				param.usRecessions,
-				minDateAsString,
-				maxDateAsString
-			);
-		}
-		//console.log("recessions loaded");
+	// this section finds the x range for the traces (which is already trimmed by tracesInitialDate)
+	// range required in order to set the recession shapes.
+	var minMaxDatesAsString = getDataXminXmaxAsString(data);
+	//console.log(minMaxDatesAsString);
+	minDateAsString = makeDateComplete(minMaxDatesAsString[0]);
+	maxDateAsString = makeDateComplete(minMaxDatesAsString[1]);
 
-		// X AXIS RANGE SETTINGS
-		var xaxisRangeAsString = setDatesRangeAsString(
+	//console.log("minMaxDates", minMaxDatesAsString);
+
+	// load recession shapes for the traces' x range
+	if (settings.displayRecessions) {
+		layout.shapes = setRecessions(
+			param.usRecessions,
 			minDateAsString,
-			maxDateAsString,
-			timeInfo
+			maxDateAsString
 		);
-		//console.log("xaxis range settings done");
+	}
+	//console.log("recessions loaded");
 
-		//console.log("xaxisRange", xaxisRangeAsString);
+	// X AXIS RANGE SETTINGS
+	var xaxisRangeAsString = setDatesRangeAsString(
+		minDateAsString,
+		maxDateAsString,
+		timeInfo
+	);
+	//console.log("xaxis range settings done");
 
-		var initialDate = xaxisRangeAsString[0];
-		var endDate = xaxisRangeAsString[1];
+	//console.log("xaxisRange", xaxisRangeAsString);
 
-		layout.xaxis.range = [initialDate, endDate];
+	var initialDate = xaxisRangeAsString[0];
+	var endDate = xaxisRangeAsString[1];
 
-		// read division width
-		var currentWidth = jQuery(myPlot).width();
-		var divWidth = currentWidth;
+	layout.xaxis.range = [initialDate, endDate];
 
-		// set default left/right margins if not set
-		setLeftRightMarginDefault(layout, 15, 35);
+	// read division width
+	var currentWidth = jQuery(myPlot).width();
+	var divWidth = currentWidth;
 
-		// get ticktext and tickvals based on width and parameters
-		var ticktextAndTickvals = aoPlotlyAddOn.getTicktextAndTickvals(
-			initialDate,
-			endDate,
-			settings.textAndSpaceToTextRatio,
-			currentFrequency,
-			layout.xaxis.tickfont.family,
-			layout.xaxis.tickfont.size,
+	// set default left/right margins if not set
+	setLeftRightMarginDefault(layout, 15, 35);
+
+	// get ticktext and tickvals based on width and parameters
+	var ticktextAndTickvals = aoPlotlyAddOn.getTicktextAndTickvals(
+		initialDate,
+		endDate,
+		settings.textAndSpaceToTextRatio,
+		currentFrequency,
+		layout.xaxis.tickfont.family,
+		layout.xaxis.tickfont.size,
+		divWidth,
+		layout.margin.l,
+		layout.margin.r
+	);
+
+	//console.log("tick vals and text done");
+
+	// set layout ticktext and tickvals
+	layout.xaxis.ticktext = ticktextAndTickvals.ticktext;
+	layout.xaxis.tickvals = ticktextAndTickvals.tickvals;
+
+	var baseIndexDate = initialDate; //If traces are to be converted to index=1 at at certain date
+
+
+
+	// variable will contain all updatemenus to be used,
+	var updateMenus = []; // variable to put all updateMenus.
+
+
+	// loads updateMenuButtons, frequencies and aggregation methods
+	if (settings.allowFrequencyResampling) {
+
+		addToUpdateMenus(param.frequencyUpdateMenu, updateMenus, layout);
+		if (!frequenciesDataCreated) {
+			aoPlotlyAddOn.transformSeriesByFrequencies(
+				data,
+				settings.periodKeys,
+				settings.endOfWeek
+			);
+			//console.log("transformed by frequencies");
+			frequenciesDataCreated = true;
+			processFrequenciesDates(data, settings.periodKeys);	
+			//console.log("dates processed");
+			//console.log("data", data.day);
+		}
+	}
+
+
+	// loads log, linear updateMenuButtons,
+	if (settings.allowLogLinear) {
+
+
+		// set functionality to log/linear button
+
+		divInfo.logLinearButtonElement.addEventListener('click', function() {
+
+			Plotly.relayout(divInfo.plotlyDivElement, 
+											{
+											changeYaxisTypeToLog: layout.yaxis.type==="log" ? false: true
+											});
+
+		}, false);
+
+
+	}
+
+
+	// DEAL WITH REAL NOMINAL
+	// add functionality to real nominal button
+	if (settings.allowRealNominal) {
+
+		divInfo.realNominalButtonElement.addEventListener('click', function() {
+			//console.log("transform To Real",transformToReal);
+			Plotly.relayout(
+				divInfo.plotlyDivElement,
+				{
+					transformToReal: transformToReal ? false : true
+				}
+			);
+
+		}, false);
+
+	}		
+
+
+	// map index to x's
+	var iDeflactor = getIDeflactor(series);
+	//console.log("iDeflactor",iDeflactor);
+
+	deflactorValuesCreated = createIndexMap(data, series, deflactorDictionary, settings.periodKeys, iDeflactor);
+
+	//console.log("deflactor map created");
+	//console.log("deflactorDictionary",deflactorDictionary);
+
+	if(typeof settings.initialRealNominal !== "undefined"){
+
+		transformToReal = settings.initialRealNominal==="real" ? true : false;
+
+	}
+	else{
+		transformToReal = false;
+	}
+
+	var baseRealNominalDate ="";
+	var newBaseRealNominalDate ="";
+	// transform yvalues to real for those to which applies
+	if (transformToReal) {
+
+		//console.log("PENDING - InitialprepareTransformToReal");
+
+		// determine base date
+		/* could be "end of range", "end of domain", "beggining of range", beggining of domain", or a date "yyyy-mm-dd hh:mm:ss.sss-04:00"*/
+		baseRealNominalDate = setBaseRealNominalDateAsString(settings.baseRealDate, 
+																								 layout.xaxis.range[0],
+																								 layout.xaxis.range[1],
+																								 minDateAsString,
+																								 maxDateAsString
+																								);
+
+		//console.log("baseRealNominalDate",baseRealNominalDate);
+
+		setDeflactorDictionaryAtDate(baseRealNominalDate, deflactorDictionary, data[iDeflactor], 0);
+
+
+		// recalculate data to real and save nominal data
+		nominalSaved = prepareTransformToReal(
+			nominalSaved,
+			data,
+			deflactorDictionary,
+			baseRealNominalDate,
+			series
+		);
+
+
+	}
+
+	//console.log("data as real",data);
+
+
+
+
+	//TRANSFORM TO BASE INDEX
+	//set true or false to scale traces to 1 on the initially displayed x0
+	transformToBaseIndex = settings.transformToBaseIndex;
+
+
+	// transform yvalues to index at specified date
+	if (transformToBaseIndex) {
+		// original data already saved
+
+		// recalculate data to base index and save uncompared data
+		uncomparedSaved = prepareTransformToBaseIndex(
+			uncomparedSaved,
+			data,
+			baseIndexDate,
+			settings.allowCompare,
+			layout,
+			settings.series.baseAggregation
+		);
+
+		//console.log("compared");
+	}
+
+	// add functionality to  compare button
+	if (settings.allowCompare) {
+
+		divInfo.compareButtonElement.addEventListener('click', function() {
+			//console.log("transformToBaseIndex",transformToBaseIndex);
+			Plotly.relayout(
+				divInfo.plotlyDivElement,
+				{
+					compare: transformToBaseIndex ? false : true
+				}
+			);
+
+		}, false);
+		//addToUpdateMenus(param.compareUpdateMenu, updateMenus, layout);
+	}
+
+
+
+
+	// set y axis range
+	setYAxisRange(layout, data, settings.numberOfIntervalsInYAxis, settings.possibleYTickMultiples, settings.rangeProportion);
+	//console.log("y axis range set");
+
+	//console.log("baseIndexDate", baseIndexDate);
+	//console.log("initialDate", initialDate);
+
+	// set initial background to log, linear buttons
+
+	// to adjust frequency updatemenus horizontal settings on div width
+	if (settings.allowFrequencyResampling) {
+		var newX = xOfFirstFrequencyMenuItem(
 			divWidth,
-			layout.margin.l,
-			layout.margin.r
+			layout,
+			settings.widthOfRightItemsFrequencyButtons
 		);
-		
-		//console.log("tick vals and text done");
-
-		// set layout ticktext and tickvals
-		layout.xaxis.ticktext = ticktextAndTickvals.ticktext;
-		layout.xaxis.tickvals = ticktextAndTickvals.tickvals;
-
-		var baseIndexDate = initialDate; //If traces are to be converted to index=1 at at certain date
 
 
-
-		// variable will contain all updatemenus to be used,
-		var updateMenus = []; // variable to put all updateMenus.
-
-		
-		// loads updateMenuButtons, frequencies and aggregation methods
-		if (settings.allowFrequencyResampling) {
-			
-			addToUpdateMenus(param.frequencyUpdateMenu, updateMenus, layout);
-			if (!frequenciesDataCreated) {
-				aoPlotlyAddOn.transformSeriesByFrequencies(
-					data,
-					settings.periodKeys,
-					settings.endOfWeek
-				);
-				//console.log("transformed by frequencies");
-				frequenciesDataCreated = true;
-				processFrequenciesDates(data, settings.periodKeys);	
-				//console.log("dates processed");
-				//console.log("data", data.day);
-			}
-		}
-		
-		
-		// loads log, linear updateMenuButtons,
-		if (settings.allowLogLinear) {
-
-
-			// set functionality to log/linear button
-
-			divInfo.logLinearButtonElement.addEventListener('click', function() {
-
-				Plotly.relayout(divInfo.plotlyDivElement, 
-												{
-												changeYaxisTypeToLog: layout.yaxis.type==="log" ? false: true
-												});
-
-			}, false);
-
-
-		}
-
-
-		// DEAL WITH REAL NOMINAL
-		// add functionality to real nominal button
-		if (settings.allowRealNominal) {
-			
-			divInfo.realNominalButtonElement.addEventListener('click', function() {
-				//console.log("transform To Real",transformToReal);
-				Plotly.relayout(
-					divInfo.plotlyDivElement,
-					{
-						transformToReal: transformToReal ? false : true
-					}
-				);
-
-			}, false);
-
-		}		
-		
-		
-		// map index to x's
-		var iDeflactor = getIDeflactor(series);
-		//console.log("iDeflactor",iDeflactor);
-		
-		deflactorValuesCreated = createIndexMap(data, series, deflactorDictionary, settings.periodKeys, iDeflactor);
-		
-		//console.log("deflactor map created");
-		//console.log("deflactorDictionary",deflactorDictionary);
-		
-		if(typeof settings.initialRealNominal !== "undefined"){
-			
-			transformToReal = settings.initialRealNominal==="real" ? true : false;
-			
+		if(layout.updatemenus[findIndexOfMenu(layout.updatemenus,"aggregation")].visible === true){
+			setNewXToFrequencyButton(newX, layout.updatemenus, "frequencies");
+			setNewXToFrequencyButton(xOfRightItems(divWidth, layout), layout.updatemenus,"aggregation");
 		}
 		else{
-			transformToReal = false;
+			setNewXToFrequencyButton(xOfRightItems(divWidth, layout), layout.updatemenus, "frequencies");
 		}
-			
-		var baseRealNominalDate ="";
-		var newBaseRealNominalDate ="";
-		// transform yvalues to real for those to which applies
-		if (transformToReal) {
 
-			//console.log("PENDING - InitialprepareTransformToReal");
-			
-			// determine base date
-			/* could be "end of range", "end of domain", "beggining of range", beggining of domain", or a date "yyyy-mm-dd hh:mm:ss.sss-04:00"*/
-			baseRealNominalDate = setBaseRealNominalDateAsString(settings.baseRealDate, 
-																									 layout.xaxis.range[0],
-																									 layout.xaxis.range[1],
-																									 minDateAsString,
-																									 maxDateAsString
-																									);
-			
-			//console.log("baseRealNominalDate",baseRealNominalDate);
-			
-			setDeflactorDictionaryAtDate(baseRealNominalDate, deflactorDictionary, data[iDeflactor], 0);
-			
-			
-			// recalculate data to real and save nominal data
-			nominalSaved = prepareTransformToReal(
-				nominalSaved,
-				data,
-				deflactorDictionary,
-				baseRealNominalDate,
-				series
-			);
-			
-			
-		}
-		
-		//console.log("data as real",data);
-		
-		
+	}
+
+	// load selector options to display 1m, 3m, 6m, 1y, YTD, etc
+	if (settings.allowSelectorOptions) {
+		layout.xaxis.rangeselector = param.selectorOptions;
+		setNewXToRangeSelector(divWidth, layout);
+	}
 
 
-		//TRANSFORM TO BASE INDEX
-		//set true or false to scale traces to 1 on the initially displayed x0
-		transformToBaseIndex = settings.transformToBaseIndex;
+	//console.log("myPlot", myPlot);
+	//console.log("layout", layout);
+	//console.log(param.displayOptions);
+
+	// make initial plot
+	Plotly.newPlot(myPlot, data, layout, options).then(function() {
+		wholeDivShow(param.divInfo.wholeDivElement);
+		loaderHide(param.divInfo.loaderElement);
+	});
 
 
-		// transform yvalues to index at specified date
-		if (transformToBaseIndex) {
-			// original data already saved
 
-			// recalculate data to base index and save uncompared data
-			uncomparedSaved = prepareTransformToBaseIndex(
-				uncomparedSaved,
-				data,
-				baseIndexDate,
-				settings.allowCompare,
-				layout,
-				settings.series.baseAggregation
-			);
-			
-			//console.log("compared");
-		}
-		
-		// add functionality to  compare button
-		if (settings.allowCompare) {
-				
-			divInfo.compareButtonElement.addEventListener('click', function() {
-				//console.log("transformToBaseIndex",transformToBaseIndex);
-				Plotly.relayout(
-					divInfo.plotlyDivElement,
-					{
-						compare: transformToBaseIndex ? false : true
+
+			//instruction resizes plot
+	window.addEventListener("resize", function() {
+		Plotly.Plots.resize(document.getElementById(divInfo.plotlyDivID));
+	});
+
+
+
+
+
+	//console.log("start relayout handler");
+
+
+	// UPDATE PLOT UNDER RELAYOUT EVENTS
+
+
+	var relayoutUpdateArgs = [];
+
+
+	myPlot.on("plotly_relayout", function(relayoutData) {
+		//myPlot.addEventListener('plotly_relayout', function(relayoutData) {
+		//console.log("relayout en myPlot.on", isUnderRelayout);
+		//console.log("relayoutData",relayoutData);
+		//console.log("layout",layout);
+
+
+		// CASE 1. case relayout is autosize, in which case, the updatemenu buttons for frequencies and the x axis labels have to be redefined
+		if (relayoutData.autosize === true) {
+			// adjust frequency updatemenu buttons
+			divWidth = jQuery(myPlot).width();
+
+			if (divWidth != currentWidth) {
+				// voids relayoutUpdateArgs;
+				relayoutUpdateArgs = {};
+
+				if (settings.allowFrequencyResampling) {
+					newX = xOfFirstFrequencyMenuItem(
+						divWidth,
+						layout,
+						settings.widthOfRightItemsFrequencyButtons
+					);
+					index = findIndexOfMenu(layout.updatemenus,"frequencies" );
+					relayoutUpdateArgs["updatemenus["+index+"].x"] = newX;
+
+
+					if(layout.updatemenus[findIndexOfMenu(layout.updatemenus,"aggregation")].visible === true){
+						index = findIndexOfMenu(layout.updatemenus,"frequencies" );
+						relayoutUpdateArgs["updatemenus["+index+"].x"] = newX;
+
+						index = findIndexOfMenu(layout.updatemenus,"aggregation" );
+						relayoutUpdateArgs["updatemenus["+index+"].x"] = xOfRightItems(divWidth, layout);
+
 					}
+					else{
+						index = findIndexOfMenu(layout.updatemenus,"frequencies" );
+						relayoutUpdateArgs["updatemenus["+index+"].x"] = xOfRightItems(divWidth, layout);	
+
+					}
+
+				}
+
+				if(settings.allowSelectorOptions){
+					newX =xOfRightItems(divWidth, layout);
+					relayoutUpdateArgs["xaxis.rangeselector.x"] = newX;
+				}
+
+				//console.log('relayoutUpdateArgs after new index', relayoutUpdateArgs);
+
+				// get ticktext and tickvals based on width and parameters
+				ticktextAndTickvals = aoPlotlyAddOn.getTicktextAndTickvals(
+					initialDate,
+					endDate,
+					settings.textAndSpaceToTextRatio,
+					currentFrequency,
+					layout.xaxis.tickfont.family,
+					layout.xaxis.tickfont.size,
+					divWidth,
+					layout.margin.l,
+					layout.margin.r
 				);
 
-			}, false);
-			//addToUpdateMenus(param.compareUpdateMenu, updateMenus, layout);
-		}
-		
-		
-		
-		
-		// set y axis range
-		setYAxisRange(layout, data, settings.numberOfIntervalsInYAxis, settings.possibleYTickMultiples, settings.rangeProportion);
-		//console.log("y axis range set");
-		
-		//console.log("baseIndexDate", baseIndexDate);
-		//console.log("initialDate", initialDate);
+				// set layout ticktext and tickvals
+				relayoutUpdateArgs["xaxis.tickvals"] = ticktextAndTickvals.tickvals;
+				relayoutUpdateArgs["xaxis.ticktext"] = ticktextAndTickvals.ticktext;
 
-		// set initial background to log, linear buttons
+				//console.log('relayoutUpdateArgs in case 1, autosize', relayoutUpdateArgs);
 
-		// to adjust frequency updatemenus horizontal settings on div width
-		if (settings.allowFrequencyResampling) {
-			var newX = xOfFirstFrequencyMenuItem(
-				divWidth,
-				layout,
-				settings.widthOfRightItemsFrequencyButtons
-			);
-			
-			
-			if(layout.updatemenus[findIndexOfMenu(layout.updatemenus,"aggregation")].visible === true){
-				setNewXToFrequencyButton(newX, layout.updatemenus, "frequencies");
-				setNewXToFrequencyButton(xOfRightItems(divWidth, layout), layout.updatemenus,"aggregation");
+				Plotly.relayout(myPlot, relayoutUpdateArgs);
+				//.then(() => { isUnderRelayout = false })
 			}
-			else{
-				setNewXToFrequencyButton(xOfRightItems(divWidth, layout), layout.updatemenus, "frequencies");
-			}
-
-		}
-
-		// load selector options to display 1m, 3m, 6m, 1y, YTD, etc
-		if (settings.allowSelectorOptions) {
-			layout.xaxis.rangeselector = param.selectorOptions;
-			setNewXToRangeSelector(divWidth, layout);
-		}
-		
-		
-		//console.log("myPlot", myPlot);
-		//console.log("layout", layout);
-		//console.log(param.displayOptions);
-
-		// make initial plot
-		Plotly.newPlot(myPlot, data, layout, options).then(function() {
-			wholeDivShow(param.divInfo.wholeDivElement);
-			loaderHide(param.divInfo.loaderElement);
-		});
-		
-		
-		
-		
-				//instruction resizes plot
-		window.addEventListener("resize", function() {
-			Plotly.Plots.resize(document.getElementById(divInfo.plotlyDivID));
-		});
-		
-		
-		
-		
-		
-		//console.log("start relayout handler");
-		
-		
-		// UPDATE PLOT UNDER RELAYOUT EVENTS
-		
-
-		var relayoutUpdateArgs = [];
+		} 
 
 
-		myPlot.on("plotly_relayout", function(relayoutData) {
-			//myPlot.addEventListener('plotly_relayout', function(relayoutData) {
-			//console.log("relayout en myPlot.on", isUnderRelayout);
-			//console.log("relayoutData",relayoutData);
-			//console.log("layout",layout);
-			
 
-			// CASE 1. case relayout is autosize, in which case, the updatemenu buttons for frequencies and the x axis labels have to be redefined
-			if (relayoutData.autosize === true) {
-				// adjust frequency updatemenu buttons
-				divWidth = jQuery(myPlot).width();
-				
-				if (divWidth != currentWidth) {
-					// voids relayoutUpdateArgs;
-					relayoutUpdateArgs = {};
 
-					if (settings.allowFrequencyResampling) {
+		// CASE 2. EN ESTE ELSE SE INCLUYE EL CAMBIO DE FREQUENCY Y AJUSTAR EL DISPLAY DE TAGS DEL EJE X - FALTARÏA REVISAR Initial date end date	
+
+		else if (typeof relayoutData.myFrequency !== "undefined") {
+
+			flag = false;
+			//console.log("current Frequency",currentFrequency);
+			//console.log("base Frequency", settings.series.baseFrequency);
+			//console.log("current Aggregation", currentAggregation);
+			//console.log("base Aggregation", settings.series.baseAggregation);
+			//console.log("baseFrequencyType", settings.series.baseFrequencyType);
+			//console.log("baseAggregationType",settings.series.baseAggregationType);
+			//console.log("myFrequency", relayoutData.myFrequency);	
+
+			if (relayoutData.myFrequency !== currentFrequency) {
+
+				//console.log("change in frequency started");
+
+				// caso 1. cargar data, no cambiar aggregation. 
+				if(flag === false &&
+					(currentFrequency === settings.series.baseFrequency &&
+					settings.series.baseFrequencyType === "normal" &&
+					relayoutData.myFrequency !== settings.series.baseFrequency &&
+					currentAggregation === settings.series.baseAggregation &&
+					settings.series.baseAggregationType === "normal") ||
+
+
+					(currentFrequency !== settings.series.baseFrequency &&
+					relayoutData.myFrequency !== settings.series.baseFrequency) 
+
+					)
+
+						{
+
+					//	load data	
+					//console.log("case 1 to load from calculated freqs");
+
+					flag = true;
+
+					//console.log("frequenciesDataCreated",frequenciesDataCreated);
+
+					loadFrequencyAndAggregationIntoData(
+						data,
+						settings.period[relayoutData.myFrequency],
+						currentAggregation
+					);
+
+				}
+
+				// caso 2. set aggregation to close, load normal aggregation menu, make changes
+				if(flag === false &&
+					currentFrequency === settings.series.baseFrequency &&
+					settings.series.baseFrequencyType === "normal" &&
+					relayoutData.myFrequency !== settings.series.baseFrequency &&
+					currentAggregation === settings.series.baseAggregation &&
+					settings.series.baseAggregationType !== "normal"){
+
+					//console.log("set aggregation to close, load normal aggregation menu");
+
+					flag = true;
+
+					//console.log(frequenciesDataCreated);
+
+					currentAggregation = "close";
+
+					loadFrequencyAndAggregationIntoData(
+						data,
+						settings.period[relayoutData.myFrequency],
+						currentAggregation
+					);
+
+					// change aggregation menu to normal
+					index = findIndexOfMenu(layout.updatemenus,"aggregation");
+					layout.updatemenus[index].buttons =settings.baseAggregationButtons;
+					layout.updatemenus[index].showactive =true;
+
+					// set base aggregation menu
+					layout.updatemenus[index].active = 
+							getMethodLocationInButtonsFromArg(
+								currentAggregation,
+								layout.updatemenus[index].buttons
+							);
+
+				}
+
+				// caso 3.  change aggregation button from one to list
+				if(flag === false &&
+					currentFrequency === settings.series.baseFrequency &&
+					settings.series.baseFrequencyType !== "normal" &&
+					relayoutData.myFrequency !== settings.series.baseFrequency &&
+					settings.series.baseAggregationType === "normal")	{
+
+					//console.log("change frequency. case 3");
+					flag = true;
+
+
+					loadFrequencyAndAggregationIntoData(
+						data,
+						settings.period[relayoutData.myFrequency],
+						currentAggregation
+					);
+
+
+					// set original aggregation menu
+					index = findIndexOfMenu(layout.updatemenus,"aggregation");
+					layout.updatemenus[index].buttons = settings.baseAggregationButtons;
+
+					layout.updatemenus[index].active = 
+							getMethodLocationInButtonsFromArg(
+								currentAggregation,
+								layout.updatemenus[index].buttons
+							);
+
+					layout.updatemenus[index].visible = true;	
+					layout.updatemenus[index].type = "dropdown";	
+					layout.updatemenus[index].showactive = true;	
+				}				
+
+
+				// caso 4. change agg menu to base, change aggregation to close
+				if(flag === false &&
+					currentFrequency === settings.series.baseFrequency &&
+					settings.series.baseFrequencyType !== "normal" &&
+					relayoutData.myFrequency !== settings.series.baseFrequency &&
+					settings.series.baseAggregationType !== "normal")	{
+
+					//console.log("change frequency. case 4");
+
+					flag = true;
+
+					currentAggregation = "close";					
+
+					// set original aggregation menu
+					index = findIndexOfMenu(layout.updatemenus,"aggregation");
+
+					layout.updatemenus[index].buttons = settings.baseAggregationButtons;
+					layout.updatemenus[index].showactive =true;
+
+					layout.updatemenus[index].active = 
+							getMethodLocationInButtonsFromArg(
+								currentAggregation,
+								layout.updatemenus[index].buttons
+							);
+
+					layout.updatemenus[index].visible = true;
+					layout.updatemenus[index].type = "dropdown";
+
+					//update layout coordinates in case aggregation menu was hidden
+					if(settings.series.baseAggregationType === "not available"){
+
 						newX = xOfFirstFrequencyMenuItem(
 							divWidth,
 							layout,
 							settings.widthOfRightItemsFrequencyButtons
+							);
+						//console.log("new x freq", newX);
+						index = findIndexOfMenu(layout.updatemenus,"frequencies");
+						//console.log("index of freq menu", index);
+						layout.updatemenus[index].x = newX;
+
+
+						index = findIndexOfMenu(layout.updatemenus,"aggregation" );
+						layout.updatemenus[index].x = xOfRightItems(divWidth, layout);
+
+					}
+
+
+					loadFrequencyAndAggregationIntoData(
+						data,
+						settings.period[relayoutData.myFrequency],
+						currentAggregation
+					);				
+
+				}
+
+
+				// case 5. 
+				if(flag ===false &&
+					currentFrequency !== settings.series.baseFrequency &&
+					relayoutData.myFrequency === settings.series.baseFrequency &&
+					settings.series.baseFrequencyType !== "normal" &&
+					settings.series.baseAggregationType === "not available")	{
+
+					//console.log("change frequency. case 5");
+
+					flag = true;
+
+					currentAggregation = settings.series.baseAggregation;				
+
+					// hide aggregation menu
+					index = findIndexOfMenu(layout.updatemenus,"aggregation");
+
+					layout.updatemenus[index].visible = false;
+
+					// change location of frequency menu
+					setNewXToFrequencyButton(
+						xOfRightItems(divWidth, layout), layout.updatemenus, "frequencies");
+
+					// load original data
+					loadDataIntoXYFromPropertyXY(data, "xOriginal", "yOriginal");
+
+					// change log linear to original
+					changeLogLinearToOriginal(layout, originalLayout, divInfo, settings);
+
+					// change compare to original
+					if(transformToBaseIndex !== settings.transformToBaseIndex){
+						//console.log("restore compare");
+						transformToBaseIndex = settings.transformToBaseIndex;
+						if(settings.allowCompare){
+							toggleCompareButton(transformToBaseIndex, divInfo.compareButtonElement);
+						}
+					}
+
+					layout.yaxis.hoverformat= originalLayout.yaxis.hoverformat;
+
+					if(typeof layout.yaxis.tickformat !== "undefined" && typeof originalLayout.yaxis.tickformat === "undefined"){
+						delete layout.yaxis.tickformat;
+					}
+					else if (typeof originalLayout.yaxis.tickformat !== "undefined"){
+						layout.yaxis.tickformat = originalLayout.yaxis.tickformat;
+					}
+
+
+				}
+
+				// case 6. 
+				if(flag === false &&
+					currentFrequency !== settings.series.baseFrequency &&
+					relayoutData.myFrequency === settings.series.baseFrequency &&
+					settings.series.baseFrequencyType !== "normal" &&
+					settings.series.baseAggregationType !== "not available")	{
+
+					//console.log("change frequency. case 6");
+
+					flag = true;	
+
+					currentAggregation = settings.series.baseAggregation;
+					//console.log("new currentAggregation", currentAggregation);
+
+					// load one button aggregation menu
+					index = findIndexOfMenu(layout.updatemenus,"aggregation");
+
+					//console.log("index of agg menu",index);
+
+					layout.updatemenus[index].buttons = settings.singleAggregationButton;		
+					layout.updatemenus[index].active = 0;
+					layout.updatemenus[index].visible = true;	
+					layout.updatemenus[index].type = "buttons";
+					layout.updatemenus[index].showactive = false;
+
+					//console.log("updatemenus",layout.updatemenus);
+
+					// load original data
+					loadDataIntoXYFromPropertyXY(data, "xOriginal", "yOriginal");							
+
+					// change log linear to original
+					changeLogLinearToOriginal(layout, originalLayout, divInfo, settings);
+					//console.log("6 after change log lin");
+
+					// change compare to original
+					if(transformToBaseIndex !== settings.transformToBaseIndex){
+						//console.log("restore compare");
+						transformToBaseIndex = settings.transformToBaseIndex;
+						if(settings.allowCompare){
+							toggleCompareButton(transformToBaseIndex, divInfo.compareButtonElement);
+						}
+					}		
+
+					layout.yaxis.hoverformat= originalLayout.yaxis.hoverformat;
+
+					if(typeof layout.yaxis.tickformat !== "undefined" && typeof originalLayout.yaxis.tickformat === "undefined"){
+						delete layout.yaxis.tickformat;
+					}
+					else if (typeof originalLayout.yaxis.tickformat !== "undefined"){
+						layout.yaxis.tickformat = originalLayout.yaxis.tickformat;
+					}
+
+					//console.log("6 after change compare to original");
+
+				}	
+
+
+
+				// case 7
+				//console.log("flag before 7", flag);
+				if(
+					(	flag === false &&
+					currentFrequency !== settings.series.baseFrequency &&
+					 relayoutData.myFrequency === settings.series.baseFrequency &&
+					 settings.series.baseFrequencyType === "normal" &&
+					currentAggregation === settings.series.baseAggregation )
+
+				){
+
+					// load original data
+					//console.log("change frequency. case 7");
+
+					flag = true;	
+
+					// load original data
+					loadDataIntoXYFromPropertyXY(data, "xOriginal", "yOriginal");		
+
+					// case 7.1 baseAggregationType = "normal"
+
+					// case 7.2 base AggregationType = ! normal
+					if(settings.series.baseAggregationType!== "normal"){
+						//console.log("case 7.2");
+
+						//make aggregation = base
+						currentAggregation = settings.series.baseAggregation;
+
+						// change log linear to original
+						changeLogLinearToOriginal(layout, originalLayout, divInfo, settings);
+
+						// change compare to original
+						if(transformToBaseIndex !== settings.transformToBaseIndex){
+							//console.log("restore compare");
+							transformToBaseIndex = settings.transformToBaseIndex;
+							if(settings.allowCompare){
+								toggleCompareButton(transformToBaseIndex, divInfo.compareButtonElement);
+							}
+						}
+
+
+
+
+						// WHAT ELSE ON AGGREGATION???
+
+
+						if(settings.series.baseAggregationType === "not available"){
+							// case 7.2.a
+							//console.log("case 7.2.a");
+
+							// remove aggregation button
+							index = findIndexOfMenu(layout.updatemenus,"aggregation");
+
+							layout.updatemenus[index].visible = false;
+
+							// change location of frequency menu
+							setNewXToFrequencyButton(
+								xOfRightItems(divWidth, layout), layout.updatemenus, "frequencies");																
+						}	
+
+						if(settings.series.baseAggregationType ==="custom"){
+							// case 7.2b
+							//console.log("case 7.2.b");
+
+							// load one button aggregation menu
+							index = findIndexOfMenu(layout.updatemenus,"aggregation");
+							layout.updatemenus[index].active =0;
+							layout.updatemenus[index].visible = true;				
+							layout.updatemenus[index].buttons =settings.singleAggregationButton;
+							layout.updatemenus[index].type = "buttons";
+							layout.updatemenus[index].showactive = false;
+
+						}
+
+					}
+
+				}
+
+
+
+				// case 8  
+				if( flag === false &&
+
+					(currentFrequency !== settings.series.baseFrequency &&
+					 relayoutData.myFrequency === settings.series.baseFrequency &&
+					 settings.series.baseFrequencyType === "normal" &&
+					currentAggregation !== settings.series.baseAggregation)	
+
+				){
+
+					//console.log("change frequency. case 8");
+
+					flag = true;	
+
+					//console.log("frequenciesDataCreated",frequenciesDataCreated);
+
+
+					loadFrequencyAndAggregationIntoData(
+						data,
+						settings.period[relayoutData.myFrequency],
+						currentAggregation
+					);
+
+					// handle buttons
+					if(settings.series.baseAggregationType === "custom"){
+						// load full aggregation menu
+						//console.log("load full agg menu");
+
+						index = findIndexOfMenu(layout.updatemenus,"aggregation");
+						//console.log("combinedAgg Bttons", settings.combinedAggregationButtons);
+						layout.updatemenus[index].buttons =settings.combinedAggregationButtons;
+						layout.updatemenus[index].showactive =true;
+
+						// set base aggregation menu
+						layout.updatemenus[index].active = 
+								getMethodLocationInButtonsFromArg(
+									currentAggregation,
+									layout.updatemenus[index].buttons
+								);
+
+					}
+
+					// if base aggregation is not normal, display combined menu
+					if( settings.series.baseAggregationType !== "normal"){
+						// load base aggregation menu
+						//console.log("load combined agg menu");
+
+						index = findIndexOfMenu(layout.updatemenus,"aggregation");
+						layout.updatemenus[index].buttons =settings.combinedAggregationButtons;
+						layout.updatemenus[index].showactive =true;
+
+						// set combined aggregation menu
+						layout.updatemenus[index].active = 
+										getMethodLocationInButtonsFromArg(
+										currentAggregation,
+										layout.updatemenus[index].buttons
+									);
+
+					}
+
+
+				}
+
+
+				// caso 9. cargar data, change to baseAggregationButtons. 
+				if( flag === false &&
+
+					(currentFrequency === settings.series.baseFrequency &&
+					settings.series.baseFrequencyType === "normal" &&
+					relayoutData.myFrequency !== settings.series.baseFrequency &&
+					currentAggregation !== settings.series.baseAggregation)	
+					)
+
+						{
+
+					//	load data	
+					//console.log("case 9 to load from calculated freqs & baseAGGButtons");
+
+					flag = true;
+
+					//console.log("frequenciesDataCreated",frequenciesDataCreated);
+
+					loadFrequencyAndAggregationIntoData(
+						data,
+						settings.period[relayoutData.myFrequency],
+						currentAggregation
+					);
+
+
+					// load base aggregation menu
+					//console.log("load base agg menu");
+
+					index = findIndexOfMenu(layout.updatemenus,"aggregation");
+					layout.updatemenus[index].buttons =settings.baseAggregationButtons;
+					layout.updatemenus[index].showactive =true;
+
+					// set base aggregation menu
+					layout.updatemenus[index].active = 
+									getMethodLocationInButtonsFromArg(
+									currentAggregation,
+									layout.updatemenus[index].buttons
+								);
+
+
+				}
+
+
+
+				if(flag){				
+					//OJO, CHANGE TICKS AND MINIMUM FREQUENCY DISPLAY
+					currentFrequency = relayoutData.myFrequency;
+
+					uncomparedSaved = false;
+
+					// X RANGE DETERMINATIONS
+
+					// this section finds the x domain for the traces
+					minMaxDatesAsString = getDataXminXmaxAsString(data);
+					minDateAsString = makeDateComplete(minMaxDatesAsString[0]);
+					maxDateAsString = makeDateComplete(minMaxDatesAsString[1]);
+
+					//console.log("minDateAsString", minDateAsString);
+					//console.log("maxDateAsString", maxDateAsString);
+					//console.log("initialDate", initialDate, "endDate", endDate);
+					//console.log("layout", layout);
+
+					updateXAxisRange(initialDate, endDate, minDateAsString, maxDateAsString, layout.xaxis.range);
+
+					/*if(initialDate < minDateAsString){
+						initialDate = minDateAsString
+						layout.xaxis.range[0]= initialDate;
+					}
+					if(endDate > maxDateAsString){
+						endDate = maxDateAsString;
+						layout.xaxis.range[1]=	endDate;
+					}*/
+
+					// get ticktext and tickvals based on width and parameters
+					ticktextAndTickvals = aoPlotlyAddOn.getTicktextAndTickvals(
+						initialDate, endDate, settings.textAndSpaceToTextRatio, currentFrequency, 
+						layout.xaxis.tickfont.family, layout.xaxis.tickfont.size, 
+						divWidth, layout.margin.l, layout.margin.r
+					);
+
+					// set layout ticktext and tickvals
+					layout.xaxis.tickvals = ticktextAndTickvals.tickvals;
+					layout.xaxis.ticktext = ticktextAndTickvals.ticktext;	
+
+					saveDataXYIntoProperty(data, "nominal");
+					nominalSaved = true;	
+
+					if(transformToReal){
+
+						newBaseRealNominalDate = setBaseRealNominalDateAsString(settings.baseRealDate, 
+																																 layout.xaxis.range[0],
+																																 layout.xaxis.range[1],
+																																 minDateAsString,
+																																 maxDateAsString
+																																);
+						if(newBaseRealNominalDate !== baseRealNominalDate){
+
+							baseRealNominalDate =newBaseRealNominalDate;
+							setDeflactorDictionaryAtDate(baseRealNominalDate, deflactorDictionary, data[iDeflactor], 0);					
+
+						}
+
+
+						transformDataToReal(data, deflactorDictionary, 	baseRealNominalDate, series);
+					}
+
+					if (transformToBaseIndex) {
+					// recalculate data to base index and save uncompared data
+						if(baseIndexDate < initialDate){
+							baseIndexDate = initialDate;
+						}
+						uncomparedSaved = prepareTransformToBaseIndex(
+							uncomparedSaved,
+							data,
+							baseIndexDate,
+							settings.allowCompare,
+							layout,
+							currentAggregation
 						);
-						index = findIndexOfMenu(layout.updatemenus,"frequencies" );
-						relayoutUpdateArgs["updatemenus["+index+"].x"] = newX;
-						
-
-						if(layout.updatemenus[findIndexOfMenu(layout.updatemenus,"aggregation")].visible === true){
-							index = findIndexOfMenu(layout.updatemenus,"frequencies" );
-							relayoutUpdateArgs["updatemenus["+index+"].x"] = newX;
-							
-							index = findIndexOfMenu(layout.updatemenus,"aggregation" );
-							relayoutUpdateArgs["updatemenus["+index+"].x"] = xOfRightItems(divWidth, layout);
-			
-						}
-						else{
-							index = findIndexOfMenu(layout.updatemenus,"frequencies" );
-							relayoutUpdateArgs["updatemenus["+index+"].x"] = xOfRightItems(divWidth, layout);	
-							
-						}
-						
 					}
-					
-					if(settings.allowSelectorOptions){
-						newX =xOfRightItems(divWidth, layout);
-						relayoutUpdateArgs["xaxis.rangeselector.x"] = newX;
-					}
-					
-					//console.log('relayoutUpdateArgs after new index', relayoutUpdateArgs);
 
+
+
+					//console.log("yaxis layout befor set",layout.yaxis);
+					setYAxisRange(layout, data, settings.numberOfIntervalsInYAxis, settings.possibleYTickMultiples, settings.rangeProportion);
+					//console.log("yaxis layout after set", layout.yaxis);
+
+					settings.updatemenus = layout.updatemenus;
+					Plotly.relayout(myPlot, {"updatemenus": [{}]});
+					layout.updatemenus = settings.updatemenus;
+					Plotly.redraw(myPlot);
+				}
+			}
+		} 
+
+
+
+
+
+		else if (typeof relayoutData.myAggregation !== "undefined") {
+			// CASE 3. EN ESTE ELSE IF SE INCLUYE EL CAMBIO AGGREGATION - faltaría revisar fijación del xaxis range
+
+			flag = false;
+			//console.log("current Frequency",currentFrequency);
+			//console.log("base Frequency", settings.series.baseFrequency);
+			//console.log("current Aggregation", currentAggregation);
+			//console.log("base Aggregation", settings.series.baseAggregation);
+			//console.log("baseFrequencyType", settings.series.baseFrequencyType);
+			//console.log("baseAggregationType",settings.series.baseAggregationType);
+			//console.log("myAggregation", relayoutData.myAggregation);
+			if (relayoutData.myAggregation !== currentAggregation) {
+				//console.log("change in aggregation started");
+
+				// Case 1. case to read from original data
+				if(
+					currentFrequency === settings.series.baseFrequency &&
+					settings.series.baseFrequencyType === "normal" &&
+					relayoutData.myAggregation === settings.series.baseAggregation ){
+
+					//console.log("case 1. to read from original data");
+
+					flag = true;
+
+
+
+					// read from original data
+					loadDataIntoXYFromPropertyXY(data, "xOriginal", "yOriginal");
+
+					//console.log("data[0]", data[0]);
+
+					// change log linear to original
+
+					// change compare to original
+
+				}
+
+
+				// case 2. to load frequency aggregation from calculated values
+				if(
+					(currentFrequency === settings.series.baseFrequency &&
+					settings.series.baseFrequencyType === "normal" &&
+					relayoutData.myAggregation !== settings.series.baseAggregation) ||
+
+					(currentFrequency !== settings.series.baseFrequency &&
+					relayoutData.myAggregation !== settings.series.baseAggregation)	||
+
+					(currentFrequency !== settings.series.baseFrequency &&
+					relayoutData.myAggregation === settings.series.baseAggregation &&
+					settings.series.baseAggregationType === "normal")
+
+					){
+
+					//console.log("case 2. to load from calculated freqs");
+
+					flag = true;
+
+					//console.log(frequenciesDataCreated);
+
+
+					//console.log("data[0]",   data[0]);
+
+					//return;
+					// load frequency and aggregation into data
+					loadFrequencyAndAggregationIntoData(
+						data,
+						settings.period[currentFrequency],
+						relayoutData.myAggregation
+					);
+
+					//console.log("data[0].x",data[0].x);
+					//console.log("data[1].y",data[1].y);
+
+				}
+
+				if(flag){
+
+
+					uncomparedSaved = false;
+					layout.yaxis.hoverformat = originalLayout.yaxis.hoverformat;
+
+					if(typeof layout.yaxis.tickformat !== "undefined" && typeof originalLayout.yaxis.tickformat === "undefined"){
+						delete layout.yaxis.tickformat;
+					}
+					else if (typeof originalLayout.yaxis.tickformat !== "undefined"){
+						layout.yaxis.tickformat = originalLayout.yaxis.tickformat;
+					}
+
+					saveDataXYIntoProperty(data, "nominal");
+					nominalSaved = true;
+
+					if(transformToReal){
+
+						newBaseRealNominalDate = setBaseRealNominalDateAsString(settings.baseRealDate, 
+																																 layout.xaxis.range[0],
+																																 layout.xaxis.range[1],
+																																 minDateAsString,
+																																 maxDateAsString
+																																);
+						if(newBaseRealNominalDate !== baseRealNominalDate){
+
+							baseRealNominalDate =newBaseRealNominalDate;
+							setDeflactorDictionaryAtDate(baseRealNominalDate, deflactorDictionary, data[iDeflactor], 0);					
+
+						}
+
+						transformDataToReal(data, deflactorDictionary, 	baseRealNominalDate, series);
+					}
+
+
+
+					// uncompare in case aggregatin is percChange or sqrPercChange
+					if(relayoutData.myAggregation === "percChange" || relayoutData.myAggregation === "sqrPercChange"){
+						transformToBaseIndex = false;
+						if(settings.allowCompare){
+							toggleCompareButton(transformToBaseIndex, divInfo.compareButtonElement);
+						}
+
+						layout.yaxis.tickformat = ".2p";
+						layout.yaxis.hoverformat = ".3p";
+					}
+
+
+					// restore original compare
+					if(
+						 (currentAggregation === "percChange" || 
+						 currentAggregation === "sqrPercChange") &&
+
+						(relayoutData.myAggregation !== "percChange" &&
+						 relayoutData.myAggregation !== "sqrPercChange")
+
+						)
+
+						{
+
+
+						if(transformToBaseIndex !== settings.transformToBaseIndex){
+							//console.log("restore compare");
+							transformToBaseIndex = settings.transformToBaseIndex;
+							if(settings.allowCompare){
+								toggleCompareButton(transformToBaseIndex, divInfo.compareButtonElement);
+							}
+						}				
+
+					}
+
+
+
+
+
+					// make yaxis.type linear
+					if(relayoutData.myAggregation === "percChange" ||
+						 relayoutData.myAggregation === "sqrPercChange" ||
+						 relayoutData.myAggregation === "change"){
+
+						if (layout.yaxis.type === "log") {
+
+							layout.yaxis.type = "linear";
+							if(settings.allowLogLinear){
+								toggleLogLinearButton(false, divInfo.logLinearButtonElement);					
+							}
+
+						}
+
+					}
+
+					// restore original yaxis.type
+					if((currentAggregation === "percChange" ||
+						 currentAggregation === "sqrPercChange" ||
+						 currentAggregation === "change") &&
+
+						(relayoutData.myAggregation !== "percChange" &&
+						 relayoutData.myAggregation !== "sqrPercChange" &&
+						 relayoutData.myAggregation !== "change")
+
+						){
+
+						changeLogLinearToOriginal(layout, originalLayout, divInfo, settings);
+
+					}				
+
+
+
+
+					currentAggregation = relayoutData.myAggregation;
+
+					// X RANGE DETERMINATIONS
+
+					// this section finds the x range for the traces
+					minMaxDatesAsString = getDataXminXmaxAsString(data);
+					minDateAsString = makeDateComplete(minMaxDatesAsString[0]);
+					maxDateAsString = makeDateComplete(minMaxDatesAsString[1]);
+
+					//console.log("minDataAsString", minDateAsString);
+					//console.log("maxDataAsString", maxDateAsString);
+					//console.log("initialDate", initialDate, "endDate", endDate);
+
+					/*if(initialDate < minDateAsString){
+						initialDate = minDateAsString
+						layout.xaxis.range[0]= initialDate;
+					}
+					if(endDate > maxDateAsString){
+						endDate = maxDateAsString;
+						layout.xaxis.range[1]=	endDate;
+					}*/
+
+					updateXAxisRange(initialDate, endDate, minDateAsString, maxDateAsString, layout.xaxis.range);
+
+
+					// get ticktext and tickvals based on width and parameters
+					ticktextAndTickvals = aoPlotlyAddOn.getTicktextAndTickvals(
+						initialDate, endDate, settings.textAndSpaceToTextRatio, currentFrequency, 
+						layout.xaxis.tickfont.family, layout.xaxis.tickfont.size, 
+						divWidth, layout.margin.l, layout.margin.r
+					);
+
+					// set layout ticktext and tickvals
+					layout.xaxis.tickvals = ticktextAndTickvals.tickvals;
+					layout.xaxis.ticktext = ticktextAndTickvals.ticktext;							
+
+
+
+
+					if (transformToBaseIndex) {
+						if(baseIndexDate < initialDate){
+							baseIndexDate = initialDate;
+						}
+					// recalculate data to base index and save uncompared data
+						uncomparedSaved = prepareTransformToBaseIndex(
+							uncomparedSaved,
+							data,
+							baseIndexDate,
+							settings.allowCompare,
+							layout,
+							currentAggregation
+						);
+					}
+					//console.log("yaxis layout befor set",layout.yaxis);
+					setYAxisRange(layout, data, settings.numberOfIntervalsInYAxis, settings.possibleYTickMultiples, settings.rangeProportion);
+					//console.log("yaxis layout after set", layout.yaxis);
+
+
+					settings.updatemenus = layout.updatemenus;
+					Plotly.relayout(myPlot, {"updatemenus": [{}]});
+					layout.updatemenus = settings.updatemenus;
+					Plotly.redraw(myPlot);
+
+				}	
+			}	
+		} 
+
+		// CASE 4. EN ESTE ELSE IF HAY QUE INCLUIR EL CAMBIO DE EJES LOG LINEAR - PENDIENTE. DE MOMENTO NO SE USA
+		else if (typeof relayoutData.changeYaxisTypeToLog !== "undefined") {
+
+			//console.log("change of y axis type requested");
+
+			if (relayoutData.changeYaxisTypeToLog === false) {
+				divInfo.logLinearButtonElement.blur();
+				if (layout.yaxis.type === "log") {
+					if (!isUnderRelayout) {
+						layout.yaxis.type = "linear";
+						//console.log("change y axis to linear");
+						toggleLogLinearButton(false, divInfo.logLinearButtonElement);
+
+						layout.yaxis.type = "linear";
+						setYAxisRange(layout, data, settings.numberOfIntervalsInYAxis, settings.possibleYTickMultiples, settings.rangeProportion);
+						Plotly.redraw(myPlot).then(() => {
+							isUnderRelayout = false;
+						});
+					}
+					isUnderRelayout = true;
+				}
+			}
+
+			if (relayoutData.changeYaxisTypeToLog === true) {
+				divInfo.logLinearButtonElement.blur();
+				//console.log("yaxistype", layout.yaxis.type);
+				//console.log("currentAggregation",currentAggregation);
+				//console.log("yaxis range",layout.yaxis.range);
+				if (layout.yaxis.type === "linear" &&
+					 (currentAggregation !== "percChange" &&
+						 currentAggregation !== "sqrPercChange" &&
+						 currentAggregation !== "change") /*&& 
+						layout.yaxis.range[0]>0 &&
+						layout.yaxis.range[1]>0*/
+					 ) {
+					if (!isUnderRelayout) {
+						//console.log("change y axis to log");
+						layout.yaxis.type = "log";
+						toggleLogLinearButton(true, divInfo.logLinearButtonElement);
+						setYAxisRange(layout, data, settings.numberOfIntervalsInYAxis, settings.possibleYTickMultiples, settings.rangeProportion);
+						Plotly.redraw(myPlot).then(() => {
+							isUnderRelayout = false;
+						});
+					}
+					isUnderRelayout = true;
+				}
+			}
+		} 
+
+
+		// CASE 5. EN ESTE ELSE IF SE INCLUYE EL CAMBIO DE COMPARE UNCOMPARE
+		else if (typeof relayoutData.compare !== "undefined") {
+
+			//console.log("compare/uncompare button clicked");
+			//console.log("relayoutData.compare = ", relayoutData.compare);
+			//console.log("transformToBaseIndex =", transformToBaseIndex);
+			divInfo.compareButtonElement.blur();
+			if (relayoutData.compare !== transformToBaseIndex &&
+					currentAggregation !== "percChange" &&
+					currentAggregation !== "sqrPercChange") {
+				if (!isUnderRelayout) {
+					//console.log("rutina compare/uncompare in");
+
+					//toggle transformToBaseIndes
+					transformToBaseIndex = !transformToBaseIndex;
+
+					// update menu settings
+					//toggleCompareMenu(!relayoutData.compare, layout.updatemenus);
+					toggleCompareButton(relayoutData.compare, divInfo.compareButtonElement);
+
+					// transform data to base index
+					if (transformToBaseIndex) {
+						//console.log("uncomparedSaved", uncomparedSaved);
+
+						// save nominal data
+						if(!nominalSaved && !transformToReal){
+							saveDataXYIntoProperty(data, "nominal");
+							nominalSaved = true;									
+						}
+
+						// update baseIndex Date
+						//console.log('layout.xaxis.range[0]', layout.xaxis.range[0]);
+						baseIndexDate = makeDateComplete(layout.xaxis.range[0]);
+						//console.log('transformed to YMD as base Index date', baseIndexDate);
+
+						// transform yvalues to index at specified date
+						uncomparedSaved = prepareTransformToBaseIndex(
+							uncomparedSaved,
+							data,
+							baseIndexDate,
+							settings.allowCompare,
+							layout,
+							currentAggregation
+						);
+
+						//console.log('data transformed for comparison', data)
+
+						if (!layout.yaxis.autorange) {
+							// find y range
+							setYAxisRange(layout, data, settings.numberOfIntervalsInYAxis, settings.possibleYTickMultiples, settings.rangeProportion);
+						}
+					} 
+
+					// uncompare, transform uncompared data (check frequencies);				
+					else {
+
+						loadData(data, "uncompared");
+						//console.log("new data",data);
+
+						if (!layout.yaxis.autorange) {
+							setYAxisRange(layout, data, settings.numberOfIntervalsInYAxis, settings.possibleYTickMultiples, settings.rangeProportion);
+						}
+					}
+
+					Plotly.redraw(myPlot).then(() => {
+						isUnderRelayout = false;
+					});
+				}
+				isUnderRelayout = true;
+			}
+		} 
+
+
+
+
+		// CASE 6. EN ESTE ELSE IF SE INCLUYE EL CAMBIO DE NOMINAL REAL
+		else if (typeof relayoutData.transformToReal!== "undefined") {
+
+			//console.log("real/nominal button clicked");
+			//console.log("relayoutData.compare = ", relayoutData.compare);
+			//console.log("transformToBaseIndex =", transformToBaseIndex);
+			divInfo.realNominalButtonElement.blur();
+
+			if (relayoutData.transformToReal !== transformToReal) {
+				if (!isUnderRelayout) {
+					//console.log("rutina real/nominal in");
+
+					//toggle transformRealNominal
+					transformToReal = !transformToReal;
+
+					// update menu settings
+					//toggleCompareMenu(!relayoutData.compare, layout.updatemenus);
+					toggleRealNominalButton(relayoutData.transformToReal, divInfo.realNominalButtonElement);
+
+					// transform data to real
+					if (transformToReal) {
+
+						//console.log("transform To Real");
+
+
+						// determine base date
+						/* could be "end of range", "end of domain", "beggining of range", beggining of domain", or a date "yyyy-mm-dd hh:mm:ss.sss-04:00"*/
+
+						if(baseRealNominalDate!==""){
+
+							baseRealNominalDate = setBaseRealNominalDateAsString(settings.baseRealDate, 
+																																 layout.xaxis.range[0],
+																																 layout.xaxis.range[1],
+																																 minDateAsString,
+																																 maxDateAsString
+																																);
+
+							//console.log("baseRealNominalDate",baseRealNominalDate);
+							setDeflactorDictionaryAtDate(baseRealNominalDate, deflactorDictionary, data[iDeflactor], 0);
+						}
+
+						// save nominal if not compared
+						if(!transformToBaseIndex){
+
+							// save nominal  data
+							if(!nominalSaved){
+								saveDataXYIntoProperty(data, "nominal");
+								nominalSaved = true;									
+							}
+
+						}
+
+						if(transformToBaseIndex){
+							loadData(data, "nominal");
+						}
+
+						//recalculate data to real 
+						transformDataToReal(data, deflactorDictionary, 	baseRealNominalDate, series);
+
+						if (transformToBaseIndex) {
+
+							// baseIndexDate = makeDateComplete(layout.xaxis.range[0]);
+
+							// transform yvalues to index at specified date
+							uncomparedSaved = false;
+							uncomparedSaved = prepareTransformToBaseIndex(
+								uncomparedSaved,
+								data,
+								baseIndexDate,
+								settings.allowCompare,
+								layout,
+								currentAggregation
+							);
+
+						} 
+
+						if (!layout.yaxis.autorange) {
+							// find y range
+							setYAxisRange(layout, data, settings.numberOfIntervalsInYAxis, settings.possibleYTickMultiples, settings.rangeProportion);
+						}
+
+
+
+					} 
+
+					// transform to nominal				
+					else {
+						//console.log("transform to nominal");
+
+						loadData(data, "nominal");
+
+
+						if (transformToBaseIndex) {
+
+							// baseIndexDate = makeDateComplete(layout.xaxis.range[0]);
+
+							// transform yvalues to index at specified date
+							uncomparedSaved = false;
+							uncomparedSaved = prepareTransformToBaseIndex(
+								uncomparedSaved,
+								data,
+								baseIndexDate,
+								settings.allowCompare,
+								layout,
+								currentAggregation
+							);
+
+						}
+
+
+						if (!layout.yaxis.autorange) {
+							setYAxisRange(layout, data, settings.numberOfIntervalsInYAxis, settings.possibleYTickMultiples, settings.rangeProportion);
+						}
+
+					}
+
+					Plotly.redraw(myPlot).then(() => {
+						isUnderRelayout = false;
+					});
+				}
+				isUnderRelayout = true;
+			}
+		} 
+
+
+
+
+		// CASE 7. EN ESTE ELSE IF SE INCLUYE EL DATA DOWNLOAD
+		else if (typeof relayoutData.download !== "undefined") {
+
+			divInfo.downloadButtonElement.blur();
+			downloadCSVData(settings.xAxisNameOnCSV, data, settings.downloadedFileName);
+
+		} 
+
+
+		// CASE 8. Este caso pide mostrar todo el eje x. EN ESTE CASO EL RELAYOUT HAY QUE AJUSTAR EL EJE X, INCLUIR TAMBIEM EL CAMBIO DE X AXIS LABELS.
+		else if (relayoutData["xaxis.autorange"] === true) {
+
+			//console.log('xaxis.autorange=true');
+			//console.log('layout on all clicked',layout);
+			layout.xaxis.range[0] = makeDateComplete(layout.xaxis.range[0]);
+			layout.xaxis.range[1] = makeDateComplete(layout.xaxis.range[1]);
+
+			if(layout.xaxis.range[0] !== initialDate || 
+				 layout.xaxis.range[1] !== endDate){
+				if (!isUnderRelayout) {					
+					initialDate = makeDateComplete(layout.xaxis.range[0]);
+					endDate = makeDateComplete(layout.xaxis.range[1]);
+					//layout.xaxis.autorange=false;
+
+
+					//console.log("initial Date",initialDate);
+					//console.log("endDate", endDate);
 					// get ticktext and tickvals based on width and parameters
 					ticktextAndTickvals = aoPlotlyAddOn.getTicktextAndTickvals(
 						initialDate,
@@ -4886,1366 +6020,248 @@ function readDataAndMakeChart(series, iS, data, param, callback) {
 						layout.margin.r
 					);
 
+
+					flag = false;
+					if(transformToReal){
+
+						loadData(data,"nominal");
+
+						newBaseRealNominalDate = setBaseRealNominalDateAsString(settings.baseRealDate, 
+																																		layout.xaxis.range[0],
+																																		layout.xaxis.range[1],
+																																		minDateAsString,
+																																		maxDateAsString
+																																	 );
+						//console.log("newBaseRealNominalDate",newBaseRealNominalDate);
+						//console.log("baseRealNominalDate",baseRealNominalDate);
+						if(newBaseRealNominalDate !== baseRealNominalDate){
+							baseRealNominalDate =newBaseRealNominalDate;
+							setDeflactorDictionaryAtDate(baseRealNominalDate, deflactorDictionary, data[iDeflactor], 0);					
+
+						}
+						//console.log("newBaseRealNominalDate",newBaseRealNominalDate);
+						transformDataToReal(data, deflactorDictionary, 	baseRealNominalDate, series);
+
+						if(transformToBaseIndex){
+							flag = true;	
+							saveDataXYIntoProperty(data,"uncompared");
+						}
+
+					}
+
+
+
+					// transform to new base
+
+					if (
+						(transformToBaseIndex &&
+						baseIndexDate !== makeDateComplete(layout.xaxis.range[0])) || flag
+						) {
+
+
+						//console.log("baseIndexDate", baseIndexDate);
+						transformDataToBaseIndex(data, 
+																		 makeDateComplete(layout.xaxis.range[0]), 
+																		 currentAggregation);					
+
+					} 					
+
+					baseIndexDate = makeDateComplete(layout.xaxis.range[0]);	
+
+
+					//console.log("layout before read x axis range",layout);
+
+					yMinMax = getYminYmax(makeDateComplete(layout.xaxis.range[0]), 
+																makeDateComplete(layout.xaxis.range[1]), 
+																data);
+					yMinValue = yMinMax[0];
+					yMaxValue = yMinMax[1];
+
+					if(!isNaN(yMinValue) && !isNaN(yMaxValue)){
+						layout.yaxis.autorange = false;
+						layout.yaxis.range = returnYaxisLayoutRange(
+							layout.yaxis.type === "log" ? "log" : "linear",
+							yMinValue,
+							yMaxValue,
+							settings.numberOfIntervalsInYAxis,
+							settings.possibleYTickMultiples, 
+							settings.rangeProportion
+						);	
+					} else{
+
+
+					}
+
+
+
+
 					// set layout ticktext and tickvals
-					relayoutUpdateArgs["xaxis.tickvals"] = ticktextAndTickvals.tickvals;
-					relayoutUpdateArgs["xaxis.ticktext"] = ticktextAndTickvals.ticktext;
+					layout.xaxis.tickvals = ticktextAndTickvals.tickvals;
+					layout.xaxis.ticktext = ticktextAndTickvals.ticktext;
 
-					//console.log('relayoutUpdateArgs in case 1, autosize', relayoutUpdateArgs);
-					
-					Plotly.relayout(myPlot, relayoutUpdateArgs);
-					//.then(() => { isUnderRelayout = false })
+					activeRangeSelector("step","all",layout.xaxis.rangeselector.buttons);
+					//console.log("rangeselector", layout.xaxis.rangeselector);
+
+					Plotly.redraw(myPlot).then(() => {
+						//console.log("plot schema", Plotly.PlotSchema.get());
+						isUnderRelayout = false;
+					});
 				}
-			} 
-			
-			
-			
-			
-			// CASE 2. EN ESTE ELSE SE INCLUYE EL CAMBIO DE FREQUENCY Y AJUSTAR EL DISPLAY DE TAGS DEL EJE X - FALTARÏA REVISAR Initial date end date	
-			
-			else if (typeof relayoutData.myFrequency !== "undefined") {
-
-				flag = false;
-				//console.log("current Frequency",currentFrequency);
-				//console.log("base Frequency", settings.series.baseFrequency);
-				//console.log("current Aggregation", currentAggregation);
-				//console.log("base Aggregation", settings.series.baseAggregation);
-				//console.log("baseFrequencyType", settings.series.baseFrequencyType);
-				//console.log("baseAggregationType",settings.series.baseAggregationType);
-				//console.log("myFrequency", relayoutData.myFrequency);	
-				
-				if (relayoutData.myFrequency !== currentFrequency) {
-				
-					//console.log("change in frequency started");
-					
-					// caso 1. cargar data, no cambiar aggregation. 
-					if(flag === false &&
-						(currentFrequency === settings.series.baseFrequency &&
-						settings.series.baseFrequencyType === "normal" &&
-						relayoutData.myFrequency !== settings.series.baseFrequency &&
-						currentAggregation === settings.series.baseAggregation &&
-						settings.series.baseAggregationType === "normal") ||
-						
-						
-						(currentFrequency !== settings.series.baseFrequency &&
-						relayoutData.myFrequency !== settings.series.baseFrequency) 
-						
-						)
-					
-							{
-					
-						//	load data	
-						//console.log("case 1 to load from calculated freqs");
-						
-						flag = true;
-						
-						//console.log("frequenciesDataCreated",frequenciesDataCreated);
-
-						loadFrequencyAndAggregationIntoData(
-							data,
-							settings.period[relayoutData.myFrequency],
-							currentAggregation
-						);
-						
-					}
-					
-					// caso 2. set aggregation to close, load normal aggregation menu, make changes
-					if(flag === false &&
-						currentFrequency === settings.series.baseFrequency &&
-						settings.series.baseFrequencyType === "normal" &&
-						relayoutData.myFrequency !== settings.series.baseFrequency &&
-						currentAggregation === settings.series.baseAggregation &&
-						settings.series.baseAggregationType !== "normal"){
-						
-						//console.log("set aggregation to close, load normal aggregation menu");
-						
-						flag = true;
-						
-						//console.log(frequenciesDataCreated);
-						
-						currentAggregation = "close";
-
-						loadFrequencyAndAggregationIntoData(
-							data,
-							settings.period[relayoutData.myFrequency],
-							currentAggregation
-						);
-						
-						// change aggregation menu to normal
-						index = findIndexOfMenu(layout.updatemenus,"aggregation");
-						layout.updatemenus[index].buttons =settings.baseAggregationButtons;
-						layout.updatemenus[index].showactive =true;
-						
-						// set base aggregation menu
-						layout.updatemenus[index].active = 
-								getMethodLocationInButtonsFromArg(
-									currentAggregation,
-									layout.updatemenus[index].buttons
-								);
-						
-					}
-
-					// caso 3.  change aggregation button from one to list
-					if(flag === false &&
-						currentFrequency === settings.series.baseFrequency &&
-						settings.series.baseFrequencyType !== "normal" &&
-						relayoutData.myFrequency !== settings.series.baseFrequency &&
-						settings.series.baseAggregationType === "normal")	{
-						
-						//console.log("change frequency. case 3");
-						flag = true;
-						
-
-						loadFrequencyAndAggregationIntoData(
-							data,
-							settings.period[relayoutData.myFrequency],
-							currentAggregation
-						);
-
-						
-						// set original aggregation menu
-						index = findIndexOfMenu(layout.updatemenus,"aggregation");
-						layout.updatemenus[index].buttons = settings.baseAggregationButtons;
-						
-						layout.updatemenus[index].active = 
-								getMethodLocationInButtonsFromArg(
-									currentAggregation,
-									layout.updatemenus[index].buttons
-								);
-						
-						layout.updatemenus[index].visible = true;	
-						layout.updatemenus[index].type = "dropdown";	
-						layout.updatemenus[index].showactive = true;	
-					}				
-					
-					
-					// caso 4. change agg menu to base, change aggregation to close
-					if(flag === false &&
-						currentFrequency === settings.series.baseFrequency &&
-						settings.series.baseFrequencyType !== "normal" &&
-						relayoutData.myFrequency !== settings.series.baseFrequency &&
-						settings.series.baseAggregationType !== "normal")	{
-						
-						//console.log("change frequency. case 4");
-						
-						flag = true;
-						
-						currentAggregation = "close";					
-						
-						// set original aggregation menu
-						index = findIndexOfMenu(layout.updatemenus,"aggregation");
-		
-						layout.updatemenus[index].buttons = settings.baseAggregationButtons;
-						layout.updatemenus[index].showactive =true;
-						
-						layout.updatemenus[index].active = 
-								getMethodLocationInButtonsFromArg(
-									currentAggregation,
-									layout.updatemenus[index].buttons
-								);
-						
-						layout.updatemenus[index].visible = true;
-						layout.updatemenus[index].type = "dropdown";
-						
-						//update layout coordinates in case aggregation menu was hidden
-						if(settings.series.baseAggregationType === "not available"){
-	
-							newX = xOfFirstFrequencyMenuItem(
-								divWidth,
-								layout,
-								settings.widthOfRightItemsFrequencyButtons
-								);
-							//console.log("new x freq", newX);
-							index = findIndexOfMenu(layout.updatemenus,"frequencies");
-							//console.log("index of freq menu", index);
-							layout.updatemenus[index].x = newX;
+				isUnderRelayout = true;
+			}
+		} 
 
 
-							index = findIndexOfMenu(layout.updatemenus,"aggregation" );
-							layout.updatemenus[index].x = xOfRightItems(divWidth, layout);
-							
-						}
-								
+		// CASE 9. OTHERS, CHANGES IN X RANGE DUE TO SELECTION
+		else {
+			flag = false;
 
-						loadFrequencyAndAggregationIntoData(
-							data,
-							settings.period[relayoutData.myFrequency],
-							currentAggregation
-						);				
+			if (
+				typeof relayoutData["xaxis.range[0]"] !== "undefined" ||
+				typeof relayoutData["xaxis.range[1]"] !== "undefined"
+			) {
+				//console.log(layout);
+				//console.log(layout.xaxis.range[1]);
+				//console.log(typeof relayoutData['xaxis.range[0]']);
+				//console.log(typeof relayoutData['xaxis.range[1]']);
 
-					}
-					
-					
-					// case 5. 
-					if(flag ===false &&
-						currentFrequency !== settings.series.baseFrequency &&
-						relayoutData.myFrequency === settings.series.baseFrequency &&
-						settings.series.baseFrequencyType !== "normal" &&
-						settings.series.baseAggregationType === "not available")	{
-						
-						//console.log("change frequency. case 5");
-						
-						flag = true;
-						
-						currentAggregation = settings.series.baseAggregation;				
-						
-						// hide aggregation menu
-						index = findIndexOfMenu(layout.updatemenus,"aggregation");
-						
-						layout.updatemenus[index].visible = false;
-
-						// change location of frequency menu
-						setNewXToFrequencyButton(
-							xOfRightItems(divWidth, layout), layout.updatemenus, "frequencies");
-						
-						// load original data
-						loadDataIntoXYFromPropertyXY(data, "xOriginal", "yOriginal");
-						
-						// change log linear to original
-						changeLogLinearToOriginal(layout, originalLayout, divInfo, settings);
-
-						// change compare to original
-						if(transformToBaseIndex !== settings.transformToBaseIndex){
-							//console.log("restore compare");
-							transformToBaseIndex = settings.transformToBaseIndex;
-							if(settings.allowCompare){
-								toggleCompareButton(transformToBaseIndex, divInfo.compareButtonElement);
-							}
-						}
-						
-						layout.yaxis.hoverformat= originalLayout.yaxis.hoverformat;
-						
-						if(typeof layout.yaxis.tickformat !== "undefined" && typeof originalLayout.yaxis.tickformat === "undefined"){
-							delete layout.yaxis.tickformat;
-						}
-						else if (typeof originalLayout.yaxis.tickformat !== "undefined"){
-							layout.yaxis.tickformat = originalLayout.yaxis.tickformat;
-						}
-						
-						
-					}
-					
-					// case 6. 
-					if(flag === false &&
-						currentFrequency !== settings.series.baseFrequency &&
-						relayoutData.myFrequency === settings.series.baseFrequency &&
-						settings.series.baseFrequencyType !== "normal" &&
-						settings.series.baseAggregationType !== "not available")	{
-						
-						//console.log("change frequency. case 6");
-						
-						flag = true;	
-						
-						currentAggregation = settings.series.baseAggregation;
-						//console.log("new currentAggregation", currentAggregation);
-						
-						// load one button aggregation menu
-						index = findIndexOfMenu(layout.updatemenus,"aggregation");
-						
-						//console.log("index of agg menu",index);
-						
-						layout.updatemenus[index].buttons = settings.singleAggregationButton;		
-						layout.updatemenus[index].active = 0;
-						layout.updatemenus[index].visible = true;	
-						layout.updatemenus[index].type = "buttons";
-						layout.updatemenus[index].showactive = false;
-						
-						//console.log("updatemenus",layout.updatemenus);
-						
-						// load original data
-						loadDataIntoXYFromPropertyXY(data, "xOriginal", "yOriginal");							
-						
-						// change log linear to original
-						changeLogLinearToOriginal(layout, originalLayout, divInfo, settings);
-						//console.log("6 after change log lin");
-
-						// change compare to original
-						if(transformToBaseIndex !== settings.transformToBaseIndex){
-							//console.log("restore compare");
-							transformToBaseIndex = settings.transformToBaseIndex;
-							if(settings.allowCompare){
-								toggleCompareButton(transformToBaseIndex, divInfo.compareButtonElement);
-							}
-						}		
-
-						layout.yaxis.hoverformat= originalLayout.yaxis.hoverformat;
-						
-						if(typeof layout.yaxis.tickformat !== "undefined" && typeof originalLayout.yaxis.tickformat === "undefined"){
-							delete layout.yaxis.tickformat;
-						}
-						else if (typeof originalLayout.yaxis.tickformat !== "undefined"){
-							layout.yaxis.tickformat = originalLayout.yaxis.tickformat;
-						}
-						
-						//console.log("6 after change compare to original");
-						
-					}	
-					
-					
-						
-					// case 7
-					//console.log("flag before 7", flag);
-					if(
-						(	flag === false &&
-						currentFrequency !== settings.series.baseFrequency &&
-						 relayoutData.myFrequency === settings.series.baseFrequency &&
-						 settings.series.baseFrequencyType === "normal" &&
-						currentAggregation === settings.series.baseAggregation )
-					
-					){
-						
-						// load original data
-						//console.log("change frequency. case 7");
-						
-						flag = true;	
-						
-						// load original data
-						loadDataIntoXYFromPropertyXY(data, "xOriginal", "yOriginal");		
-						
-						// case 7.1 baseAggregationType = "normal"
-						
-						// case 7.2 base AggregationType = ! normal
-						if(settings.series.baseAggregationType!== "normal"){
-							//console.log("case 7.2");
-							
-							//make aggregation = base
-							currentAggregation = settings.series.baseAggregation;
-							
-							// change log linear to original
-							changeLogLinearToOriginal(layout, originalLayout, divInfo, settings);
-							
-							// change compare to original
-							if(transformToBaseIndex !== settings.transformToBaseIndex){
-								//console.log("restore compare");
-								transformToBaseIndex = settings.transformToBaseIndex;
-								if(settings.allowCompare){
-									toggleCompareButton(transformToBaseIndex, divInfo.compareButtonElement);
-								}
-							}
-							
-
-
-							
-							// WHAT ELSE ON AGGREGATION???
-							
-							
-							if(settings.series.baseAggregationType === "not available"){
-								// case 7.2.a
-								//console.log("case 7.2.a");
-								
-								// remove aggregation button
-								index = findIndexOfMenu(layout.updatemenus,"aggregation");
-
-								layout.updatemenus[index].visible = false;
-
-								// change location of frequency menu
-								setNewXToFrequencyButton(
-									xOfRightItems(divWidth, layout), layout.updatemenus, "frequencies");																
-							}	
-							
-							if(settings.series.baseAggregationType ==="custom"){
-								// case 7.2b
-								//console.log("case 7.2.b");
-								
-								// load one button aggregation menu
-								index = findIndexOfMenu(layout.updatemenus,"aggregation");
-								layout.updatemenus[index].active =0;
-								layout.updatemenus[index].visible = true;				
-								layout.updatemenus[index].buttons =settings.singleAggregationButton;
-								layout.updatemenus[index].type = "buttons";
-								layout.updatemenus[index].showactive = false;
-								
-							}
-			
-						}
-
-					}
-					
-					
-
-					// case 8  
-					if( flag === false &&
-						
-						(currentFrequency !== settings.series.baseFrequency &&
-						 relayoutData.myFrequency === settings.series.baseFrequency &&
-						 settings.series.baseFrequencyType === "normal" &&
-						currentAggregation !== settings.series.baseAggregation)	
-					
-					){
-
-						//console.log("change frequency. case 8");
-						
-						flag = true;	
-						
-						//console.log("frequenciesDataCreated",frequenciesDataCreated);
-					
-
-						loadFrequencyAndAggregationIntoData(
-							data,
-							settings.period[relayoutData.myFrequency],
-							currentAggregation
-						);
-						
-						// handle buttons
-						if(settings.series.baseAggregationType === "custom"){
-							// load full aggregation menu
-							//console.log("load full agg menu");
-
-							index = findIndexOfMenu(layout.updatemenus,"aggregation");
-							//console.log("combinedAgg Bttons", settings.combinedAggregationButtons);
-							layout.updatemenus[index].buttons =settings.combinedAggregationButtons;
-							layout.updatemenus[index].showactive =true;
-
-							// set base aggregation menu
-							layout.updatemenus[index].active = 
-									getMethodLocationInButtonsFromArg(
-										currentAggregation,
-										layout.updatemenus[index].buttons
-									);
-							
-						}
-						
-						// if base aggregation is not normal, display combined menu
-						if( settings.series.baseAggregationType !== "normal"){
-							// load base aggregation menu
-							//console.log("load combined agg menu");
-
-							index = findIndexOfMenu(layout.updatemenus,"aggregation");
-							layout.updatemenus[index].buttons =settings.combinedAggregationButtons;
-							layout.updatemenus[index].showactive =true;
-
-							// set combined aggregation menu
-							layout.updatemenus[index].active = 
-											getMethodLocationInButtonsFromArg(
-											currentAggregation,
-											layout.updatemenus[index].buttons
-										);
-							
-						}
-						
-						
-					}
-					
-					
-					// caso 9. cargar data, change to baseAggregationButtons. 
-					if( flag === false &&
-						
-						(currentFrequency === settings.series.baseFrequency &&
-						settings.series.baseFrequencyType === "normal" &&
-						relayoutData.myFrequency !== settings.series.baseFrequency &&
-						currentAggregation !== settings.series.baseAggregation)	
-						)
-					
-							{
-					
-						//	load data	
-						//console.log("case 9 to load from calculated freqs & baseAGGButtons");
-						
-						flag = true;
-						
-						//console.log("frequenciesDataCreated",frequenciesDataCreated);
-
-						loadFrequencyAndAggregationIntoData(
-							data,
-							settings.period[relayoutData.myFrequency],
-							currentAggregation
-						);
-								
-
-						// load base aggregation menu
-						//console.log("load base agg menu");
-
-						index = findIndexOfMenu(layout.updatemenus,"aggregation");
-						layout.updatemenus[index].buttons =settings.baseAggregationButtons;
-						layout.updatemenus[index].showactive =true;
-
-						// set base aggregation menu
-						layout.updatemenus[index].active = 
-										getMethodLocationInButtonsFromArg(
-										currentAggregation,
-										layout.updatemenus[index].buttons
-									);
-
-
-					}
-					
-					
-					
-					if(flag){				
-						//OJO, CHANGE TICKS AND MINIMUM FREQUENCY DISPLAY
-						currentFrequency = relayoutData.myFrequency;
-						
-						uncomparedSaved = false;
-						
-						// X RANGE DETERMINATIONS
-
-						// this section finds the x domain for the traces
-						minMaxDatesAsString = getDataXminXmaxAsString(data);
-						minDateAsString = makeDateComplete(minMaxDatesAsString[0]);
-						maxDateAsString = makeDateComplete(minMaxDatesAsString[1]);
-
-						//console.log("minDateAsString", minDateAsString);
-						//console.log("maxDateAsString", maxDateAsString);
-						//console.log("initialDate", initialDate, "endDate", endDate);
-						//console.log("layout", layout);
-						
-						updateXAxisRange(initialDate, endDate, minDateAsString, maxDateAsString, layout.xaxis.range);
-
-						/*if(initialDate < minDateAsString){
-							initialDate = minDateAsString
-							layout.xaxis.range[0]= initialDate;
-						}
-						if(endDate > maxDateAsString){
-							endDate = maxDateAsString;
-							layout.xaxis.range[1]=	endDate;
-						}*/
-
-						// get ticktext and tickvals based on width and parameters
-						ticktextAndTickvals = aoPlotlyAddOn.getTicktextAndTickvals(
-							initialDate, endDate, settings.textAndSpaceToTextRatio, currentFrequency, 
-							layout.xaxis.tickfont.family, layout.xaxis.tickfont.size, 
-							divWidth, layout.margin.l, layout.margin.r
-						);
-				
-						// set layout ticktext and tickvals
-						layout.xaxis.tickvals = ticktextAndTickvals.tickvals;
-						layout.xaxis.ticktext = ticktextAndTickvals.ticktext;	
-						
-						saveDataXYIntoProperty(data, "nominal");
-						nominalSaved = true;	
-						
-						if(transformToReal){
-								
-							newBaseRealNominalDate = setBaseRealNominalDateAsString(settings.baseRealDate, 
-																																	 layout.xaxis.range[0],
-																																	 layout.xaxis.range[1],
-																																	 minDateAsString,
-																																	 maxDateAsString
-																																	);
-							if(newBaseRealNominalDate !== baseRealNominalDate){
-
-								baseRealNominalDate =newBaseRealNominalDate;
-								setDeflactorDictionaryAtDate(baseRealNominalDate, deflactorDictionary, data[iDeflactor], 0);					
-
-							}
-
-							
-							transformDataToReal(data, deflactorDictionary, 	baseRealNominalDate, series);
-						}
-						
-						if (transformToBaseIndex) {
-						// recalculate data to base index and save uncompared data
-							if(baseIndexDate < initialDate){
-								baseIndexDate = initialDate;
-							}
-							uncomparedSaved = prepareTransformToBaseIndex(
-								uncomparedSaved,
-								data,
-								baseIndexDate,
-								settings.allowCompare,
-								layout,
-								currentAggregation
-							);
-						}
-						
-
-						
-						//console.log("yaxis layout befor set",layout.yaxis);
-						setYAxisRange(layout, data, settings.numberOfIntervalsInYAxis, settings.possibleYTickMultiples, settings.rangeProportion);
-						//console.log("yaxis layout after set", layout.yaxis);
-
-						settings.updatemenus = layout.updatemenus;
-						Plotly.relayout(myPlot, {"updatemenus": [{}]});
-						layout.updatemenus = settings.updatemenus;
-						Plotly.redraw(myPlot);
-					}
-				}
-			} 
-			
-			
-			
-			
-			
-			else if (typeof relayoutData.myAggregation !== "undefined") {
-				// CASE 3. EN ESTE ELSE IF SE INCLUYE EL CAMBIO AGGREGATION - faltaría revisar fijación del xaxis range
-				
-				flag = false;
-				//console.log("current Frequency",currentFrequency);
-				//console.log("base Frequency", settings.series.baseFrequency);
-				//console.log("current Aggregation", currentAggregation);
-				//console.log("base Aggregation", settings.series.baseAggregation);
-				//console.log("baseFrequencyType", settings.series.baseFrequencyType);
-				//console.log("baseAggregationType",settings.series.baseAggregationType);
-				//console.log("myAggregation", relayoutData.myAggregation);
-				if (relayoutData.myAggregation !== currentAggregation) {
-					//console.log("change in aggregation started");
-					
-					// Case 1. case to read from original data
-					if(
-						currentFrequency === settings.series.baseFrequency &&
-						settings.series.baseFrequencyType === "normal" &&
-						relayoutData.myAggregation === settings.series.baseAggregation ){
-						
-						//console.log("case 1. to read from original data");
-						
-						flag = true;
-						
-		
-						
-						// read from original data
-						loadDataIntoXYFromPropertyXY(data, "xOriginal", "yOriginal");
-						
-						//console.log("data[0]", data[0]);
-						
-						// change log linear to original
-						
-						// change compare to original
-						
-					}
-					
-					
-					// case 2. to load frequency aggregation from calculated values
-					if(
-						(currentFrequency === settings.series.baseFrequency &&
-						settings.series.baseFrequencyType === "normal" &&
-						relayoutData.myAggregation !== settings.series.baseAggregation) ||
-						
-						(currentFrequency !== settings.series.baseFrequency &&
-						relayoutData.myAggregation !== settings.series.baseAggregation)	||
-						
-						(currentFrequency !== settings.series.baseFrequency &&
-						relayoutData.myAggregation === settings.series.baseAggregation &&
-						settings.series.baseAggregationType === "normal")
-						
-						){
-						
-						//console.log("case 2. to load from calculated freqs");
-						
-						flag = true;
-						
-						//console.log(frequenciesDataCreated);
-					
-						
-						//console.log("data[0]",   data[0]);
-						
-						//return;
-						// load frequency and aggregation into data
-						loadFrequencyAndAggregationIntoData(
-							data,
-							settings.period[currentFrequency],
-							relayoutData.myAggregation
-						);
-						
-						//console.log("data[0].x",data[0].x);
-						//console.log("data[1].y",data[1].y);
-	
-					}
-					
-					if(flag){
-						
-						
-						uncomparedSaved = false;
-						layout.yaxis.hoverformat = originalLayout.yaxis.hoverformat;
-						
-						if(typeof layout.yaxis.tickformat !== "undefined" && typeof originalLayout.yaxis.tickformat === "undefined"){
-							delete layout.yaxis.tickformat;
-						}
-						else if (typeof originalLayout.yaxis.tickformat !== "undefined"){
-							layout.yaxis.tickformat = originalLayout.yaxis.tickformat;
-						}
-						
-						saveDataXYIntoProperty(data, "nominal");
-						nominalSaved = true;
-						
-						if(transformToReal){
-
-							newBaseRealNominalDate = setBaseRealNominalDateAsString(settings.baseRealDate, 
-																																	 layout.xaxis.range[0],
-																																	 layout.xaxis.range[1],
-																																	 minDateAsString,
-																																	 maxDateAsString
-																																	);
-							if(newBaseRealNominalDate !== baseRealNominalDate){
-
-								baseRealNominalDate =newBaseRealNominalDate;
-								setDeflactorDictionaryAtDate(baseRealNominalDate, deflactorDictionary, data[iDeflactor], 0);					
-
-							}
-
-							transformDataToReal(data, deflactorDictionary, 	baseRealNominalDate, series);
-						}
-						
-						
-						
-						// uncompare in case aggregatin is percChange or sqrPercChange
-						if(relayoutData.myAggregation === "percChange" || relayoutData.myAggregation === "sqrPercChange"){
-							transformToBaseIndex = false;
-							if(settings.allowCompare){
-								toggleCompareButton(transformToBaseIndex, divInfo.compareButtonElement);
-							}
-
-							layout.yaxis.tickformat = ".2p";
-							layout.yaxis.hoverformat = ".3p";
-						}
-						
-						
-						// restore original compare
-						if(
-							 (currentAggregation === "percChange" || 
-							 currentAggregation === "sqrPercChange") &&
-							
-							(relayoutData.myAggregation !== "percChange" &&
-							 relayoutData.myAggregation !== "sqrPercChange")
-							
-							)
-							
-							{
-								
-
-							if(transformToBaseIndex !== settings.transformToBaseIndex){
-								//console.log("restore compare");
-								transformToBaseIndex = settings.transformToBaseIndex;
-								if(settings.allowCompare){
-									toggleCompareButton(transformToBaseIndex, divInfo.compareButtonElement);
-								}
-							}				
-
-						}
-						
-						
-	
-						
-						
-						// make yaxis.type linear
-						if(relayoutData.myAggregation === "percChange" ||
-							 relayoutData.myAggregation === "sqrPercChange" ||
-							 relayoutData.myAggregation === "change"){
-								
-							if (layout.yaxis.type === "log") {
-
-								layout.yaxis.type = "linear";
-								if(settings.allowLogLinear){
-									toggleLogLinearButton(false, divInfo.logLinearButtonElement);					
-								}
-
-							}
-							
-						}
-						
-						// restore original yaxis.type
-						if((currentAggregation === "percChange" ||
-							 currentAggregation === "sqrPercChange" ||
-							 currentAggregation === "change") &&
-							
-							(relayoutData.myAggregation !== "percChange" &&
-							 relayoutData.myAggregation !== "sqrPercChange" &&
-							 relayoutData.myAggregation !== "change")
-							
-							){
-								
-							changeLogLinearToOriginal(layout, originalLayout, divInfo, settings);
-							
-						}				
-						
-
-						
-						
-						currentAggregation = relayoutData.myAggregation;
-						
-						// X RANGE DETERMINATIONS
-
-						// this section finds the x range for the traces
-						minMaxDatesAsString = getDataXminXmaxAsString(data);
-						minDateAsString = makeDateComplete(minMaxDatesAsString[0]);
-						maxDateAsString = makeDateComplete(minMaxDatesAsString[1]);
-
-						//console.log("minDataAsString", minDateAsString);
-						//console.log("maxDataAsString", maxDateAsString);
-						//console.log("initialDate", initialDate, "endDate", endDate);
-
-						/*if(initialDate < minDateAsString){
-							initialDate = minDateAsString
-							layout.xaxis.range[0]= initialDate;
-						}
-						if(endDate > maxDateAsString){
-							endDate = maxDateAsString;
-							layout.xaxis.range[1]=	endDate;
-						}*/
-						
-						updateXAxisRange(initialDate, endDate, minDateAsString, maxDateAsString, layout.xaxis.range);
-
-
-						// get ticktext and tickvals based on width and parameters
-						ticktextAndTickvals = aoPlotlyAddOn.getTicktextAndTickvals(
-							initialDate, endDate, settings.textAndSpaceToTextRatio, currentFrequency, 
-							layout.xaxis.tickfont.family, layout.xaxis.tickfont.size, 
-							divWidth, layout.margin.l, layout.margin.r
-						);
-				
-						// set layout ticktext and tickvals
-						layout.xaxis.tickvals = ticktextAndTickvals.tickvals;
-						layout.xaxis.ticktext = ticktextAndTickvals.ticktext;							
-						
-						
-
-						
-						if (transformToBaseIndex) {
-							if(baseIndexDate < initialDate){
-								baseIndexDate = initialDate;
-							}
-						// recalculate data to base index and save uncompared data
-							uncomparedSaved = prepareTransformToBaseIndex(
-								uncomparedSaved,
-								data,
-								baseIndexDate,
-								settings.allowCompare,
-								layout,
-								currentAggregation
-							);
-						}
-						//console.log("yaxis layout befor set",layout.yaxis);
-						setYAxisRange(layout, data, settings.numberOfIntervalsInYAxis, settings.possibleYTickMultiples, settings.rangeProportion);
-						//console.log("yaxis layout after set", layout.yaxis);
-						
-						
-						settings.updatemenus = layout.updatemenus;
-						Plotly.relayout(myPlot, {"updatemenus": [{}]});
-						layout.updatemenus = settings.updatemenus;
-						Plotly.redraw(myPlot);
-
-					}	
-				}	
-			} 
-			
-			// CASE 4. EN ESTE ELSE IF HAY QUE INCLUIR EL CAMBIO DE EJES LOG LINEAR - PENDIENTE. DE MOMENTO NO SE USA
-			else if (typeof relayoutData.changeYaxisTypeToLog !== "undefined") {
-
-				//console.log("change of y axis type requested");
-
-				if (relayoutData.changeYaxisTypeToLog === false) {
-					divInfo.logLinearButtonElement.blur();
-					if (layout.yaxis.type === "log") {
-						if (!isUnderRelayout) {
-							layout.yaxis.type = "linear";
-							//console.log("change y axis to linear");
-							toggleLogLinearButton(false, divInfo.logLinearButtonElement);
-
-							layout.yaxis.type = "linear";
-							setYAxisRange(layout, data, settings.numberOfIntervalsInYAxis, settings.possibleYTickMultiples, settings.rangeProportion);
-							Plotly.redraw(myPlot).then(() => {
-								isUnderRelayout = false;
-							});
-						}
-						isUnderRelayout = true;
-					}
+				if (typeof relayoutData["xaxis.range[0]"] !== "undefined") {
+					x0 = relayoutData["xaxis.range[0]"];
+				} else {
+					x0 = layout.xaxis.range[0];
 				}
 
-				if (relayoutData.changeYaxisTypeToLog === true) {
-					divInfo.logLinearButtonElement.blur();
-					//console.log("yaxistype", layout.yaxis.type);
-					//console.log("currentAggregation",currentAggregation);
-					//console.log("yaxis range",layout.yaxis.range);
-					if (layout.yaxis.type === "linear" &&
-						 (currentAggregation !== "percChange" &&
-							 currentAggregation !== "sqrPercChange" &&
-							 currentAggregation !== "change") /*&& 
-							layout.yaxis.range[0]>0 &&
-							layout.yaxis.range[1]>0*/
-						 ) {
-						if (!isUnderRelayout) {
-							//console.log("change y axis to log");
-							layout.yaxis.type = "log";
-							toggleLogLinearButton(true, divInfo.logLinearButtonElement);
-							setYAxisRange(layout, data, settings.numberOfIntervalsInYAxis, settings.possibleYTickMultiples, settings.rangeProportion);
-							Plotly.redraw(myPlot).then(() => {
-								isUnderRelayout = false;
-							});
-						}
-						isUnderRelayout = true;
-					}
+				if (typeof relayoutData["xaxis.range[1]"] !== "undefined") {
+					x1 = relayoutData["xaxis.range[1]"];
+				} else {
+					x1 = layout.xaxis.range[1];
 				}
-			} 
-			
-			
-			// CASE 5. EN ESTE ELSE IF SE INCLUYE EL CAMBIO DE COMPARE UNCOMPARE
-			else if (typeof relayoutData.compare !== "undefined") {
 
-				//console.log("compare/uncompare button clicked");
-				//console.log("relayoutData.compare = ", relayoutData.compare);
-				//console.log("transformToBaseIndex =", transformToBaseIndex);
-				divInfo.compareButtonElement.blur();
-				if (relayoutData.compare !== transformToBaseIndex &&
-					 	currentAggregation !== "percChange" &&
-					 	currentAggregation !== "sqrPercChange") {
-					if (!isUnderRelayout) {
-						//console.log("rutina compare/uncompare in");
+				//console.log('x0:' + x0 + '-x1:' + x1);
+				flag = true;
+				//console.log(11);
+			} else if (typeof relayoutData["xaxis.range"] !== "undefined") {
+				//console.log(12);
+				x0 = relayoutData["xaxis.range"][0];
+				x1 = relayoutData["xaxis.range"][1];
+				flag = true;
+			}
 
-						//toggle transformToBaseIndes
-						transformToBaseIndex = !transformToBaseIndex;
+			//  Changes to the X axis Range. Change x axis range display.
+			if (flag === true) {
+				if (!isUnderRelayout) {
+					//console.log("x0 before process", x0);
+					//console.log("x1 before process", x1);
 
-						// update menu settings
-						//toggleCompareMenu(!relayoutData.compare, layout.updatemenus);
-						toggleCompareButton(relayoutData.compare, divInfo.compareButtonElement);
+					//x0 = makeDateComplete(x0);
+					//x1 = makeDateComplete(x1);
+					layout.xaxis.range[0]=x0;
+					layout.xaxis.range[1]=x1;
 
-						// transform data to base index
-						if (transformToBaseIndex) {
-							//console.log("uncomparedSaved", uncomparedSaved);
-							
-							// save nominal data
-							if(!nominalSaved && !transformToReal){
-								saveDataXYIntoProperty(data, "nominal");
-								nominalSaved = true;									
-							}
+					//console.log("x0 after complete date",x0);
+					//console.log("x1 after",x1);
 
-							// update baseIndex Date
-							//console.log('layout.xaxis.range[0]', layout.xaxis.range[0]);
-							baseIndexDate = makeDateComplete(layout.xaxis.range[0]);
-							//console.log('transformed to YMD as base Index date', baseIndexDate);
 
-							// transform yvalues to index at specified date
-							uncomparedSaved = prepareTransformToBaseIndex(
-								uncomparedSaved,
-								data,
-								baseIndexDate,
-								settings.allowCompare,
-								layout,
-								currentAggregation
-							);
-							
-							//console.log('data transformed for comparison', data)
+					flag = false;
+					if(transformToReal){
 
-							if (!layout.yaxis.autorange) {
-								// find y range
-								setYAxisRange(layout, data, settings.numberOfIntervalsInYAxis, settings.possibleYTickMultiples, settings.rangeProportion);
-							}
-						} 
-						
-						// uncompare, transform uncompared data (check frequencies);				
-						else {
-		
-							loadData(data, "uncompared");
-							//console.log("new data",data);
+						loadData(data,"nominal");
 
-							if (!layout.yaxis.autorange) {
-								setYAxisRange(layout, data, settings.numberOfIntervalsInYAxis, settings.possibleYTickMultiples, settings.rangeProportion);
-							}
+						newBaseRealNominalDate = setBaseRealNominalDateAsString(settings.baseRealDate, 
+																																		layout.xaxis.range[0],
+																																		layout.xaxis.range[1],
+																																		minDateAsString,
+																																		maxDateAsString
+																																	 );
+						if(newBaseRealNominalDate !== baseRealNominalDate){
+							baseRealNominalDate =newBaseRealNominalDate;
+							setDeflactorDictionaryAtDate(baseRealNominalDate, deflactorDictionary, data[iDeflactor], 0);					
+
+						}
+						//console.log("newBaseRealNominalDate",newBaseRealNominalDate);
+						transformDataToReal(data, deflactorDictionary, 	baseRealNominalDate, series);
+
+						if(transformToBaseIndex){
+							flag = true;	
+							saveDataXYIntoProperty(data,"uncompared");
 						}
 
-						Plotly.redraw(myPlot).then(() => {
-							isUnderRelayout = false;
-						});
 					}
-					isUnderRelayout = true;
-				}
-			} 
-			
-			
-			
-			
-			// CASE 6. EN ESTE ELSE IF SE INCLUYE EL CAMBIO DE NOMINAL REAL
-			else if (typeof relayoutData.transformToReal!== "undefined") {
-
-				//console.log("real/nominal button clicked");
-				//console.log("relayoutData.compare = ", relayoutData.compare);
-				//console.log("transformToBaseIndex =", transformToBaseIndex);
-				divInfo.realNominalButtonElement.blur();
-				
-				if (relayoutData.transformToReal !== transformToReal) {
-					if (!isUnderRelayout) {
-						//console.log("rutina real/nominal in");
-
-						//toggle transformRealNominal
-						transformToReal = !transformToReal;
-
-						// update menu settings
-						//toggleCompareMenu(!relayoutData.compare, layout.updatemenus);
-						toggleRealNominalButton(relayoutData.transformToReal, divInfo.realNominalButtonElement);
-
-						// transform data to real
-						if (transformToReal) {
-							
-							//console.log("transform To Real");
 
 
-							// determine base date
-							/* could be "end of range", "end of domain", "beggining of range", beggining of domain", or a date "yyyy-mm-dd hh:mm:ss.sss-04:00"*/
-							
-							if(baseRealNominalDate!==""){
-								
-								baseRealNominalDate = setBaseRealNominalDateAsString(settings.baseRealDate, 
-																																	 layout.xaxis.range[0],
-																																	 layout.xaxis.range[1],
-																																	 minDateAsString,
-																																	 maxDateAsString
-																																	);
 
-								//console.log("baseRealNominalDate",baseRealNominalDate);
-								setDeflactorDictionaryAtDate(baseRealNominalDate, deflactorDictionary, data[iDeflactor], 0);
-							}
-
-							// save nominal if not compared
-							if(!transformToBaseIndex){
-									
-								// save nominal  data
-								if(!nominalSaved){
-									saveDataXYIntoProperty(data, "nominal");
-									nominalSaved = true;									
-								}
-
-							}
-							
-							if(transformToBaseIndex){
-								loadData(data, "nominal");
-							}
-
-							//recalculate data to real 
-							transformDataToReal(data, deflactorDictionary, 	baseRealNominalDate, series);
-							
-							if (transformToBaseIndex) {
-
-								// baseIndexDate = makeDateComplete(layout.xaxis.range[0]);
-
-								// transform yvalues to index at specified date
-								uncomparedSaved = false;
-								uncomparedSaved = prepareTransformToBaseIndex(
-									uncomparedSaved,
-									data,
-									baseIndexDate,
-									settings.allowCompare,
-									layout,
-									currentAggregation
-								);
-
-							} 
-
-							if (!layout.yaxis.autorange) {
-								// find y range
-								setYAxisRange(layout, data, settings.numberOfIntervalsInYAxis, settings.possibleYTickMultiples, settings.rangeProportion);
-							}
-							
-							
-	
-						} 
-						
-						// transform to nominal				
-						else {
-							//console.log("transform to nominal");
-							
-							loadData(data, "nominal");
-							
-							
-							if (transformToBaseIndex) {
-
-								// baseIndexDate = makeDateComplete(layout.xaxis.range[0]);
-
-								// transform yvalues to index at specified date
-								uncomparedSaved = false;
-								uncomparedSaved = prepareTransformToBaseIndex(
-									uncomparedSaved,
-									data,
-									baseIndexDate,
-									settings.allowCompare,
-									layout,
-									currentAggregation
-								);
-
-							}
-
-
-							if (!layout.yaxis.autorange) {
-								setYAxisRange(layout, data, settings.numberOfIntervalsInYAxis, settings.possibleYTickMultiples, settings.rangeProportion);
-							}
-							
-						}
-
-						Plotly.redraw(myPlot).then(() => {
-							isUnderRelayout = false;
-						});
+					// transform to base index for new x0
+					if ((transformToBaseIndex && baseIndexDate !== x0) || flag) {
+						transformDataToBaseIndex(data, x0, currentAggregation);
 					}
-					isUnderRelayout = true;
-				}
-			} 
-			
-			
-			
-			
-			// CASE 7. EN ESTE ELSE IF SE INCLUYE EL DATA DOWNLOAD
-			else if (typeof relayoutData.download !== "undefined") {
-				
-				divInfo.downloadButtonElement.blur();
-				downloadCSVData(settings.xAxisNameOnCSV, data, settings.downloadedFileName);
 
-			} 
-					
-			
-			// CASE 8. Este caso pide mostrar todo el eje x. EN ESTE CASO EL RELAYOUT HAY QUE AJUSTAR EL EJE X, INCLUIR TAMBIEM EL CAMBIO DE X AXIS LABELS.
-			else if (relayoutData["xaxis.autorange"] === true) {
+					baseIndexDate = x0;
 
-				//console.log('xaxis.autorange=true');
-				//console.log('layout on all clicked',layout);
-				layout.xaxis.range[0] = makeDateComplete(layout.xaxis.range[0]);
-				layout.xaxis.range[1] = makeDateComplete(layout.xaxis.range[1]);
-				
-				if(layout.xaxis.range[0] !== initialDate || 
-					 layout.xaxis.range[1] !== endDate){
-					if (!isUnderRelayout) {					
-						initialDate = makeDateComplete(layout.xaxis.range[0]);
-						endDate = makeDateComplete(layout.xaxis.range[1]);
-						//layout.xaxis.autorange=false;
-						
+					yMinMax = getYminYmax(x0, x1, data);
+					yMinValue = yMinMax[0];
+					yMaxValue = yMinMax[1];
 
-						//console.log("initial Date",initialDate);
-						//console.log("endDate", endDate);
-						// get ticktext and tickvals based on width and parameters
-						ticktextAndTickvals = aoPlotlyAddOn.getTicktextAndTickvals(
-							initialDate,
-							endDate,
-							settings.textAndSpaceToTextRatio,
-							currentFrequency,
-							layout.xaxis.tickfont.family,
-							layout.xaxis.tickfont.size,
-							divWidth,
-							layout.margin.l,
-							layout.margin.r
-						);
+					initialDate = x0;
+					endDate = x1;
+
+					// get new x axis ticks
+					ticktextAndTickvals = aoPlotlyAddOn.getTicktextAndTickvals(
+						initialDate,
+						endDate,
+						settings.textAndSpaceToTextRatio,
+						currentFrequency,
+						layout.xaxis.tickfont.family,
+						layout.xaxis.tickfont.size,
+						divWidth,
+						layout.margin.l,
+						layout.margin.r
+					);
+
+					//console.log('new y range',yMinValue, yMaxValue);
+					if(!isNaN(yMinValue) && !isNaN(yMaxValue)){
+						layout.yaxis.autorange = false;
+						layout.yaxis.range = returnYaxisLayoutRange(
+							layout.yaxis.type === "log" ? "log" : "linear",
+							yMinValue,
+							yMaxValue,
+							settings.numberOfIntervalsInYAxis,
+							settings.possibleYTickMultiples, 
+							settings.rangeProportion
+						);	
+					} else{
 
 
-						flag = false;
-						if(transformToReal){
-
-							loadData(data,"nominal");
-
-							newBaseRealNominalDate = setBaseRealNominalDateAsString(settings.baseRealDate, 
-																																			layout.xaxis.range[0],
-																																			layout.xaxis.range[1],
-																																			minDateAsString,
-																																			maxDateAsString
-																																		 );
-							//console.log("newBaseRealNominalDate",newBaseRealNominalDate);
-							//console.log("baseRealNominalDate",baseRealNominalDate);
-							if(newBaseRealNominalDate !== baseRealNominalDate){
-								baseRealNominalDate =newBaseRealNominalDate;
-								setDeflactorDictionaryAtDate(baseRealNominalDate, deflactorDictionary, data[iDeflactor], 0);					
-
-							}
-							//console.log("newBaseRealNominalDate",newBaseRealNominalDate);
-							transformDataToReal(data, deflactorDictionary, 	baseRealNominalDate, series);
-
-							if(transformToBaseIndex){
-								flag = true;	
-								saveDataXYIntoProperty(data,"uncompared");
-							}
-
-						}
-
-
-
-						// transform to new base
-
-						if (
-							(transformToBaseIndex &&
-							baseIndexDate !== makeDateComplete(layout.xaxis.range[0])) || flag
-							) {
-
-
-							//console.log("baseIndexDate", baseIndexDate);
-							transformDataToBaseIndex(data, 
-																			 makeDateComplete(layout.xaxis.range[0]), 
-																			 currentAggregation);					
-
-						} 					
-
-						baseIndexDate = makeDateComplete(layout.xaxis.range[0]);	
-
-
-						//console.log("layout before read x axis range",layout);
-
-						yMinMax = getYminYmax(makeDateComplete(layout.xaxis.range[0]), 
-																	makeDateComplete(layout.xaxis.range[1]), 
-																	data);
-						yMinValue = yMinMax[0];
-						yMaxValue = yMinMax[1];
-						
-						if(!isNaN(yMinValue) && !isNaN(yMaxValue)){
-							layout.yaxis.autorange = false;
-							layout.yaxis.range = returnYaxisLayoutRange(
-								layout.yaxis.type === "log" ? "log" : "linear",
-								yMinValue,
-								yMaxValue,
-								settings.numberOfIntervalsInYAxis,
-								settings.possibleYTickMultiples, 
-								settings.rangeProportion
-							);	
-						} else{
-							
-							
-						}
-
-
-
-
-						// set layout ticktext and tickvals
-						layout.xaxis.tickvals = ticktextAndTickvals.tickvals;
-						layout.xaxis.ticktext = ticktextAndTickvals.ticktext;
-						
-						activeRangeSelector("step","all",layout.xaxis.rangeselector.buttons);
-						//console.log("rangeselector", layout.xaxis.rangeselector);
-						
-						Plotly.redraw(myPlot).then(() => {
-							//console.log("plot schema", Plotly.PlotSchema.get());
-							isUnderRelayout = false;
-						});
 					}
-					isUnderRelayout = true;
-				}
-			} 
-			
-			
-			// CASE 9. OTHERS, CHANGES IN X RANGE DUE TO SELECTION
-			else {
-				flag = false;
 
-				if (
-					typeof relayoutData["xaxis.range[0]"] !== "undefined" ||
-					typeof relayoutData["xaxis.range[1]"] !== "undefined"
-				) {
+
+					layout.xaxis.tickvals = ticktextAndTickvals.tickvals;
+					layout.xaxis.ticktext = ticktextAndTickvals.ticktext;
+					//console.log('updated yaxis range',layout);
+
 					//console.log(layout);
-					//console.log(layout.xaxis.range[1]);
-					//console.log(typeof relayoutData['xaxis.range[0]']);
-					//console.log(typeof relayoutData['xaxis.range[1]']);
+					Plotly.redraw(myPlot).then(() => {
+						isUnderRelayout = false;
+					});
 
-					if (typeof relayoutData["xaxis.range[0]"] !== "undefined") {
-						x0 = relayoutData["xaxis.range[0]"];
-					} else {
-						x0 = layout.xaxis.range[0];
-					}
-
-					if (typeof relayoutData["xaxis.range[1]"] !== "undefined") {
-						x1 = relayoutData["xaxis.range[1]"];
-					} else {
-						x1 = layout.xaxis.range[1];
-					}
-
-					//console.log('x0:' + x0 + '-x1:' + x1);
-					flag = true;
-					//console.log(11);
-				} else if (typeof relayoutData["xaxis.range"] !== "undefined") {
-					//console.log(12);
-					x0 = relayoutData["xaxis.range"][0];
-					x1 = relayoutData["xaxis.range"][1];
-					flag = true;
 				}
+				isUnderRelayout = true;
+			} // end of if flag is true
+		} // end of 'else' relayout cases, CASE 9
 
-				//  Changes to the X axis Range. Change x axis range display.
-				if (flag === true) {
-					if (!isUnderRelayout) {
-						//console.log("x0 before process", x0);
-						//console.log("x1 before process", x1);
-						
-						//x0 = makeDateComplete(x0);
-						//x1 = makeDateComplete(x1);
-						layout.xaxis.range[0]=x0;
-						layout.xaxis.range[1]=x1;
-						
-						//console.log("x0 after complete date",x0);
-						//console.log("x1 after",x1);
-						
+	}); // end of handling of relayout event
 
-						flag = false;
-						if(transformToReal){
 
-							loadData(data,"nominal");
-
-							newBaseRealNominalDate = setBaseRealNominalDateAsString(settings.baseRealDate, 
-																																			layout.xaxis.range[0],
-																																			layout.xaxis.range[1],
-																																			minDateAsString,
-																																			maxDateAsString
-																																		 );
-							if(newBaseRealNominalDate !== baseRealNominalDate){
-								baseRealNominalDate =newBaseRealNominalDate;
-								setDeflactorDictionaryAtDate(baseRealNominalDate, deflactorDictionary, data[iDeflactor], 0);					
-
-							}
-							//console.log("newBaseRealNominalDate",newBaseRealNominalDate);
-							transformDataToReal(data, deflactorDictionary, 	baseRealNominalDate, series);
-
-							if(transformToBaseIndex){
-								flag = true;	
-								saveDataXYIntoProperty(data,"uncompared");
-							}
-
-						}
+	//});
+	//});			
 
 
 
-						// transform to base index for new x0
-						if ((transformToBaseIndex && baseIndexDate !== x0) || flag) {
-							transformDataToBaseIndex(data, x0, currentAggregation);
-						}
 
-						baseIndexDate = x0;
 
-						yMinMax = getYminYmax(x0, x1, data);
-						yMinValue = yMinMax[0];
-						yMaxValue = yMinMax[1];
 
-						initialDate = x0;
-						endDate = x1;
+}	    
 
-						// get new x axis ticks
-						ticktextAndTickvals = aoPlotlyAddOn.getTicktextAndTickvals(
-							initialDate,
-							endDate,
-							settings.textAndSpaceToTextRatio,
-							currentFrequency,
-							layout.xaxis.tickfont.family,
-							layout.xaxis.tickfont.size,
-							divWidth,
-							layout.margin.l,
-							layout.margin.r
-						);
-						
-						//console.log('new y range',yMinValue, yMaxValue);
-						if(!isNaN(yMinValue) && !isNaN(yMaxValue)){
-							layout.yaxis.autorange = false;
-							layout.yaxis.range = returnYaxisLayoutRange(
-								layout.yaxis.type === "log" ? "log" : "linear",
-								yMinValue,
-								yMaxValue,
-								settings.numberOfIntervalsInYAxis,
-								settings.possibleYTickMultiples, 
-								settings.rangeProportion
-							);	
-						} else{
-							
-							
-						}
-
-						
-						layout.xaxis.tickvals = ticktextAndTickvals.tickvals;
-						layout.xaxis.ticktext = ticktextAndTickvals.ticktext;
-						//console.log('updated yaxis range',layout);
-
-						//console.log(layout);
-						Plotly.redraw(myPlot).then(() => {
-							isUnderRelayout = false;
-						});
-
-					}
-					isUnderRelayout = true;
-				} // end of if flag is true
-			} // end of 'else' relayout cases, CASE 9
-			
-		}); // end of handling of relayout event
-
-		callback("all read and plotted");
-		//});
-		//});
-	} // end of else after all read section
-} //  end of readDataAndMakeChart    
-	    
-	    
-	    
+   
 	    
   
       
