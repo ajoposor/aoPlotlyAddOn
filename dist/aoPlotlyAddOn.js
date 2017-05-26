@@ -2417,6 +2417,7 @@ function readData(data, iS, param, callback) {
 				param.dataSources[iS.value])
 				);
 			iS.value++;
+			readData="";
 			readDataAndMakeChart(data, iS, param, callback);
 		});
 	} 
@@ -2430,6 +2431,7 @@ function readData(data, iS, param, callback) {
 				param.dataSources[iS.value]
 				);
 			iS.value++;
+			readData="";
 			readDataAndMakeChart(data, iS, param, callback);
 		});
 	}   
@@ -2447,20 +2449,23 @@ function readData(data, iS, param, callback) {
 					param.dataSources[iS.value]
 				);
 			iS.value++;
+			readData="";
 			readDataAndMakeChart(data, iS, param, callback);
 		});
   	} 
 	else if (urlType === "pureJson") {
 		$.getJSON(series[iS.value].url, function(readData) {
-		processJsonData(
-			readData, 
-			data,
-			param.timeInfo.tracesInitialDate, 
-			param.otherDataProperties,
-			param.dataSources[iS.value]
-			);
-		iS.value++;
-		readDataAndMakeChart(data, iS, param, callback);
+			
+			processJsonData(
+				readData, 
+				data,
+				param.timeInfo.tracesInitialDate, 
+				param.otherDataProperties,
+				param.dataSources[iS.value]
+				);
+			iS.value++;
+			readData="";
+			readDataAndMakeChart(data, iS, param, callback);
 		});
 	} 
 	else if (urlType === "direct") {
@@ -2475,9 +2480,10 @@ function readData(data, iS, param, callback) {
 	}
 }
 
+	    
 // FUNCTIONS TO PARSE CVS, JSON OR DIRECT SERIES
 // main code, reads cvs files and creates traces and combine them in data
-function processCsvData(allRows, tracesInitialDate, serie) {
+function processCsvData(allRows, tracesInitialDate, otherDataProperties, dataSources) {
 	var x = [], y = [], trace = {}; //[];
 	var initialDateAsDate = new Date("0001-01-01");
 	var processedDate ="";
