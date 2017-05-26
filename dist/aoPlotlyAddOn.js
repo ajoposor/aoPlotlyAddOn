@@ -2489,32 +2489,54 @@ function processCsvData(allRows, tracesInitialDate, otherDataProperties, dataSou
 	var processedDate ="";
 	var timeOffsetText = getTimeOffsetText();
 	var readFlag = false;
-	var i = 0;
+	var i = 0, jLimit;
 	var row;
 
 	
 	if (tracesInitialDate !== "") {
 		initialDateAsDate = new Date(processDate(tracesInitialDate, timeOffsetText));
 	}
+	
+	jLimit = dataSources.traces.length;
+	for(var j=0; j < jLimit; j++){
+		
+		if(typeof serie.postProcessData !== "undefined"){
+			if(serie.postProcessData === "end of month"){
+				readFlag = true;
+				//console.log(allRows.length);
+				//console.log("allRows",allRows);
+				//console.log("initialDateAsDate",initialDateAsDate);
+				//console.log("tracesInitialDate",tracesInitialDate);
+				//console.log(serie);
 
-	if(typeof serie.postProcessData !== "undefined"){
-		if(serie.postProcessData === "end of month"){
+				for (i = 0; i < allRows.length; i++) {
+					row = allRows[i];
+					//console.log("row[serie.xSeriesName] + serie.xDateSuffix",row[serie.xSeriesName] + serie.xDateSuffix);
+					//console.log(timeOffsetText);
+					processedDate = processDate(row[serie.xSeriesName] + serie.xDateSuffix, timeOffsetText);
+					//console.log("processedDate",processedDate);
+
+					processedDate = changeDateToEndOfMonth(processedDate);
+					//console.log("processedDate",processedDate);
+					if (
+						tracesInitialDate === "" ||
+						new Date(processedDate) >= initialDateAsDate
+					) {
+						x.push(processedDate);
+						y.push(row[serie.ySeriesName]);
+					}
+				}
+			}
+		}
+
+
+
+		if(!readFlag) {
 			readFlag = true;
-			//console.log(allRows.length);
-			//console.log("allRows",allRows);
-			//console.log("initialDateAsDate",initialDateAsDate);
-			//console.log("tracesInitialDate",tracesInitialDate);
-			//console.log(serie);
-			
 			for (i = 0; i < allRows.length; i++) {
 				row = allRows[i];
-				//console.log("row[serie.xSeriesName] + serie.xDateSuffix",row[serie.xSeriesName] + serie.xDateSuffix);
-				//console.log(timeOffsetText);
 				processedDate = processDate(row[serie.xSeriesName] + serie.xDateSuffix, timeOffsetText);
-				//console.log("processedDate",processedDate);
-				
-				processedDate = changeDateToEndOfMonth(processedDate);
-				//console.log("processedDate",processedDate);
+
 				if (
 					tracesInitialDate === "" ||
 					new Date(processedDate) >= initialDateAsDate
@@ -2523,31 +2545,13 @@ function processCsvData(allRows, tracesInitialDate, otherDataProperties, dataSou
 					y.push(row[serie.ySeriesName]);
 				}
 			}
-		}
+		}	
+
+		trace = deepCopy(serie.traceAttributes);
+		trace.x = x;
+		trace.y = y;
+		return trace;
 	}
-	
-
-	
-	if(!readFlag) {
-		readFlag = true;
-		for (i = 0; i < allRows.length; i++) {
-			row = allRows[i];
-			processedDate = processDate(row[serie.xSeriesName] + serie.xDateSuffix, timeOffsetText);
-
-			if (
-				tracesInitialDate === "" ||
-				new Date(processedDate) >= initialDateAsDate
-			) {
-				x.push(processedDate);
-				y.push(row[serie.ySeriesName]);
-			}
-		}
-	}	
-
-	trace = deepCopy(serie.traceAttributes);
-	trace.x = x;
-	trace.y = y;
-	return trace;
 }
 
 function processJsonData(jsonData, tracesInitialDate, serie) {
