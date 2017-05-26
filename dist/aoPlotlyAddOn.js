@@ -2403,53 +2403,73 @@ function dateToString(date) {
 
 // 2. Read Data - support function, reads data and add it to data object, increases global iS variable
 function readData(data, iS, param, callback) {
-	if (series[iS.value].urlType === "csv") {
-		Plotly.d3.csv(series[iS.value].url, function(readData) {
+	
+	var ulrType = param.dataSources[iS.value].urlType;
+	
+	if (urlType === "csv") {
+		Plotly.d3.csv(param.dataSources[iS.value].url, function(readData) {
 			console.log("csv", iS.value);
-			data.push(processCsvData(readData, param.timeInfo.tracesInitialDate, series[iS.value]));
+			processCsvData(
+				readData, 
+				data,
+				param.timeInfo.tracesInitialDate,
+				param.otherDataProperties,
+				param.dataSources[iS.value])
+				);
 			iS.value++;
 			readDataAndMakeChart(data, iS, param, callback);
 		});
 	} 
-	else if (series[iS.value].urlType === "yqlJson") {
+	else if (urlType === "yqlJson") {
 		$.getJSON(series[iS.value].url, function(readData) {
-			data.push(
-				processJsonData(
-					readData.query.results.json,
-					param.timeInfo.tracesInitialDate,
-					series[iS.value]
-				)
-			);
+			processJsonData(
+				readData.query.results.json,
+				data,
+				param.timeInfo.tracesInitialDate,
+				param.otherDataProperties,
+				param.dataSources[iS.value]
+				);
 			iS.value++;
 			readDataAndMakeChart(data, iS, param, callback);
 		});
 	}   
-	else if (series[iS.value].urlType === "yqlGoogleCSV") {
+	else if ( urlType === "yqlGoogleCSV") {
 		console.log("Googlecsv", iS.value);
 		Plotly.d3.json("https://query.yahooapis.com/v1/public/yql?q="+
 			encodeURIComponent("SELECT * from csv where url='"+series[iS.value].url+"'")+
 			"&format=json", 				
 			function(readData) {
-				data.push(
-					processYqlGoogleCsvData(
-						readData.query.results.row,
-						param.timeInfo.tracesInitialDate,
-						series[iS.value]
-					)
+				processYqlGoogleCsvData(
+					readData.query.results.row,
+					data,
+					param.timeInfo.tracesInitialDate,
+					param.otherDataProperties,
+					param.dataSources[iS.value]
+				);
+			iS.value++;
+			readDataAndMakeChart(data, iS, param, callback);
+		});
+  	} 
+	else if (urlType === "pureJson") {
+		$.getJSON(series[iS.value].url, function(readData) {
+		processJsonData(
+			readData, 
+			data,
+			param.timeInfo.tracesInitialDate, 
+			param.otherDataProperties,
+			param.dataSources[iS.value]
 			);
 		iS.value++;
 		readDataAndMakeChart(data, iS, param, callback);
 		});
-  	} 
-	else if (series[iS.value].urlType === "pureJson") {
-		$.getJSON(series[iS.value].url, function(readData) {
-		data.push(processJsonData(readData, param.timeInfo.tracesInitialDate, series[iS.value]));
-		iS.value++;
-		readDataAndMakeChart(data, iS, param, callback);
-		});
 	} 
-	else if (series[iS.value].urlType === "direct") {
-		data.push(processDirectData(param.timeInfo.tracesInitialDate, series[iS.value]));
+	else if (urlType === "direct") {
+		processDirectData(
+			data,
+			param.timeInfo.tracesInitialDate, 
+			param.otherDataProperties,
+			param.dataSources[iS.value]
+			);
 		iS.value++;
 		readDataAndMakeChart(data, iS, param, callback);
 	}
@@ -4393,7 +4413,7 @@ function readDataAndMakeChart(data, iS, param, callback) {
 	
 	// first all files are to be read, in a recursive way, with iS < series.length
 
-	if (iS.value < series.length) {
+	if (iS.value < param.dataSources.length) {
 		readData(data, iS, param, callback);
 	} 
 	
