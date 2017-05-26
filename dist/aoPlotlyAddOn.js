@@ -690,7 +690,8 @@ function getPeriodLimitsAsYYYYMMDD(year, month, day, endOfWeek) {
 // this functions adds items and functionallity, including, buttons, responsiveness, series resampling     
 aoPlotlyAddOn.newTimeseriesPlot = function (
 	divInfo,
-	series,
+	dataSources,
+	data,
 	settings = {},
 	timeInfo = {},
 	layout = {},
@@ -702,14 +703,11 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	// test arguments are passed complete	
 	if (arguments.length < 3) {
 		return "incomplete arguments";
-	}
+	}	
 		
 		
 		
-		
-		
- // SET divInfo
-
+ 	// SET divInfo
 		
 	var wholeDivInitialStyling = {
 		visibility:"hidden",
@@ -718,14 +716,13 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	
 	var loaderInitialStyling = {
 		visibility: "visible",
-    position: "fixed",
-    left: "0px",
-    top: "0px",
-    width: "100%",
-    height: "100%",
-    background: "url('https://raw.githubusercontent.com/ajoposor/Images/master/files/loader_big_blue.gif') 50% 50% no-repeat #FFFFFF",
-    opacity: 1
-		
+		position: "fixed",
+		left: "0px",
+		top: "0px",
+		width: "100%",
+		height: "100%",
+		background: "url('https://raw.githubusercontent.com/ajoposor/Images/master/files/loader_big_blue.gif') 50% 50% no-repeat #FFFFFF",
+		opacity: 1	
 	};
 	
 	loaderInitialStyling["z-index"] = "9999";
@@ -739,16 +736,12 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	divInfo.loaderElement = document.createElement('div');
 	divInfo.loaderElement.id = divInfo.loaderID;
 	divInfo.wholeDivElement.insertBefore(
-		divInfo.loaderElement, 
-		divInfo.wholeDivElement.firstChild);	
-
-
+	divInfo.loaderElement, 
+	divInfo.wholeDivElement.firstChild);	
 
 		
 	setElementStyle(divInfo.loaderElement, loaderInitialStyling);
 	
-
-		
 		
 	
 	// frequency dropdown buttons to be added to updatemenus if option applies
@@ -801,58 +794,58 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	// SET OPTIONS AND TIMEINFO DEFAULTS
 
 		
-		// normal button
-		var buttonsDefaultStyle =  {
-			color: "#444444",
-			background: "#EEEEEE",
-			display: "block",
-			position: "relative",
-			float: "left",
-			width: "50px",
-			padding: "0",
-			margin: "1px 1px 1px 1px",
-			transition: "all 0.2s"
-		};
+	// normal button
+	var buttonsDefaultStyle =  {
+		color: "#444444",
+		background: "#EEEEEE",
+		display: "block",
+		position: "relative",
+		float: "left",
+		width: "50px",
+		padding: "0",
+		margin: "1px 1px 1px 1px",
+		transition: "all 0.2s"
+	};
 
-		buttonsDefaultStyle["background-color"]= "#EEEEEE";	
-		buttonsDefaultStyle["font-weight"] = "100";
-		buttonsDefaultStyle["text-align"] ="center";
-		buttonsDefaultStyle["line-height"] = "17px";
-		buttonsDefaultStyle["border-radius"] = "3px";
-		buttonsDefaultStyle["border-style"] = "none";
-		
-		var buttonsHoverDefaultStyle ={};
-	
-		buttonsHoverDefaultStyle["background-color"]="#D4D4D4";
-		buttonsHoverDefaultStyle.color = "#444444";
-		
-		
-		//pressed button
-		var pressedButtonDefaultStyle =  {
-			color: "#444444",
-			background: "#EEEEEE",
-			display: "block",
-			position: "relative",
-			float: "left",
-			width: "50px",
-			padding: "0",
-			margin: "1px 1px 1px 1px",
-			transition: "all 0.2s"
-		};
+	buttonsDefaultStyle["background-color"]= "#EEEEEE";	
+	buttonsDefaultStyle["font-weight"] = "100";
+	buttonsDefaultStyle["text-align"] ="center";
+	buttonsDefaultStyle["line-height"] = "17px";
+	buttonsDefaultStyle["border-radius"] = "3px";
+	buttonsDefaultStyle["border-style"] = "none";
 
-		pressedButtonDefaultStyle["background-color"]= "#D4D4D4";	
-		pressedButtonDefaultStyle["font-weight"] = "100";
-		pressedButtonDefaultStyle["text-align"] ="center";
-		pressedButtonDefaultStyle["line-height"] = "17px";
-		pressedButtonDefaultStyle["border-radius"] = "3px";
-		pressedButtonDefaultStyle["border-style"] = "none";
+	var buttonsHoverDefaultStyle ={};
+
+	buttonsHoverDefaultStyle["background-color"]="#D4D4D4";
+	buttonsHoverDefaultStyle.color = "#444444";
 		
-		var pressedButtonHoverDefaultStyle ={};
-	
-		pressedButtonHoverDefaultStyle["background-color"]="#EEEEEE"; //#EEEEEE
-		pressedButtonHoverDefaultStyle["touch-background-color"]="#D4D4D4";
-		pressedButtonHoverDefaultStyle["mouse-background-color"]="#EEEEEE";
-		pressedButtonHoverDefaultStyle.color = "#444444";
+		
+	//pressed button
+	var pressedButtonDefaultStyle =  {
+		color: "#444444",
+		background: "#EEEEEE",
+		display: "block",
+		position: "relative",
+		float: "left",
+		width: "50px",
+		padding: "0",
+		margin: "1px 1px 1px 1px",
+		transition: "all 0.2s"
+	};
+
+	pressedButtonDefaultStyle["background-color"]= "#D4D4D4";	
+	pressedButtonDefaultStyle["font-weight"] = "100";
+	pressedButtonDefaultStyle["text-align"] ="center";
+	pressedButtonDefaultStyle["line-height"] = "17px";
+	pressedButtonDefaultStyle["border-radius"] = "3px";
+	pressedButtonDefaultStyle["border-style"] = "none";
+
+	var pressedButtonHoverDefaultStyle ={};
+
+	pressedButtonHoverDefaultStyle["background-color"]="#EEEEEE"; //#EEEEEE
+	pressedButtonHoverDefaultStyle["touch-background-color"]="#D4D4D4";
+	pressedButtonHoverDefaultStyle["mouse-background-color"]="#EEEEEE";
+	pressedButtonHoverDefaultStyle.color = "#444444";
 		
 		
 		
@@ -1114,7 +1107,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	}	
 		
 		
-// REAL / NOMINAL BUTTON	
+	// REAL / NOMINAL BUTTON	
 	if(settings.allowRealNominal){
 		// name button
 		divInfo.realNominalButtonID = divInfo.footerDivID+"_realNominal";
@@ -1200,40 +1193,38 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		
 	// change hover effect in touch devices
 		
-		var isTouch = false; //var to indicate current input type (is touch versus no touch) 
-    var isTouchTimer; 
-    var curRootClass = ""; //var indicating current document root class ("can-touch" or "")
+	var isTouch = false; //var to indicate current input type (is touch versus no touch) 
+    	var isTouchTimer; 
+    	var curRootClass = ""; //var indicating current document root class ("can-touch" or "")
      
-    function addtouchclass(e){
-        clearTimeout(isTouchTimer);
-        isTouch = true;
-        if (curRootClass !== "can-touch"){ //add "can-touch' class if it's not already present
-            curRootClass = "can-touch";
-            document.documentElement.classList.add(curRootClass);
-						settings.pressedButtonHoverDefaultStyle["background-color"]=
-							settings.pressedButtonHoverDefaultStyle["touch-background-color"];
+	function addtouchclass(e){
+		clearTimeout(isTouchTimer);
+		isTouch = true;
+		if (curRootClass !== "can-touch"){ //add "can-touch' class if it's not already present
+		    curRootClass = "can-touch";
+		    document.documentElement.classList.add(curRootClass);
+							settings.pressedButtonHoverDefaultStyle["background-color"]=
+								settings.pressedButtonHoverDefaultStyle["touch-background-color"];
 
-						
-        }
-        isTouchTimer = setTimeout(function(){isTouch = false;}, 500);
-			//maintain "istouch" state for 500ms so removetouchclass doesn't get fired immediately following a touch event
-    }
+
+		}
+		isTouchTimer = setTimeout(function(){isTouch = false;}, 500);
+				//maintain "istouch" state for 500ms so removetouchclass doesn't get fired immediately following a touch event
+	}
      
-    function removetouchclass(e){
-        if (!isTouch && curRootClass === "can-touch"){ //remove 'can-touch' class if not triggered by a touch event and class is present
-            isTouch = false;
-            curRootClass = "";
-            document.documentElement.classList.remove("can-touch");
-						settings.pressedButtonHoverDefaultStyle["background-color"]=
-							settings.pressedButtonHoverDefaultStyle["mouse-background-color"];
-        }
-    }
+	function removetouchclass(e){
+		if (!isTouch && curRootClass === "can-touch"){ //remove 'can-touch' class if not triggered by a touch event and class is present
+		    isTouch = false;
+		    curRootClass = "";
+		    document.documentElement.classList.remove("can-touch");
+							settings.pressedButtonHoverDefaultStyle["background-color"]=
+								settings.pressedButtonHoverDefaultStyle["mouse-background-color"];
+		}
+	}
      
-    document.addEventListener("touchstart", addtouchclass, false); //this event only gets called when input type is touch
-    document.addEventListener("mouseover", removetouchclass, false); //this event gets called when input type is everything from touch to mouse/ trackpad
-		
-		
-		
+	document.addEventListener("touchstart", addtouchclass, false); //this event only gets called when input type is touch
+	document.addEventListener("mouseover", removetouchclass, false); //this event gets called when input type is everything from touch to mouse/ trackpad
+
 		
 		
 		
@@ -2243,7 +2234,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	setJsonDefaults(optionsDefaults, options);
 
 	// After all settings ready, call function to read data, adjust ranges, set menus and make chart
-	var data = []; //, dataOriginal = [];
+	// var data = []; //, dataOriginal = [];
 	// var dataOriginalModes = [];
 	var iS = {
 		value: 0
@@ -2268,7 +2259,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	};
 
 	//Call Read and Make Chart Function
-	readDataAndMakeChart(series, iS, data, passedParameters, function(message) {
+	readDataAndMakeChart(dataSources, iS, data, passedParameters, function(message) {
 		console.log(message);
 	});
 }; // END OF newTimeseriesPlot FUNCTION
