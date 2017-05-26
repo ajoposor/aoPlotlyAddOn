@@ -690,8 +690,9 @@ function getPeriodLimitsAsYYYYMMDD(year, month, day, endOfWeek) {
 // this functions adds items and functionallity, including, buttons, responsiveness, series resampling     
 aoPlotlyAddOn.newTimeseriesPlot = function (
 	divInfo,
-	dataSources,
 	data,
+	otherDataProperties,
+	dataSources,
 	settings = {},
 	timeInfo = {},
 	layout = {},
@@ -2246,6 +2247,8 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	}
 
 	var passedParameters = {
+		otherDataProperties: otherDataProperties,
+		dataSources: dataSources,
 		divInfo: divInfo,
 		settings: settings,
 		timeInfo: timeInfo,
@@ -2259,7 +2262,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	};
 
 	//Call Read and Make Chart Function
-	readDataAndMakeChart(dataSources, iS, data, passedParameters, function(message) {
+	readDataAndMakeChart(data, iS, passedParameters, function(message) {
 		console.log(message);
 	});
 }; // END OF newTimeseriesPlot FUNCTION
@@ -2399,13 +2402,13 @@ function dateToString(date) {
 
 
 // 2. Read Data - support function, reads data and add it to data object, increases global iS variable
-function readData(series, iS, data, param, callback) {
+function readData(data, iS, param, callback) {
 	if (series[iS.value].urlType === "csv") {
 		Plotly.d3.csv(series[iS.value].url, function(readData) {
 			console.log("csv", iS.value);
 			data.push(processCsvData(readData, param.timeInfo.tracesInitialDate, series[iS.value]));
 			iS.value++;
-			readDataAndMakeChart(series, iS, data, param, callback);
+			readDataAndMakeChart(data, iS, param, callback);
 		});
 	} 
 	else if (series[iS.value].urlType === "yqlJson") {
@@ -2418,7 +2421,7 @@ function readData(series, iS, data, param, callback) {
 				)
 			);
 			iS.value++;
-			readDataAndMakeChart(series, iS, data, param, callback);
+			readDataAndMakeChart(data, iS, param, callback);
 		});
 	}   
 	else if (series[iS.value].urlType === "yqlGoogleCSV") {
@@ -2435,20 +2438,20 @@ function readData(series, iS, data, param, callback) {
 					)
 			);
 		iS.value++;
-		readDataAndMakeChart(series, iS, data, param, callback);
+		readDataAndMakeChart(data, iS, param, callback);
 		});
   	} 
 	else if (series[iS.value].urlType === "pureJson") {
 		$.getJSON(series[iS.value].url, function(readData) {
 		data.push(processJsonData(readData, param.timeInfo.tracesInitialDate, series[iS.value]));
 		iS.value++;
-		readDataAndMakeChart(series, iS, data, param, callback);
+		readDataAndMakeChart(data, iS, param, callback);
 		});
 	} 
 	else if (series[iS.value].urlType === "direct") {
 		data.push(processDirectData(param.timeInfo.tracesInitialDate, series[iS.value]));
 		iS.value++;
-		readDataAndMakeChart(series, iS, data, param, callback);
+		readDataAndMakeChart(data, iS, param, callback);
 	}
 }
 
@@ -4385,18 +4388,18 @@ function transformDataToReal(data, deflactorDictionary, baseRealNominalDate, ser
 
 
 // FUNCTION TO READ DATA, ADJUST RANGES, SET MENUS, MAKE CHARTS AND HANDLE EVENTS
-function readDataAndMakeChart(series, iS, data, param, callback) {
+function readDataAndMakeChart(data, iS, param, callback) {
 	
 	
 	// first all files are to be read, in a recursive way, with iS < series.length
 
 	if (iS.value < series.length) {
-		readData(series, iS, data, param, callback);
+		readData(data, iS, param, callback);
 	} 
 	
 	else {
 		// once all files all read, i.e. iS === series.length, this section is executed
-		makeChart(series, data, param);
+		makeChart(data, param);
 		callback("all read and plotted");
 	
 	} // end of else after all read section
@@ -4404,7 +4407,7 @@ function readDataAndMakeChart(series, iS, data, param, callback) {
 	    
 	    
 
-function makeChart(series, data, param){
+function makeChart(data, param){
 	
 	console.log("issue #1");
 
