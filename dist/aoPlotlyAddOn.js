@@ -4414,6 +4414,8 @@ function readDataAndMakeChart(series, iS, data, param, callback) {
 	    
 
 function makeChart(series, data, param){
+	
+	console.log("issue #1");
 
 	// variable definitions
 	var x0 = "2000-01-01",
