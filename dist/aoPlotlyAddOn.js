@@ -2489,7 +2489,7 @@ function processCsvData(allRows, tracesInitialDate, otherDataProperties, dataSou
 	var processedDate ="";
 	var timeOffsetText = getTimeOffsetText();
 	var readFlag = false;
-	var i = 0, jLimit;
+	var i = 0, jLimit, iData;
 	var row;
 
 	
@@ -2500,9 +2500,19 @@ function processCsvData(allRows, tracesInitialDate, otherDataProperties, dataSou
 	jLimit = dataSources.traces.length;
 	for(var j=0; j < jLimit; j++){
 		
-		if(typeof serie.postProcessData !== "undefined"){
-			if(serie.postProcessData === "end of month"){
+		readFlag = false;
+		iData = findTrace(dataSources.traces[j].tradeID,otherDataProperties);
+		if(typeof data[iData].x === undefined) data[iData].x = [];
+		if(typeof data[iData].y === undefined) data[iData].y = [];
+		
+		if(typeof dataSources.traces[j].postProcessData !== "undefined"){
+			if(dataSources[j].postProcessData === "end of month" &&
+			  (j===0 || (j>0 && dataSources.traces[j].xSeriesName !== dataSources.traces[j-1].xSeriesName))
+			  ){
 				readFlag = true;
+				allRows.sort(function(a, b){
+					return a[dataSources.traces[j].xSeriesName]-
+					b[dataSources.traces[j].xSeriesName]});
 				//console.log(allRows.length);
 				//console.log("allRows",allRows);
 				//console.log("initialDateAsDate",initialDateAsDate);
@@ -2513,7 +2523,8 @@ function processCsvData(allRows, tracesInitialDate, otherDataProperties, dataSou
 					row = allRows[i];
 					//console.log("row[serie.xSeriesName] + serie.xDateSuffix",row[serie.xSeriesName] + serie.xDateSuffix);
 					//console.log(timeOffsetText);
-					processedDate = processDate(row[serie.xSeriesName] + serie.xDateSuffix, timeOffsetText);
+					processedDate = processDate(row[dataSources.traces[j].xSeriesName] + 
+								    dataSources.traces[j].xDateSuffix, timeOffsetText);
 					//console.log("processedDate",processedDate);
 
 					processedDate = changeDateToEndOfMonth(processedDate);
@@ -2523,7 +2534,7 @@ function processCsvData(allRows, tracesInitialDate, otherDataProperties, dataSou
 						new Date(processedDate) >= initialDateAsDate
 					) {
 						x.push(processedDate);
-						y.push(row[serie.ySeriesName]);
+						y.push(row[dataSources.traces[j].ySeriesName]);
 					}
 				}
 			}
