@@ -2480,6 +2480,22 @@ function readData(data, iS, param, callback) {
 	}
 }
 
+	     
+// callback creation function to processArrayDates
+function mapProcessDate(array, xSeriesName, xDateSuffix, timeOffsetText){
+	return function (x, i, array) {
+		array[i][xSeriesName] = processDate(
+			x[xSeriesName] + 
+			xDateSuffix, timeOffsetText);
+	}
+}
+	    
+// callback creation function to processArrayDates to end of month	    
+function mapchangeDateToEndOfMonth(allRows, xSeriesName){
+	return function (x, i, array) {
+		
+	}
+}
 	    
 // FUNCTIONS TO PARSE CVS, JSON OR DIRECT SERIES
 // main code, reads cvs files and creates traces and combine them in data
@@ -2491,6 +2507,8 @@ function processCsvData(allRows, tracesInitialDate, otherDataProperties, dataSou
 	var readFlag = false;
 	var i = 0, jLimit, iData;
 	var row;
+	var xSeriesName="", ySeriesName="";
+	var processedColumnDates = [];
 
 	
 	if (tracesInitialDate !== "") {
@@ -2501,18 +2519,63 @@ function processCsvData(allRows, tracesInitialDate, otherDataProperties, dataSou
 	for(var j=0; j < jLimit; j++){
 		
 		readFlag = false;
+		
+		// find trace index
 		iData = findTrace(dataSources.traces[j].tradeID,otherDataProperties);
+		
+		// create x and y properties if not yet defined
 		if(typeof data[iData].x === undefined) data[iData].x = [];
 		if(typeof data[iData].y === undefined) data[iData].y = [];
 		
+		xSeriesName = dataSources.traces[j].xSeriesName;
+		// case postProcessData "end of month"
 		if(typeof dataSources.traces[j].postProcessData !== "undefined"){
 			if(dataSources[j].postProcessData === "end of month" &&
-			  (j===0 || (j>0 && dataSources.traces[j].xSeriesName !== dataSources.traces[j-1].xSeriesName))
+			  (j===0 || (j>0 && xSeriesName !== dataSources.traces[j-1].xSeriesName))
 			  ){
 				readFlag = true;
-				allRows.sort(function(a, b){
-					return a[dataSources.traces[j].xSeriesName]-
-					b[dataSources.traces[j].xSeriesName]});
+				
+				// process dates column if not yet done
+				if(!nameIsOnArrayOfNames(xSeriesName,processedColumnDates)){
+					// set column as processed
+					processedColumnDates.push(xSeriesName);
+					
+					// procesDates
+					allRows.map(
+						mapProcessDate(allRows,
+							       xSeriesName,
+							       dataSources.traces[j].xDateSuffix,
+							       timeOffsetText)
+						);
+					
+					
+					// change date to end of month
+					if(typeof dataSources.traces[j].postProcessData !== "undefined"){
+						if(dataSources[j].postProcessData === "end of month") {
+						   allRows.map(
+						   	mapchangeDateToEndOfMonth(allRows,
+										  xSeriesName)
+
+						   );
+						}
+					}
+						   
+					
+				}
+				
+
+					   
+				
+				
+				// sort read data in descending order if required
+				if(typeof dataSources.trace[j].sort !== "undefined"){	
+					if(dataSources.trace[j].sort === true){
+						allRows.sort(function(a, b){
+							return b[xSeriesName]-a[xSeriesName];
+							});
+					}
+				}
+				
 				//console.log(allRows.length);
 				//console.log("allRows",allRows);
 				//console.log("initialDateAsDate",initialDateAsDate);
@@ -2523,7 +2586,7 @@ function processCsvData(allRows, tracesInitialDate, otherDataProperties, dataSou
 					row = allRows[i];
 					//console.log("row[serie.xSeriesName] + serie.xDateSuffix",row[serie.xSeriesName] + serie.xDateSuffix);
 					//console.log(timeOffsetText);
-					processedDate = processDate(row[dataSources.traces[j].xSeriesName] + 
+					//processedDate = processDate(row[xSeriesName] + 
 								    dataSources.traces[j].xDateSuffix, timeOffsetText);
 					//console.log("processedDate",processedDate);
 
