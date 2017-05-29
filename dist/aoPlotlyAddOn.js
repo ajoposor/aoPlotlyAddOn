@@ -2573,11 +2573,9 @@ function findSpliceInfo(newArray, newArrayLength, existingArray, xSeriesName){
 }
 	    
 	    
-
-	    
 // FUNCTIONS TO PARSE CVS, JSON OR DIRECT SERIES
 // main code, reads cvs files and creates traces and combine them in data
-function processCsvData(allRows, tracesInitialDate, otherDataProperties, dataSources) {
+function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, dataSources) {
 	var x = [], y = [], trace = {}; //[];
 	var xSorted = [], ySorted = [];
 	var nullDate = new Date("0001-01-01");
