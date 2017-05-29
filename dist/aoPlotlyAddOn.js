@@ -2414,7 +2414,7 @@ function readData(data, iS, param, callback) {
 				data,
 				param.timeInfo.tracesInitialDate,
 				param.otherDataProperties,
-				param.dataSources[iS.value])
+				param.dataSources[iS.value]
 				);
 			iS.value++;
 			readData="";
