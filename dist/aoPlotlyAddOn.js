@@ -2702,7 +2702,7 @@ function processCsvData(allRows, tracesInitialDate, otherDataProperties, dataSou
 
 			// case new data is older than existing
 			else if (readTraceInitialDateAsDate < existingInitialDateAsDate ) {
-				for(i=readTraceLength -1 ; i > -1<; i--){
+				for(i=readTraceLength -1 ; i > -1; i--){
 					if(new Date(allRows[i][xSeriesName]) >= existingInitialDateAsDate){
 					   initialIndex = i+i;
 					   traceLength = readTraceLength - initialIndex -1;
@@ -2747,9 +2747,9 @@ function processCsvData(allRows, tracesInitialDate, otherDataProperties, dataSou
 						tracesInitialDate === "" ||
 						new Date(processedDate) >= initialDateAsDate
 					) {
-						x[k]=processedDate);
+						x[k]=processedDate;
 						y[k]=allRows[i][ySeriesName];
-						readItems = ++;
+						readItems++;
 					}
 					else {
 						// stop reading when initialDateAsDate has been reached.
@@ -2769,9 +2769,9 @@ function processCsvData(allRows, tracesInitialDate, otherDataProperties, dataSou
 					tracesInitialDate === "" ||
 					new Date(processedDate) >= initialDateAsDate
 				) {
-					x[k]=processedDate);
+					x[k]=processedDate;
 					y[k]=allRows[i][ySeriesName];
-					readItems = ++;
+					readItems++;
 				}
 				else {
 					// stop reading when initialDateAsDate has been reached.
