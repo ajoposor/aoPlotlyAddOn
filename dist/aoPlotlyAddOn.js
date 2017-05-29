@@ -2612,7 +2612,7 @@ function processCsvData(allRows, tracesInitialDate, otherDataProperties, dataSou
 		insertTrace = false;
 		
 		// find trace index
-		iData = findTrace(dataSources.traces[j].tradeID,otherDataProperties);
+		iData = findTrace(dataSources.traces[j].traceID,otherDataProperties);
 		
 		// create x and y properties if not yet defined for current trace
 		if(typeof data[iData].x === undefined) {
