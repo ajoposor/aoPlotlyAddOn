@@ -2571,7 +2571,16 @@ function findSpliceInfo(newArray, newArrayLength, existingArray, xSeriesName){
 	return spliceInfo;
 
 }
-	    
+
+function findTraceIdIndex(traceID,otherDataProperties){
+	var iLimit = otherDataProperties.length;
+	for( var i=0; i< iLimit; i++){
+		if(otherDataPropererties[i].traceId === traceId){
+			return i;
+		}	
+	}
+	return -1;
+}
 	    
 // FUNCTIONS TO PARSE CVS, JSON OR DIRECT SERIES
 // main code, reads cvs files and creates traces and combine them in data
@@ -2610,7 +2619,7 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 		insertTrace = false;
 		
 		// find trace index
-		iData = findTrace(dataSources.traces[j].traceID,otherDataProperties);
+		iData = findTraceIdIndex(dataSources.traces[j].traceID,otherDataProperties);
 		
 		// create x and y properties if not yet defined for current trace
 		if(typeof data[iData].x === undefined) {
