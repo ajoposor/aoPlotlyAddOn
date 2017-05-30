@@ -2497,9 +2497,10 @@ function mapchangeDateToEndOfMonth(allRows, xSeriesName){
 	}
 }
 	    
-function findSpliceInfo(newArray, newArrayLength, existingArray, xSeriesName){
+	    
+function findSpliceInfo(newArray, xSeriesName, newArrayInitialIndex, newArrayElements, existingArray){
 	
-	var j=0, jLimit = existingArray.length;
+	var j=0, iLimit, jLimit = existingArray.length;
 	var currentDate = new Date();
 	var cutDate = new Date();
 	var spliceInfo ={
@@ -2508,8 +2509,8 @@ function findSpliceInfo(newArray, newArrayLength, existingArray, xSeriesName){
 		insertPoint: 0
 	};
 		
-
-	for (var i=0; i < newArrayLength; i++){
+	iLimit = newArrayInitialIndex + newArrayElements;
+	for (var i=newArrayInitialIndex; i < iLimit; i++){
 		currentDate = new Date(newArray[i][xSeriesName]);
 		
 		// search for an entry point
@@ -2522,10 +2523,10 @@ function findSpliceInfo(newArray, newArrayLength, existingArray, xSeriesName){
 							spliceInfo.insertPoint = j+1;
 							j=jLimit;
 							// search number of items to include
-							for (i=spliceInfo.initialIndex; i<newArrayLength; i++){
+							for (i=spliceInfo.initialIndex; i<iLimit; i++){
 								if(new Date(newArray[i][xSeriesName]) <= cutDate ){
 									spliceInfo.traceLength = i-spliceInfo.initialIndex;
-									i=newArrayLength;
+									i=iLimit;
 								}
 							}
 					}
@@ -2536,8 +2537,8 @@ function findSpliceInfo(newArray, newArrayLength, existingArray, xSeriesName){
 							spliceInfo.initialIndex = i;
 							spliceInfo.insertPoint = j+1;
 							j=jLimit;
-							spliceInfo.traceLength = newArrayLength -spliceInfo.initialIndex;
-							i=newArrayLength;
+							spliceInfo.traceLength = iLimit -spliceInfo.initialIndex;
+							i=iLimit;
 					}
 				
 				}
@@ -2549,10 +2550,10 @@ function findSpliceInfo(newArray, newArrayLength, existingArray, xSeriesName){
 						spliceInfo.insertPoint = j+1;
 						j=jLimit;
 						// search number of items to include
-						for (i=spliceInfo.initialIndex; i < newArrayLength; i++){
+						for (i=spliceInfo.initialIndex; i < iLimit; i++){
 							if(new Date(newArray[i][xSeriesName]) <= cutDate ){
 								spliceInfo.traceLength = i-spliceInfo.initialIndex;
-								i=newArrayLength;
+								i=iLimit;
 							}
 						}
 					}
@@ -2575,12 +2576,20 @@ function findSpliceInfo(newArray, newArrayLength, existingArray, xSeriesName){
 function findTraceIdIndex(traceID,otherDataProperties){
 	var iLimit = otherDataProperties.length;
 	for( var i=0; i< iLimit; i++){
-		if(otherDataPropererties[i].traceId === traceId){
+		if(otherDataProperties[i].traceID === traceID){
 			return i;
 		}	
 	}
 	return -1;
 }
+	    
+	     
+// callback creation function to sortByDatesAsStrings
+function sortByDatesAsStrings(xSeriesName){
+	return function (a, b) {
+		return new Date(b[xSeriesName])-new Date(a[xSeriesName]);
+	}
+}	       
 	    
 // FUNCTIONS TO PARSE CVS, JSON OR DIRECT SERIES
 // main code, reads cvs files and creates traces and combine them in data
@@ -2600,34 +2609,32 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 	var existingInitialDateAsDate, existingEndDateAsDate;
 	var insertPoint = -1, insertDateLimitAsDate = new Date();
 	var initialIndex=0, endIndex=0;
-	var readTraceLength = 0, traceLength;
+	var readTraceLength = 0, readTraceInitialIndex =0, traceLength, readTraceLimit =0;
 	var spliceInfo = {};
-	var k=0, readItems;
+	var k=0, kLimit =0, readItems;
+	var latestSorted = "";
 
-	
+	// update initialDateAsDate if tracesInitialDate provided
 	if (tracesInitialDate !== "") {
 		initialDateAsDate = new Date(processDate(tracesInitialDate, timeOffsetText));
 	}
 	
+	// total rows of csv file loaded
+	// allRows is an array of objects
 	iLimit = allRows.length;
+	
+	// number of traces to be read on this data source
 	jLimit = dataSources.traces.length;
 	
 	// iterate through traces to be loaded
 	for(var j=0; j < jLimit; j++){
 		
-		readFlag = false;
-		insertTrace = false;
-		
-		// find trace index
+		// find trace index (position in data array)
 		iData = findTraceIdIndex(dataSources.traces[j].traceID,otherDataProperties);
 		
-		// create x and y properties if not yet defined for current trace
-		if(typeof data[iData].x === undefined) {
-			data[iData].x = [];
-		}
-		if(typeof data[iData].y === undefined) {
-			data[iData].y = [];
-		} else {
+		// find weather trace will be added to existing trace
+		insertTrace = false;
+		if(typeof data[iData].x !== "undefined"){
 			insertTrace = true;
 		}
 			
@@ -2644,76 +2651,137 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 		xDateSuffix = dataSources.traces[j].xDateSuffix;
 		
 		
-		// sort read data in descending order if required
-		if(typeof dataSources.trace[j].sort !== "undefined"){	
-			if(dataSources.trace[j].sort === true){
-				allRows.sort(function(a, b){
-					return new Date(b[xSeriesName])-new Date(a[xSeriesName]);
-					});
-			}
+		// sort read data in descending order if required and noy yet done
+		if(latestSorted !== xSeriesName){
+			if(typeof dataSources.traces[j].sort !== "undefined"){	
+				if(dataSources.traces[j].sort === true){
+					allRows.sort(sortByDatesAsStrings(xSeriesName));
+					latestSorted = xSeriesName;
+				}
+			}	
 		}
+		
+
 		
 		// find readTraceEndDateAsDate
 		readTraceEndDateAsDate = new Date(allRows[0][xSeriesName]);
 		
+		// case End of Month
+		if(typeof dataSources.traces[j].postProcessData !== "undefined"){
+			if(dataSources.traces[j].postProcessData === "end of month" &&
+			 !nameIsOnArrayOfNames(xSeriesName,processedColumnDates)
+			  ){
+				
+				for(i=0; i <iLimit; i++){
+					if(allRows[i][xSeriesName]!== ""){
+						readTraceEndDateAsDate = processDate(
+							""+allRows[i][xSeriesName] + xDateSuffix, timeOffsetText
+							);
+						readTraceEndDateAsDate = changeDateToEndOfMonth(readTraceEndDateAsDate);
+						readTraceEndDateAsDate = new Date(readTraceEndDateAsDate);
+						readTraceInitialIndex = i;
+						i= iLimit;
+					}
+				}			
+			}
+		} else{
+			for(i=0; i<iLimit; i++){
+				if(allRows[i][xSeriesName]!== ""){
+					readTraceEndDateAsDate = processDate(
+						""+allRows[i][xSeriesName] + xDateSuffix, timeOffsetText
+						);
+					readTraceEndDateAsDate new Date(readTraceEndDateAsDate);
+					readTraceInitialIndex = i;
+					i= iLimit;
+				}
+			}	
+			
+		}		
 
-
-
-		// set column as processed
-		processedColumnDates.push(xSeriesName);
-
-		insertPoint = 0;
-
-		//find initialTraceDate
-		if(insertTrace){
-
-			// get existing data x range
-			existingInitialDateAsDate = new Date(data[iData].x[data[iData].x.length - 1]);
-			existingEndDateAsDate = new Date(data[iData].x[0]);
-
-			//find readTraceInitialDateAsDate
+		
+		
+		
+		
+		//find readTraceInitialDateAsDate
+		if(typeof dataSources.traces[j].postProcessData !== "undefined"){
+			if(dataSources.traces[j].postProcessData === "end of month" &&
+			 !nameIsOnArrayOfNames(xSeriesName,processedColumnDates)
+			  ){
+				
+				for(i=iLimit-1; i > -1; i--){
+					if(allRows[i][xSeriesName]!== ""){
+						readTraceInitialDateAsDate = processDate(
+							""+allRows[i][xSeriesName] + xDateSuffix, timeOffsetText
+							);
+						readTraceInitialDateAsDate = changeDateToEndOfMonth(readTraceInitialDateAsDate);
+						readTraceInitialDateAsDate = new Date(readTraceInitialDateAsDate);
+						readTraceLength = i+1-readTraceInitialIndex;
+						i=-1;
+					}
+				}			
+			}
+		} else{
 			for(i=iLimit-1; i > -1; i--){
 				if(allRows[i][xSeriesName]!== ""){
 					readTraceInitialDateAsDate = processDate(
 						""+allRows[i][xSeriesName] + xDateSuffix, timeOffsetText
 						);
-					readTraceInitialDateAsDate = changeDateToEndOfMonth(readTraceInitialDateAsDate);
 					readTraceInitialDateAsDate = new Date(readTraceInitialDateAsDate);
-					readTraceLength = i+1;
+					readTraceLength = i+1-readTraceInitialIndex;
 					i=-1;
 				}
-			}
+			}	
+			
+		}
 
+		if(insertTrace){
+			
+			// default insert point
+			insertPoint = 0;
+			
+			readTraceLimit = readTraceLength+readTraceInitialIndex;
+
+			// get existing data x range
+			existingInitialDateAsDate = new Date(data[iData].x[data[iData].x.length - 1]);
+			existingEndDateAsDate = new Date(data[iData].x[0]);
 
 			// find trace range to be read
 
-			// case no overlap
-			if(readTraceInitialDateAsDate > existingEndDateAsDate ||
-			   readTraceEndDateAsDate < existingInitialDateAsDate){		
-				initialIndex = 0;
+			// case no overlap, more recent
+			if( readTraceInitialDateAsDate > existingEndDateAsDate){
+				initialIndex = readTraceInitialIndex;
+				traceLength = readTraceLength;
+
+			}
+			
+			// case no overlap, older
+			if( readTraceEndDateAsDate < existingInitialDateAsDate){
+				insertPoint = data[iData].x.length;
+				initialIndex = readTraceInitialIndex;
 				traceLength = readTraceLength;
 
 			}
 
-			// case new data is more recent than existing
+			// overlap, but new data is more recent than existing
 			else if (readTraceEndDateAsDate > existingEndDateAsDate ) {
 				initialIndex = 0;
-				for(i=0; i<readTraceLength;i++){
+				for(i=readTraceInitialIndex; i<readTraceLimit;i++){
 					if(new Date(allRows[i][xSeriesName]) <= existingEndDateAsDate){
-					   traceLength = i;
+					   traceLength = i-readTraceInitialIndex;
 					   i = iLimit;
 					   }
 
 				}
 			}
 
-			// case new data is older than existing
+			// overlap, but new data is older than existing
 			else if (readTraceInitialDateAsDate < existingInitialDateAsDate ) {
-				for(i=readTraceLength -1 ; i > -1; i--){
+				for(i=readTraceLimit -1 ; i > readTraceInitialIndex-1; i--){
 					if(new Date(allRows[i][xSeriesName]) >= existingInitialDateAsDate){
-					   initialIndex = i+i;
-					   traceLength = readTraceLength - initialIndex -1;
-					   i = -1;
+						initialIndex = i+1;
+					   	traceLength = readTraceLimit - initialIndex;
+						insertPoint = data[iData].x.length;
+					  	i = -1;
 					}
 
 				}
@@ -2721,7 +2789,7 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 
 			// case total overlap, find space available
 			else {
-				spliceInfo = findSpliceInfo(x, readTraceLength, allRows, xSeriesName);
+				spliceInfo = findSpliceInfo(allRows, xSeriesName, readTraceInitialIndex, readTraceLength, data[iData].x);
 				initialIndex = spliceInfo.initialIndex;
 				traceLength = spliceInfo.traceLength;
 				insertPoint = spliceInfo.insertPoint;
@@ -2734,19 +2802,23 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 
 		// no trace inserted only charge
 		else {
-			initialIndex = 0;
+			initialIndex = readTraceInitialIndex;
 			traceLength = readTraceLength;
 			insertPoint = 0;
 		}
 
-		// fill read data caseh Change date to End of Month
-		readItems = 0
 
+		
+		// fill temporary x, y arrays with read data
+		readItems = 0;
+		kLimit = traceLength+initialIndex;		
+		
+		//case Change date to End of Month
 		if(typeof dataSources.traces[j].postProcessData !== "undefined"){
-			if(dataSources[j].postProcessData === "end of month" &&
+			if(dataSources.traces[j].postProcessData === "end of month" &&
 			 !nameIsOnArrayOfNames(xSeriesName,processedColumnDates)
 			  ) {
-				for(k=0, i=initialIndex; k<traceLength; i++, k++){
+				for(k=0, i=initialIndex; k < kLimit; i++, k++){
 					processedDate = allRows[i][xSeriesName];
 					processedDate = processDate(""+processedDate + xDateSuffix, timeOffsetText);
 					processedDate = changeDateToEndOfMonth(processedDate);	 
@@ -2769,7 +2841,7 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 
 		// no change to end of month
 		else {
-			for(k=0, i=initialIndex; k<traceLength; i++, k++){
+			for(k=0, i=initialIndex; k < kLimit ; i++, k++){
 				processedDate = allRows[i][xSeriesName];
 				processedDate = processDate(""+processedDate + xDateSuffix, timeOffsetText);	 
 				if (
@@ -2795,17 +2867,49 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 		if (x.length > readItems){
 			x.splice(readItems-1, x.length-readItems);
 			y.splice(readItems-1, y.length-readItems);
+		}		
+		
+		
+		
+		
+		
+				
+		
+		
+		
+		
+		
+		
+		// create x and y properties if not yet defined for current trace
+		if(typeof data[iData].x === "undefined") {
+			if( readItems > 0 ){
+				data[iData].x = [];			
+			}
+
 		}
+		if(typeof data[iData].y === "undefined") {
+			if( readItems > 0 ){
+				data[iData].y = [];			
+			}
+		} 
 
 		// add read data to current data
-		data[iData].x.splice(insertPoint,0,x);
-		data[iData].y.splice(insertPoint,0,y);	
+		if(readItems >0){
+			data[iData].x.splice(insertPoint,0,x);
+			data[iData].y.splice(insertPoint,0,y);	
+		}
+
+		
+		// set column as processed
+		if(processedColumnDates.indexOf(xSeriesName) === -1){
+			processedColumnDates.push(xSeriesName);
+		}
 	}
 }
 
 	    
 aoPlotlyAddOn.findSpliceInfo = findSpliceInfo;	        
-aoPlotlyAddOn.processCSVData = processCsvData;	    
+aoPlotlyAddOn.processCsvData = processCsvData;	    
 	    
 	    
 	    
@@ -3491,15 +3595,15 @@ function getYminYmax(x0, x1, data) {
 			m = offset % 60;
 			h = (offset - m)/60;
 
-					stringHH = String(h);
-					stringMM = String(m);
+					stringHH = h.toString();
+					stringMM = m.toString();
 
 					stringHH = stringHH.length === 1 ? ("0"+stringHH): stringHH;
 					stringMM = stringMM.length === 1 ? ("0"+stringMM): stringMM;
 
 					return stringHH+":"+stringMM;
 
-		}
+	}
 									
 
 
