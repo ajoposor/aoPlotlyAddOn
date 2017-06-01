@@ -690,7 +690,9 @@ function getPeriodLimitsAsYYYYMMDD(year, month, day, endOfWeek) {
 // this functions adds items and functionallity, including, buttons, responsiveness, series resampling     
 aoPlotlyAddOn.newTimeseriesPlot = function (
 	divInfo,
-	series,
+	data,
+	otherDataProperties,
+	dataSources,
 	settings = {},
 	timeInfo = {},
 	layout = {},
@@ -702,14 +704,11 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	// test arguments are passed complete	
 	if (arguments.length < 3) {
 		return "incomplete arguments";
-	}
+	}	
 		
 		
 		
-		
-		
- // SET divInfo
-
+ 	// SET divInfo
 		
 	var wholeDivInitialStyling = {
 		visibility:"hidden",
@@ -718,14 +717,13 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	
 	var loaderInitialStyling = {
 		visibility: "visible",
-    position: "fixed",
-    left: "0px",
-    top: "0px",
-    width: "100%",
-    height: "100%",
-    background: "url('https://raw.githubusercontent.com/ajoposor/Images/master/files/loader_big_blue.gif') 50% 50% no-repeat #FFFFFF",
-    opacity: 1
-		
+		position: "fixed",
+		left: "0px",
+		top: "0px",
+		width: "100%",
+		height: "100%",
+		background: "url('https://raw.githubusercontent.com/ajoposor/Images/master/files/loader_big_blue.gif') 50% 50% no-repeat #FFFFFF",
+		opacity: 1	
 	};
 	
 	loaderInitialStyling["z-index"] = "9999";
@@ -739,16 +737,12 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	divInfo.loaderElement = document.createElement('div');
 	divInfo.loaderElement.id = divInfo.loaderID;
 	divInfo.wholeDivElement.insertBefore(
-		divInfo.loaderElement, 
-		divInfo.wholeDivElement.firstChild);	
-
-
+	divInfo.loaderElement, 
+	divInfo.wholeDivElement.firstChild);	
 
 		
 	setElementStyle(divInfo.loaderElement, loaderInitialStyling);
 	
-
-		
 		
 	
 	// frequency dropdown buttons to be added to updatemenus if option applies
@@ -801,58 +795,58 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	// SET OPTIONS AND TIMEINFO DEFAULTS
 
 		
-		// normal button
-		var buttonsDefaultStyle =  {
-			color: "#444444",
-			background: "#EEEEEE",
-			display: "block",
-			position: "relative",
-			float: "left",
-			width: "50px",
-			padding: "0",
-			margin: "1px 1px 1px 1px",
-			transition: "all 0.2s"
-		};
+	// normal button
+	var buttonsDefaultStyle =  {
+		color: "#444444",
+		background: "#EEEEEE",
+		display: "block",
+		position: "relative",
+		float: "left",
+		width: "50px",
+		padding: "0",
+		margin: "1px 1px 1px 1px",
+		transition: "all 0.2s"
+	};
 
-		buttonsDefaultStyle["background-color"]= "#EEEEEE";	
-		buttonsDefaultStyle["font-weight"] = "100";
-		buttonsDefaultStyle["text-align"] ="center";
-		buttonsDefaultStyle["line-height"] = "17px";
-		buttonsDefaultStyle["border-radius"] = "3px";
-		buttonsDefaultStyle["border-style"] = "none";
-		
-		var buttonsHoverDefaultStyle ={};
-	
-		buttonsHoverDefaultStyle["background-color"]="#D4D4D4";
-		buttonsHoverDefaultStyle.color = "#444444";
-		
-		
-		//pressed button
-		var pressedButtonDefaultStyle =  {
-			color: "#444444",
-			background: "#EEEEEE",
-			display: "block",
-			position: "relative",
-			float: "left",
-			width: "50px",
-			padding: "0",
-			margin: "1px 1px 1px 1px",
-			transition: "all 0.2s"
-		};
+	buttonsDefaultStyle["background-color"]= "#EEEEEE";	
+	buttonsDefaultStyle["font-weight"] = "100";
+	buttonsDefaultStyle["text-align"] ="center";
+	buttonsDefaultStyle["line-height"] = "17px";
+	buttonsDefaultStyle["border-radius"] = "3px";
+	buttonsDefaultStyle["border-style"] = "none";
 
-		pressedButtonDefaultStyle["background-color"]= "#D4D4D4";	
-		pressedButtonDefaultStyle["font-weight"] = "100";
-		pressedButtonDefaultStyle["text-align"] ="center";
-		pressedButtonDefaultStyle["line-height"] = "17px";
-		pressedButtonDefaultStyle["border-radius"] = "3px";
-		pressedButtonDefaultStyle["border-style"] = "none";
+	var buttonsHoverDefaultStyle ={};
+
+	buttonsHoverDefaultStyle["background-color"]="#D4D4D4";
+	buttonsHoverDefaultStyle.color = "#444444";
 		
-		var pressedButtonHoverDefaultStyle ={};
-	
-		pressedButtonHoverDefaultStyle["background-color"]="#EEEEEE"; //#EEEEEE
-		pressedButtonHoverDefaultStyle["touch-background-color"]="#D4D4D4";
-		pressedButtonHoverDefaultStyle["mouse-background-color"]="#EEEEEE";
-		pressedButtonHoverDefaultStyle.color = "#444444";
+		
+	//pressed button
+	var pressedButtonDefaultStyle =  {
+		color: "#444444",
+		background: "#EEEEEE",
+		display: "block",
+		position: "relative",
+		float: "left",
+		width: "50px",
+		padding: "0",
+		margin: "1px 1px 1px 1px",
+		transition: "all 0.2s"
+	};
+
+	pressedButtonDefaultStyle["background-color"]= "#D4D4D4";	
+	pressedButtonDefaultStyle["font-weight"] = "100";
+	pressedButtonDefaultStyle["text-align"] ="center";
+	pressedButtonDefaultStyle["line-height"] = "17px";
+	pressedButtonDefaultStyle["border-radius"] = "3px";
+	pressedButtonDefaultStyle["border-style"] = "none";
+
+	var pressedButtonHoverDefaultStyle ={};
+
+	pressedButtonHoverDefaultStyle["background-color"]="#EEEEEE"; //#EEEEEE
+	pressedButtonHoverDefaultStyle["touch-background-color"]="#D4D4D4";
+	pressedButtonHoverDefaultStyle["mouse-background-color"]="#EEEEEE";
+	pressedButtonHoverDefaultStyle.color = "#444444";
 		
 		
 		
@@ -1114,7 +1108,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	}	
 		
 		
-// REAL / NOMINAL BUTTON	
+	// REAL / NOMINAL BUTTON	
 	if(settings.allowRealNominal){
 		// name button
 		divInfo.realNominalButtonID = divInfo.footerDivID+"_realNominal";
@@ -1200,40 +1194,38 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		
 	// change hover effect in touch devices
 		
-		var isTouch = false; //var to indicate current input type (is touch versus no touch) 
-    var isTouchTimer; 
-    var curRootClass = ""; //var indicating current document root class ("can-touch" or "")
+	var isTouch = false; //var to indicate current input type (is touch versus no touch) 
+    	var isTouchTimer; 
+    	var curRootClass = ""; //var indicating current document root class ("can-touch" or "")
      
-    function addtouchclass(e){
-        clearTimeout(isTouchTimer);
-        isTouch = true;
-        if (curRootClass !== "can-touch"){ //add "can-touch' class if it's not already present
-            curRootClass = "can-touch";
-            document.documentElement.classList.add(curRootClass);
-						settings.pressedButtonHoverDefaultStyle["background-color"]=
-							settings.pressedButtonHoverDefaultStyle["touch-background-color"];
+	function addtouchclass(e){
+		clearTimeout(isTouchTimer);
+		isTouch = true;
+		if (curRootClass !== "can-touch"){ //add "can-touch' class if it's not already present
+		    curRootClass = "can-touch";
+		    document.documentElement.classList.add(curRootClass);
+							settings.pressedButtonHoverDefaultStyle["background-color"]=
+								settings.pressedButtonHoverDefaultStyle["touch-background-color"];
 
-						
-        }
-        isTouchTimer = setTimeout(function(){isTouch = false;}, 500);
-			//maintain "istouch" state for 500ms so removetouchclass doesn't get fired immediately following a touch event
-    }
+
+		}
+		isTouchTimer = setTimeout(function(){isTouch = false;}, 500);
+				//maintain "istouch" state for 500ms so removetouchclass doesn't get fired immediately following a touch event
+	}
      
-    function removetouchclass(e){
-        if (!isTouch && curRootClass === "can-touch"){ //remove 'can-touch' class if not triggered by a touch event and class is present
-            isTouch = false;
-            curRootClass = "";
-            document.documentElement.classList.remove("can-touch");
-						settings.pressedButtonHoverDefaultStyle["background-color"]=
-							settings.pressedButtonHoverDefaultStyle["mouse-background-color"];
-        }
-    }
+	function removetouchclass(e){
+		if (!isTouch && curRootClass === "can-touch"){ //remove 'can-touch' class if not triggered by a touch event and class is present
+		    isTouch = false;
+		    curRootClass = "";
+		    document.documentElement.classList.remove("can-touch");
+							settings.pressedButtonHoverDefaultStyle["background-color"]=
+								settings.pressedButtonHoverDefaultStyle["mouse-background-color"];
+		}
+	}
      
-    document.addEventListener("touchstart", addtouchclass, false); //this event only gets called when input type is touch
-    document.addEventListener("mouseover", removetouchclass, false); //this event gets called when input type is everything from touch to mouse/ trackpad
-		
-		
-		
+	document.addEventListener("touchstart", addtouchclass, false); //this event only gets called when input type is touch
+	document.addEventListener("mouseover", removetouchclass, false); //this event gets called when input type is everything from touch to mouse/ trackpad
+
 		
 		
 		
@@ -1557,14 +1549,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		}
 	}
 	
-		
-		
-		
-		
-		
-		
-		
-		
+
 		
 		
 		
@@ -2243,7 +2228,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	setJsonDefaults(optionsDefaults, options);
 
 	// After all settings ready, call function to read data, adjust ranges, set menus and make chart
-	var data = []; //, dataOriginal = [];
+	// var data = []; //, dataOriginal = [];
 	// var dataOriginalModes = [];
 	var iS = {
 		value: 0
@@ -2255,6 +2240,8 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	}
 
 	var passedParameters = {
+		otherDataProperties: otherDataProperties,
+		dataSources: dataSources,
 		divInfo: divInfo,
 		settings: settings,
 		timeInfo: timeInfo,
@@ -2268,7 +2255,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	};
 
 	//Call Read and Make Chart Function
-	readDataAndMakeChart(series, iS, data, passedParameters, function(message) {
+	readDataAndMakeChart(data, iS, passedParameters, function(message) {
 		console.log(message);
 	});
 }; // END OF newTimeseriesPlot FUNCTION
@@ -2408,128 +2395,726 @@ function dateToString(date) {
 
 
 // 2. Read Data - support function, reads data and add it to data object, increases global iS variable
-function readData(series, iS, data, param, callback) {
-	if (series[iS.value].urlType === "csv") {
-		Plotly.d3.csv(series[iS.value].url, function(readData) {
+function readData(data, iS, param, callback) {
+	
+	var urlType = param.dataSources[iS.value].urlType;
+	var url = param.dataSources[iS.value].url;
+	
+	if (urlType === "csv") {
+		Plotly.d3.csv(url, function(readData) {
 			console.log("csv", iS.value);
-			data.push(processCsvData(readData, param.timeInfo.tracesInitialDate, series[iS.value]));
+			processCsvData(
+				readData, 
+				data,
+				param.timeInfo.tracesInitialDate,
+				param.otherDataProperties,
+				param.dataSources[iS.value]
+				);
 			iS.value++;
-			readDataAndMakeChart(series, iS, data, param, callback);
+			readData="";
+			readDataAndMakeChart(data, iS, param, callback);
 		});
 	} 
-	else if (series[iS.value].urlType === "yqlJson") {
-		$.getJSON(series[iS.value].url, function(readData) {
-			data.push(
-				processJsonData(
-					readData.query.results.json,
-					param.timeInfo.tracesInitialDate,
-					series[iS.value]
-				)
-			);
+	else if (urlType === "yqlJson") {
+		$.getJSON(url, function(readData) {
+			/* Not required, it can be handled with the CSV function, 
+			set xSeriesName to date and ySeriesName to value*/	    
+			processCsvData(
+				readData.query.results.json.observations,
+				data,
+				param.timeInfo.tracesInitialDate,
+				param.otherDataProperties,
+				param.dataSources[iS.value]
+				);
 			iS.value++;
-			readDataAndMakeChart(series, iS, data, param, callback);
+			readData="";
+			readDataAndMakeChart(data, iS, param, callback);
 		});
 	}   
-	else if (series[iS.value].urlType === "yqlGoogleCSV") {
+	else if ( urlType === "yqlGoogleCSV") {
 		console.log("Googlecsv", iS.value);
 		Plotly.d3.json("https://query.yahooapis.com/v1/public/yql?q="+
-			encodeURIComponent("SELECT * from csv where url='"+series[iS.value].url+"'")+
+			encodeURIComponent("SELECT * from csv where url='"+url+"'")+
 			"&format=json", 				
 			function(readData) {
-				data.push(
-					processYqlGoogleCsvData(
-						readData.query.results.row,
-						param.timeInfo.tracesInitialDate,
-						series[iS.value]
-					)
-			);
-		iS.value++;
-		readDataAndMakeChart(series, iS, data, param, callback);
+				processCsvData(
+					readData.query.results.row,
+					data,
+					param.timeInfo.tracesInitialDate,
+					param.otherDataProperties,
+					param.dataSources[iS.value]
+				);
+			iS.value++;
+			readData="";
+			readDataAndMakeChart(data, iS, param, callback);
 		});
   	} 
-	else if (series[iS.value].urlType === "pureJson") {
-		$.getJSON(series[iS.value].url, function(readData) {
-		data.push(processJsonData(readData, param.timeInfo.tracesInitialDate, series[iS.value]));
-		iS.value++;
-		readDataAndMakeChart(series, iS, data, param, callback);
+	else if (urlType === "pureJson") {
+		$.getJSON(url, function(readData) {
+			processCsvData(
+				readData, 
+				data,
+				param.timeInfo.tracesInitialDate, 
+				param.otherDataProperties,
+				param.dataSources[iS.value]
+				);
+			iS.value++;
+			readData="";
+			readDataAndMakeChart(data, iS, param, callback);
 		});
 	} 
-	else if (series[iS.value].urlType === "direct") {
-		data.push(processDirectData(param.timeInfo.tracesInitialDate, series[iS.value]));
+	/*
+	else if (urlType === "direct") {
+		processDirectData(
+			data,
+			param.timeInfo.tracesInitialDate, 
+			param.otherDataProperties,
+			param.dataSources[iS.value]
+			);
 		iS.value++;
-		readDataAndMakeChart(series, iS, data, param, callback);
+		readDataAndMakeChart(data, iS, param, callback);
 	}
+	*/
 }
 
-// FUNCTIONS TO PARSE CVS, JSON OR DIRECT SERIES
-// main code, reads cvs files and creates traces and combine them in data
-function processCsvData(allRows, tracesInitialDate, serie) {
-	var x = [], y = [], trace = {}; //[];
-	var initialDateAsDate = new Date("0001-01-01");
-	var processedDate ="";
-	var timeOffsetText = getTimeOffsetText();
-	var readFlag = false;
-	var i = 0;
-	var row;
-
+	     
+    
+	    
+function findSpliceInfo(newArray, xSeriesName, newArrayInitialIndex, newArrayElements, existingArray,
+			datesReady, transformToEndOfMonth, yqlGoogleCSV, xDateSuffix, timeOffsetText){
 	
-	if (tracesInitialDate !== "") {
-		initialDateAsDate = new Date(processDate(tracesInitialDate, timeOffsetText));
-	}
+	var j=0, iLimit, jLimit = existingArray.length;
+	var currentDate = new Date();
+	var cutDate = new Date();
+	var spliceInfo ={
+		initialIndex: -1,
+		traceLength: -1,
+		insertPoint: 0
+	};
+	var localChangeDateToEndOfMonth = changeDateToEndOfMonth;
+	var localGoogleMDYToYMD = GoogleMDYToYMD;
+	var localProcessDate = processDate;
+		
+	iLimit = newArrayInitialIndex + newArrayElements;
+	for (var i=newArrayInitialIndex; i < iLimit; i++){
+		
+		if(datesReady){
+			currentDate = new Date(newArray[i][xSeriesName]);
+		}
+		else {
+			currentDate= localProcessDate("" +
+						 !yqlGoogleCSV ? newArray[i][xSeriesName] :  localGoogleMDYToYMD(newArray[i][xSeriesName])+
+						 xDateSuffix, timeOffsetText);
+			currentDate = new Date(transformToEndOfMonth ? localChangeDateToEndOfMonth(currentDate) : currentDate);				 
+		}
+		
+		// search for an entry point
+		if(spliceInfo.initialIndex===-1){
+			for(j=-1; j < jLimit; j++){
+				if(j===-1){
+					cutDate = new Date(existingArray[j+1]);
+					if(currentDate > cutDate){
+							spliceInfo.initialIndex = i;
+							spliceInfo.insertPoint = j+1;
+							j=jLimit;
+							// search number of items to include
+							for (i=spliceInfo.initialIndex; i<iLimit; i++){
+								if(datesReady){
+									currentDate = new Date(newArray[i][xSeriesName]);
+								}
+								else {
+									currentDate= localProcessDate(
+										"" +
+										!yqlGoogleCSV ? newArray[i][xSeriesName] :  localGoogleMDYToYMD(newArray[i][xSeriesName])+
+										xDateSuffix, timeOffsetText);
+									currentDate = new Date(transformToEndOfMonth ? localChangeDateToEndOfMonth(currentDate) : currentDate);				 
+								}
+								if(currentDate <= cutDate ){
+									spliceInfo.traceLength = i-spliceInfo.initialIndex;
+									i=iLimit;
+								}
+							}
+					}
 
-	if(typeof serie.postProcessData !== "undefined"){
-		if(serie.postProcessData === "end of month"){
-			readFlag = true;
-			//console.log(allRows.length);
-			//console.log("allRows",allRows);
-			//console.log("initialDateAsDate",initialDateAsDate);
-			//console.log("tracesInitialDate",tracesInitialDate);
-			//console.log(serie);
-			
-			for (i = 0; i < allRows.length; i++) {
-				row = allRows[i];
-				//console.log("row[serie.xSeriesName] + serie.xDateSuffix",row[serie.xSeriesName] + serie.xDateSuffix);
-				//console.log(timeOffsetText);
-				processedDate = processDate(row[serie.xSeriesName] + serie.xDateSuffix, timeOffsetText);
-				//console.log("processedDate",processedDate);
+				}
+				else if (j === jLimit -1){
+					if(currentDate < new Date(existingArray[j])){
+							spliceInfo.initialIndex = i;
+							spliceInfo.insertPoint = j+1;
+							j=jLimit;
+							spliceInfo.traceLength = iLimit -spliceInfo.initialIndex;
+							i=iLimit;
+					}
 				
-				processedDate = changeDateToEndOfMonth(processedDate);
-				//console.log("processedDate",processedDate);
-				if (
-					tracesInitialDate === "" ||
-					new Date(processedDate) >= initialDateAsDate
-				) {
-					x.push(processedDate);
-					y.push(row[serie.ySeriesName]);
+				}
+				else {
+					cutDate = new Date(existingArray[j+1]);
+					if(currentDate < new Date(existingArray[j]) &&
+					   currentDate > cutDate) {
+						spliceInfo.initialIndex = i;
+						spliceInfo.insertPoint = j+1;
+						j=jLimit;
+						// search number of items to include
+						for (i=spliceInfo.initialIndex; i < iLimit; i++){
+							if(datesReady){
+								currentDate = new Date(newArray[i][xSeriesName]);
+							}
+							else {
+								currentDate= localProcessDate(
+									"" +
+									!yqlGoogleCSV ? newArray[i][xSeriesName] :  localGoogleMDYToYMD(newArray[i][xSeriesName])+
+									xDateSuffix, timeOffsetText);
+								currentDate = new Date(transformToEndOfMonth ? localChangeDateToEndOfMonth(currentDate) : currentDate);				 
+							}							
+							if(currentDate <= cutDate ){
+								spliceInfo.traceLength = i-spliceInfo.initialIndex;
+								i=iLimit;
+							}
+						}
+					}
 				}
 			}
 		}
 	}
 	
-
+	// return zero elements to include
+	if(spliceInfo.initialIndex === -1){
+		spliceInfo.initialIndex = 0;
+		spliceInfo.insertPoint = 0;
+		spliceInfo.traceLength = 0;
+	}
 	
-	if(!readFlag) {
-		readFlag = true;
-		for (i = 0; i < allRows.length; i++) {
-			row = allRows[i];
-			processedDate = processDate(row[serie.xSeriesName] + serie.xDateSuffix, timeOffsetText);
+	return spliceInfo;
 
-			if (
-				tracesInitialDate === "" ||
-				new Date(processedDate) >= initialDateAsDate
-			) {
-				x.push(processedDate);
-				y.push(row[serie.ySeriesName]);
-			}
-		}
-	}	
-
-	trace = deepCopy(serie.traceAttributes);
-	trace.x = x;
-	trace.y = y;
-	return trace;
 }
 
+function findTraceIdIndex(traceID,otherDataProperties){
+	var iLimit = otherDataProperties.length;
+	for( var i=0; i< iLimit; i++){
+		if(otherDataProperties[i].traceID === traceID){
+			return i;
+		}	
+	}
+	return -1;
+}
+	    
+	     
+// callback creation function to sortByDatesAsStrings
+function sortByDatesAsStrings(xSeriesName, delta){
+	return function (a, b) {
+		delta = new Date(b[xSeriesName])-new Date(a[xSeriesName]);
+		if(!isNaN(delta)){
+			return delta;			
+		}
+		else {
+				return 	new Date(b[xSeriesName]==="" ? "0001-01-01": b[xSeriesName])-
+					new Date(a[xSeriesName]==="" ? "0001-01-01": a[xSeriesName]);
+
+		}
+
+	};
+}	
+	    
+	    
+// callback creation function to sortByGoogleDatesAsStrings
+function sortByGoogleDatesAsStrings(xSeriesName, delta){
+	return function (a, b) {
+		var localGoogleMDYToYMD = GoogleMDYToYMD;
+		delta = new Date(localGoogleMDYToYMD(b[xSeriesName]))-new Date(localGoogleMDYToYMD(a[xSeriesName]));
+		if(!isNaN(delta)){
+			return delta;			
+		}
+		else {
+				return 	new Date(b[xSeriesName]==="" ? "0001-01-01": localGoogleMDYToYMD(b[xSeriesName]))-
+					new Date(a[xSeriesName]==="" ? "0001-01-01": localGoogleMDYToYMD(a[xSeriesName]));
+
+		}
+
+	};
+}		    
+	
+	    
+// use write loop to concat
+function myConcat(array, toAdd){
+	//
+	var iLimit = toAdd.length;
+	var k = array.length;
+	array.length = iLimit+k;
+	for(var i=0; i < iLimit; i++){
+		array[k] = toAdd[i];
+		k++;
+	}
+	return array;
+
+}
+	    
+	    
+// use write for loops to insert array
+function insertArrayInto(toAdd, insertPoint, array){
+	//
+	var kLimit = toAdd.length;
+	var iLimit = array.length;
+
+	array.length = iLimit+kLimit;
+
+	var k= insertPoint + kLimit;
+	for(var i=insertPoint; i < iLimit; i++){
+		array[k] = array[i];
+		k++;
+	}
+	i=insertPoint;
+	for(k=0; k < kLimit; k++){
+		array[i] = toAdd[k];
+		i++;
+	}
+	return array;
+
+}
+	    
+// FUNCTIONS TO PARSE CVS, JSON OR DIRECT SERIES
+// main code, reads cvs files and creates traces and combine them in data
+function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, dataSources) {
+	var x = [], y = []; //[];
+	var initialDateAsDate = new Date("0001-01-01");
+	var processedDate ="";
+	var timeOffsetText = getTimeOffsetText();
+	var i = 0, iLimit, jLimit, iData;
+	var xSeriesName="", xDateSuffix ="", ySeriesName="", traceID = "";
+	var processedColumnDates = [];
+	var insertTrace = false;
+	var readTraceInitialDateAsDate, readTraceEndDateAsDate;
+	var existingInitialDateAsDate, existingEndDateAsDate;
+	var insertPoint = -1;
+	var initialIndex=0;
+	var readTraceLength = 0, readTraceInitialIndex =0, traceLength, readTraceLimit =0;
+	var readTraceEndIndex =0;
+	var spliceInfo = {};
+	var k=0, kLimit =0, readItems;
+	var latestSorted = "";
+	var delta =0.0;
+	var datesReady = false, transformToEndOfMonth = false;
+	var urlType = dataSources.urlType;
+	var tags=allRows[0];
+	var yqlGoogleCSV = false;
+	
+	// save function references
+	var localProcessDate = processDate;
+	var localChangeDateToEndOfMonth = changeDateToEndOfMonth;
+	var localNameIsOnArrayOfNames = nameIsOnArrayOfNames;
+	var localFindTraceIdIndex = findTraceIdIndex;
+	var localSortByDatesAsStrings = sortByDatesAsStrings;
+	var localSortByGoogleDatesAsStrings = sortByGoogleDatesAsStrings;
+	var localInsertArrayInto = insertArrayInto;
+	var localMyConcat = myConcat;
+	var localFindSpliceInfo = findSpliceInfo;
+	var localGoogleMDYToYMD = GoogleMDYToYMD;
+	
+
+	
+	if(urlType === "yqlGoogleCSV"){
+		yqlGoogleCSV = true;
+		allRows.shift();
+	}
+	
+
+	// update initialDateAsDate if tracesInitialDate provided
+	if (tracesInitialDate !== "") {
+		initialDateAsDate = new Date(localProcessDate(tracesInitialDate, timeOffsetText));
+	}
+	
+	// total rows of csv file loaded
+	// allRows is an array of objects
+	iLimit = allRows.length;
+	
+	// number of traces to be read on this data source
+	jLimit = dataSources.traces.length;
+	
+	// iterate through traces to be loaded
+	for(var j=0; j < jLimit; j++){
+		
+		// set temporary variable
+		xSeriesName = dataSources.traces[j].xSeriesName;
+		ySeriesName = dataSources.traces[j].ySeriesName;
+		xDateSuffix = dataSources.traces[j].xDateSuffix;
+		traceID = dataSources.traces[j].traceID;
+		datesReady = localNameIsOnArrayOfNames(xSeriesName,processedColumnDates);
+		
+		// set xSeriesName and ySeriesName  to tags in case yqlGoogleCSV
+		if(yqlGoogleCSV){
+			for (var key in tags){
+				if (tags.hasOwnProperty(key)) {
+					if(tags[key].toString().trim() === xSeriesName.toString()){
+						xSeriesName = key;
+					}
+					if(tags[key].toString().trim() === ySeriesName.toString()){
+						ySeriesName = key;
+					}
+				}
+			}
+		}
+
+
+		
+		transformToEndOfMonth = false;
+		if(typeof dataSources.traces[j].postProcessData !== "undefined"){
+			if(dataSources.traces[j].postProcessData === "end of month" && !datesReady){
+				transformToEndOfMonth = true;
+			}
+		}
+		
+		// find trace index (position in data array)
+		iData = localFindTraceIdIndex(traceID,otherDataProperties);
+		
+		// find weather trace will be added to existing trace
+		insertTrace = false;
+		if(typeof data[iData].x !== "undefined"){
+			insertTrace = true;
+		}
+			
+		// initialite x, y temporary arrays
+		x = [];
+		x.length = iLimit; 
+		
+		y = [];
+		y.length = iLimit;
+		
+		
+		// sort read data in descending order if required and noy yet done
+		if(latestSorted !== xSeriesName){
+			if(typeof dataSources.traces[j].sort !== "undefined"){	
+				if(dataSources.traces[j].sort === true){
+					if(!yqlGoogleCSV){
+						allRows.sort(localSortByDatesAsStrings(xSeriesName), delta);
+					}
+					else{
+						allRows.sort(localSortByGoogleDatesAsStrings(xSeriesName), delta);
+					}
+					latestSorted = xSeriesName;
+				}
+			}	
+		}
+		
+
+		
+		// find readTraceInitialIndex
+		for(i=0; i <iLimit; i++){
+			if(allRows[i][xSeriesName]!== ""){
+				readTraceInitialIndex = i;
+				i= iLimit;
+			}
+		}
+		
+		// find readTraceEndIndex
+		for(i=iLimit-1; i > -1; i--){
+			if(allRows[i][xSeriesName]!== ""){
+				readTraceEndIndex = i;
+				readTraceLength = i+1-readTraceInitialIndex;
+				i=-1;
+			}
+		}
+		
+		
+		// dates not yet processed
+		if(!datesReady){
+			if(!yqlGoogleCSV){
+				readTraceInitialDateAsDate = localProcessDate(
+					""+allRows[readTraceEndIndex][xSeriesName] + xDateSuffix, timeOffsetText
+					);
+
+				readTraceEndDateAsDate = localProcessDate(
+					""+allRows[readTraceInitialIndex][xSeriesName] + xDateSuffix, timeOffsetText
+					);
+			}
+			else {
+				readTraceInitialDateAsDate = localProcessDate(
+					""+
+					localGoogleMDYToYMD(allRows[readTraceEndIndex][xSeriesName]) +
+					xDateSuffix, timeOffsetText
+					);
+
+				readTraceEndDateAsDate = localProcessDate(
+					""+
+					localGoogleMDYToYMD(allRows[readTraceInitialIndex][xSeriesName])+
+					xDateSuffix, timeOffsetText
+					);
+			}
+			
+			if(transformToEndOfMonth){
+				readTraceInitialDateAsDate = localChangeDateToEndOfMonth(readTraceInitialDateAsDate);
+				readTraceEndDateAsDate = localChangeDateToEndOfMonth(readTraceEndDateAsDate);
+			}
+			
+			readTraceEndDateAsDate = new Date(readTraceEndDateAsDate);
+			readTraceInitialDateAsDate = new Date(readTraceInitialDateAsDate);
+		}
+		
+		// dates already processed
+		else {
+			readTraceEndDateAsDate = new Date(allRows[readTraceInitialIndex][xSeriesName]);
+			readTraceInitialDateAsDate = new Date(allRows[readTraceEndIndex][xSeriesName]);
+		}
+		
+		
+
+		if(insertTrace){
+			
+			// default insert point
+			insertPoint = 0;
+			
+			readTraceLimit = readTraceLength+readTraceInitialIndex;
+
+			// get existing data x range
+			existingInitialDateAsDate = new Date(data[iData].x[data[iData].x.length - 1]);
+			existingEndDateAsDate = new Date(data[iData].x[0]);
+
+			// find trace range to be read
+
+			// case no overlap, more recent
+			if( readTraceInitialDateAsDate > existingEndDateAsDate){
+				initialIndex = readTraceInitialIndex;
+				traceLength = readTraceLength;
+
+			}
+			
+			// case no overlap, older
+			else if( readTraceEndDateAsDate < existingInitialDateAsDate){
+				insertPoint = data[iData].x.length;
+				initialIndex = readTraceInitialIndex;
+				traceLength = readTraceLength;
+
+			}
+
+			// overlap, but new data is more recent than existing
+			else if (readTraceEndDateAsDate > existingEndDateAsDate ) {
+				initialIndex = 0;
+				if(datesReady){
+					for(i=readTraceInitialIndex; i<readTraceLimit;i++){
+						if(new Date(allRows[i][xSeriesName]) <= existingEndDateAsDate){
+						   traceLength = i-readTraceInitialIndex;
+						   i = iLimit;
+						}
+					}	
+				}
+				// change to end of month
+				else if(transformToEndOfMonth && !yqlGoogleCSV){
+					for(i=readTraceInitialIndex; i<readTraceLimit;i++){
+						
+						processedDate = localProcessDate(
+							""+
+							!yqlGoogleCSV ? allRows[i][xSeriesName] :  localGoogleMDYToYMD(allRows[i][xSeriesName])+ 
+							xDateSuffix, timeOffsetText);
+						processedDate = new Date(localChangeDateToEndOfMonth(processedDate));
+						if(processedDate <= existingEndDateAsDate){
+						   traceLength = i-readTraceInitialIndex;
+						   i = iLimit;
+						}
+					}
+				}				
+				// process dates
+				else {
+					for(i=readTraceInitialIndex; i<readTraceLimit;i++){
+						processedDate = new Date(localProcessDate(
+							""+
+							!yqlGoogleCSV ? allRows[i][xSeriesName] :  localGoogleMDYToYMD(allRows[i][xSeriesName])+ 
+							xDateSuffix, timeOffsetText));
+						if(processedDate <= existingEndDateAsDate){
+						   traceLength = i-readTraceInitialIndex;
+						   i = iLimit;	
+						}
+					}
+				}
+			}
+
+			// overlap, but new data is older than existing
+			else if (readTraceInitialDateAsDate < existingInitialDateAsDate ) {
+				if(datesReady){				
+					for(i=readTraceLimit -1 ; i > readTraceInitialIndex-1; i--){
+						if(new Date(allRows[i][xSeriesName]) >= existingInitialDateAsDate){
+							initialIndex = i+1;
+							traceLength = readTraceLimit - initialIndex;
+							insertPoint = data[iData].x.length;
+							i = -1;
+						}
+					}
+				}
+				// change to end of month
+				else if(transformToEndOfMonth){		
+					for(i=readTraceLimit -1 ; i > readTraceInitialIndex-1; i--){
+						processedDate = localProcessDate(
+							""+
+							!yqlGoogleCSV ? allRows[i][xSeriesName] :  localGoogleMDYToYMD(allRows[i][xSeriesName])+ 
+							xDateSuffix, timeOffsetText);
+						processedDate = new Date(localChangeDateToEndOfMonth(processedDate));
+						if(processedDate >= existingInitialDateAsDate){
+							initialIndex = i+1;
+							traceLength = readTraceLimit - initialIndex;
+							insertPoint = data[iData].x.length;
+							i = -1;
+						}
+					}			
+				}
+				// procesed date
+				else {
+					for(i=readTraceLimit -1 ; i > readTraceInitialIndex-1; i--){
+						processedDate = new Date(localProcessDate(
+							""+
+							!yqlGoogleCSV ? allRows[i][xSeriesName] :  localGoogleMDYToYMD(allRows[i][xSeriesName])+ 
+							xDateSuffix, timeOffsetText));
+						if(processedDate >= existingInitialDateAsDate){
+							initialIndex = i+1;
+							traceLength = readTraceLimit - initialIndex;
+							insertPoint = data[iData].x.length;
+							i = -1;
+						}
+					}	
+				}	
+			}
+
+			// case total overlap, find space available
+			else {
+				spliceInfo = localFindSpliceInfo(
+					allRows,   xSeriesName, readTraceInitialIndex,
+					readTraceLength, data[iData].x,  datesReady,
+					transformToEndOfMonth, yqlGoogleCSV,xDateSuffix, timeOffsetText);
+				initialIndex = spliceInfo.initialIndex;
+				traceLength = spliceInfo.traceLength;
+				insertPoint = spliceInfo.insertPoint;
+			}
+		} 
+
+		// no trace inserted only charge
+		else {
+			initialIndex = readTraceInitialIndex;
+			traceLength = readTraceLength;
+			insertPoint = 0;
+		}
+		
+		// fill temporary x, y arrays with read data
+		readItems = 0;
+		kLimit = traceLength;
+		
+		//case Change date to End of Month
+		if(transformToEndOfMonth) {
+			for(k=0, i=initialIndex; k < kLimit; i++, k++){
+				processedDate = !yqlGoogleCSV ? allRows[i][xSeriesName] :  localGoogleMDYToYMD(allRows[i][xSeriesName]);
+				processedDate = localProcessDate(""+processedDate + xDateSuffix, timeOffsetText);
+				processedDate = localChangeDateToEndOfMonth(processedDate);	 
+				if (
+					tracesInitialDate === "" ||
+					new Date(processedDate) >= initialDateAsDate
+				) {
+					allRows[i][xSeriesName]=processedDate;
+					x[k]=processedDate;
+					y[k]=allRows[i][ySeriesName];
+					readItems++;
+				}
+				else {
+					// stop reading when initialDateAsDate has been reached.
+					k= kLimit;
+				}
+
+			}		
+		}
+
+		// no change to end of month but process
+		else if(!datesReady) {
+			for(k=0, i=initialIndex; k < kLimit ; i++, k++){
+				processedDate = !yqlGoogleCSV ? allRows[i][xSeriesName] :  localGoogleMDYToYMD(allRows[i][xSeriesName]);
+				processedDate = localProcessDate(""+processedDate + xDateSuffix, timeOffsetText);	 
+				if (
+					tracesInitialDate === "" ||
+					new Date(processedDate) >= initialDateAsDate
+				) {
+					allRows[i][xSeriesName]=processedDate;
+					x[k]=processedDate;
+					y[k]=allRows[i][ySeriesName];
+					readItems++;
+				}
+				else {
+					// stop reading when initialDateAsDate has been reached.
+					k= kLimit;
+				}
+
+			}	
+
+
+		}
+
+		
+		// just fill in processed dates
+		else {
+			for(k=0, i=initialIndex; k < kLimit ; i++, k++){ 
+				processedDate = allRows[i][xSeriesName];
+				if (
+					tracesInitialDate === "" ||
+					new Date(processedDate) >= initialDateAsDate
+				) {
+					x[k]=processedDate;
+					y[k]=allRows[i][ySeriesName];
+					readItems++;
+				}
+				else {
+					// stop reading when initialDateAsDate has been reached.
+					k= kLimit;
+				}
+			}	
+		}
+
+		// remove excess points
+		if (x.length > readItems){
+			x.length = readItems;
+			y.length = readItems;
+		}		
+		
+		
+		// create x and y properties if not yet defined for current trace
+		if(typeof data[iData].x === "undefined" ||
+		   typeof data[iData].y === "undefined") {
+			data[iData].x = [];
+			data[iData].y = [];
+		}
+
+
+		// add read data to current data
+		if(readItems >0){
+			
+			// case new data come first
+			if(insertPoint === 0){
+				if(data[iData].x.length >0){
+					data[iData].x[i] = localMyConcat(x,data[iData].x);
+					data[iData].y[i] = localMyConcat(y,data[iData].y);	
+				}
+				else{
+					data[iData].x = x;
+					data[iData].y = y;
+				}
+			}
+			// new data comes after
+			else if (insertPoint === data[iData].x.length){
+				data[iData].x[i] = localMyConcat(data[iData].x,x);
+				data[iData].y[i] = localMyConcat(data[iData].y,y);	
+			}
+			// new data comes inside
+			else {
+				data[iData].x[i] = localInsertArrayInto(x,insertPoint, data[iData].x);
+				data[iData].y[i] = localInsertArrayInto(y,insertPoint, data[iData].y);
+			}
+		}
+		
+		
+		// set column as processed
+		if(processedColumnDates.indexOf(xSeriesName) === -1){
+			processedColumnDates.push(xSeriesName);
+		}
+	}
+}
+
+	    
+aoPlotlyAddOn.findSpliceInfo = findSpliceInfo;	        
+aoPlotlyAddOn.processCsvData = processCsvData;	    
+	    
+	    
+/* Not required, it can be handled with the CSV function, set xSeriesName to date and ySeriesName to value	    
 function processJsonData(jsonData, tracesInitialDate, serie) {
 	var x = [], y = [], trace = {}; //[];
 	var initialDateAsDate = new Date("0001-01-01");
@@ -2582,8 +3167,9 @@ function processJsonData(jsonData, tracesInitialDate, serie) {
 	trace.y = y;
 	return trace;
 }
-	    
-
+*/
+	
+/* merge into processCSVData 
 // // read data from google finance history csv files	    
 function processYqlGoogleCsvData(allRows, tracesInitialDate, serie) {
 	var x = [], y = [], trace = {}; //[];
@@ -2668,6 +3254,8 @@ function processYqlGoogleCsvData(allRows, tracesInitialDate, serie) {
 	return trace;
 }
 
+*/
+
 
 //transform google date format "day-monthString-year" into "yyyy-mm-dd"
 
@@ -2720,7 +3308,7 @@ function GoogleMDYToYMD(googleDate){
 	    
 	    
 	    
-
+/*
 // In case trace x and y are provided direct, and not to be read from a file.
 function processDirectData(tracesInitialDate, serie) {
 	var x = [], y = [], trace = {}; //[];
@@ -2774,7 +3362,7 @@ function processDirectData(tracesInitialDate, serie) {
 	trace.x = x;
 	trace.y = y;
 	return trace;
-}
+}*/
 
 // 3. recessions handling
 
@@ -3212,15 +3800,15 @@ function getYminYmax(x0, x1, data) {
 			m = offset % 60;
 			h = (offset - m)/60;
 
-					stringHH = String(h);
-					stringMM = String(m);
+					stringHH = h.toString();
+					stringMM = m.toString();
 
 					stringHH = stringHH.length === 1 ? ("0"+stringHH): stringHH;
 					stringMM = stringMM.length === 1 ? ("0"+stringMM): stringMM;
 
 					return stringHH+":"+stringMM;
 
-		}
+	}
 									
 
 
@@ -4149,13 +4737,13 @@ function downloadCSVData(xName, data, fileTitle) {
 
 // REAL / NOMINAL CONVERSION FUNCTIONS
 
-function getIDeflactor(series){
-	var iLimit = series.length;
+function getIDeflactor(otherDataProperties){
+	var iLimit = otherDataProperties.length;
 	var iDeflactor = -1;
 	// get index of deflactor serie
 	for(var i=0; i<iLimit; i++){
-		if(typeof series[i].deflactor !== "undefined"){
-			if(series[i].deflactor){
+		if(typeof otherDataProperties[i].deflactor !== "undefined"){
+			if(otherDataProperties[i].deflactor){
 				iDeflactor = i;
 				i= iLimit;
 			}
@@ -4167,7 +4755,7 @@ function getIDeflactor(series){
 
 
 
-function createIndexMap(data, series, deflactorDictionary, periodKeys, iDeflactor){
+function createIndexMap(data, deflactorDictionary, periodKeys, iDeflactor){
 	var j=0, jLimit = 0, k=0;
 	var iLimit = data.length;
 	var date ="", key="";
@@ -4333,7 +4921,7 @@ function prepareTransformToReal(
 	data,
 	deflactorDictionary,
 	baseRealNominalDate,
-	series
+	otherDataProperties
 ) {
 	// save uncompared data
 	if (!nominalSaved) {
@@ -4341,14 +4929,14 @@ function prepareTransformToReal(
 		nominalSaved = true;
 	}
 
-	transformDataToReal(data, deflactorDictionary, 	baseRealNominalDate, series);
+	transformDataToReal(data, deflactorDictionary, 	baseRealNominalDate, otherDataProperties);
 
 	return nominalSaved;
 }
 
 
 
-function transformDataToReal(data, deflactorDictionary, baseRealNominalDate, series) {
+function transformDataToReal(data, deflactorDictionary, baseRealNominalDate, otherDataProperties) {
 	var j, iLimit, jLimit;
 	var base = Number(deflactorDictionary[baseRealNominalDate]);
 	
@@ -4356,7 +4944,7 @@ function transformDataToReal(data, deflactorDictionary, baseRealNominalDate, ser
 	
 	iLimit = data.length;
 	for (var i = 0; i < iLimit; i++) {
-		if(series[i].toggleRealNominal){
+		if(otherDataProperties[i].toggleRealNominal){
 			jLimit = data[i].y.length;
 			for (j = 0; j < jLimit; j++) {
 
@@ -4394,18 +4982,18 @@ function transformDataToReal(data, deflactorDictionary, baseRealNominalDate, ser
 
 
 // FUNCTION TO READ DATA, ADJUST RANGES, SET MENUS, MAKE CHARTS AND HANDLE EVENTS
-function readDataAndMakeChart(series, iS, data, param, callback) {
+function readDataAndMakeChart(data, iS, param, callback) {
 	
 	
 	// first all files are to be read, in a recursive way, with iS < series.length
 
-	if (iS.value < series.length) {
-		readData(series, iS, data, param, callback);
+	if (iS.value < param.dataSources.length) {
+		readData(data, iS, param, callback);
 	} 
 	
 	else {
 		// once all files all read, i.e. iS === series.length, this section is executed
-		makeChart(series, data, param);
+		makeChart(data, param);
 		callback("all read and plotted");
 	
 	} // end of else after all read section
@@ -4413,7 +5001,7 @@ function readDataAndMakeChart(series, iS, data, param, callback) {
 	    
 	    
 
-function makeChart(series, data, param){
+function makeChart(data, param){
 	
 	console.log("issue #1");
 
@@ -4428,6 +5016,7 @@ function makeChart(series, data, param){
 	layout = {},
 	timeInfo = {},
 	divInfo = {},
+	otherDataProperties = [],
 	deflactorDictionary = {},
 	flag = false,
 	index = 0,
@@ -4453,6 +5042,7 @@ function makeChart(series, data, param){
 	layout = param.layout;
 	timeInfo = param.timeInfo;
 	divInfo = param.divInfo;
+	otherDataProperties = param.otherDataProperties;
 
 	//console.log("settings", settings);
 
@@ -4461,16 +5051,6 @@ function makeChart(series, data, param){
 	if(typeof layout.yaxis.tickformat !== "undefined"){
 		originalLayout.yaxis.tickformat = layout.yaxis.tickformat;
 	}
-
-
-	// POST PROCESS DATA
-	// Available options: postProcessData: "end of month"
-	//postProcessData(data, series); 
-
-	//console.log("log processed data");
-
-	//console.log("data processed", data);
-
 
 	// SAVE ORIGINAL DATA
 	saveDataXYIntoPropertyXY(data, "xOriginal", "yOriginal");
@@ -4674,10 +5254,11 @@ function makeChart(series, data, param){
 
 
 	// map index to x's
-	var iDeflactor = getIDeflactor(series);
+	var iDeflactor = getIDeflactor(otherDataProperties);
+	
 	//console.log("iDeflactor",iDeflactor);
 
-	deflactorValuesCreated = createIndexMap(data, series, deflactorDictionary, settings.periodKeys, iDeflactor);
+	deflactorValuesCreated = createIndexMap(data, deflactorDictionary, settings.periodKeys, iDeflactor);
 
 	//console.log("deflactor map created");
 	//console.log("deflactorDictionary",deflactorDictionary);
@@ -4718,7 +5299,7 @@ function makeChart(series, data, param){
 			data,
 			deflactorDictionary,
 			baseRealNominalDate,
-			series
+			otherDataProperties
 		);
 
 
@@ -5441,7 +6022,7 @@ function makeChart(series, data, param){
 						}
 
 
-						transformDataToReal(data, deflactorDictionary, 	baseRealNominalDate, series);
+						transformDataToReal(data, deflactorDictionary, 	baseRealNominalDate, otherDataProperties);
 					}
 
 					if (transformToBaseIndex) {
@@ -5583,7 +6164,7 @@ function makeChart(series, data, param){
 
 						}
 
-						transformDataToReal(data, deflactorDictionary, 	baseRealNominalDate, series);
+						transformDataToReal(data, deflactorDictionary, 	baseRealNominalDate, otherDataProperties);
 					}
 
 
@@ -5910,7 +6491,7 @@ function makeChart(series, data, param){
 						}
 
 						//recalculate data to real 
-						transformDataToReal(data, deflactorDictionary, 	baseRealNominalDate, series);
+						transformDataToReal(data, deflactorDictionary, 	baseRealNominalDate, otherDataProperties);
 
 						if (transformToBaseIndex) {
 
@@ -6040,7 +6621,7 @@ function makeChart(series, data, param){
 
 						}
 						//console.log("newBaseRealNominalDate",newBaseRealNominalDate);
-						transformDataToReal(data, deflactorDictionary, 	baseRealNominalDate, series);
+						transformDataToReal(data, deflactorDictionary, 	baseRealNominalDate, otherDataProperties);
 
 						if(transformToBaseIndex){
 							flag = true;	
@@ -6179,7 +6760,7 @@ function makeChart(series, data, param){
 
 						}
 						//console.log("newBaseRealNominalDate",newBaseRealNominalDate);
-						transformDataToReal(data, deflactorDictionary, 	baseRealNominalDate, series);
+						transformDataToReal(data, deflactorDictionary, 	baseRealNominalDate, otherDataProperties);
 
 						if(transformToBaseIndex){
 							flag = true;	
