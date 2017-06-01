@@ -1549,14 +1549,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		}
 	}
 	
-		
-		
-		
-		
-		
-		
-		
-		
+
 		
 		
 		
@@ -4762,13 +4755,13 @@ function downloadCSVData(xName, data, fileTitle) {
 
 // REAL / NOMINAL CONVERSION FUNCTIONS
 
-function getIDeflactor(series){
-	var iLimit = series.length;
+function getIDeflactor(otherDataProperties){
+	var iLimit = otherDataProperties.length;
 	var iDeflactor = -1;
 	// get index of deflactor serie
 	for(var i=0; i<iLimit; i++){
-		if(typeof series[i].deflactor !== "undefined"){
-			if(series[i].deflactor){
+		if(typeof otherDataProperties[i].deflactor !== "undefined"){
+			if(otherDataProperties[i].deflactor){
 				iDeflactor = i;
 				i= iLimit;
 			}
@@ -4780,7 +4773,7 @@ function getIDeflactor(series){
 
 
 
-function createIndexMap(data, series, deflactorDictionary, periodKeys, iDeflactor){
+function createIndexMap(data, deflactorDictionary, periodKeys, iDeflactor){
 	var j=0, jLimit = 0, k=0;
 	var iLimit = data.length;
 	var date ="", key="";
@@ -4946,7 +4939,7 @@ function prepareTransformToReal(
 	data,
 	deflactorDictionary,
 	baseRealNominalDate,
-	series
+	otherDataProperties
 ) {
 	// save uncompared data
 	if (!nominalSaved) {
@@ -4954,14 +4947,14 @@ function prepareTransformToReal(
 		nominalSaved = true;
 	}
 
-	transformDataToReal(data, deflactorDictionary, 	baseRealNominalDate, series);
+	transformDataToReal(data, deflactorDictionary, 	baseRealNominalDate, otherDataProperties);
 
 	return nominalSaved;
 }
 
 
 
-function transformDataToReal(data, deflactorDictionary, baseRealNominalDate, series) {
+function transformDataToReal(data, deflactorDictionary, baseRealNominalDate, otherDataProperties) {
 	var j, iLimit, jLimit;
 	var base = Number(deflactorDictionary[baseRealNominalDate]);
 	
@@ -4969,7 +4962,7 @@ function transformDataToReal(data, deflactorDictionary, baseRealNominalDate, ser
 	
 	iLimit = data.length;
 	for (var i = 0; i < iLimit; i++) {
-		if(series[i].toggleRealNominal){
+		if(otherDataProperties[i].toggleRealNominal){
 			jLimit = data[i].y.length;
 			for (j = 0; j < jLimit; j++) {
 
@@ -5041,6 +5034,7 @@ function makeChart(data, param){
 	layout = {},
 	timeInfo = {},
 	divInfo = {},
+	otherDataProperties = [],
 	deflactorDictionary = {},
 	flag = false,
 	index = 0,
@@ -5066,6 +5060,7 @@ function makeChart(data, param){
 	layout = param.layout;
 	timeInfo = param.timeInfo;
 	divInfo = param.divInfo;
+	otherDataProperties = param.otherDataProperties;
 
 	//console.log("settings", settings);
 
@@ -5074,16 +5069,6 @@ function makeChart(data, param){
 	if(typeof layout.yaxis.tickformat !== "undefined"){
 		originalLayout.yaxis.tickformat = layout.yaxis.tickformat;
 	}
-
-
-	// POST PROCESS DATA
-	// Available options: postProcessData: "end of month"
-	//postProcessData(data, series); 
-
-	//console.log("log processed data");
-
-	//console.log("data processed", data);
-
 
 	// SAVE ORIGINAL DATA
 	saveDataXYIntoPropertyXY(data, "xOriginal", "yOriginal");
@@ -5287,10 +5272,11 @@ function makeChart(data, param){
 
 
 	// map index to x's
-	var iDeflactor = getIDeflactor(series);
+	var iDeflactor = getIDeflactor(otherDataProperties);
+	
 	//console.log("iDeflactor",iDeflactor);
 
-	deflactorValuesCreated = createIndexMap(data, series, deflactorDictionary, settings.periodKeys, iDeflactor);
+	deflactorValuesCreated = createIndexMap(data, deflactorDictionary, settings.periodKeys, iDeflactor);
 
 	//console.log("deflactor map created");
 	//console.log("deflactorDictionary",deflactorDictionary);
@@ -5331,7 +5317,7 @@ function makeChart(data, param){
 			data,
 			deflactorDictionary,
 			baseRealNominalDate,
-			series
+			otherDataProperties
 		);
 
 
@@ -6054,7 +6040,7 @@ function makeChart(data, param){
 						}
 
 
-						transformDataToReal(data, deflactorDictionary, 	baseRealNominalDate, series);
+						transformDataToReal(data, deflactorDictionary, 	baseRealNominalDate, otherDataProperties);
 					}
 
 					if (transformToBaseIndex) {
@@ -6196,7 +6182,7 @@ function makeChart(data, param){
 
 						}
 
-						transformDataToReal(data, deflactorDictionary, 	baseRealNominalDate, series);
+						transformDataToReal(data, deflactorDictionary, 	baseRealNominalDate, otherDataProperties);
 					}
 
 
@@ -6523,7 +6509,7 @@ function makeChart(data, param){
 						}
 
 						//recalculate data to real 
-						transformDataToReal(data, deflactorDictionary, 	baseRealNominalDate, series);
+						transformDataToReal(data, deflactorDictionary, 	baseRealNominalDate, otherDataProperties);
 
 						if (transformToBaseIndex) {
 
@@ -6653,7 +6639,7 @@ function makeChart(data, param){
 
 						}
 						//console.log("newBaseRealNominalDate",newBaseRealNominalDate);
-						transformDataToReal(data, deflactorDictionary, 	baseRealNominalDate, series);
+						transformDataToReal(data, deflactorDictionary, 	baseRealNominalDate, otherDataProperties);
 
 						if(transformToBaseIndex){
 							flag = true;	
@@ -6792,7 +6778,7 @@ function makeChart(data, param){
 
 						}
 						//console.log("newBaseRealNominalDate",newBaseRealNominalDate);
-						transformDataToReal(data, deflactorDictionary, 	baseRealNominalDate, series);
+						transformDataToReal(data, deflactorDictionary, 	baseRealNominalDate, otherDataProperties);
 
 						if(transformToBaseIndex){
 							flag = true;	
