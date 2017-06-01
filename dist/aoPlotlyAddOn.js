@@ -2984,11 +2984,12 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 		// just fill in processed dates
 		else {
 			for(k=0, i=initialIndex; k < kLimit ; i++, k++){ 
+				processedDate = allRows[i][xSeriesName];
 				if (
 					tracesInitialDate === "" ||
 					new Date(processedDate) >= initialDateAsDate
 				) {
-					x[k]=allRows[i][xSeriesName];;
+					x[k]=processedDate;
 					y[k]=allRows[i][ySeriesName];
 					readItems++;
 				}
