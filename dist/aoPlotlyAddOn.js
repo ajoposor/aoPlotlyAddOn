@@ -2404,7 +2404,7 @@ function dateToString(date) {
 // 2. Read Data - support function, reads data and add it to data object, increases global iS variable
 function readData(data, iS, param, callback) {
 	
-	var ulrType = param.dataSources[iS.value].urlType;
+	var urlType = param.dataSources[iS.value].urlType;
 	
 	if (urlType === "csv") {
 		Plotly.d3.csv(param.dataSources[iS.value].url, function(readData) {
@@ -2423,8 +2423,10 @@ function readData(data, iS, param, callback) {
 	} 
 	else if (urlType === "yqlJson") {
 		$.getJSON(series[iS.value].url, function(readData) {
-			processJsonData(
-				readData.query.results.json,
+			/* Not required, it can be handled with the CSV function, 
+			set xSeriesName to date and ySeriesName to value*/	    
+			processCsvData(
+				readData.query.results.json.observations,
 				data,
 				param.timeInfo.tracesInitialDate,
 				param.otherDataProperties,
@@ -2441,7 +2443,7 @@ function readData(data, iS, param, callback) {
 			encodeURIComponent("SELECT * from csv where url='"+series[iS.value].url+"'")+
 			"&format=json", 				
 			function(readData) {
-				processYqlGoogleCsvData(
+				processCsvData(
 					readData.query.results.row,
 					data,
 					param.timeInfo.tracesInitialDate,
@@ -2455,8 +2457,7 @@ function readData(data, iS, param, callback) {
   	} 
 	else if (urlType === "pureJson") {
 		$.getJSON(series[iS.value].url, function(readData) {
-			
-			processJsonData(
+			processCSVData(
 				readData, 
 				data,
 				param.timeInfo.tracesInitialDate, 
@@ -2468,6 +2469,7 @@ function readData(data, iS, param, callback) {
 			readDataAndMakeChart(data, iS, param, callback);
 		});
 	} 
+	/*
 	else if (urlType === "direct") {
 		processDirectData(
 			data,
@@ -2478,6 +2480,7 @@ function readData(data, iS, param, callback) {
 		iS.value++;
 		readDataAndMakeChart(data, iS, param, callback);
 	}
+	*/
 }
 
 	     
@@ -2499,7 +2502,7 @@ function mapchangeDateToEndOfMonth(allRows, xSeriesName){
 	    
 	    
 function findSpliceInfo(newArray, xSeriesName, newArrayInitialIndex, newArrayElements, existingArray,
-			datesReady, transformToEndOfMonth, xDateSuffix, timeOffsetText){
+			datesReady, transformToEndOfMonth, yqlGoogleCSV, xDateSuffix, timeOffsetText){
 	
 	var j=0, iLimit, jLimit = existingArray.length;
 	var currentDate = new Date();
@@ -2510,6 +2513,9 @@ function findSpliceInfo(newArray, xSeriesName, newArrayInitialIndex, newArrayEle
 		insertPoint: 0
 	};
 	var processedDate = "";
+	var localChangeDateToEndOfMonth = ChangeDateToEndOfMonth;
+	var localGoogleMDYToYMD = GoogleMDYToYMD;
+	var localProcessDate = processDate;
 		
 	iLimit = newArrayInitialIndex + newArrayElements;
 	for (var i=newArrayInitialIndex; i < iLimit; i++){
@@ -2518,8 +2524,10 @@ function findSpliceInfo(newArray, xSeriesName, newArrayInitialIndex, newArrayEle
 			currentDate = new Date(newArray[i][xSeriesName]);
 		}
 		else {
-			currentDate= processDate("" +newArray[i][xSeriesName] + xDateSuffix, timeOffsetText);
-			currentDate = new Date(transformToEndOfMonth ? ChangeDateToEndOfMonth(currentDate) : currentDate);				 
+			currentDate= localProcessDate("" +
+						 !yqlGoogleCSV ? newArray[i][xSeriesName] :  localGoogleMDYToYMD(newArray[i][xSeriesName])+
+						 xDateSuffix, timeOffsetText);
+			currentDate = new Date(transformToEndOfMonth ? localChangeDateToEndOfMonth(currentDate) : currentDate);				 
 		}
 		
 		// search for an entry point
@@ -2537,8 +2545,11 @@ function findSpliceInfo(newArray, xSeriesName, newArrayInitialIndex, newArrayEle
 									currentDate = new Date(newArray[i][xSeriesName]);
 								}
 								else {
-									currentDate= processDate("" +newArray[i][xSeriesName] + xDateSuffix, timeOffsetText);
-									currentDate = new Date(transformToEndOfMonth ? ChangeDateToEndOfMonth(currentDate) : currentDate);				 
+									currentDate= localProcessDate(
+										"" +
+										!yqlGoogleCSV ? newArray[i][xSeriesName] :  localGoogleMDYToYMD(newArray[i][xSeriesName])+
+										xDateSuffix, timeOffsetText);
+									currentDate = new Date(transformToEndOfMonth ? localChangeDateToEndOfMonth(currentDate) : currentDate);				 
 								}
 								if(currentDate <= cutDate ){
 									spliceInfo.traceLength = i-spliceInfo.initialIndex;
@@ -2571,8 +2582,11 @@ function findSpliceInfo(newArray, xSeriesName, newArrayInitialIndex, newArrayEle
 								currentDate = new Date(newArray[i][xSeriesName]);
 							}
 							else {
-								currentDate= processDate("" +newArray[i][xSeriesName] + xDateSuffix, timeOffsetText);
-								currentDate = new Date(transformToEndOfMonth ? ChangeDateToEndOfMonth(currentDate) : currentDate);				 
+								currentDate= localProcessDate(
+									"" +
+									!yqlGoogleCSV ? newArray[i][xSeriesName] :  localGoogleMDYToYMD(newArray[i][xSeriesName])+
+									xDateSuffix, timeOffsetText);
+								currentDate = new Date(transformToEndOfMonth ? localChangeDateToEndOfMonth(currentDate) : currentDate);				 
 							}							
 							if(currentDate <= cutDate ){
 								spliceInfo.traceLength = i-spliceInfo.initialIndex;
@@ -2621,7 +2635,26 @@ function sortByDatesAsStrings(xSeriesName, delta){
 		}
 
 	};
-}	 	
+}	
+	    
+	    
+// callback creation function to sortByGoogleDatesAsStrings
+function sortByGoogleDatesAsStrings(xSeriesName, delta){
+	return function (a, b) {
+		var localGoogleMDYToYMD = GoogleMDYToYMD;
+		delta = new Date(localGoogleMDYToYMD(b[xSeriesName]))-new Date(localGoogleMDYToYMD(a[xSeriesName]));
+		if(!isNaN(delta)){
+			return delta;			
+		}
+		else {
+				return 	new Date(b[xSeriesName]==="" ? "0001-01-01": localGoogleMDYToYMD(b[xSeriesName]))-
+					new Date(a[xSeriesName]==="" ? "0001-01-01": localGoogleMDYToYMD(a[xSeriesName]));
+
+		}
+
+	};
+}		    
+	
 	    
 // use write loop to concat
 function myConcat(array, toAdd){
@@ -2685,6 +2718,9 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 	var latestSorted = "";
 	var delta =0.0;
 	var datesReady = false, transformToEndOfMonth = false;
+	var urlType = dataSources.urlType;
+	var tags=allRows[0];
+	var yqlGoogleCSV = false;
 	
 	// save function references
 	var localProcessDate = processDate;
@@ -2692,9 +2728,19 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 	var localNameIsOnArrayOfNames = nameIsOnArrayOfNames;
 	var localFindTraceIdIndex = findTraceIdIndex;
 	var localSortByDatesAsStrings = sortByDatesAsStrings;
+	var localSortByGoogleDatesAsStrings = sortByGoogleDatesAsStrings;
 	var localInsertArrayInto = insertArrayInto;
 	var localMyConcat = myConcat;
 	var localFindSpliceInfo = findSpliceInfo;
+	var localGoogleMDYToYMD = GoogleMDYToYMD;
+	
+
+	
+	if(urlType = "yqlGoogleCSV"){
+		yqlGoogleCSV = true;
+		allRows.shift();
+	}
+	
 
 	// update initialDateAsDate if tracesInitialDate provided
 	if (tracesInitialDate !== "") {
@@ -2717,6 +2763,22 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 		xDateSuffix = dataSources.traces[j].xDateSuffix;
 		traceID = dataSources.traces[j].traceID;
 		datesReady = localNameIsOnArrayOfNames(xSeriesName,processedColumnDates);
+		
+		// set xSeriesName and ySeriesName  to tags in case yqlGoogleCSV
+		if(yqlGoogleCSV){
+			for (var key in tags){
+				if (tags.hasOwnProperty(key)) {
+					if(tags[key].toString().trim() === xSeriesName.toString()){
+						xSeriesName = key;
+					}
+					if(tags[key].toString().trim() === ySeriesName.toString()){
+						ySeriesName = key;
+					}
+				}
+			}
+		}
+
+
 		
 		transformToEndOfMonth = false;
 		if(typeof dataSources.traces[j].postProcessData !== "undefined"){
@@ -2746,7 +2808,12 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 		if(latestSorted !== xSeriesName){
 			if(typeof dataSources.traces[j].sort !== "undefined"){	
 				if(dataSources.traces[j].sort === true){
-					allRows.sort(sortByDatesAsStrings(xSeriesName), delta);
+					if(!yqlGoogleCSV){
+						allRows.sort(sortByDatesAsStrings(xSeriesName), delta);
+					}
+					else{
+						allRows.sort(sortByGoogleDatesAsStrings(xSeriesName), delta);
+					}
 					latestSorted = xSeriesName;
 				}
 			}	
@@ -2774,14 +2841,29 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 		
 		// dates not yet processed
 		if(!datesReady){
-			readTraceInitialDateAsDate = localProcessDate(
-				""+allRows[readTraceEndIndex][xSeriesName] + xDateSuffix, timeOffsetText
-				);
-			
-			readTraceEndDateAsDate = localProcessDate(
-				""+allRows[readTraceInitialIndex][xSeriesName] + xDateSuffix, timeOffsetText
-				);
+			if(!yqlGoogleCSV){
+				readTraceInitialDateAsDate = localProcessDate(
+					""+allRows[readTraceEndIndex][xSeriesName] + xDateSuffix, timeOffsetText
+					);
 
+				readTraceEndDateAsDate = localProcessDate(
+					""+allRows[readTraceInitialIndex][xSeriesName] + xDateSuffix, timeOffsetText
+					);
+			}
+			else
+				readTraceInitialDateAsDate = localProcessDate(
+					""+
+					localGoogleMDYToYMD(allRows[readTraceEndIndex][xSeriesName]) +
+					xDateSuffix, timeOffsetText
+					);
+
+				readTraceEndDateAsDate = localProcessDate(
+					""+
+					localGoogleMDYToYMD(allRows[readTraceInitialIndex][xSeriesName])+
+					xDateSuffix, timeOffsetText
+					);
+			}
+			
 			if(transformToEndOfMonth){
 				readTraceInitialDateAsDate = localChangeDateToEndOfMonth(readTraceInitialDateAsDate);
 				readTraceEndDateAsDate = localChangeDateToEndOfMonth(readTraceEndDateAsDate);
@@ -2839,10 +2921,12 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 					}	
 				}
 				// change to end of month
-				else if(transformToEndOfMonth){
+				else if(transformToEndOfMonth && !yqlGoogleCSV){
 					for(i=readTraceInitialIndex; i<readTraceLimit;i++){
+						
 						processedDate = localProcessDate(
-							""+allRows[i][xSeriesName] + 
+							""+
+							!yqlGoogleCSV ? allRows[i][xSeriesName] :  localGoogleMDYToYMD(allRows[i][xSeriesName])+ 
 							xDateSuffix, timeOffsetText);
 						processedDate = new Date(localChangeDateToEndOfMonth(processedDate));
 						if(processedDate <= existingEndDateAsDate){
@@ -2850,12 +2934,13 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 						   i = iLimit;
 						}
 					}
-				}
+				}				
 				// process dates
 				else {
 					for(i=readTraceInitialIndex; i<readTraceLimit;i++){
 						processedDate = new Date(localProcessDate(
-							""+allRows[i][xSeriesName] + 
+							""+
+							!yqlGoogleCSV ? allRows[i][xSeriesName] :  localGoogleMDYToYMD(allRows[i][xSeriesName])+ 
 							xDateSuffix, timeOffsetText));
 						if(processedDate <= existingEndDateAsDate){
 						   traceLength = i-readTraceInitialIndex;
@@ -2881,7 +2966,8 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 				else if(transformToEndOfMonth){		
 					for(i=readTraceLimit -1 ; i > readTraceInitialIndex-1; i--){
 						processedDate = localProcessDate(
-							""+allRows[i][xSeriesName] + 
+							""+
+							!yqlGoogleCSV ? allRows[i][xSeriesName] :  localGoogleMDYToYMD(allRows[i][xSeriesName])+ 
 							xDateSuffix, timeOffsetText);
 						processedDate = new Date(localChangeDateToEndOfMonth(processedDate));
 						if(processedDate >= existingInitialDateAsDate){
@@ -2896,8 +2982,9 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 				else {
 					for(i=readTraceLimit -1 ; i > readTraceInitialIndex-1; i--){
 						processedDate = new Date(localProcessDate(
-								""+allRows[i][xSeriesName] + 
-								xDateSuffix, timeOffsetText));
+							""+
+							!yqlGoogleCSV ? allRows[i][xSeriesName] :  localGoogleMDYToYMD(allRows[i][xSeriesName])+ 
+							xDateSuffix, timeOffsetText));
 						if(processedDate >= existingInitialDateAsDate){
 							initialIndex = i+1;
 							traceLength = readTraceLimit - initialIndex;
@@ -2913,7 +3000,7 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 				spliceInfo = findSpliceInfo(
 					allRows,   xSeriesName, readTraceInitialIndex,
 					readTraceLength, data[iData].x,  datesReady,
-					transformToEndOfMonth, xDateSuffix, timeOffsetText);
+					transformToEndOfMonth, yqlGoogleCSV,xDateSuffix, timeOffsetText);
 				initialIndex = spliceInfo.initialIndex;
 				traceLength = spliceInfo.traceLength;
 				insertPoint = spliceInfo.insertPoint;
@@ -2926,8 +3013,6 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 			traceLength = readTraceLength;
 			insertPoint = 0;
 		}
-
-
 		
 		// fill temporary x, y arrays with read data
 		readItems = 0;
@@ -2936,7 +3021,7 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 		//case Change date to End of Month
 		if(transformToEndOfMonth) {
 			for(k=0, i=initialIndex; k < kLimit; i++, k++){
-				processedDate = allRows[i][xSeriesName];
+				processedDate = !yqlGoogleCSV ? allRows[i][xSeriesName] :  localGoogleMDYToYMD(allRows[i][xSeriesName])+
 				processedDate = localProcessDate(""+processedDate + xDateSuffix, timeOffsetText);
 				processedDate = localChangeDateToEndOfMonth(processedDate);	 
 				if (
@@ -2959,7 +3044,7 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 		// no change to end of month but process
 		else if(!datesReady) {
 			for(k=0, i=initialIndex; k < kLimit ; i++, k++){
-				processedDate = allRows[i][xSeriesName];
+				processedDate = !yqlGoogleCSV ? allRows[i][xSeriesName] :  localGoogleMDYToYMD(allRows[i][xSeriesName])+
 				processedDate = localProcessDate(""+processedDate + xDateSuffix, timeOffsetText);	 
 				if (
 					tracesInitialDate === "" ||
@@ -3010,11 +3095,8 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 		// create x and y properties if not yet defined for current trace
 		if(typeof data[iData].x === "undefined" ||
 		   typeof data[iData].y === "undefined") {
-			if( readItems > 0 ){
-				data[iData].x = [];
-				data[iData].y = [];
-			}
-
+			data[iData].x = [];
+			data[iData].y = [];
 		}
 
 
@@ -3057,7 +3139,7 @@ aoPlotlyAddOn.findSpliceInfo = findSpliceInfo;
 aoPlotlyAddOn.processCsvData = processCsvData;	    
 	    
 	    
-	    
+/* Not required, it can be handled with the CSV function, set xSeriesName to date and ySeriesName to value	    
 function processJsonData(jsonData, tracesInitialDate, serie) {
 	var x = [], y = [], trace = {}; //[];
 	var initialDateAsDate = new Date("0001-01-01");
@@ -3110,8 +3192,9 @@ function processJsonData(jsonData, tracesInitialDate, serie) {
 	trace.y = y;
 	return trace;
 }
-	    
-
+*/
+	
+/* merge into processCSVData 
 // // read data from google finance history csv files	    
 function processYqlGoogleCsvData(allRows, tracesInitialDate, serie) {
 	var x = [], y = [], trace = {}; //[];
@@ -3195,6 +3278,8 @@ function processYqlGoogleCsvData(allRows, tracesInitialDate, serie) {
 	trace.y = y;
 	return trace;
 }
+
+*/
 
 
 //transform google date format "day-monthString-year" into "yyyy-mm-dd"
