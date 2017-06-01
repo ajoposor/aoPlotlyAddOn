@@ -2513,7 +2513,7 @@ function findSpliceInfo(newArray, xSeriesName, newArrayInitialIndex, newArrayEle
 		insertPoint: 0
 	};
 	var processedDate = "";
-	var localChangeDateToEndOfMonth = ChangeDateToEndOfMonth;
+	var localChangeDateToEndOfMonth = changeDateToEndOfMonth;
 	var localGoogleMDYToYMD = GoogleMDYToYMD;
 	var localProcessDate = processDate;
 		
@@ -2736,7 +2736,7 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 	
 
 	
-	if(urlType = "yqlGoogleCSV"){
+	if(urlType === "yqlGoogleCSV"){
 		yqlGoogleCSV = true;
 		allRows.shift();
 	}
@@ -2850,7 +2850,7 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 					""+allRows[readTraceInitialIndex][xSeriesName] + xDateSuffix, timeOffsetText
 					);
 			}
-			else
+			else {
 				readTraceInitialDateAsDate = localProcessDate(
 					""+
 					localGoogleMDYToYMD(allRows[readTraceEndIndex][xSeriesName]) +
@@ -3021,7 +3021,7 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 		//case Change date to End of Month
 		if(transformToEndOfMonth) {
 			for(k=0, i=initialIndex; k < kLimit; i++, k++){
-				processedDate = !yqlGoogleCSV ? allRows[i][xSeriesName] :  localGoogleMDYToYMD(allRows[i][xSeriesName])+
+				processedDate = !yqlGoogleCSV ? allRows[i][xSeriesName] :  localGoogleMDYToYMD(allRows[i][xSeriesName]);
 				processedDate = localProcessDate(""+processedDate + xDateSuffix, timeOffsetText);
 				processedDate = localChangeDateToEndOfMonth(processedDate);	 
 				if (
@@ -3044,7 +3044,7 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 		// no change to end of month but process
 		else if(!datesReady) {
 			for(k=0, i=initialIndex; k < kLimit ; i++, k++){
-				processedDate = !yqlGoogleCSV ? allRows[i][xSeriesName] :  localGoogleMDYToYMD(allRows[i][xSeriesName])+
+				processedDate = !yqlGoogleCSV ? allRows[i][xSeriesName] :  localGoogleMDYToYMD(allRows[i][xSeriesName]);
 				processedDate = localProcessDate(""+processedDate + xDateSuffix, timeOffsetText);	 
 				if (
 					tracesInitialDate === "" ||
@@ -3333,7 +3333,7 @@ function GoogleMDYToYMD(googleDate){
 	    
 	    
 	    
-
+/*
 // In case trace x and y are provided direct, and not to be read from a file.
 function processDirectData(tracesInitialDate, serie) {
 	var x = [], y = [], trace = {}; //[];
@@ -3387,7 +3387,7 @@ function processDirectData(tracesInitialDate, serie) {
 	trace.x = x;
 	trace.y = y;
 	return trace;
-}
+}*/
 
 // 3. recessions handling
 
