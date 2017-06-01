@@ -2398,9 +2398,10 @@ function dateToString(date) {
 function readData(data, iS, param, callback) {
 	
 	var urlType = param.dataSources[iS.value].urlType;
+	var url = param.dataSources[iS.value].url;
 	
 	if (urlType === "csv") {
-		Plotly.d3.csv(param.dataSources[iS.value].url, function(readData) {
+		Plotly.d3.csv(url, function(readData) {
 			console.log("csv", iS.value);
 			processCsvData(
 				readData, 
@@ -2415,7 +2416,7 @@ function readData(data, iS, param, callback) {
 		});
 	} 
 	else if (urlType === "yqlJson") {
-		$.getJSON(series[iS.value].url, function(readData) {
+		$.getJSON(url, function(readData) {
 			/* Not required, it can be handled with the CSV function, 
 			set xSeriesName to date and ySeriesName to value*/	    
 			processCsvData(
@@ -2433,7 +2434,7 @@ function readData(data, iS, param, callback) {
 	else if ( urlType === "yqlGoogleCSV") {
 		console.log("Googlecsv", iS.value);
 		Plotly.d3.json("https://query.yahooapis.com/v1/public/yql?q="+
-			encodeURIComponent("SELECT * from csv where url='"+series[iS.value].url+"'")+
+			encodeURIComponent("SELECT * from csv where url='"+url+"'")+
 			"&format=json", 				
 			function(readData) {
 				processCsvData(
@@ -2449,8 +2450,8 @@ function readData(data, iS, param, callback) {
 		});
   	} 
 	else if (urlType === "pureJson") {
-		$.getJSON(series[iS.value].url, function(readData) {
-			processCSVData(
+		$.getJSON(url, function(readData) {
+			processCsvData(
 				readData, 
 				data,
 				param.timeInfo.tracesInitialDate, 
@@ -2477,22 +2478,7 @@ function readData(data, iS, param, callback) {
 }
 
 	     
-// callback creation function to processArrayDates
-function mapProcessDate(array, xSeriesName, xDateSuffix, timeOffsetText){
-	return function (x, i, array) {
-		array[i][xSeriesName] = processDate(
-			x[xSeriesName] + 
-			xDateSuffix, timeOffsetText);
-	}
-}
-	    
-// callback creation function to processArrayDates to end of month	    
-function mapchangeDateToEndOfMonth(allRows, xSeriesName){
-	return function (x, i, array) {
-		
-	}
-}
-	    
+    
 	    
 function findSpliceInfo(newArray, xSeriesName, newArrayInitialIndex, newArrayElements, existingArray,
 			datesReady, transformToEndOfMonth, yqlGoogleCSV, xDateSuffix, timeOffsetText){
@@ -2505,7 +2491,6 @@ function findSpliceInfo(newArray, xSeriesName, newArrayInitialIndex, newArrayEle
 		traceLength: -1,
 		insertPoint: 0
 	};
-	var processedDate = "";
 	var localChangeDateToEndOfMonth = changeDateToEndOfMonth;
 	var localGoogleMDYToYMD = GoogleMDYToYMD;
 	var localProcessDate = processDate;
@@ -2672,7 +2657,7 @@ function insertArrayInto(toAdd, insertPoint, array){
 
 	array.length = iLimit+kLimit;
 
-	k= insertPoint + kLimit;
+	var k= insertPoint + kLimit;
 	for(var i=insertPoint; i < iLimit; i++){
 		array[k] = array[i];
 		k++;
@@ -2689,21 +2674,18 @@ function insertArrayInto(toAdd, insertPoint, array){
 // FUNCTIONS TO PARSE CVS, JSON OR DIRECT SERIES
 // main code, reads cvs files and creates traces and combine them in data
 function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, dataSources) {
-	var x = [], y = [], trace = {}; //[];
-	var xSorted = [], ySorted = [];
-	var nullDate = new Date("0001-01-01");
+	var x = [], y = []; //[];
 	var initialDateAsDate = new Date("0001-01-01");
 	var processedDate ="";
 	var timeOffsetText = getTimeOffsetText();
 	var i = 0, iLimit, jLimit, iData;
-	var row;
 	var xSeriesName="", xDateSuffix ="", ySeriesName="", traceID = "";
 	var processedColumnDates = [];
 	var insertTrace = false;
 	var readTraceInitialDateAsDate, readTraceEndDateAsDate;
 	var existingInitialDateAsDate, existingEndDateAsDate;
-	var insertPoint = -1, insertDateLimitAsDate = new Date();
-	var initialIndex=0, endIndex=0;
+	var insertPoint = -1;
+	var initialIndex=0;
 	var readTraceLength = 0, readTraceInitialIndex =0, traceLength, readTraceLimit =0;
 	var readTraceEndIndex =0;
 	var spliceInfo = {};
@@ -2781,7 +2763,7 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 		}
 		
 		// find trace index (position in data array)
-		iData = findTraceIdIndex(traceID,otherDataProperties);
+		iData = localFindTraceIdIndex(traceID,otherDataProperties);
 		
 		// find weather trace will be added to existing trace
 		insertTrace = false;
@@ -2802,10 +2784,10 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 			if(typeof dataSources.traces[j].sort !== "undefined"){	
 				if(dataSources.traces[j].sort === true){
 					if(!yqlGoogleCSV){
-						allRows.sort(sortByDatesAsStrings(xSeriesName), delta);
+						allRows.sort(localSortByDatesAsStrings(xSeriesName), delta);
 					}
 					else{
-						allRows.sort(sortByGoogleDatesAsStrings(xSeriesName), delta);
+						allRows.sort(localSortByGoogleDatesAsStrings(xSeriesName), delta);
 					}
 					latestSorted = xSeriesName;
 				}
@@ -2990,7 +2972,7 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 
 			// case total overlap, find space available
 			else {
-				spliceInfo = findSpliceInfo(
+				spliceInfo = localFindSpliceInfo(
 					allRows,   xSeriesName, readTraceInitialIndex,
 					readTraceLength, data[iData].x,  datesReady,
 					transformToEndOfMonth, yqlGoogleCSV,xDateSuffix, timeOffsetText);
@@ -3099,8 +3081,8 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 			// case new data come first
 			if(insertPoint === 0){
 				if(data[iData].x.length >0){
-					data[iData].x[i] = myConcat(x,data[iData].x);
-					data[iData].y[i] = myConcat(y,data[iData].y);	
+					data[iData].x[i] = localMyConcat(x,data[iData].x);
+					data[iData].y[i] = localMyConcat(y,data[iData].y);	
 				}
 				else{
 					data[iData].x = x;
@@ -3109,13 +3091,13 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 			}
 			// new data comes after
 			else if (insertPoint === data[iData].x.length){
-				data[iData].x[i] = myConcat(data[iData].x,x);
-				data[iData].y[i] = myConcat(data[iData].y,y);	
+				data[iData].x[i] = localMyConcat(data[iData].x,x);
+				data[iData].y[i] = localMyConcat(data[iData].y,y);	
 			}
 			// new data comes inside
 			else {
-				data[iData].x[i] = insertArrayInto(x,insertPoint, data[iData].x);
-				data[iData].y[i] = insertArrayInto(y,insertPoint, data[iData].y);
+				data[iData].x[i] = localInsertArrayInto(x,insertPoint, data[iData].x);
+				data[iData].y[i] = localInsertArrayInto(y,insertPoint, data[iData].y);
 			}
 		}
 		
