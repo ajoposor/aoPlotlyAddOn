@@ -2415,6 +2415,19 @@ function readData(data, iS, param, callback) {
 			readDataAndMakeChart(data, iS, param, callback);
 		});
 	} 
+	else if (urlType === "arrayOfJsons") {
+		console.log("arrayOfJsons", iS.value);
+		processCsvData(
+			param.dataSources[iS.value].arrayOfJsons, 
+			data,
+			param.timeInfo.tracesInitialDate,
+			param.otherDataProperties,
+			param.dataSources[iS.value]
+			);
+		iS.value++;
+		readData="";
+		readDataAndMakeChart(data, iS, param, callback);
+	} 
 	else if (urlType === "yqlJson") {
 		$.getJSON(url, function(readData) {
 			/* Not required, it can be handled with the CSV function, 
@@ -2671,6 +2684,63 @@ function insertArrayInto(toAdd, insertPoint, array){
 
 }
 	    
+//Reverse order of array and return result
+function reverseOrderOfArray(allRows){
+	var iLimit = allRows.length;
+	var newArray = [];
+	newArray.length = iLimit;
+	var k= iLimit -1;
+	for (var i = 0; i<iLimit; i++){
+		newArray[i]=allRows[k];
+		k--;
+	}
+	allRows = [];
+	return newArray;
+		
+}
+
+function transformAllRowsToEndOfMonth(allRows, xSeriesName, xDateSuffix, urlType){
+	var iLimit = allRows.lenght;
+	var processedDate = "";
+	var yqlGoogleCSV = false;
+	var timeOffsetText = getTimeOffsetText();
+	
+	// save function references
+	var localProcessDate = processDate;
+	var localChangeDateToEndOfMonth = changeDateToEndOfMonth;
+	var localGoogleMDYToYMD = GoogleMDYToYMD;
+	
+	if(urlType === "yqlGoogleCSV") yqlGoogleCSV = true;
+	
+	// 
+	for (var i=0; i < iLimit; i++){
+		processedDate = !yqlGoogleCSV ? allRows[i][xSeriesName] :  localGoogleMDYToYMD(allRows[i][xSeriesName]);
+		processedDate = localProcessDate(""+processedDate + xDateSuffix, timeOffsetText);
+		processedDate = localChangeDateToEndOfMonth(processedDate);		
+		allRows[i][xSeriesName] = processedDate;	
+	}
+}
+	    
+function processDatesToAllRows(allRows, xSeriesName, xDateSuffix, urlType){
+	var iLimit = allRows.lenght;
+	var processedDate = "";
+	var yqlGoogleCSV = false;
+	var timeOffsetText = getTimeOffsetText();
+	
+	// save function references
+	var localProcessDate = processDate;
+	var localGoogleMDYToYMD = GoogleMDYToYMD;
+	
+	if(urlType === "yqlGoogleCSV") yqlGoogleCSV = true;
+	
+	// 
+	for (var i=0; i < iLimit; i++){
+		processedDate = !yqlGoogleCSV ? allRows[i][xSeriesName] :  localGoogleMDYToYMD(allRows[i][xSeriesName]);
+		processedDate = localProcessDate(""+processedDate + xDateSuffix, timeOffsetText);	
+		allRows[i][xSeriesName] = processedDate;
+	}
+}
+	   
 // FUNCTIONS TO PARSE CVS, JSON OR DIRECT SERIES
 // main code, reads cvs files and creates traces and combine them in data
 function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, dataSources) {
@@ -2678,7 +2748,7 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 	var initialDateAsDate = new Date("0001-01-01");
 	var processedDate ="";
 	var timeOffsetText = getTimeOffsetText();
-	var i = 0, iLimit, jLimit, iData;
+	var i = 0, ia, ib, iLimit, jLimit, iData;
 	var xSeriesName="", xDateSuffix ="", ySeriesName="", traceID = "";
 	var processedColumnDates = [];
 	var insertTrace = false;
@@ -2696,6 +2766,8 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 	var urlType = dataSources.urlType;
 	var tags=allRows[0];
 	var yqlGoogleCSV = false;
+	var tableParams = {};
+	var subTables = [];
 	
 	// save function references
 	var localProcessDate = processDate;
@@ -2710,7 +2782,7 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 	var localGoogleMDYToYMD = GoogleMDYToYMD;
 	
 
-	
+	// set flag for yqlGoogleCSV type and removes first row of array.
 	if(urlType === "yqlGoogleCSV"){
 		yqlGoogleCSV = true;
 		allRows.shift();
@@ -2722,9 +2794,188 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 		initialDateAsDate = new Date(localProcessDate(tracesInitialDate, timeOffsetText));
 	}
 	
+	
 	// total rows of csv file loaded
 	// allRows is an array of objects
 	iLimit = allRows.length;
+	
+	
+	// Preprocess options for all Rows
+	
+	// get number of tables, sort and preprocessing of dates options
+	setTablesParametersSortPreprocessing(allRows, tableParams, dataSources);
+	
+	function setTablesParametersSortPreprocessing(allRows, tableParams, dataSources){
+		var urlType = dataSources.urlType;
+		var traces = dataSources.traces;
+		var xSeriesName;
+			
+		// number of traces to be read on this data source
+		jLimit = traces.length;
+		
+		kLimit = 0;
+		
+		// determine number of xSeriesNames being used and fill y values for each, cycle through traces array
+		for (var j=0; j < jLimit; j++){
+		
+			// set temporary variable
+			xSeriesName = traces[j].xSeriesName;
+			ySeriesName = traces[j].ySeriesName;
+			
+			// set xSeriesName in table of xSeriesNames
+			if(!tableParams.hasOwnProperty(xSeriesName)){
+				tableParams[xSeriesName] = {};
+			   	tableParams[xSeriesName]["yNames"] = [];
+			   	kLimit++;
+			}
+
+			
+			// add yName if not yet added
+			if(tableParams[xSeriesName]["yNames"].indexOf(ySeriesName) === -1){
+				tableParams[xSeriesName]["yNames"].push(ySeriesName);
+			}
+			
+			// set parameters from general options
+			
+			// add sort info
+			if(typeof dataSources["sort"] !== "undefined"){
+				tableParams[xSeriesName]["sort"] =  dataSources["sort"];				
+			} 
+			
+			// add xDateSuffix info
+			if(typeof dataSources["xDateSuffix"] !== "undefined"){
+				tableParams[xSeriesName]["xDateSuffix"] =  dataSources["xDateSuffix"];				
+			} 
+			
+			// add firstItemToRead info, default first
+			if(typeof dataSources["firstItemToRead"] !== "undefined"){
+				tableParams[xSeriesName]["firstItemToRead"] =  dataSources["firstItemToRead"];				
+			} 
+							 
+			// add processDate info, default true
+			if(typeof dataSources["processDates"] !== "undefined"){
+				tableParams[xSeriesName]["processDates"] =  dataSources["processDates"];				
+			}
+			
+			// add processDate info, default undefined
+			if(typeof dataSources["postProcessDate"] !== "undefined"){
+				tableParams[xSeriesName]["postProcessDate"] =  dataSources["postProcessDate"];				
+			} 
+
+			
+			// set parameters from trace options
+			
+			// add sort info, default false
+			if(typeof traces[j]["sort"] !== "undefined"){
+				tableParams[xSeriesName]["sort"] =  traces[j]["sort"];				
+			} else{
+				tableParams[xSeriesName]["sort"] =  false;	
+			}
+			
+			// add xDateSuffix info, default ""
+			if(typeof traces[j]["xDateSuffix"] !== "undefined"){
+				tableParams[xSeriesName]["xDateSuffix"] =  traces[j]["xDateSuffix"];				
+			} else{
+				tableParams[xSeriesName]["xDateSuffix"] =  "";	
+			}
+			
+			// add firstItemToRead info, default first
+			if(typeof traces[j]["firstItemToRead"] !== "undefined"){
+				tableParams[xSeriesName]["firstItemToRead"] =  traces[j]["firstItemToRead"];				
+			} else{
+				tableParams[xSeriesName]["firstItemToRead"] =  "first";	
+			}
+							 
+			// add processDate info, default true
+			if(typeof traces[j]["processDates"] !== "undefined"){
+				tableParams[xSeriesName]["processDates"] =  traces[j]["processDates"];				
+			} else{
+				tableParams[xSeriesName]["processDates"] =  true;	
+			}
+			
+			// add processDate info, default undefined
+			if(typeof traces[j]["postProcessDate"] !== "undefined"){
+				tableParams[xSeriesName]["postProcessDate"] =  traces[j]["postProcessDate"];				
+			} 
+		}	
+	}
+	
+	// apply date preprocessing options
+	applyDateProprocessing(allRows, tableParams, dataSources);
+	
+	// split subtables trim by InitialDateAsDate
+	splitSubtablesAndTrim(allRows, tableParams, dataSources, subTables);
+	
+	
+	// sort subtables
+	sortSubTables(tableParams, subTables);
+	
+
+	
+
+	// if firstItemtoRead is provided and it is last, array will be reordered
+	if(typeof dataSources["firstItemToRead"] !== "undefined" &&  dataSources["firstItemToRead"] === "last"){
+		allRows = reverseOrderOfArray(allRows);
+	}
+	
+	xDateSuffix = "";
+	if(typeof dataSources["xDateSuffix"] !== "undefined"){
+		xDateSuffix =  dataSources["xDateSuffix"];
+	}
+	
+	xSeriesName = "";
+	if(typeof dataSources["xSeriesName"] !== "undefined"){
+		xSeriesName =  dataSources["xSeriesName"];
+		// set xSeriesName to tags in case yqlGoogleCSV
+		if(yqlGoogleCSV){
+			for (var key in tags){
+				if (tags.hasOwnProperty(key)) {
+					if(tags[key].toString().trim() === xSeriesName.toString()){
+						xSeriesName = key;
+					}
+				}
+			}
+		}
+	}
+	
+	// Preprocess dates
+	var datesProcessed = true;
+	if(typeof dataSources["processDates"] !== "undefined" && dataSources["processDates"] === true){
+		if(typeof dataSources["postProcessData"] !== "undefined" && dataSources["postProcessData"] === "end of month"){
+			transformAllRowsToEndOfMonth(allRows, xSeriesName, xDateSuffix, urlType);
+		}
+		else{
+			processDatesToAllRows(allRows, xSeriesName, xDateSuffix, urlType);
+		}
+	}
+	// transform to end of month if required
+	else if(typeof dataSources["postProcessData"] !== "undefined" && dataSources["postProcessData"] === "end of month"){ 
+		transformAllRowsToEndOfMonth(allRows,xSeriesName, xDateSuffix, urlType);
+	}
+	else{
+		datesProcessed = false;
+	}
+	
+	// set column as processed if datesProcessed
+	if(datesProcessed){
+		if(processedColumnDates.indexOf(xSeriesName) === -1){
+			processedColumnDates.push(xSeriesName);
+		}
+	}
+	
+	
+	// Sort dates and flag column as sorted
+	if(typeof dataSources["sort"] !== "undefined" && dataSources["sort"] ===true){
+		if(!yqlGoogleCSV){
+			allRows.sort(localSortByDatesAsStrings(xSeriesName), delta);
+		}
+		else{
+			allRows.sort(localSortByGoogleDatesAsStrings(xSeriesName), delta);
+		}
+		latestSorted = dataSources["xSeriesName"];
+	}
+
+	
 	
 	// number of traces to be read on this data source
 	jLimit = dataSources.traces.length;
@@ -2739,7 +2990,7 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 		traceID = dataSources.traces[j].traceID;
 		datesReady = localNameIsOnArrayOfNames(xSeriesName,processedColumnDates);
 		
-		// set xSeriesName and ySeriesName  to tags in case yqlGoogleCSV
+		// set xSeriesName and ySeriesName to tags in case yqlGoogleCSV
 		if(yqlGoogleCSV){
 			for (var key in tags){
 				if (tags.hasOwnProperty(key)) {
