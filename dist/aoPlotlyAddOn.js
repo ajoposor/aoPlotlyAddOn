@@ -2740,6 +2740,35 @@ function processDatesToAllRows(allRows, xSeriesName, xDateSuffix, urlType){
 		allRows[i][xSeriesName] = processedDate;
 	}
 }
+	    
+function processYqlGoogleCSVTags(dataSources){
+		var j, jLimit = dataSources.traces.length;
+		var key;
+		
+		if(typeof dataSources["xSeriesName"] !== "undefined"){
+			// set xSeriesName to tags in case yqlGoogleCSV
+			for (key in tags){
+				if (tags.hasOwnProperty(key)) {
+					if(tags[key].toString().trim() === dataSources["xSeriesName"].toString()){
+						dataSources["xSeriesName"] = key;
+					}
+				}
+			}
+		}
+
+		for (j=0; j< jLimit; j++){			
+			for (key in tags){
+				if (tags.hasOwnProperty(key)) {
+					if(tags[key].toString().trim() === dataSources.traces[j].xSeriesName.toString()){
+						dataSources.traces[j].xSeriesName = key;
+					}
+					if(tags[key].toString().trim() === dataSources.traces[j].ySeriesName.toString()){
+						dataSources.traces[j].ySeriesName = key;
+					}
+				}
+			}
+		}
+	}	    
 	   
 // FUNCTIONS TO PARSE CVS, JSON OR DIRECT SERIES
 // main code, reads cvs files and creates traces and combine them in data
@@ -2748,7 +2777,7 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 	var initialDateAsDate = new Date("0001-01-01");
 	var processedDate ="";
 	var timeOffsetText = getTimeOffsetText();
-	var i = 0, ia, ib, iLimit, jLimit, iData;
+	var i = 0, j, ia, ib, iLimit, jLimit, iData;
 	var xSeriesName="", xDateSuffix ="", ySeriesName="", traceID = "";
 	var processedColumnDates = [];
 	var insertTrace = false;
@@ -2781,11 +2810,19 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 	var localFindSpliceInfo = findSpliceInfo;
 	var localGoogleMDYToYMD = GoogleMDYToYMD;
 	
-
-	// set flag for yqlGoogleCSV type and removes first row of array.
+	// number of traces to be read on this data source
+	jLimit = dataSources.traces.length;
+	
+	// set flag for yqlGoogleCSV type and removes first row of array and translate names of columns to values
 	if(urlType === "yqlGoogleCSV"){
 		yqlGoogleCSV = true;
+		processYqlGoogleCSVTags(dataSources);
 		allRows.shift();
+	}
+	
+	xSeriesName = "";
+	if(typeof dataSources["xSeriesName"] !== "undefined"){
+		xSeriesName =  dataSources["xSeriesName"];
 	}
 	
 
@@ -2803,17 +2840,14 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 	// Preprocess options for all Rows
 	
 	// get number of tables, sort and preprocessing of dates options
-	setTablesParametersSortPreprocessing(allRows, tableParams, dataSources);
+	setTablesParametersSortPreprocessing(tableParams, dataSources);
 	
-	function setTablesParametersSortPreprocessing(allRows, tableParams, dataSources){
-		var urlType = dataSources.urlType;
+	function setTablesParametersSortPreprocessing(tableParams, dataSources){
 		var traces = dataSources.traces;
 		var xSeriesName;
 			
 		// number of traces to be read on this data source
 		jLimit = traces.length;
-		
-		kLimit = 0;
 		
 		// determine number of xSeriesNames being used and fill y values for each, cycle through traces array
 		for (var j=0; j < jLimit; j++){
@@ -2826,7 +2860,6 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 			if(!tableParams.hasOwnProperty(xSeriesName)){
 				tableParams[xSeriesName] = {};
 			   	tableParams[xSeriesName]["yNames"] = [];
-			   	kLimit++;
 			}
 
 			
@@ -2899,9 +2932,51 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 			} 
 		}	
 	}
-	
+			processedDate = localProcessDate(
+		""+
+		!yqlGoogleCSV ? allRows[i][xSeriesName] :  localGoogleMDYToYMD(allRows[i][xSeriesName])+ 
+		xDateSuffix, timeOffsetText);
+	processedDate = new Date(localChangeDateToEndOfMonth(processedDate));
+
 	// apply date preprocessing options
-	applyDateProprocessing(allRows, tableParams, dataSources);
+	applyDateProprocessing(allRows, tableParams, urlType);
+	
+	function applyDateProprocessing(allRows, tableParams, urlType, yqlGoogleCSV) {
+		var i, iLimit = allRows.length;
+		var processedDate = ""
+		var yqlGoogleCSV = true;
+		
+		// set flag for yqlGoogleCSV type and removes first row of array.
+		if(urlType === "yqlGoogleCSV"){
+			yqlGoogleCSV = true;
+			allRows.shift();
+		}
+
+		for (var key in tableParams) {
+			if (tableParams.hasOwnProperty(key)){
+				if(tableParams[key]["processDates"]){
+					if(yqlGoogleCSV){				   
+						for(i = 0; i < iLimit ; i++){
+							processedDate = localProcessDate(""+
+											 localGoogleMDYToYMD(allRows[i][xSeriesName])+ 
+											xDateSuffix, timeOffsetText);
+							
+						}
+					} else{
+						for(i = 0; i < iLimit ; i++){
+
+						}
+					}
+					
+
+					
+
+				}	
+			}
+		}
+	}
+
+
 	
 	// split subtables trim by InitialDateAsDate
 	splitSubtablesAndTrim(allRows, tableParams, dataSources, subTables);
@@ -2977,11 +3052,9 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 
 	
 	
-	// number of traces to be read on this data source
-	jLimit = dataSources.traces.length;
 	
 	// iterate through traces to be loaded
-	for(var j=0; j < jLimit; j++){
+	for(j=0; j < jLimit; j++){
 		
 		// set temporary variable
 		xSeriesName = dataSources.traces[j].xSeriesName;
