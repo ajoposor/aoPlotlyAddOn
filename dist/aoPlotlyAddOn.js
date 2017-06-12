@@ -2914,31 +2914,35 @@ function setTablesParametersSortPreprocessing(tableParams, dataSources){
 		if(typeof traces[j]["sort"] !== "undefined"){
 			tableParams[xSeriesName]["sort"] =  traces[j]["sort"];				
 		} else{
-			tableParams[xSeriesName]["sort"] =  false;	
+			if(tableParams[xSeriesName]["sort"] === "undefined")
+				tableParams[xSeriesName]["sort"] =  false;	
 		}
 
 		// add xDateSuffix info, default ""
 		if(typeof traces[j]["xDateSuffix"] !== "undefined"){
 			tableParams[xSeriesName]["xDateSuffix"] =  traces[j]["xDateSuffix"];				
 		} else{
-			tableParams[xSeriesName]["xDateSuffix"] =  "";	
+			if(tableParams[xSeriesName]["xDateSuffix"] === "undefined")
+				tableParams[xSeriesName]["xDateSuffix"] =  "";	
 		}
 
 		// add firstItemToRead info, default first
 		if(typeof traces[j]["firstItemToRead"] !== "undefined"){
 			tableParams[xSeriesName]["firstItemToRead"] =  traces[j]["firstItemToRead"];				
 		} else{
-			tableParams[xSeriesName]["firstItemToRead"] =  "first";	
+			if(tableParams[xSeriesName]["firstItemToRead"] === "undefined")
+				tableParams[xSeriesName]["firstItemToRead"] =  "first";	
 		}
 
 		// add processDate info, default true
 		if(typeof traces[j]["processDates"] !== "undefined"){
 			tableParams[xSeriesName]["processDates"] =  traces[j]["processDates"];				
 		} else{
-			tableParams[xSeriesName]["processDates"] =  true;	
+			if(tableParams[xSeriesName]["processDates"] === "undefined")
+				tableParams[xSeriesName]["processDates"] =  true;	
 		}
 
-		// add processDate info, default undefined
+		// add postProcessDate info, default undefined
 		if(typeof traces[j]["postProcessDate"] !== "undefined"){
 			tableParams[xSeriesName]["postProcessDate"] =  traces[j]["postProcessDate"];				
 		} 
