@@ -3611,8 +3611,8 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 			// case new data come first
 			if(insertPoint === 0){
 				if(data[iData].x.length >0){
-					data[iData].x[i] = localMyConcat(x,data[iData].x);
-					data[iData].y[i] = localMyConcat(y,data[iData].y);	
+					data[iData].x = localMyConcat(x,data[iData].x);
+					data[iData].y = localMyConcat(y,data[iData].y);	
 				}
 				else{
 					data[iData].x = x;
@@ -3621,13 +3621,13 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 			}
 			// new data comes after
 			else if (insertPoint === data[iData].x.length){
-				data[iData].x[i] = localMyConcat(data[iData].x,x);
-				data[iData].y[i] = localMyConcat(data[iData].y,y);	
+				data[iData].x = localMyConcat(data[iData].x,x);
+				data[iData].y = localMyConcat(data[iData].y,y);	
 			}
 			// new data comes inside
 			else {
-				data[iData].x[i] = localInsertArrayInto(x,insertPoint, data[iData].x);
-				data[iData].y[i] = localInsertArrayInto(y,insertPoint, data[iData].y);
+				data[iData].x = localInsertArrayInto(x,insertPoint, data[iData].x);
+				data[iData].y = localInsertArrayInto(y,insertPoint, data[iData].y);
 			}
 		}
 		
