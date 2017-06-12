@@ -5525,6 +5525,7 @@ function readDataAndMakeChart(data, iS, param, callback) {
 		// once all files all read, i.e. iS === series.length, this section is executed
 		console.log("data: ", data);
 		console.log("param: ", param);
+		
 		makeChart(data, param);
 		callback("all read and plotted");
 	
