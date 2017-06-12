@@ -2999,7 +2999,39 @@ function sortSubTables(tableParams){
 			}
 		}
 	}
+}
+	    
+function getAdjustFactor(allRows, xSeriesName, ySeriesName, initialIndex, existingArray, insertPoint){
+	var adjustFactor = 1.0;
+	var currentDate = new Date();
+	var cutDate = new Date();
+	var i, iLimit;
+	var divisor =1.0;
+
+	// set initial date in allRows (new data)
+	if(initialIndex > 0){
+		currentDate = new Date(allRows[initialIndex - 1][xSeriesName]);
+		divisor = allRows[initialIndex - 1][ySeriesName];
+	} else{
+		currentDate = new Date(allRows[initialIndex][xSeriesName]);
+		divisor = allRows[initialIndex][ySeriesName];
+	}
+
+	iLimit = existingArray.x.length;
+	i= (insertPoint > 0) ? insertPoint - 1 : insertPoint;
+	for(i ; iLimit; i++){
+		cutDate = new Date(existingArray.x[i]);
+		if(cutDate >= currentDate){
+			adjustFactor = existingArray.y[i] / divisor;
+			return adjustFactor;	
+		}
+
+	}
+	adjustFactor = 1.0;
+	return adjustFactor;
 }	    
+	    
+	    
 	    
 	    
 // FUNCTIONS TO PARSE CVS, JSON OR DIRECT SERIES
@@ -3436,6 +3468,12 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 				initialIndex = spliceInfo.initialIndex;
 				traceLength = spliceInfo.traceLength;
 				insertPoint = spliceInfo.insertPoint;
+		
+				if(calculateAdjustedClose){
+					adjust = "new"; // "new", "existing" or "none"
+					adjustFactor = getAdjustFactor(allRows, xSeriesName, ySeriesName, initialIndex, data[iData], insertPoint);
+				}
+
 			}
 		} 
 
