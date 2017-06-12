@@ -2836,10 +2836,10 @@ function applyDateProprocessing(allRows, tableParams, yqlGoogleCSV) {
 
 function setTablesParametersSortPreprocessing(tableParams, dataSources){
 	var traces = dataSources.traces;
-	var xSeriesName;
+	var xSeriesName, ySeriesName;
 
 	// number of traces to be read on this data source
-	jLimit = traces.length;
+	var jLimit = traces.length;
 
 	// determine number of xSeriesNames being used and fill y values for each, cycle through traces array
 	for (var j=0; j < jLimit; j++){
@@ -2925,7 +2925,37 @@ function setTablesParametersSortPreprocessing(tableParams, dataSources){
 	}	
 }
 
-	    
+
+	
+function splitSubtablesAndTrim(allRows, tableParams, dataSources, initialDateAsDate){
+	var newArray=[];
+	var i=0, iLimit = allRows.length;
+	var j, jLimit,k;
+	var xSeriesName, ySeriesName;
+
+	for (var key in tableParams) {
+		if (tableParams.hasOwnProperty(key)){
+			xSeriesName = key;
+			newArray =[];
+			newArray.length= iLimit;
+			k=0;
+			for(i=0; i<iLimit; i++){
+				if(new Date(allRows[i][xSeriesName])>= initialDateAsDate){
+					k++;
+					newArray[i]={};
+					newArray[i][xSeriesName] = allRows[i][xSeriesName];
+					jLimit = tableParams[key]["yNames"].length;
+					for(j=0; j < tableParams; j++){
+						ySeriesName = tableParams[key]["yNames"][j];
+						newArray[i][ySeriesName]=allRows[i][ySeriesName];
+					}
+				}
+			}
+			newArray.length=k;
+			tableParams[key]["allRows"] = newArray;
+		}
+	}
+}	    
 	    
 	    
 // FUNCTIONS TO PARSE CVS, JSON OR DIRECT SERIES
@@ -2954,7 +2984,6 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 	var tags=allRows[0];
 	var yqlGoogleCSV = false;
 	var tableParams = {};
-	var subTables = [];
 	
 	// save function references
 	var localProcessDate = processDate;
@@ -2999,18 +3028,24 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 	
 	// get number of tables, sort and preprocessing of dates options
 	setTablesParametersSortPreprocessing(tableParams, dataSources);
-	
-
 
 	// apply date preprocessing options
 	applyDateProprocessing(allRows, tableParams, urlType);
 
 	// split subtables trim by InitialDateAsDate
-	splitSubtablesAndTrim(allRows, tableParams, dataSources, subTables);
+	splitSubtablesAndTrim(allRows, tableParams, dataSources, initialDateAsDate);
+	allRows = [];
 	
 	
 	// sort subtables
-	sortSubTables(tableParams, subTables);
+	sortSubTables(tableParams);
+	
+	functions sorSubTables(tableParams){
+		
+		for (var key in tableParams) {
+			if (tableParams.hasOwnProperty(key)){
+		
+	}
 
 
 	// if firstItemtoRead is provided and it is last, array will be reordered
