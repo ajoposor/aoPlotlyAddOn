@@ -3475,6 +3475,24 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 				}
 
 			}
+			
+			if(calculateAdjustedClose){
+				if(adjust !== "none" && adjustFactor !== 1.0){
+					if(adjust === "new"){
+						iLimit = allRows.length;
+						for(i = 0; i < iLimit ; i++){
+							allRows[i][ySeriesName] *= adjustFactor;
+						}
+					}
+					else if(adjust === "existing"){
+						iLimit = data[iData].y.length;
+						for(i = 0; i < iLimit ; i++){
+							data[iData].y[i] *= adjustFactor;
+						}
+					}
+				}
+			}
+			
 		} 
 
 		// no trace inserted only charge
