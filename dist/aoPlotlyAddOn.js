@@ -2780,12 +2780,13 @@ function processYqlGoogleCSVTags(dataSources){
 	}
 }	    
 	   
-function applyDateProprocessing(allRows, tableParams, yqlGoogleCSV) {
+function applyDateProprocessing(allRows, tableParams, urlType) {
 	var i, iLimit = allRows.length;
 	var processedDate = "";
 	var timeOffsetText = getTimeOffsetText();
 	var xSeriesName, xDateSuffix;
 	var transformToEndOfMonth = false;
+	var yqlGoogleCSV = false;
 
 	// save function references
 	var localProcessDate = processDate;
@@ -2793,8 +2794,10 @@ function applyDateProprocessing(allRows, tableParams, yqlGoogleCSV) {
 	var localGoogleMDYToYMD = GoogleMDYToYMD;
 	
 	
-		// transform to end of month if required
-	
+	// transform to end of month if required
+	if(urlType === "yqlGoogleCSV"){
+		yqlGoogleCSV = true;
+	}
 	
 	
 	for (var key in tableParams) {
@@ -2804,7 +2807,7 @@ function applyDateProprocessing(allRows, tableParams, yqlGoogleCSV) {
 				xDateSuffix = tableParams[key]["xDateSuffix"];
 				
 				transformToEndOfMonth = false;
-				if(typeof tableParams[key]["postProcessData"] !== "undefined" && tableParams[key]["postProcessData"] === "end of month"){ 
+				if(typeof tableParams[key]["postProcessDate"] !== "undefined" && tableParams[key]["postProcessDate"] === "end of month"){ 
 					transformToEndOfMonth = true;
 				}
 				
@@ -2889,17 +2892,17 @@ function setTablesParametersSortPreprocessing(tableParams, dataSources){
 			tableParams[xSeriesName]["xDateSuffix"] =  dataSources["xDateSuffix"];				
 		} 
 
-		// add firstItemToRead info, default first
+		// add firstItemToRead info
 		if(typeof dataSources["firstItemToRead"] !== "undefined"){
 			tableParams[xSeriesName]["firstItemToRead"] =  dataSources["firstItemToRead"];				
 		} 
 
-		// add processDate info, default true
+		// add processDate info
 		if(typeof dataSources["processDates"] !== "undefined"){
 			tableParams[xSeriesName]["processDates"] =  dataSources["processDates"];				
 		}
 
-		// add processDate info, default undefined
+		// add postProcessDate info
 		if(typeof dataSources["postProcessDate"] !== "undefined"){
 			tableParams[xSeriesName]["postProcessDate"] =  dataSources["postProcessDate"];				
 		} 
@@ -2939,6 +2942,7 @@ function setTablesParametersSortPreprocessing(tableParams, dataSources){
 		if(typeof traces[j]["postProcessDate"] !== "undefined"){
 			tableParams[xSeriesName]["postProcessDate"] =  traces[j]["postProcessDate"];				
 		} 
+			
 	}	
 }
 
