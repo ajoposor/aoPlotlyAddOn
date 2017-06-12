@@ -5534,6 +5534,8 @@ function readDataAndMakeChart(data, iS, param, callback) {
 function makeChart(data, param){
 	
 	console.log("issue #1");
+	console.log("data: ", data);
+	console.log("param: ", param);
 
 	// variable definitions
 	var x0 = "2000-01-01",
