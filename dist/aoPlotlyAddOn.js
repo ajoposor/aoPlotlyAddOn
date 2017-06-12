@@ -3322,6 +3322,10 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 			readTraceInitialDateAsDate = new Date(allRows[readTraceEndIndex][xSeriesName]);
 		}
 		*/
+		console.log("readTraceInitialIndex ", readTraceInitialIndex);
+		console.log("readTraceEndIndex ", readTraceEndIndex);
+		console.log("xSeriesName: ", xSeriesName);
+		console.log("allRows: ",allRows);
 		
 		readTraceEndDateAsDate = new Date(allRows[readTraceInitialIndex][xSeriesName]);
 		readTraceInitialDateAsDate = new Date(allRows[readTraceEndIndex][xSeriesName]);
