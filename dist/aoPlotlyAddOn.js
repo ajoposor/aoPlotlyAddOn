@@ -2628,6 +2628,14 @@ function sortByDatesAsStrings(xSeriesName, delta){
 	};
 }	
 	    
+	
+// callback creation function to sortByDatesAsStrings, all dates exist
+function sortByDatesAsStringsAllDatesExist(xSeriesName){
+	return function (a, b) {
+				return 	new Date(b[xSeriesName])-new Date(a[xSeriesName]);
+	};
+}	    
+	    
 	    
 // callback creation function to sortByGoogleDatesAsStrings
 function sortByGoogleDatesAsStrings(xSeriesName, delta){
@@ -2969,6 +2977,18 @@ function splitSubtablesAndTrim(allRows, tableParams, dataSources, initialDateAsD
 			tableParams[key]["allRows"] = newArray;
 		}
 	}
+}	
+	    
+function sortSubTables(tableParams){
+	var delta = 0.0;
+
+	for (var key in tableParams) {
+		if (tableParams.hasOwnProperty(key)){
+			if(tableParams[key]["sort"]){
+				tableParams[key]["allRows"].sort(sortByDatesAsStringsAllDatesExist(key));
+			}
+		}
+	}
 }	    
 	    
 	    
@@ -3046,22 +3066,16 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 	// apply date preprocessing options
 	applyDateProprocessing(allRows, tableParams, urlType);
 
-	// split subtables trim by InitialDateAsDate
+	// split subtables trim by InitialDateAsDate and reorder by firstItemToRead
 	splitSubtablesAndTrim(allRows, tableParams, dataSources, initialDateAsDate);
 	allRows = [];
 	
 	
 	// sort subtables
 	sortSubTables(tableParams);
-	
-	functions sorSubTables(tableParams){
-		
-		for (var key in tableParams) {
-			if (tableParams.hasOwnProperty(key)){
-		
-	}
 
 
+	/*	
 	// if firstItemtoRead is provided and it is last, array will be reordered
 	if(typeof dataSources["firstItemToRead"] !== "undefined" &&  dataSources["firstItemToRead"] === "last"){
 		allRows = reverseOrderOfArray(allRows);
@@ -3124,7 +3138,7 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 		latestSorted = dataSources["xSeriesName"];
 	}
 
-	
+	*/
 	
 	
 	// iterate through traces to be loaded
