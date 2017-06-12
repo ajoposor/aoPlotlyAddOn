@@ -2810,8 +2810,7 @@ function applyDateProprocessing(allRows, tableParams, yqlGoogleCSV) {
 				
 				if(yqlGoogleCSV){				   
 					for(i = 0; i < iLimit ; i++){
-						if(allRows[i][xSeriesName])!=="")
-						{
+						if(allRows[i][xSeriesName]!==""){
 							allRows[i][xSeriesName] = localProcessDate(""+
 											 localGoogleMDYToYMD(allRows[i][xSeriesName])+ 
 											xDateSuffix, timeOffsetText);
