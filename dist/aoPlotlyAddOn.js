@@ -3007,6 +3007,7 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 	var insertTrace = false;
 	var readTraceInitialDateAsDate, readTraceEndDateAsDate;
 	var existingInitialDateAsDate, existingEndDateAsDate;
+	var existingInitialValue, existingEndValue;
 	var insertPoint = -1;
 	var initialIndex=0;
 	var readTraceLength = 0, readTraceInitialIndex =0, traceLength, readTraceLimit =0;
@@ -3020,6 +3021,7 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 	var tags=allRows[0];
 	var yqlGoogleCSV = false;
 	var tableParams = {};
+	var adjustFactor = 1.0, adjust="";
 	
 	// save function references
 	var localProcessDate = processDate;
@@ -3283,7 +3285,10 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 		
 		readTraceEndDateAsDate = new Date(allRows[readTraceInitialIndex][xSeriesName]);
 		readTraceInitialDateAsDate = new Date(allRows[readTraceEndIndex][xSeriesName]);
-
+		
+		adjust = "none";
+		adjustFactor = 1.0;
+		
 		if(insertTrace){
 			
 			// default insert point
@@ -3294,6 +3299,8 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 			// get existing data x range
 			existingInitialDateAsDate = new Date(data[iData].x[data[iData].x.length - 1]);
 			existingEndDateAsDate = new Date(data[iData].x[0]);
+			existingInitialdValue =data[iData].y[data[iData].x.length - 1];
+			existingEndValue =data[iData].y[0];
 
 			// find trace range to be read
 
