@@ -3096,6 +3096,7 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 		initialDateAsDate = new Date(localProcessDate(tracesInitialDate, timeOffsetText));
 	}
 	
+	console.log("allRows: ", allRows);
 	
 	// total rows of csv file loaded
 	// allRows is an array of objects
@@ -3106,6 +3107,8 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 	
 	// get number of tables, sort and preprocessing of dates options
 	setTablesParametersSortPreprocessing(tableParams, dataSources);
+	
+	console.log("table params", tableParams);
 
 	// apply date preprocessing options
 	applyDateProprocessing(allRows, tableParams, urlType);
@@ -3196,6 +3199,9 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 		
 		// get data
 		allRows = tableParams[xSeriesName]["allRows"];
+		console.log("tableParams", tableParams);
+		console.log("allRows from table params", allRows);
+
 		
 		//datesReady = localNameIsOnArrayOfNames(xSeriesName,processedColumnDates);
 		
