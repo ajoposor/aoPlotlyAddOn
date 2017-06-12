@@ -2821,8 +2821,8 @@ function applyDateProprocessing(allRows, tableParams, urlType) {
 
 					}
 				} else if(transformToEndOfMonth){
-					if(allRows[i][xSeriesName]!=="") {
-						for(i = 0; i < iLimit ; i++){
+					for(i = 0; i < iLimit ; i++){
+						if(allRows[i][xSeriesName]!=="") {
 							processedDate = localProcessDate(""+
 								allRows[i][xSeriesName] + 
 								xDateSuffix, timeOffsetText);
@@ -2831,8 +2831,8 @@ function applyDateProprocessing(allRows, tableParams, urlType) {
 						}
 					}
 				} else {
-					if(allRows[i][xSeriesName]!=="") {
-						for(i = 0; i < iLimit ; i++){
+					for(i = 0; i < iLimit ; i++){
+						if(allRows[i][xSeriesName]!=="") {
 							allRows[i][xSeriesName] = localProcessDate(""+
 								allRows[i][xSeriesName] + 
 								xDateSuffix, timeOffsetText);
