@@ -2957,6 +2957,7 @@ function splitSubtablesAndTrim(allRows, tableParams, dataSources, initialDateAsD
 	var i=0, iLimit = allRows.length;
 	var j, jLimit,k, l, lStep;
 	var xSeriesName, ySeriesName;
+	var dateString = "";
 
 	for (var key in tableParams) {
 		if (tableParams.hasOwnProperty(key)){
@@ -2977,16 +2978,19 @@ function splitSubtablesAndTrim(allRows, tableParams, dataSources, initialDateAsD
 			
 			// read data into ordered and subtables
 			for(i=0; i<iLimit; i++){
-				if(new Date(allRows[l][xSeriesName])>= initialDateAsDate){
-					k++;
-					newArray[i]={};
-					newArray[i][xSeriesName] = allRows[l][xSeriesName];
-					jLimit = tableParams[key]["yNames"].length;
-					for(j=0; j < jLimit; j++){
-						ySeriesName = tableParams[key]["yNames"][j];
-						newArray[i][ySeriesName]=allRows[l][ySeriesName];
-					}
-					l+=lStep;
+				dateString = allRows[l][xSeriesName];
+				if(dateString !== "" && dateString !== null){
+					if(new Date(dateString)>= initialDateAsDate){
+						k++;
+						newArray[i]={};
+						newArray[i][xSeriesName] = dateString;
+						jLimit = tableParams[key]["yNames"].length;
+						for(j=0; j < jLimit; j++){
+							ySeriesName = tableParams[key]["yNames"][j];
+							newArray[i][ySeriesName]=allRows[l][ySeriesName];
+						}
+						l+=lStep;
+					}	
 				}
 			}
 			// adjust array length to read items.
@@ -3291,7 +3295,8 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 		}*/
 		
 		readTraceInitialIndex = 0;
-		readTraceEndIndex = allRows.length-1;
+		
+		readTraceEndIndex = allRows.length === 0 ? 0 : allRows.length-1;
 		readTraceLength = allRows.length;
 		
 		
