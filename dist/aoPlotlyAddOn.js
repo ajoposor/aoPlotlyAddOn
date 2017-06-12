@@ -2964,8 +2964,7 @@ function splitSubtablesAndTrim(allRows, tableParams, dataSources, initialDateAsD
 			xSeriesName = key;
 			newArray =[];
 			newArray.length= iLimit;
-			// k: number of read items
-			k=0;
+
 			
 			// set reading parameter by reading order
 			if( tableParams[key]["firstItemToRead"] === "first"){
@@ -2976,19 +2975,21 @@ function splitSubtablesAndTrim(allRows, tableParams, dataSources, initialDateAsD
 				lStep = -1;
 			} 
 			
+			// k: number of read items
+			k=0;
 			// read data into ordered and subtables
 			for(i=0; i<iLimit; i++){
 				dateString = allRows[l][xSeriesName];
 				if(dateString !== "" && dateString !== null){
 					if(new Date(dateString)>= initialDateAsDate){
-						k++;
-						newArray[i]={};
-						newArray[i][xSeriesName] = dateString;
+						newArray[k]={};
+						newArray[k][xSeriesName] = dateString;
 						jLimit = tableParams[key]["yNames"].length;
 						for(j=0; j < jLimit; j++){
 							ySeriesName = tableParams[key]["yNames"][j];
-							newArray[i][ySeriesName]=allRows[l][ySeriesName];
+							newArray[k][ySeriesName]=allRows[l][ySeriesName];
 						}
+						k++;
 						l+=lStep;
 					}	
 				}
