@@ -2424,8 +2424,8 @@ function readData(data, iS, param, callback) {
 			param.otherDataProperties,
 			param.dataSources[iS.value]
 			);
+		param.dataSources[iS.value].arrayOfJsons = [];
 		iS.value++;
-		readData="";
 		readDataAndMakeChart(data, iS, param, callback);
 	} 
 	else if (urlType === "yqlJson") {
@@ -5814,11 +5814,11 @@ function makeChart(data, param){
 		// determine base date
 		/* could be "end of range", "end of domain", "beggining of range", beggining of domain", or a date "yyyy-mm-dd hh:mm:ss.sss-04:00"*/
 		baseRealNominalDate = setBaseRealNominalDateAsString(settings.baseRealDate, 
-																								 layout.xaxis.range[0],
-																								 layout.xaxis.range[1],
-																								 minDateAsString,
-																								 maxDateAsString
-																								);
+								 layout.xaxis.range[0],
+								 layout.xaxis.range[1],
+								 minDateAsString,
+								 maxDateAsString
+								);
 
 		//console.log("baseRealNominalDate",baseRealNominalDate);
 
