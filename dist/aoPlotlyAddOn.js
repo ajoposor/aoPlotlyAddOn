@@ -2930,7 +2930,7 @@ function setTablesParametersSortPreprocessing(tableParams, dataSources){
 function splitSubtablesAndTrim(allRows, tableParams, dataSources, initialDateAsDate){
 	var newArray=[];
 	var i=0, iLimit = allRows.length;
-	var j, jLimit,k;
+	var j, jLimit,k, l, lStep;
 	var xSeriesName, ySeriesName;
 
 	for (var key in tableParams) {
@@ -2938,19 +2938,33 @@ function splitSubtablesAndTrim(allRows, tableParams, dataSources, initialDateAsD
 			xSeriesName = key;
 			newArray =[];
 			newArray.length= iLimit;
+			// k: number of read items
 			k=0;
+			
+			// set reading parameter by reading order
+			if( tableParams[key]["firstItemToRead"] === "first"){
+				l = 0; 
+				lStep = 1;
+			} else{
+				l = iLimit -1;
+				lStep = -1;
+			} 
+			
+			// read data into ordered and subtables
 			for(i=0; i<iLimit; i++){
-				if(new Date(allRows[i][xSeriesName])>= initialDateAsDate){
+				if(new Date(allRows[l][xSeriesName])>= initialDateAsDate){
 					k++;
 					newArray[i]={};
-					newArray[i][xSeriesName] = allRows[i][xSeriesName];
+					newArray[i][xSeriesName] = allRows[l][xSeriesName];
 					jLimit = tableParams[key]["yNames"].length;
-					for(j=0; j < tableParams; j++){
+					for(j=0; j < jLimit; j++){
 						ySeriesName = tableParams[key]["yNames"][j];
-						newArray[i][ySeriesName]=allRows[i][ySeriesName];
+						newArray[i][ySeriesName]=allRows[l][ySeriesName];
 					}
+					l+=lStep;
 				}
 			}
+			// adjust array length to read items.
 			newArray.length=k;
 			tableParams[key]["allRows"] = newArray;
 		}
