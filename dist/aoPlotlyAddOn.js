@@ -2622,8 +2622,8 @@ function sortByDatesAsStrings(xSeriesName, delta){
 			return delta;			
 		}
 		else {
-				return 	new Date(b[xSeriesName]==="" ? "0001-01-01": b[xSeriesName])-
-					new Date(a[xSeriesName]==="" ? "0001-01-01": a[xSeriesName]);
+				return 	new Date(b[xSeriesName]==="" ||b[xSeriesName]===null ? "0001-01-01": b[xSeriesName])-
+					new Date(a[xSeriesName]==="" ||a[xSeriesName]===null ? "0001-01-01": a[xSeriesName]);
 
 		}
 
@@ -2648,8 +2648,8 @@ function sortByGoogleDatesAsStrings(xSeriesName, delta){
 			return delta;			
 		}
 		else {
-				return 	new Date(b[xSeriesName]==="" ? "0001-01-01": localGoogleMDYToYMD(b[xSeriesName]))-
-					new Date(a[xSeriesName]==="" ? "0001-01-01": localGoogleMDYToYMD(a[xSeriesName]));
+				return 	new Date(b[xSeriesName]==="" || b[xSeriesName]===null ? "0001-01-01": localGoogleMDYToYMD(b[xSeriesName]))-
+					new Date(a[xSeriesName]==="" || a[xSeriesName]===null ? "0001-01-01": localGoogleMDYToYMD(a[xSeriesName]));
 
 		}
 
@@ -2813,7 +2813,7 @@ function applyDateProprocessing(allRows, tableParams, urlType) {
 				
 				if(yqlGoogleCSV){				   
 					for(i = 0; i < iLimit ; i++){
-						if(allRows[i][xSeriesName]!==""){
+						if(allRows[i][xSeriesName]!=="" && allRows[i][xSeriesName]!==null){
 							allRows[i][xSeriesName] = localProcessDate(""+
 											 localGoogleMDYToYMD(allRows[i][xSeriesName])+ 
 											xDateSuffix, timeOffsetText);
@@ -2822,7 +2822,7 @@ function applyDateProprocessing(allRows, tableParams, urlType) {
 					}
 				} else if(transformToEndOfMonth){
 					for(i = 0; i < iLimit ; i++){
-						if(allRows[i][xSeriesName]!=="") {
+						if(allRows[i][xSeriesName]!=="" && allRows[i][xSeriesName]!== null) {
 							processedDate = localProcessDate(""+
 								allRows[i][xSeriesName] + 
 								xDateSuffix, timeOffsetText);
@@ -2832,7 +2832,7 @@ function applyDateProprocessing(allRows, tableParams, urlType) {
 					}
 				} else {
 					for(i = 0; i < iLimit ; i++){
-						if(allRows[i][xSeriesName]!=="") {
+						if(allRows[i][xSeriesName]!=="" && allRows[i][xSeriesName]!==null) {
 							allRows[i][xSeriesName] = localProcessDate(""+
 								allRows[i][xSeriesName] + 
 								xDateSuffix, timeOffsetText);
