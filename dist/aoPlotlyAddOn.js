@@ -2862,12 +2862,20 @@ function setTablesParametersSortPreprocessing(tableParams, dataSources){
 		if(!tableParams.hasOwnProperty(xSeriesName)){
 			tableParams[xSeriesName] = {};
 			tableParams[xSeriesName]["yNames"] = [];
+			tableParams[xSeriesName]["yCalculateAdjustedClose"] = [];
 		}
 
 
 		// add yName if not yet added
 		if(tableParams[xSeriesName]["yNames"].indexOf(ySeriesName) === -1){
 			tableParams[xSeriesName]["yNames"].push(ySeriesName);
+			if(typeof dataSources["calculateAdjustedClose"] !== "undefined"){
+				tableParams[xSeriesName]["yCalculateAdjustedClose"].push(dataSources["calculateAdjustedClose"]);
+			} else if(typeof traces[j]["calculateAdjustedClose"] !== "undefined"){
+				tableParams[xSeriesName]["yCalculateAdjustedClose"].push(traces[j]["calculateAdjustedClose"]);
+			} else{
+				tableParams[xSeriesName]["yCalculateAdjustedClose"].push(false);
+			}	
 		}
 
 		// set parameters from general options
@@ -3299,7 +3307,7 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 			// get existing data x range
 			existingInitialDateAsDate = new Date(data[iData].x[data[iData].x.length - 1]);
 			existingEndDateAsDate = new Date(data[iData].x[0]);
-			existingInitialdValue =data[iData].y[data[iData].x.length - 1];
+			existingInitialValue =data[iData].y[data[iData].x.length - 1];
 			existingEndValue =data[iData].y[0];
 
 			// find trace range to be read
@@ -3323,12 +3331,16 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 			else if (readTraceEndDateAsDate > existingEndDateAsDate ) {
 				initialIndex = 0;
 				/*if(datesReady){*/
-					for(i=readTraceInitialIndex; i<readTraceLimit;i++){
-						if(new Date(allRows[i][xSeriesName]) <= existingEndDateAsDate){
-						   traceLength = i-readTraceInitialIndex;
-						   i = iLimit;
+				for(i=readTraceInitialIndex; i<readTraceLimit;i++){
+					if(new Date(allRows[i][xSeriesName]) <= existingEndDateAsDate){
+						traceLength = i-readTraceInitialIndex;
+						if(calculateAdjustedClose){
+							adjust = "new" // "new", "existing" or "none"
+							adjustFactor = 
 						}
-					}	
+						i = iLimit;
+					}
+				}	
 				/*}*/
 				/*
 				// change to end of month
