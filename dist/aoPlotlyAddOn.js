@@ -2818,7 +2818,7 @@ function applyDateProprocessing(allRows, tableParams, yqlGoogleCSV) {
 
 					}
 				} else if(transformToEndOfMonth){
-					if(allRows[i][xSeriesName])!=="") {
+					if(allRows[i][xSeriesName]!=="") {
 						for(i = 0; i < iLimit ; i++){
 							processedDate = localProcessDate(""+
 								allRows[i][xSeriesName] + 
@@ -2828,7 +2828,7 @@ function applyDateProprocessing(allRows, tableParams, yqlGoogleCSV) {
 						}
 					}
 				} else {
-					if(allRows[i][xSeriesName])!=="") {
+					if(allRows[i][xSeriesName]!=="") {
 						for(i = 0; i < iLimit ; i++){
 							allRows[i][xSeriesName] = localProcessDate(""+
 								allRows[i][xSeriesName] + 
@@ -3277,8 +3277,8 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 		}*/
 		
 		readTraceInitialIndex = 0;
-		readTraceEndIndex = allRows[xSeriesName].length-1;
-		readTraceLength = allRows[xSeriesName].length;
+		readTraceEndIndex = allRows.length-1;
+		readTraceLength = allRows.length;
 		
 		
 		/*
