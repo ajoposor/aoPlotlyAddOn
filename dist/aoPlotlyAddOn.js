@@ -3030,6 +3030,7 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 	var yqlGoogleCSV = false;
 	var tableParams = {};
 	var adjustFactor = 1.0, adjust="";
+	var calculateAdjustedClose = false;
 	
 	// save function references
 	var localProcessDate = processDate;
@@ -3296,6 +3297,8 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 		
 		adjust = "none";
 		adjustFactor = 1.0;
+		calculateAdjustedClose = 
+			tableParams[xSeriesName]["yCalculateAdjustedClose"][tableParams[xSeriesName]["yNames"].indexOf(ySeriesName)];
 		
 		if(insertTrace){
 			
@@ -3335,8 +3338,8 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 					if(new Date(allRows[i][xSeriesName]) <= existingEndDateAsDate){
 						traceLength = i-readTraceInitialIndex;
 						if(calculateAdjustedClose){
-							adjust = "new" // "new", "existing" or "none"
-							adjustFactor = 
+							adjust = "existing"; // "new", "existing" or "none"
+							adjustFactor = allRows[i][ySeriesName]/existingEndValue;
 						}
 						i = iLimit;
 					}
@@ -3382,6 +3385,10 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 							initialIndex = i+1;
 							traceLength = readTraceLimit - initialIndex;
 							insertPoint = data[iData].x.length;
+							if(calculateAdjustedClose){
+								adjust = "new"; // "new", "existing" or "none"
+								adjustFactor = existingInitialValue / allRows[i][ySeriesName];
+							}
 							i = -1;
 						}
 					}
