@@ -2986,7 +2986,7 @@ function splitSubtablesAndTrim(allRows, tableParams, dataSources, initialDateAsD
 			
 			console.log("xSeriesName: ", xSeriesName);
 			console.log("iLimit ", iLimit);
-			console.log(allRows in split subtables", allRows);
+			console.log("allRows in split subtables", allRows);
 			// read data into ordered and subtables
 			for(i=0; i<iLimit; i++){
 				dateString = allRows[l][xSeriesName];
