@@ -2985,6 +2985,8 @@ function splitSubtablesAndTrim(allRows, tableParams, dataSources, initialDateAsD
 			console.log("yNamesArray: ", yNamesArray);
 			
 			console.log("xSeriesName: ", xSeriesName);
+			console.log("iLimit ", iLimit);
+			console.log(allRows in split subtables", allRows);
 			// read data into ordered and subtables
 			for(i=0; i<iLimit; i++){
 				dateString = allRows[l][xSeriesName];
@@ -2997,10 +2999,10 @@ function splitSubtablesAndTrim(allRows, tableParams, dataSources, initialDateAsD
 							newArray[k][ySeriesName]=allRows[l][ySeriesName];
 						}
 						k++;
-						l+=lStep;
 						console.log("l: ", l);
 					}	
 				}
+				l+=lStep;
 			}
 			console.log("k elements",k);
 			console.log("new array", newArray);
