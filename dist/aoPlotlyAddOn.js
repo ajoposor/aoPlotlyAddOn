@@ -2787,6 +2787,7 @@ function applyDateProprocessing(allRows, tableParams, urlType) {
 	var xSeriesName, xDateSuffix;
 	var transformToEndOfMonth = false;
 	var yqlGoogleCSV = false;
+	var onlyAddXDateSuffix;
 
 	// save function references
 	var localProcessDate = processDate;
@@ -2805,6 +2806,11 @@ function applyDateProprocessing(allRows, tableParams, urlType) {
 			if(tableParams[key]["processDates"]){
 				xSeriesName = key;
 				xDateSuffix = tableParams[key]["xDateSuffix"];
+				if(typeof tableParams[key]["onlyAddXDateSuffix"] !== "undefined"){
+					onlyAddXDateSuffix = tableParams[key]["onlyAddXDateSuffix"];
+				} else{
+					onlyAddXDateSuffix = false;
+				}
 				
 				transformToEndOfMonth = false;
 				if(typeof tableParams[key]["postProcessDate"] !== "undefined" && tableParams[key]["postProcessDate"] === "end of month"){ 
@@ -2829,6 +2835,12 @@ function applyDateProprocessing(allRows, tableParams, urlType) {
 							processedDate = localChangeDateToEndOfMonth(processedDate);
 							allRows[i][xSeriesName]=processedDate;
 						}
+					}
+				} else if (onlyAddXDateSuffix) {
+					for(i = 0; i < iLimit ; i++){
+						if(allRows[i][xSeriesName]!=="" && allRows[i][xSeriesName]!==null) {
+							allRows[i][xSeriesName] += onlyAddXDateSuffix;
+						}	
 					}
 				} else {
 					for(i = 0; i < iLimit ; i++){
@@ -2906,6 +2918,11 @@ function setTablesParametersSortPreprocessing(tableParams, dataSources){
 		if(typeof dataSources["postProcessDate"] !== "undefined"){
 			tableParams[xSeriesName]["postProcessDate"] =  dataSources["postProcessDate"];				
 		} 
+		
+		// add onlyAddXDateSuffix info
+		if(typeof dataSources["onlyAddXDateSuffix"] !== "undefined"){
+			tableParams[xSeriesName]["onlyAddXDateSuffix"] =  dataSources["onlyAddXDateSuffix"];				
+		} 
 
 
 		// set parameters from trace options
@@ -2946,6 +2963,12 @@ function setTablesParametersSortPreprocessing(tableParams, dataSources){
 		if(typeof traces[j]["postProcessDate"] !== "undefined"){
 			tableParams[xSeriesName]["postProcessDate"] =  traces[j]["postProcessDate"];				
 		} 
+		
+		// add onlyAddXDateSuffix info, default undefined
+		if(typeof  traces[j]["onlyAddXDateSuffix"] !== "undefined"){
+			tableParams[xSeriesName]["onlyAddXDateSuffix"] =  traces[j]["onlyAddXDateSuffix"];				
+		} 
+
 			
 	}	
 }
