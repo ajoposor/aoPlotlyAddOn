@@ -2994,6 +2994,8 @@ function splitSubtablesAndTrim(allRows, tableParams, dataSources, initialDateAsD
 					}	
 				}
 			}
+			console.log("k elements",k);
+			console.log("new array", newArray);
 			// adjust array length to read items.
 			newArray.length=k;
 			tableParams[key]["allRows"] = newArray;
