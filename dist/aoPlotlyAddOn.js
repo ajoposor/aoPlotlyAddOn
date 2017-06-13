@@ -2982,7 +2982,7 @@ function splitSubtablesAndTrim(allRows, tableParams, dataSources, initialDateAsD
 			jLimit = tableParams[key]["yNames"].length;
 			
 			yNamesArray = tableParams[key]["yNames"];
-			console.log("yNamesArray: ", yNamesArray;
+			console.log("yNamesArray: ", yNamesArray);
 			
 			console.log("xSeriesName: ", xSeriesName);
 			// read data into ordered and subtables
