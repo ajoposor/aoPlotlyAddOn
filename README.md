@@ -1,4 +1,5 @@
-# aoPlotlyAddOn
+# aoPlotlyAddOn.newTimeseriesPlot(divInfo, data, otherDataProperties, dataSources, settings, timeInfo, layout, options)
+
 ## a javascript function to add features to <a href="https://plot.ly/javascript/">Plotly's</a> time series plots using only parameters.
 
 <kbd>
@@ -52,6 +53,7 @@ It helps you in two stages: **data sourcing** and **plot funtionality**.
       * **non-standard csv'**: allows a file with many date fields, with different frequencies (for instance: one daily, another monthly) to be split and handled independently.
 
 * **Plot functionality**
+   * **Responsive** your plot will be responsive
    * **Loader**: automatic display of a loader while the data is sourced and the plot is rendered.
    * **Frequency resampling** (daily, weekly, monthly, etc.) and various **aggregations** (close, average, change, %change, etc.). 
    * **Log/linear** yaxis button
@@ -63,11 +65,47 @@ It helps you in two stages: **data sourcing** and **plot funtionality**.
 
 ### divInfo
 
-**divInfo** (object) Contains the following properties:
->
-> **wholeDivID** (string) "your whole div id".  Whole div name, where you will have your plot, including other html items, like your titles and footnotes. required to hide div while plot loads.
->
-> **plotDivID** "(string) "your plotly Div id". Div in which plot will be included should be a div within 'wholeDiv'.
+The **divInfo** object contains the following properties:
+
+   * **wholeDivID** (string) "your whole div id".  Whole div name, where you will have your plot, including other html items, like your titles and footnotes. required to hide div while plot loads.
+
+   * **plotDivID** "(string) "your plotly Div id". Div in which plot will be included should be a div within 'wholeDiv'.
+   
+divInfo example:
+
+In your javascript:
+```javascript
+	var divInfo = {
+		//whole div, including your titles and footnotes. 
+		// required to hide div while plot loads.
+		wholeDivID: "myWholeDiv_01",
+
+		// div in which plot will be included
+		// should be a div within 'wholeDiv'
+		plotDivID: "myPlotDiv_01"
+	};
+```
+
+and your html would have:
+```html
+<body>
+   <div id="myWholeDiv_01" style="visibility:hidden">
+   
+     <!--  Include any header html items to your plot -->
+     <h3>My Plot TiTle</h3>
+     
+     <div id="myPlotDiv_01" class="plotly" align="left" style="width:100%; height:480px;"></div>
+     
+      <!--  Include any footer html items to your plot -->
+      (*) Shaded areas indicate recessions.<br>
+      Data source: <a href="https://www.quandl.com">Quandl.</a>
+      
+  </div>
+   <script>
+    <!-- JAVASCRIPT CODE GOES HERE -->
+   </script>
+</body>
+```
 
 ### data
 
@@ -207,14 +245,6 @@ It helps you in two stages: **data sourcing** and **plot funtionality**.
 		plotDivID: "myDiv_SP500_03"
 	};
 
-	//X AXIS DATE RANGE PARAMETERS
-	var **timeInfo** = {
-      // affects only the initial display
-		yearsToPlot: 1,
-      
-      // include and initial date if applicable (data will be trimmed to before this date
-		tracesInitialDate: "1998-12-31"
-	};
 
 
    // this var follows Plotly's data json definitions. Arrays for x and y will be added by the function based on data sources info below
