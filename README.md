@@ -1,5 +1,8 @@
 # aoPlotlyAddOn
-a Library of functions to be used to add functionality to Plotly.
+a function to add features to Plotly's time series plots with parameters.
+
+![screenshot](https://github.com/ajoposor/aoPlotlyAddOn/blob/master/img/aoplotly.gif)
+
 
 requires 
    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script><br>
