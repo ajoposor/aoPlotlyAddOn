@@ -11,7 +11,7 @@ requires
    
    
    
-# Functions
+# Main Function
 
  
 
@@ -133,6 +133,8 @@ This functions adds functionality, and applies to time series plots. It adds:
 
 **options:** (object) Pass options information to be dealt with as per Plotly's options definitions.
 
+
+# Miscelaneous Functions
 
 ## aoPlotlyAddOn.getTicktextAndTickvals
 
