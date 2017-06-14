@@ -1204,13 +1204,13 @@ var dataSources = [
 
 ## Miscelaneous Functions
 
-## aoPlotlyAddOn.getTicktextAndTickvals
+### aoPlotlyAddOn.getTicktextAndTickvals
 
 
 This functions returns and object with the the tickvals and ticktext arrays for a specific time range, division width and margins, font type and size and a ratio for the space between ticks (specifically the ratio between (tick text + space between text) lenght to tick text length.
 
 
-### Arguments:
+#### Arguments:
 
  
 **from:** (date strings as 'yyyy-mm-dd')
@@ -1235,13 +1235,13 @@ The returned ticktext and tickvals would be the best minimum fit, upwards from t
 
 
 
-## aoPlotlyAddOn.transformSeriesByFrequencies
+### aoPlotlyAddOn.transformSeriesByFrequencies
 
 
 This function will populate the data object with an originalData.x, y and objects for different frequencies and methods of aggregation. This data can be used to change the frequency of displayed data.
 
 
-### Arguments:
+#### Arguments:
 
 
 **data:** (array of data objects [{x[], y[]}, ....]) With x as date strings 'yyyy-mm-dd' and y as values.
@@ -1249,3 +1249,9 @@ This function will populate the data object with an originalData.x, y and object
 **periodKeys:** (object) An object with the frequencies to be calculated, set to true or false. { day: true/false, week: true/false, month: true/false, quarter: true/false, semester: true/false, year: true }
 
 **endOfWeek:** (number between 0 and 6) Day of week to be end of week period. 0 for Sunday, 1 for Monday, ....
+
+## License
+
+Code released under the [MIT license](https://github.com/ajoposor/aoPlotlyAddOn/blob/master/LICENSE).
+
+Docs released under the [Creative Commons license](https://github.com/ajoposor/aoPlotlyAddOn/blob/master/documentation/CC%20LICENSE).
