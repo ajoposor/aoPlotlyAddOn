@@ -1,16 +1,10 @@
-# aoPlotlyAddOn.newTimeseriesPlot(divInfo, data, otherDataProperties, dataSources, settings, timeInfo, layout, options)
+# aoPlotlyAddOn.newTimeseriesPlot()
 
 ## a javascript function to add features to <a href="https://plot.ly/javascript/">Plotly's</a> time series plots using only parameters.
 
 <kbd>
 <img src="https://github.com/ajoposor/aoPlotlyAddOn/blob/master/img/aoplotly.gif">
 </kbd>
-
-
-requires 
-   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script><br>
-   
-   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 
 
 
@@ -22,6 +16,10 @@ requires
    * [divInfo](#divInfo)
    * [data](#data)
    * [otherDataProperties](#otherDataProperties)
+   * [dataSources](#dataSources)
+   * [layout](#layout)
+   * [options](#options)
+* [Install](#install)
 * [Use examples](#use-example)
 * [License](#license)
 
@@ -65,7 +63,7 @@ It helps you in two stages: **data sourcing** and **plot funtionality**.
 
 ### divInfo
 
-The **divInfo** object contains the following properties:
+The divInfo object contains the following properties:
 
    * **wholeDivID** (string) "your whole div id".  Whole div name, where you will have your plot, including other html items, like your titles and footnotes. required to hide div while plot loads.
 
@@ -75,15 +73,15 @@ divInfo example:
 
 In your javascript:
 ```javascript
-	var divInfo = {
-		//whole div, including your titles and footnotes. 
-		// required to hide div while plot loads.
-		wholeDivID: "myWholeDiv_01",
+var divInfo = {
+	//whole div, including your titles and footnotes. 
+	// required to hide div while plot loads.
+	wholeDivID: "myWholeDiv_01",
 
-		// div in which plot will be included
-		// should be a div within 'wholeDiv'
-		plotDivID: "myPlotDiv_01"
-	};
+	// div in which plot will be included
+	// should be a div within 'wholeDiv'
+	plotDivID: "myPlotDiv_01"
+};
 ```
 
 and your html would have:
@@ -109,6 +107,140 @@ and your html would have:
 
 ### data
 
+ Data follows Plotly's structure and properties. Data is an array of objects, each one with the information for each trace in the plot. The properties x and y, with the dates and value arrays may be supplied directly or be added by the function based on the data sources parameters.
+ 
+ data example with two traces displayed and one used to make calculations as deflactor:
+ 
+ in your javascript:
+ ```javascript
+ var data = [
+ 	{
+		type: "scatter",
+		name: "S&P 500",
+		mode: "lines",
+		opacity: 1,
+		// the area below this trace will be filled
+		// include a transparency percentage so as not to hide the traces there
+		fill: "tozeroy",
+		fillcolor: "rgba(205, 245,255, 0.20)", //#FAFCFD + 50% transparency
+		line: {
+			color: "#1A5488",
+			width: 3,
+			dash: "solid"
+		}
+	},{
+		type: "scatter",
+		name: "US CPI",
+		mode: "lines",
+		opacity: 0.8,
+		line: {
+			color: "#000000",
+			width: 1,
+			dash: "dash"
+		}
+	},{
+		// this trace will not be displayed but be used as deflactor, 
+		// assuming real/nominal options in place
+		type: "scatter",
+		visible: false,
+		name: "US CPI",
+		mode: "lines",
+		line: {
+			color: "#000000",
+			width: 1,
+			dash: "dash"
+		}
+	}
+];
+```
+
+### otherDataParameters
+
+This array of objects links the data array with the dataSources array with a commont traceID. The traceID is independent from the trace name property, which is used by Plotly to name the trace. 
+
+The otherDataParamenters array has the same number of elements as the data array. 
+
+It also includes other options for the traces, not part of the standard plotly traces properties.
+
+Each object has the the following properties:
+
+   * **traceID**: (string, required) A unique id for the trace.
+   * **toggleRealNominal**: (boolean, optional) Determines weather a trace shall be recalculated if a real / nominal change of basis is required.
+   * **deflactor**: (boolean, optional) Set to true in the trace which shall be considered a deflactor for calculation of real values. The trace in which the deflactor is set to true must have the toggleRealNominal property set to false.
+
+ in your javascript:
+ ```javascript
+ var otherDataProperties = [
+	{
+		traceID: "S&P 500",
+		// this trace will be recalculated if a nominal to real change of base is applied
+		toggleRealNominal: true,
+	},
+	{
+		traceID: "US CPI"
+		toggleRealNominal: true,
+	},{
+		// this trace is defined as the deflactor, 
+		// it is not changed when a nominal / real change of base is applied to the traces
+		traceID: "US CPI deflactor"
+		deflactor: true,
+		toggleRealNominal: false,			
+	}
+	
+];
+ ```
+
+### dataSources
+
+This is and array of objects. It has as many elements as sources of data you may have.
+
+Each object in the dataSouces will get a chunk of data, process it and feed as many traces as instructed.
+
+### layout
+
+The layout object follows Plotly's definition. 
+
+Example:
+ in your javascript:
+ ```javascript
+	// include layout as per Plotly's layout
+	var layout = {
+		yaxis: {
+			// the the type of yaxis
+			// in case log/linear button option set, 
+			// this will be the initial yaxis type display
+			type: "log",
+			hoverformat: ".4r"
+		},
+		margin:{
+			r: 43
+		}
+	};
+ ```
+
+### options
+
+The options object follows Plotly's definition. 
+
+It's and optional parameter.
+
+Example:
+ in your javascript:
+ ```javascript
+ 	// include options as per Plotly's options
+	var **options** = {
+		// this will hide the link to plotly
+		showLink: false,
+		
+		// this will hid the mode bar
+		displayModeBar: false
+	};
+
+	
+];
+ ```
+
+
 **series** (array of objects) One object for each trace or trace section. Each object contains information about traces, where data is located and to be read from. Each object is structured as follows:
 >
 > **urlType** (string) Any of "direct", "csv", "yqlJson", "yqlGoogleCSV", "pureJson". In case "direct", provide trace x and y arrays directly under traceAttriblutes.
@@ -121,25 +253,8 @@ and your html would have:
 >
 > **xDateSuffix:** (string) Optional. To add information to read Dates. Could have content like "T00:00:00-04:00", to provide time and time zone offset.
 >
-> **toggleRealNominal:** (boolean) Optional. In case true: trace could be converted to real/nominal. false: convertion to real nominal doesn't affect this trace.
->
-> **deflactor:** (boolean) Optional. Set to true for the trace that would be the base for convertion to real values, in this case, set toogleRealNominal to false for this trace.
->
 > **postProcessData:** "end of month" Optional. Could be used for series where dates are provided at beginning of month, and need to be converted to end of month.
 >
-> **traceAttributes:** (object) Object as per scatter attributes in Plotly, for example:
->>
->> type: "scatter",
->> name: "S&P 500",
->>  mode: "lines",
->> opacity: 1,
->> fill: "tozeroy",
->> fillcolor: "rgba(205, 245,255, 0.20)", //#FAFCFD + 50% transparency
->> line: {
->>> color: "#1A5488",
->>> width: 3,
->>> dash: "solid"
->>> }
 
 
 **settings:** (object) Provide following structure:
@@ -204,22 +319,35 @@ and your html would have:
 
 **options:** (object) Pass options information to be dealt with as per Plotly's options definitions.
 
+## Install
+
+Include libraries for plotly and aoPlotlyAddOn:
+
+```html
+<head>
+<!-- Plotly.js -->
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+   
+<!-- aoPlotlyAddOn.js -->   
+<script src="https://raw.githubusercontent.com/ajoposor/aoPlotlyAddOn/master/dist/aoPlotlyAddOn.min.js"></script>
+</head>
+```
 
 ## Use and examples
 
 ### add library
 
-```bash
+```html
 <head>
-  <!-- Plotly.js -->
-   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-	<script src="https://raw.githubusercontent.com/ajoposor/aoPlotlyAddOn/master/dist/aoPlotlyAddOn.min.js"></script>
+<!-- Plotly.js -->
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script src="https://raw.githubusercontent.com/ajoposor/aoPlotlyAddOn/master/dist/aoPlotlyAddOn.min.js"></script>
 </head>
 ```
 
 ### Encapsulate your code
 
-```bash
+```javascript
 (function() {
 
     // all the code for one plot here
