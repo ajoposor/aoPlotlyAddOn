@@ -69,7 +69,8 @@ The divInfo object contains the following properties:
 
    * **plotDivID** "(string) "your plotly Div id". Div in which plot will be included should be a div within 'wholeDiv'.
    
-divInfo example:
+
+**Example**:
 
 In your javascript:
 ```javascript
@@ -109,7 +110,9 @@ and your html would have:
 
  Data follows Plotly's structure and properties. Data is an array of objects, each one with the information for each trace in the plot. The properties x and y, with the dates and value arrays may be supplied directly or be added by the function based on the data sources parameters.
  
- data example with two traces displayed and one used to make calculations as deflactor:
+ 
+ 
+ **Example**: Data example with two traces displayed and one used to make calculations as deflactor:
  
  in your javascript:
  ```javascript
@@ -168,7 +171,9 @@ Each object has the the following properties:
    * **toggleRealNominal**: (boolean, optional) Determines weather a trace shall be recalculated if a real / nominal change of basis is required.
    * **deflactor**: (boolean, optional) Set to true in the trace which shall be considered a deflactor for calculation of real values. The trace in which the deflactor is set to true must have the toggleRealNominal property set to false.
 
-Example:
+
+
+**Example**:
 in your javascript:
 ```javascript
  var otherDataProperties = [
@@ -195,6 +200,25 @@ in your javascript:
 This is and array of objects. It has as many elements as sources of data you may have.
 
 Each object in the dataSouces will get a chunk of data, process it and feed as many traces as instructed.
+
+#### object definition
+
+**series** (array of objects) One object for each trace or trace section. Each object contains information about traces, where data is located and to be read from. Each object is structured as follows:
+>
+> **urlType** (string) Any of "direct", "csv", "yqlJson", "yqlGoogleCSV", "pureJson". In case "direct", provide trace x and y arrays directly under traceAttriblutes.
+>
+> **url** (string) "full url where data is to be read from. Required except for "direct" urlType.
+>
+> **xSeriesName:** (string)  Label for variable as they appear in the CSV or Json files.
+>
+> **ySeriesName:** (string) Label for variable as they appear in the CSV or Json files.
+>
+> **xDateSuffix:** (string) Optional. To add information to read Dates. Could have content like "T00:00:00-04:00", to provide time and time zone offset.
+>
+> **postProcessData:** "end of month" Optional. Could be used for series where dates are provided at beginning of month, and need to be converted to end of month.
+>
+
+
 
 
 **Example 1**: One source feed three traces.
@@ -233,6 +257,7 @@ var dataSources = [
 	}
 ];
 ```
+
 
 **Example 2**: Test sorting and dates processing options.
 in your javascript:
@@ -302,7 +327,7 @@ var dataSources = [
 		}
 	]
 }};
-```	
+```
 
 
 
@@ -313,7 +338,7 @@ CPI data is dates as "yyyy-mm-01". In order for better display, they will be cha
 Besides, one file will be used in this case to feed two traces. One of them used as a dummy trace to serve as a deflactor.
 
 in your javascript:
-```javascript	
+```javascript
 
 var dataSources = [
 	{
@@ -329,7 +354,7 @@ var dataSources = [
 		
 		{
 		xSeriesName: "Date",
-		ySeriesName: "Value",	
+		ySeriesName: "Value",
 		postProcessDate: "end of month",
 		traceID: "US CPI deflactor"
 		}
@@ -339,6 +364,86 @@ var dataSources = [
 	
 ```
 
+### settings
+
+This is an object that controls the features added to your plot
+
+#### object structure
+
+   * **allowFrequencyResampling:** (boolean) Optional. This will add buttons and calculate traces for different frequencies (weekly, monthly, ..., yearly) and aggregations (close, average, change, percentage change, etc.)
+
+   * **desiredFrequencies:** (array of strings) Include frequencies to be calculated (in case allowFrequencyResampling set to true) Available: "daily", "weekly", "monthly", "quarterly", "semiannual", "annual".
+
+   * **series:** (object) To include frequency and aggregation for calculated traces:
+
+      * **baseFrequency:** (string) To provide a name for the base frequencies as per initial data provided. Could be 'base', 'daily', 'weekly', 'monthly', 'quarterly', 'annual' or your custom name or none.
+
+      * **baseAggregation:** (string) To provide a name of the base aggregation as per initial data provided. Could be 'base', 'close', 'average', 'change', 'percChange', 'sqrPercChange', 'cumulative', your custom name or none.
+
+   * **targetFrequencyDisplay:** (string) Maximum frequency for display of x axis, could be 'daily', 'weekly', 'monthly', 'quarterly', 'semiannual', 'yearly'.
+
+   * **endOfWeek:** (integer between 0 and 6) Sets the end of week. Applies to calculation of weekly values and display of weeks. 0 Sunday, 1 Monday, etc.
+
+   * **displayRecessions:** (boolean) Optional. Set to true to displays background area for recession periods.
+
+   * **allowRealNominal:** (boolean) Optional. Set to true to displays button for convertion between real an nominal.
+
+   * **initialRealNominal:** (string) Optional. Set to "real" or "nominal". Sets the initial display of traces to which real transformation is applicable)
+
+   * **baseRealDate:** (string) Any of  "end of range", "end of domain", "beggining of range", beggining of domain", or a date "yyyy-mm-dd hh:mm:ss.sss-04:00". It would set the base at which real values are to be calculated. Range refers to the displayed range and domain to the available date range for the index trace.
+
+   * **allowDownload:** (boolean) Optional. Would display button to download displayed traces over its full domain.
+
+   * **downloadedFileName:** (string) Optional. Name to be set to downloaded file.
+
+   * **xAxisNameOnCSV:** (string) String to head dates on the downloaded csv file.
+
+   * **allowCompare:** true, /* displays button to allow comparison of traces to a base unit value*/
+
+   * **transformToBaseIndex:** true, /*optional , series would be transformed to common value of 1 at beginning*/
+
+   * **allowSelectorOptions:** (boolean) If set to true would display buttons for time range selection, 3m, 6m, 1y, YTD, 5y, etc.
+
+   * **allowLogLinear:** (boolean) If set to true, display button to toogle yaxis to log/linear.
+
+   * **textAndSpaceToTextRatio:** (number) Default 1.8. Sets spacing of text to void space in xaxis ticks.
+
+
+### timeInfo
+
+Use this object to instruct handling of dates range
+
+
+#### object properties
+
+   * **yearsToPlot:** (number) Optional. number of years to plot from current date backwards.
+
+   * **tracesInitialDate:** (date string formatted as 'yyyy-mm-dd') Optional. Traces will be trimmed for dates earlier than provided value.
+
+   * **InitialDateForInitialDisplay:** (date string formatted as 'yyyy-mm-dd') Optional. Date at which initial display will begin.
+
+   * **endDateForInitialDisplay:** '(date string formatted as 'yyyy-mm-dd') Optional. Date at which initial display of traces will end.
+
+
+
+
+
+**Example:
+in your javascript:
+```javascript	
+
+//X AXIS DATE RANGE PARAMETERS
+
+var timeInfo = {
+
+	// affects only the initial display
+	yearsToPlot: 1,
+
+	// include and initial date if applicable (data will be trimmed to before this date)
+	tracesInitialDate: "1998-12-31"
+};
+
+```
 
 
 ### layout
@@ -393,78 +498,6 @@ var **options** = {
 ```
 
 
-**series** (array of objects) One object for each trace or trace section. Each object contains information about traces, where data is located and to be read from. Each object is structured as follows:
->
-> **urlType** (string) Any of "direct", "csv", "yqlJson", "yqlGoogleCSV", "pureJson". In case "direct", provide trace x and y arrays directly under traceAttriblutes.
->
-> **url** (string) "full url where data is to be read from. Required except for "direct" urlType.
->
-> **xSeriesName:** (string)  Label for variable as they appear in the CSV or Json files.
->
-> **ySeriesName:** (string) Label for variable as they appear in the CSV or Json files.
->
-> **xDateSuffix:** (string) Optional. To add information to read Dates. Could have content like "T00:00:00-04:00", to provide time and time zone offset.
->
-> **postProcessData:** "end of month" Optional. Could be used for series where dates are provided at beginning of month, and need to be converted to end of month.
->
-
-
-**settings:** (object) Provide following structure:
->
-> **allowFrequencyResampling:** (boolean) Optional. This will add buttons and calculate traces for different frequencies (weekly, monthly, ..., yearly) and aggregations (close, average, change, percentage change, etc.)
->
-> **desiredFrequencies:** (array of strings) Include frequencies to be calculated (in case allowFrequencyResampling set to true) Available: "daily", "weekly", "monthly", "quarterly", "semiannual", "annual".
->
-> **series:** (object) To include frequency and aggregation for calculated traces:
->> 
->> **baseFrequency:** (string) To provide a name for the base frequencies as per initial data provided. Could be 'base', 'daily', 'weekly', 'monthly', 'quarterly', 'annual' or your custom name or none.
->>
->> **baseAggregation:** (string) To provide a name of the base aggregation as per initial data provided. Could be 'base', 'close', 'average', 'change', 'percChange', 'sqrPercChange', 'cumulative', your custom name or none.
->>
->> **targetFrequencyDisplay:** (string) Maximum frequency for display of x axis, could be 'daily', 'weekly', 'monthly', 'quarterly', 'semiannual', 'yearly'.
->
-> **endOfWeek:** (integer between 0 and 6) Sets the end of week. Applies to calculation of weekly values and display of weeks. 0 Sunday, 1 Monday, etc.
->
-> **changeFrequencyAggregationTo:** (object) Optional. In case an initial change of frequency and aggregation is desired.
->>
->> **frequency:** (string) Optional. Any of 'daily', 'weekly'....
->>
->> **aggregation:** (string) Optional. Any of 'close', 'average', 'change', 'percChange', 'sqrPercChange', cumulative'
->
-> **displayRecessions:** (boolean) Optional. Set to true to displays background area for recession periods.
->
-> **allowRealNominal:** (boolean) Optional. Set to true to displays button for convertion between real an nominal.
->
-> **initialRealNominal:** (string) Optional. Set to "real" or "nominal". Sets the initial display of traces to which real transformation is applicable)
->
-> **baseRealDate:** (string) Any of  "end of range", "end of domain", "beggining of range", beggining of domain", or a date "yyyy-mm-dd hh:mm:ss.sss-04:00". It would set the base at which real values are to be calculated. Range refers to the displayed range and domain to the available date range for the index trace.
->
-> **allowDownload:** (boolean) Optional. Would display button to download displayed traces over its full domain.
->
-> **downloadedFileName:** (string) Optional. Name to be set to downloaded file.
->
-> **xAxisNameOnCSV:** (string) String to head dates on the downloaded csv file.
->
-> **allowCompare:** true, /* displays button to allow comparison of traces to a base unit value*/
->
-> **transformToBaseIndex:** true, /*optional , series would be transformed to common value of 1 at beginning*/
->
-> **allowSelectorOptions:** (boolean) If set to true would display buttons for time range selection, 3m, 6m, 1y, YTD, 5y, etc.
->
-> **allowLogLinear:** (boolean) If set to true, display button to toogle yaxis to log/linear.
->
-> **textAndSpaceToTextRatio:** (number) Default 1.8. Sets spacing of text to void space in xaxis ticks.
-<br><br>
-**timeInfo:** (object) Include the following properties:
->
-> **yearsToPlot:** (number) Optional. number of years to plot from current date backwards.
->
-> **tracesInitialDate:** (date string formatted as 'yyyy-mm-dd') Optional. Traces will be trimmed for dates earlier than provided value.
->
-> **InitialDateForInitialDisplay:** (date string formatted as 'yyyy-mm-dd') Optional. Date at which initial display will begin.
->
-> **endDateForInitialDisplay:** '(date string formatted as 'yyyy-mm-dd') Optional. Date at which initial display of traces will end.
-
 
 ## Install
 
@@ -505,7 +538,12 @@ Include libraries for plotly and aoPlotlyAddOn:
 
 ### Example
 
-...bash
+```html
+
+
+```
+
+```javascript
 (function() {
 
 	// **PARAMETERS:	 divInfo, data, otherDataProperties, dataSources, settings, timeInfo, layout, options**
@@ -1128,11 +1166,7 @@ var dataSources = [
 	
 })();
 
-
-
-
-...
-
+```
 
 
 ## Miscelaneous Functions
