@@ -13,14 +13,15 @@
 * [Description](#description)
 * [Features](#features)
 * [Arguments in detail](#arguments-in-detail)
-   * [divInfo](#divInfo)
+   * [divInfo](#divinfo)
    * [data](#data)
-   * [otherDataProperties](#otherDataProperties)
-   * [dataSources](#dataSources)
+   * [otherDataProperties](#otherdataproperties)
+   * [dataSources](#datasources)
    * [settings](#settings)
-   * [timeInfo](#timeInfo)
+   * [timeInfo](#timeinfo)
    * [layout](#layout)
    * [options](#options)
+* [Remarks](#remarks)
 * [Install](#install)
 * [Use examples](#use-example)
 * [License](#license)
@@ -115,7 +116,7 @@ and your html would have:
  
  #### Example
  
-Data example with two traces displayed and one used to make calculations as deflactor:
+Data example with three traces displayed and one used to make calculations as deflactor. One of the traces has values defines, the others will be feed using the function and the dataSources parameters.
  
  in your javascript:
  ```javascript
@@ -135,6 +136,18 @@ Data example with two traces displayed and one used to make calculations as defl
 			dash: "solid"
 		}
 	},{
+		x: ["2001-01-31", "2017-05-12"];
+		y: [ 150, 200];
+		type: "scatter",
+		name: "my trace",
+		mode: "lines",
+		opacity: 1,
+		line: {
+			color: "#1A5488",
+			width: 3,
+			dash: "solid"
+		}
+	}, {
 		type: "scatter",
 		name: "US CPI",
 		mode: "lines",
@@ -168,6 +181,7 @@ The otherDataParamenters array has the same number of elements as the data array
 
 It also includes other options for the traces, not part of the standard plotly traces properties.
 
+#### Object definition
 Each object has the the following properties:
 
    * **traceID**: (string, required) A unique id for the trace.
@@ -204,27 +218,41 @@ This is and array of objects. It has as many elements as sources of data you may
 
 Each object in the dataSouces will get a chunk of data, process it and feed as many traces as instructed.
 
-#### object definition
+#### object definition (one for each element in the dataSources array
 
-**series** (array of objects) One object for each trace or trace section. Each object contains information about traces, where data is located and to be read from. Each object is structured as follows:
->
-> **urlType** (string) Any of "direct", "csv", "yqlJson", "yqlGoogleCSV", "pureJson". In case "direct", provide trace x and y arrays directly under traceAttriblutes.
->
-> **url** (string) "full url where data is to be read from. Required except for "direct" urlType.
->
-> **xSeriesName:** (string)  Label for variable as they appear in the CSV or Json files.
->
-> **ySeriesName:** (string) Label for variable as they appear in the CSV or Json files.
->
-> **xDateSuffix:** (string) Optional. To add information to read Dates. Could have content like "T00:00:00-04:00", to provide time and time zone offset.
->
-> **postProcessData:** "end of month" Optional. Could be used for series where dates are provided at beginning of month, and need to be converted to end of month.
->
+   * **urlType** (string) Any of "csv", "yqlJson", "yqlGoogleCSV", "pureJson".
+      * csv:
+      * yqlJson
+      * yqlGoogleCSV
+      * pureJson
 
 
+   * **url** (string) "full url where data is to be read from. Required except for XXX urlType.
+
+ **xSeriesName:** (string)  Label for variable as they appear in the CSV or Json files.
+
+ **ySeriesName:** (string) Label for variable as they appear in the CSV or Json files.
+
+ **xDateSuffix:** (string) Optional. To add information to read Dates. Could have content like "T00:00:00-04:00", to provide time and time zone offset.
+
+ **postProcessData:** "end of month" Optional. Could be used for series where dates are provided at beginning of month, and need to be converted to end of month.
+
+   * ** traces** (array of objects) one object for each trace to be fed with a source
+      * **traceID**: (string) Required. Unique string that will be used together with the otherDataParameters array to identify the data array element to which the data will be fed.
+      * **xSeriesName**: (string) Tag that identifies the column or property which contains the date in the data file (csv, or json) and will feed the data x array.
+      * **ySeriesName**: (string) Tag that identifies the column or property which contains the value in the data file (csv, or json) that will feed the data y array.
+      * **xDateSuffix**: (string) Optional. This string will be added to the date string read.
+      * **onlyAddDateSuffix**: (string) Optional. If provided, dates will be processed by only adding this suffix.
+      * **processDates**: (boolean) Optional. If set to false, no processing of dates will be made (no adding of suffixes or change to end of month or any other). Set to false only if dates are consistent all over the data arrays and have "yyyy-dd-mm 00:00:00-04:00" format which includes time and timezone offset. Otherwise, dates may produce undesired results as browsers translate then to local timezones and may assume dates "yyyy-mm-dd" where GMT.
+      * **postProcessDate**: (string) Optional. If set to "end of month", dates will be converted to end of month.
+      * **calculateAdjustedClose**: (boolean) Optional. If set to true, traces that come from more than one source will be normalized using the overlapping date. Older values will be changed. You need to provide at least one overlapping date in order for this option to be applied.
+      * **sort**: (boolean) Optional. If set to true, all values as ySeriesNames in use with this xSeriesName and this xSeriesName will be sorted. This function works with dates ordered from latest to oldest.
+
+
+   * **transform
 #### Examples:
 
-*Example 1*: One source feed three traces.
+*Example 1: One source feed three traces.*
 in your javascript:
 ```javascript
 
@@ -262,7 +290,7 @@ var dataSources = [
 ```
 
 
-*Example 2*: Test sorting and dates processing options.
+*Example 2: Test sorting and dates processing options.*
 in your javascript:
 ```javascript
 var dataSources = [
@@ -334,7 +362,7 @@ var dataSources = [
 
 
 
-**Example 3**: Dates are to be changed to end of month.
+*Example 3: Dates are to be changed to end of month.*
 
 CPI data is dates as "yyyy-mm-01". In order for better display, they will be changed to end of month dates using the postProcessDate property set to "end of month".
 
@@ -496,7 +524,13 @@ var **options** = {
 
 ```
 
+## Remarks
 
+   * This function works with time series. X values are supposed to be dates.
+   * Dates should be ordered from latest to oldest. You may use options to sort data sourced.
+   * Dates should be provided as "yyyy-mm-dd".
+   * If no time and time zone is provided they will be assumed to have occured at 00:00:00 (hh:mm:ss) on the date indicated at the time zone used by the browser wherever it may be. It will work fine as no change of time is made. So December 31, 2000 (2000-12-31) will be displayed so regardless of where the user is located.
+   * On the contrary, you may provide complete dates, i.e, "yyyy-mm-dd hh-mm-ss.ssss+hh:mm" or "yyyy-mm-dd hh-mm-ss.ssss-hh:mm"
 
 ## Install
 
