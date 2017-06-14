@@ -72,7 +72,7 @@ The divInfo object contains the following properties:
    * **plotDivID** "(string) "your plotly Div id". Div in which plot will be included should be a div within 'wholeDiv'.
    
 
-**Example**:
+#### Example
 
 In your javascript:
 ```javascript
@@ -113,8 +113,9 @@ and your html would have:
  Data follows Plotly's structure and properties. Data is an array of objects, each one with the information for each trace in the plot. The properties x and y, with the dates and value arrays may be supplied directly or be added by the function based on the data sources parameters.
  
  
+ #### Example
  
- **Example**: Data example with two traces displayed and one used to make calculations as deflactor:
+Data example with two traces displayed and one used to make calculations as deflactor:
  
  in your javascript:
  ```javascript
@@ -175,7 +176,7 @@ Each object has the the following properties:
 
 
 
-**Example**:
+#### Example
 in your javascript:
 ```javascript
  var otherDataProperties = [
@@ -221,9 +222,9 @@ Each object in the dataSouces will get a chunk of data, process it and feed as m
 >
 
 
+#### Examples:
 
-
-**Example 1**: One source feed three traces.
+*Example 1*: One source feed three traces.
 in your javascript:
 ```javascript
 
@@ -261,7 +262,7 @@ var dataSources = [
 ```
 
 
-**Example 2**: Test sorting and dates processing options.
+*Example 2*: Test sorting and dates processing options.
 in your javascript:
 ```javascript
 var dataSources = [
@@ -400,9 +401,9 @@ This is an object that controls the features added to your plot
 
    * **xAxisNameOnCSV:** (string) String to head dates on the downloaded csv file.
 
-   * **allowCompare:** true, /* displays button to allow comparison of traces to a base unit value*/
+   * **allowCompare:** (boolean) displays button to allow comparison of traces to a base unit value.
 
-   * **transformToBaseIndex:** true, /*optional , series would be transformed to common value of 1 at beginning*/
+   * **transformToBaseIndex:** (boolean) Optional, series would be transformed to common value of 1 at beginning
 
    * **allowSelectorOptions:** (boolean) If set to true would display buttons for time range selection, 3m, 6m, 1y, YTD, 5y, etc.
 
@@ -426,11 +427,7 @@ Use this object to instruct handling of dates range
 
    * **endDateForInitialDisplay:** '(date string formatted as 'yyyy-mm-dd') Optional. Date at which initial display of traces will end.
 
-
-
-
-
-**Example:
+#### Examples
 in your javascript:
 ```javascript	
 
