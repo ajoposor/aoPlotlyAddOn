@@ -197,7 +197,7 @@ This is and array of objects. It has as many elements as sources of data you may
 Each object in the dataSouces will get a chunk of data, process it and feed as many traces as instructed.
 
 
-Example 1, one source feed three traces:
+**Example 1**: One source feed three traces.
 in your javascript:
 ```javascript
 
@@ -234,7 +234,7 @@ var dataSources = [
 ];
 ```
 
-Example 2: test sorting and processing options
+**Example 2**: Test sorting and dates processing options.
 in your javascript:
 ```javascript
 var dataSources = [
@@ -249,39 +249,40 @@ var dataSources = [
 	// optional postProcessDate: "end of month",
 	// optional xSeriesName: in case used from postProcessDate or sort
 	// xDateSuffix: "",//"T00:00:00-04:00",
-	
+
 	arrayOfJsons: [
-		{"Date":"2010-05-24","Date2":"1998-12-31","Open":"135.826157","Close":"116.150002","Adj Close":"115.173210"},
-		{"Date":"2011-03-04","Date2":"2010-05-24","Open":"110.875732","Close":"116.019997","Adj Close":"130.044304"},
-		{"Date":"2011-05-05","Date2":"2012-08-06","Open":"165.945137","Close":"116.610001","Adj Close":"145.629341"},
-		{"Date":"2012-08-06","Date2":"2011-05-05","Open":"155.797913","Close":"117.910004","Adj Close":"155.918411"},
-		{"Date":"2012-10-09","Date2":"2013-03-10","Open":"190.958061","Close":"118.989998","Adj Close":"175.989319"},
-		{"Date":"2013-03-10","Date2":"2012-10-09","Open":"185.771172","Close":"119.110001","Adj Close":"180.108315"},
-		{"Date":"2013-10-11","Date2":"2014-06-12","Open":"300.741417","Close":"119.750000","Adj Close":"200.742935"},
-		{"Date":"2014-06-12","Date2":"2013-10-11","Open":"250.900085","Close":"119.250000","Adj Close":"250.247139"},
-		{"Date":"2015-02-13","Date2":"2015-12-17","Open":"270.108315","Close":"119.040001","Adj Close":"240.038902"},
-		{"Date":"2015-12-17","Date2":"2015-02-13","Open":"290.344788","Close":"120.000000","Adj Close":"220.990829"},
-		{"Date":"2016-01-18","Date2":"2016-04-19","Open":"320.990829","Close":"119.989998","Adj Close":"240.980911"},
-		{"Date":"2016-04-19","Date2":"2016-01-18","Open":"280.395874","Close":"119.779999","Adj Close":"280.772675"},
-		{"Date":"2016-06-20","Date2":"2017-06-11","Open":"340.437042","Close":"120.000000","Adj Close":"300.990829"},
-		{"Date":"2017-01-23","Date2": "","Open": "","Close":"120.080002","Adj Close":"280.070160"},
-		{"Date":"2017-05-24","Date2": "","Open": "","Close":"119.970001","Adj Close":"320.961090"}
+	{"Date":"2010-05-24","Date2":"1998-12-31","Open":"135.82","Close":"116.152","Adj Close":"115.173210"},
+	{"Date":"2011-03-04","Date2":"2010-05-24","Open":"110.87","Close":"116.017","Adj Close":"130.044304"},
+	{"Date":"2011-05-05","Date2":"2012-08-06","Open":"165.94","Close":"116.611","Adj Close":"145.629341"},
+	{"Date":"2012-08-06","Date2":"2011-05-05","Open":"155.79","Close":"117.914","Adj Close":"155.918411"},
+	{"Date":"2012-10-09","Date2":"2013-03-10","Open":"190.95","Close":"118.988","Adj Close":"175.989319"},
+	{"Date":"2013-03-10","Date2":"2012-10-09","Open":"185.77","Close":"119.111","Adj Close":"180.108315"},
+	{"Date":"2013-10-11","Date2":"2014-06-12","Open":"300.74","Close":"119.750","Adj Close":"200.742935"},
+	{"Date":"2014-06-12","Date2":"2013-10-11","Open":"250.90","Close":"119.250","Adj Close":"250.247139"},
+	{"Date":"2015-02-13","Date2":"2015-12-17","Open":"270.10","Close":"119.041","Adj Close":"240.038902"},
+	{"Date":"2015-12-17","Date2":"2015-02-13","Open":"290.38","Close":"120.000","Adj Close":"220.990829"},
+	{"Date":"2016-01-18","Date2":"2016-04-19","Open":"320.99","Close":"119.988","Adj Close":"240.980911"},
+	{"Date":"2016-04-19","Date2":"2016-01-18","Open":"280.39","Close":"119.779","Adj Close":"280.772675"},
+	{"Date":"2016-06-20","Date2":"2017-06-11","Open":"340.43","Close":"120.000","Adj Close":"300.990829"},
+	{"Date":"2017-01-23","Date2": "","Open": "","Close":"120.08","Adj Close":"280.070"},
+	{"Date":"2017-05-24","Date2": "","Open": "","Close":"119.97","Adj Close":"320.960"}
 	],
+
 	traces:[
 		{
 		// dates follow chronological order, they will be reordered with the firstItemToRead option
 		xSeriesName: "Date",
 		ySeriesName: "Adj Close",
 		traceID: "S&P 500",
-		
+
 		// in case another source of data is used to feed this trace (traceID: "S&P 500")
 		// values will be adjusted using a common date
 		calculateAdjustedClose: true,
-		
+
 		// dates must follow most recent to oldest order
 		firstItemToRead: "last",
 		},
-		
+
 		{
 		xSeriesName: "Date",
 		ySeriesName: "Close",
@@ -289,7 +290,7 @@ var dataSources = [
 		calculateAdjustedClose: true,
 		firstItemToRead: "last",
 		},
-		
+
 		{
 		// this dates have no order, they will be sorted from recent to older with the sort option
 		// missing dates will not be passed to the data
@@ -302,8 +303,11 @@ var dataSources = [
 	]
 }};
 ```	
-	
-Example 3: dates are to be changed to end of month
+
+
+
+**Example 3**: Dates are to be changed to end of month.
+
 CPI data is dates as "yyyy-mm-01". In order for better display, they will be changed to end of month dates using the postProcessDate property set to "end of month".
 
 Besides, one file will be used in this case to feed two traces. One of them used as a dummy trace to serve as a deflactor.
