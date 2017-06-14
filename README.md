@@ -1,6 +1,6 @@
 # aoPlotlyAddOn.newTimeseriesPlot()
 
-## a javascript function to add features to <a href="https://plot.ly/javascript/">Plotly's</a> time series plots using only parameters.
+## A javascript function to add features to <a href="https://plot.ly/javascript/">Plotly's</a> time series plots using only parameters.
 
 <kbd>
 <img src="https://github.com/ajoposor/aoPlotlyAddOn/blob/master/img/aoplotly.gif">
@@ -168,8 +168,9 @@ Each object has the the following properties:
    * **toggleRealNominal**: (boolean, optional) Determines weather a trace shall be recalculated if a real / nominal change of basis is required.
    * **deflactor**: (boolean, optional) Set to true in the trace which shall be considered a deflactor for calculation of real values. The trace in which the deflactor is set to true must have the toggleRealNominal property set to false.
 
- in your javascript:
- ```javascript
+Example:
+in your javascript:
+```javascript
  var otherDataProperties = [
 	{
 		traceID: "S&P 500",
@@ -186,9 +187,8 @@ Each object has the the following properties:
 		deflactor: true,
 		toggleRealNominal: false,			
 	}
-	
 ];
- ```
+```
 
 ### dataSources
 
@@ -196,27 +196,173 @@ This is and array of objects. It has as many elements as sources of data you may
 
 Each object in the dataSouces will get a chunk of data, process it and feed as many traces as instructed.
 
+
+Example 1, one source feed three traces:
+in your javascript:
+```javascript
+
+var dataSources = [
+	{
+	// urlType could be "csv", 
+	urlType: "csv",
+
+	url: "https://rawgit.com/ajoposor/test-csv-files/files/SP500%20sectors-1998-12-2017-04.csv",
+
+	// preprocessing options could be added here or in one or more objects of the traces array below
+	onlyAddXDateSuffix: "00:00:00-04:00",
+
+
+	traces: [
+		{
+		xSeriesName: "Date",
+		ySeriesName: "SP500 Adjusted Close",
+		traceID: "S&P 500"				
+		},{
+		xSeriesName: "Date_CPI",
+		ySeriesName: "CPI_EOM",
+		xDateSuffix: "",//"T00:00:00-04:00",
+		traceID: "US CPI"				
+		},				{
+		xSeriesName: "Date_CPI",
+		ySeriesName: "CPI_EOM",
+		xDateSuffix: "",//"T00:00:00-04:00",
+		traceID: "US CPI deflactor"				
+		}
+	]
+		
+	}
+];
+```
+
+Example 2: test sorting and processing options
+in your javascript:
+```javascript
+var dataSources = [
+	{	
+	urlType: "arrayOfJsons",
+
+	// all options could be set at dataSources level or at traces level
+	// if set at dataSources lelvel they will override traces options.
+	// firstItemToRead: "last",
+	// processDates: true,
+	// optional sort: true / false,
+	// optional postProcessDate: "end of month",
+	// optional xSeriesName: in case used from postProcessDate or sort
+	// xDateSuffix: "",//"T00:00:00-04:00",
+	
+	arrayOfJsons: [
+		{"Date":"2010-05-24","Date2":"1998-12-31","Open":"135.826157","Close":"116.150002","Adj Close":"115.173210"},
+		{"Date":"2011-03-04","Date2":"2010-05-24","Open":"110.875732","Close":"116.019997","Adj Close":"130.044304"},
+		{"Date":"2011-05-05","Date2":"2012-08-06","Open":"165.945137","Close":"116.610001","Adj Close":"145.629341"},
+		{"Date":"2012-08-06","Date2":"2011-05-05","Open":"155.797913","Close":"117.910004","Adj Close":"155.918411"},
+		{"Date":"2012-10-09","Date2":"2013-03-10","Open":"190.958061","Close":"118.989998","Adj Close":"175.989319"},
+		{"Date":"2013-03-10","Date2":"2012-10-09","Open":"185.771172","Close":"119.110001","Adj Close":"180.108315"},
+		{"Date":"2013-10-11","Date2":"2014-06-12","Open":"300.741417","Close":"119.750000","Adj Close":"200.742935"},
+		{"Date":"2014-06-12","Date2":"2013-10-11","Open":"250.900085","Close":"119.250000","Adj Close":"250.247139"},
+		{"Date":"2015-02-13","Date2":"2015-12-17","Open":"270.108315","Close":"119.040001","Adj Close":"240.038902"},
+		{"Date":"2015-12-17","Date2":"2015-02-13","Open":"290.344788","Close":"120.000000","Adj Close":"220.990829"},
+		{"Date":"2016-01-18","Date2":"2016-04-19","Open":"320.990829","Close":"119.989998","Adj Close":"240.980911"},
+		{"Date":"2016-04-19","Date2":"2016-01-18","Open":"280.395874","Close":"119.779999","Adj Close":"280.772675"},
+		{"Date":"2016-06-20","Date2":"2017-06-11","Open":"340.437042","Close":"120.000000","Adj Close":"300.990829"},
+		{"Date":"2017-01-23","Date2": "","Open": "","Close":"120.080002","Adj Close":"280.070160"},
+		{"Date":"2017-05-24","Date2": "","Open": "","Close":"119.970001","Adj Close":"320.961090"}
+	],
+	traces:[
+		{
+		// dates follow chronological order, they will be reordered with the firstItemToRead option
+		xSeriesName: "Date",
+		ySeriesName: "Adj Close",
+		traceID: "S&P 500",
+		
+		// in case another source of data is used to feed this trace (traceID: "S&P 500")
+		// values will be adjusted using a common date
+		calculateAdjustedClose: true,
+		
+		// dates must follow most recent to oldest order
+		firstItemToRead: "last",
+		},
+		
+		{
+		xSeriesName: "Date",
+		ySeriesName: "Close",
+		traceID: "Some ID",
+		calculateAdjustedClose: true,
+		firstItemToRead: "last",
+		},
+		
+		{
+		// this dates have no order, they will be sorted from recent to older with the sort option
+		// missing dates will not be passed to the data
+		xSeriesName: "Date2",
+		ySeriesName: "Open",
+		traceID: "Second Dates",
+		calculateAdjustedClose: true,
+		sort: true
+		}
+	]
+}};
+```	
+	
+Example 3: dates are to be changed to end of month
+CPI data is dates as "yyyy-mm-01". In order for better display, they will be changed to end of month dates using the postProcessDate property set to "end of month".
+
+Besides, one file will be used in this case to feed two traces. One of them used as a dummy trace to serve as a deflactor.
+
+in your javascript:
+```javascript	
+
+var dataSources = [
+	{
+	urlType: "csv",
+	url: "https://www.quandl.com/api/v3/datasets/FRED/CPIAUCSL.csv?api_key=yourQuandlApiKey",
+	traces:[
+		{
+		xSeriesName: "Date",
+		ySeriesName: "Value",
+		postProcessDate: "end of month",
+		traceID: "US CPI"
+		},
+		
+		{
+		xSeriesName: "Date",
+		ySeriesName: "Value",	
+		postProcessDate: "end of month",
+		traceID: "US CPI deflactor"
+		}
+		]
+	}
+];
+	
+```
+
+
+
 ### layout
 
 The layout object follows Plotly's definition. 
 
 Example:
- in your javascript:
- ```javascript
-	// include layout as per Plotly's layout
-	var layout = {
-		yaxis: {
-			// the the type of yaxis
-			// in case log/linear button option set, 
-			// this will be the initial yaxis type display
-			type: "log",
-			hoverformat: ".4r"
-		},
-		margin:{
-			r: 43
-		}
-	};
- ```
+in your javascript:
+```javascript
+
+// include layout as per Plotly's layout
+
+var layout = {
+
+	yaxis: {
+		// the the type of yaxis
+		// in case log/linear button option set, 
+		// this will be the initial yaxis type display
+		type: "log",
+		hoverformat: ".4r"
+	},
+
+	margin:{
+		r: 43
+	}
+};
+
+```
 
 ### options
 
@@ -226,19 +372,21 @@ It's and optional parameter.
 
 Example:
  in your javascript:
- ```javascript
- 	// include options as per Plotly's options
-	var **options** = {
-		// this will hide the link to plotly
-		showLink: false,
-		
-		// this will hid the mode bar
-		displayModeBar: false
-	};
+```javascript
 
-	
-];
- ```
+// include options as per Plotly's options
+
+var **options** = {
+
+	// this will hide the link to plotly
+	showLink: false,
+
+	// this will hid the mode bar
+	displayModeBar: false
+
+};
+
+```
 
 
 **series** (array of objects) One object for each trace or trace section. Each object contains information about traces, where data is located and to be read from. Each object is structured as follows:
@@ -313,11 +461,6 @@ Example:
 >
 > **endDateForInitialDisplay:** '(date string formatted as 'yyyy-mm-dd') Optional. Date at which initial display of traces will end.
 
-
-**layout:** (object) Pass layout information to be dealt with as per Plotly's layout definitions.
-
-
-**options:** (object) Pass options information to be dealt with as per Plotly's options definitions.
 
 ## Install
 
