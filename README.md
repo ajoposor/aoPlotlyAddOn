@@ -1202,6 +1202,8 @@ var dataSources = [
 ```
 
 
+
+
 ## Miscelaneous Functions
 
 ### aoPlotlyAddOn.getTicktextAndTickvals
@@ -1249,6 +1251,17 @@ This function will populate the data object with an originalData.x, y and object
 **periodKeys:** (object) An object with the frequencies to be calculated, set to true or false. { day: true/false, week: true/false, month: true/false, quarter: true/false, semester: true/false, year: true }
 
 **endOfWeek:** (number between 0 and 6) Day of week to be end of week period. 0 for Sunday, 1 for Monday, ....
+
+
+
+## Creators
+
+|   | Github | 
+|---|--------|
+|**A. Osorio**| [@ajoposor](https://github.com/ajoposor) | |
+
+
+
 
 ## License
 
