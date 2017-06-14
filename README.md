@@ -1,7 +1,9 @@
 # aoPlotlyAddOn
-a javascript function to add features to <a href="https://plot.ly/javascript/">Plotly's</a> time series plots with parameters.
+## a javascript function to add features to <a href="https://plot.ly/javascript/">Plotly's</a> time series plots using only parameters.
 
-![screenshot](https://github.com/ajoposor/aoPlotlyAddOn/blob/master/img/aoplotly.gif)
+<kbd>
+<img src="https://github.com/ajoposor/aoPlotlyAddOn/blob/master/img/aoplotly.gif">
+</kbd>
 
 
 requires 
@@ -15,35 +17,51 @@ requires
 
 * [Description](#description)
 * [Features](#features)
-* [Arguments in detail](#arguments in detail)
+* [Arguments in detail](#arguments-in-detail)
+   * [divInfo](#divInfo)
+   * [data](#data)
+   * [otherDataProperties](#otherDataProperties)
 * [Use examples](#use-example)
 * [License](#license)
 
 
 ## Description
 
-### aoPlotlyAddOn.newTimeseriesPlot( divInfo, data, otherDataProperties, dataSources, settings, timeInfo, layout, options );
+**aoPlotlyAddOn.newTimeseriesPlot**( divInfo, data, otherDataProperties, dataSources, settings, timeInfo, layout, options );
 
-This functions adds functionality, and applies to <a href="https://plot.ly/javascript/">Plotly's</a> time series plots. 
+This functions adds functionality to time series plots in <a href="https://plot.ly/javascript/">Plotly</a>. 
 
 It helps you in two stages: **data sourcing** and **plot funtionality**.
 
 ## Features
 
 * **Data sources**: handle various data sources with preprocessing options. For example, include url to a csv file, provide options to sort, of change dates formats
-   * **Automatic data sourcing**: just provide the link to sources of data, like quandl csv's, fred json's, yql queries, or just assing data directly in the data array
-   * Options: **sorting**, **order or reading**, **preprocess dates**, **adjust values**, get data for one trace from many sources or use one source to feed many traces
-   * Allows a file with many date fields to be split and handled independently
-   * **Trim** the series to be read from an initial date.
+   * **Automatic data sourcing**: just provide the links to sources of data, like quandl's csvs, fred's jsons, yql queries, or just assing data directly in the data array
+   * **Processing options**:
+      * **preprocess dates**:
+         * **end of month**: certain dates come as first on month, but actually refer to end of month. You would add a parameter so that the function makes the changes.
+         * add **time and timezone stamp**: yyyy-mm-dd dates may be better described by adding the date and timezone to which it refers. There are options for this to be made.
+         * **standarize dates**: some dates may come with a non-standard format, the function will analize the strings and convert it to a standard format
+      * **sorting**: in case your data comes with unsorted dates, this option will sort them.
+      * **order or reading**: in case where files are to be read from bottom up.
+      * **adjust values**: when combining mutilple sources into one trace, you may need to adjust the values to a common base. Share prices for instance are to be adjusted when the price changes due to splits or share dividends. The function will use a common date to calculate the adjusting factor and apply it to the older data, maintining the values for the most recent dates.
+      * **Trim** the series to be read from an initial date.
+   * **Flexible sourcing**  
+      * **many to one**: get data for one trace from many sources or,
+      * **one to many** use one source to feed multiple traces
+      * **non-standard csv'**: allows a file with many date fields, with different frequencies (for instance: one daily, another monthly) to be split and handled independently.
 
-* **Plot functionality**:
+* **Plot functionality**
+   * **Loader**: automatic display of a loader while the data is sourced and the plot is rendered.
    * **Frequency resampling** (daily, weekly, monthly, etc.) and various **aggregations** (close, average, change, %change, etc.). 
    * **Log/linear** yaxis button
    * **Real/Nominal** button
    * **Compare/Uncompare** button, a button to compare series to a base value at the beggining of the range
    * It includes the display of **xaxis ticks** for a specific time range, naming quarters, years or half-years as the case may be.
 
-## Arguments (divInfo, data, otherDataProperties, dataSources, settings, timeInfo, layout, options)
+## Arguments in detail
+
+### divInfo
 
 **divInfo** (object) Contains the following properties:
 >
@@ -51,6 +69,7 @@ It helps you in two stages: **data sourcing** and **plot funtionality**.
 >
 > **plotDivID** "(string) "your plotly Div id". Div in which plot will be included should be a div within 'wholeDiv'.
 
+### data
 
 **series** (array of objects) One object for each trace or trace section. Each object contains information about traces, where data is located and to be read from. Each object is structured as follows:
 >
