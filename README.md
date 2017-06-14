@@ -17,6 +17,8 @@
    * [data](#data)
    * [otherDataProperties](#otherDataProperties)
    * [dataSources](#dataSources)
+   * [settings](#settings)
+   * [timeInfo](#timeInfo)
    * [layout](#layout)
    * [options](#options)
 * [Install](#install)
