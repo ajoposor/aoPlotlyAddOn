@@ -571,6 +571,9 @@ Include libraries for plotly and aoPlotlyAddOn:
 
 ### Example
 
+<p data-height="441" data-theme-id="0" data-slug-hash="owzmeZ" data-default-tab="result" data-user="ajoposor" data-embed-version="2" data-pen-title="aoPlotlyAddOn example" class="codepen">See the Pen <a href="https://codepen.io/ajoposor/pen/owzmeZ/">aoPlotlyAddOn example</a> by Antonio Osorio (<a href="https://codepen.io/ajoposor">@ajoposor</a>) on <a href="https://codepen.io">CodePen</a>.</p>
+<script async src="https://production-assets.codepen.io/assets/embed/ei.js"></script>
+
 ```html
 
 
