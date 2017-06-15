@@ -228,7 +228,7 @@ Each object in the dataSouces will get a chunk of data, process it and feed as m
 
    * **urlType** (string) Any of "csv", "yqlJson", "yqlGoogleCSV", "pureJson" or "arrayOfJsons".
       * **csv**: A csv file will be read from the url using Plotly.d3.csv.
-      * **yqlJson**: use this option if data is sourced using yql and is returned as json. From json returned by $.getJSON, json object would be readJson.query.results.json.observation. 
+      * **yqlJson**: use this option if data is sourced using yql and is returned as json. From readJson returned by $.getJSON, json object would be readJson.query.results.json.observation. 
       
          **An example**: 
          
@@ -244,7 +244,7 @@ Each object in the dataSouces will get a chunk of data, process it and feed as m
          var url =  baseUri + uriQuery+"&format=json";
          ```
       
-      * **yqlGoogleCSV**: In this case, the url to be provided is a google url that returns a csv file. The yql portion will be added by the function as "https://query.yahooapis.com/v1/public/yql?q="+encodeURIComponent("SELECT * from csv where url='"+url+"'")+"&format=json". From json returned by $.getJSON (or Plotly.d3.json), json object would be readJson.query.results.row
+      * **yqlGoogleCSV**: In this case, the url to be provided is a google url that returns a csv file. The yql portion will be added by the function as `"https://query.yahooapis.com/v1/public/yql?q="+encodeURIComponent("SELECT * from csv where url='"+url+"'")+"&format=json"`. From json returned by $.getJSON (or Plotly.d3.json), json object would be readJson.query.results.row
       * **pureJson**: Use this case when you provide and url that returns an array of jsons. An array of jons will have one object for each data point. Each object should contain at least a property for the dates vales and a property for the y value. This arrayOfJsons has the same structure as that returned by Plotly.d3.csv. 
       * **arrayOfJsons**: Use this case to provide data  you sourced from elsewhere, that you would like to be processed (change of date format, or calculate adjusted values). An array of jons will have one object for each data point. Each object should contain at least a property for the dates vales and a property for the y value. This arrayOfJsons has the same structure as that returned by Plotly.d3.csv. 
 
