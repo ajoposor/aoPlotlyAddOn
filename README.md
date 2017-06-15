@@ -569,7 +569,139 @@ Include libraries for plotly and aoPlotlyAddOn:
 
 ```
 
-### Working Example
+### Putting all together
+
+#### HTML
+```html
+<head>
+  <!-- Plotly.js -->
+   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+	 <script src="https://rawgit.com/ajoposor/aoPlotlyAddOn/568cffa81478b6fd46400b291b53ce0fdbfebe59/dist/aoPlotlyAddOn.js"></script>
+   <!-- jquery -->
+ <!-- <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>-->
+</head>
+<body>
+	<div id="myWholeDiv_01" style="visibility:hidden">
+	<h3><font color="#1A5488"><b>S&P 500</b></font> sectors:<font color="#5AC148"><b>&#x25A0; C. Discretionary</b></font> - <font color="#CC0000"><b>&#x25A0; Energy</b></font> - <font color="#9845CE"><b>&#x25A0; Financials</b></font> - <font color="#FF9900"><b>&#x25A0; Industrials</b></font> - <font color="#FFCC00"><b>&#x25A0; Materials</b></font> - <font color="#FF3399"><b>&#x25A0; Real Estate</b></font> - <font color="#33FFFF"><b>&#x25A0; Technology</b></font> - <font color="#699966"><b>&#x25A0; Utilities</b></font></h3>
+  <div id="myPlotlyDiv_01" class="plotly" align="left" style="width:100%; height:480px;"></div>
+(*) Shaded areas indicate recessions.<br>For Real Estate: FRESX, Fidelity Real Estate<br>Data source: <a href="https://www.quandl.com">Quandl.</a>
+	</div>
+  <script>
+    <!-- JAVASCRIPT CODE GOES HERE -->
+  </script>
+</body>
+```
+
+#### Javascript Code
+```javascript
+
+(function() {
+
+	/* declare and populate variables with parameters
+
+	var divInfo = {
+		wholeDivID: "myWholeDiv_01",
+		plotDivID: "myPlotlyDiv_01"
+	};
+
+	var timeInfo = {
+		yearsToPlot: 1,
+		tracesInitialDate: "1998-12-31"
+	};
+
+	
+
+	var data = [
+		{
+			type: "scatter",
+			name: "S&P 500",
+			mode: "lines",
+			opacity: 1,
+			fill: "tozeroy",
+			fillcolor: "rgba(205, 245,255, 0.20)", //#FAFCFD + 50% transparency
+			line: {
+				color: "#1A5488",
+				width: 3,
+				dash: "solid"
+			}
+		}, ... 
+	];
+	
+	var otherDataProperties = [
+		{
+			traceID: "S&P 500",
+			toggleRealNominal: true,
+		},...
+
+	];
+	
+		
+	var dataSources = [
+			{
+			urlType: "csv",
+			url: "https://rawgit.com/ajoposor/test-csv-files/master/files/SP500%20sectors-1998-12-2017-04.csv",
+			onlyAddXDateSuffix: "00:00:00-04:00",
+			traces: [
+				{
+				xSeriesName: "Date",
+				ySeriesName: "SP500 Adjusted Close",
+				xDateSuffix: "",//"T00:00:00-04:00",
+				traceID: "S&P 500"				
+				},...
+			]
+			}
+		];
+
+	var settings = {
+		series: {
+			baseFrequency: "daily", 
+			baseAggregation: "close", 
+			targetFrequencyDisplay: "daily",
+		},
+		
+		displayRecessions: true,
+		allowCompare: true,
+		allowDownload: true,
+		allowRealNominal: true,
+		initialRealNominal: "real",
+		baseRealDate: "end of range",
+		downloadedFileName: "S&P Sectors Data",
+		xAxisNameOnCSV: "Date",
+		transformToBaseIndex: true,
+		allowFrequencyResampling: true, 
+		desiredFrequencies: [
+			"daily",
+			"weekly",
+			"monthly",
+			"quarterly",
+			"semiannual",
+			"annual"
+		],
+		allowSelectorOptions: true, // buttons for time range selection, 3m, 6m, 1y, YTD, 5y, etc.
+		allowLogLinear: true,
+		textAndSpaceToTextRatio: 1.8,
+		endOfWeek: 5 // 0 Sunday, 1 Monday, etc.
+	};
+
+	var layout = {
+	
+		// your layout options
+
+	};
+
+	var options = {
+		 
+		// your options
+	};
+
+	aoPlotlyAddOn.newTimeseriesPlot(divInfo, data, otherDataProperties, dataSources, settings, timeInfo, layout, options);
+
+	
+})();
+
+```
+### Go to a Working Example
 
 [![test it in codepen](https://github.com/ajoposor/aoPlotlyAddOn/blob/master/img/codepen%20aoPlotlyAddOn%20example.png)](https://codepen.io/ajoposor/pen/owzmeZ?editors=0010)
 
