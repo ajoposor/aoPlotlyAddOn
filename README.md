@@ -24,6 +24,7 @@
 * [Remarks](#remarks)
 * [Install](#install)
 * [Use and examples](#use-and-examples)
+* [Working example](#working-example)
 * [Miscelaneous functions](#miscelaneous-functions)
 * [Creators](#creators)
 * [License](#license)
@@ -73,7 +74,7 @@ The divInfo object contains the following properties:
 
    * **wholeDivID** (string) "your whole div id".  Whole div name, where you will have your plot, including other html items, like your titles and footnotes. Required to hide the div while the plot loads.
 
-   * **plotDivID** "(string) "your plotly Div id". Div where the plot will be included. It should be a div within 'wholeDiv'.
+   * **plotDivID** "(string) "your plotly Div id". Div where the plot will be included. It should be a div within wholeDiv.
    
 
 #### Example
@@ -107,7 +108,7 @@ var divInfo = {
 	wholeDivID: "myWholeDiv_01",
 
 	// div in which plot will be included
-	// should be a div within 'wholeDiv'
+	// should be a div within wholeDiv
 	plotDivID: "myPlotDiv_01"
 };
 ```
@@ -234,11 +235,11 @@ Each object in the dataSouces will get a chunk of data, process it and feed as m
          
          get json data from FRED through yql:
          ```javascript
-         var fredKey = 'your FRED key';
-         var seriesId = 'UNRATE';
-         var seriesUnits ='lin';
-         var urlFred = 'https://api.stlouisfed.org/fred/series/observations?'+ 
-            		'series_id='+seriesId+'&api_key='+fredKey+'&units='+seriesUnits+'&file_type=json';
+         var fredKey = "your FRED key";
+         var seriesId = "UNRATE";
+         var seriesUnits ="lin";
+         var urlFred = "https://api.stlouisfed.org/fred/series/observations?"+ 
+            		"series_id="+seriesId+"&api_key="+fredKey+"&units="+seriesUnits+"&file_type=json";
          var baseUri = "https://query.yahooapis.com/v1/public/yql?q=";
          var uriQuery = encodeURIComponent("SELECT * from json where url='"+urlFred+"'");
          var url =  baseUri + uriQuery+"&format=json";
@@ -288,6 +289,7 @@ Each object in the dataSouces will get a chunk of data, process it and feed as m
    
    * **traces** (array of objects) one object for each trace to be fed with a source
       * **traceID**: (string) Required. Unique string that will be used together with the otherDataParameters array to identify the data array element to which the data will be fed.
+         ```dataSources[i].traces[j].tracesID  ===  otherDataParameters[k].tracesID -> data goes into data[k].x and data[k].y```
       * **xSeriesName**: (string) Tag that identifies the column or property which contains the date in the data file (csv, or json) and will feed the data x array.
       * **ySeriesName**: (string) Tag that identifies the column or property which contains the value in the data file (csv, or json) that will feed the data y array.
       * **xDateSuffix**: (string) Optional. This string will be added to the date string read.
@@ -298,11 +300,12 @@ Each object in the dataSouces will get a chunk of data, process it and feed as m
       * **sort**: (boolean) Optional. If set to true, all values as ySeriesNames in use with this xSeriesName and this xSeriesName will be sorted. This function works with dates ordered from latest to oldest.
 
 
-   * **transform
 #### Examples:
 
-*Example 1: One source feed three traces.*
-in your javascript:
+***Example** 1:*
+   * One source feed three traces.
+   * The csv file has two date columns: "Date", and "Date_CPI"
+   * One column feeds two traces, traces[1] and traces[2] are fed with the "CPI_EOM" column
 ```javascript
 
 var dataSources = [
@@ -313,7 +316,7 @@ var dataSources = [
 	url: "https://rawgit.com/ajoposor/test-csv-files/files/SP500%20sectors-1998-12-2017-04.csv",
 
 	// preprocessing options could be added here or in one or more objects of the traces array below
-	onlyAddXDateSuffix: "00:00:00-04:00",
+	onlyAddXDateSuffix: " 00:00:00-04:00",
 
 
 	traces: [
@@ -324,12 +327,10 @@ var dataSources = [
 		},{
 		xSeriesName: "Date_CPI",
 		ySeriesName: "CPI_EOM",
-		xDateSuffix: "",//"T00:00:00-04:00",
 		traceID: "US CPI"				
 		},				{
 		xSeriesName: "Date_CPI",
 		ySeriesName: "CPI_EOM",
-		xDateSuffix: "",//"T00:00:00-04:00",
 		traceID: "US CPI deflactor"				
 		}
 	]
@@ -339,8 +340,7 @@ var dataSources = [
 ```
 
 
-*Example 2: Test sorting and dates processing options.*
-in your javascript:
+***Example 2**: Test sorting and dates processing options.*
 ```javascript
 var dataSources = [
 	{	
@@ -411,13 +411,11 @@ var dataSources = [
 
 
 
-*Example 3: Dates are to be changed to end of month.*
+***Example 3**: Dates are to be changed to end of month.*
 
-CPI data is dates as "yyyy-mm-01". In order for better display, they will be changed to end of month dates using the postProcessDate property set to "end of month".
+   * CPI data is dates as "yyyy-mm-01". In order for better display, they will be changed to end of month dates using the postProcessDate property set to "end of month".
+   * Besides, one file will be used in this case to feed two traces. One of them used as a dummy trace to serve as a deflactor.
 
-Besides, one file will be used in this case to feed two traces. One of them used as a dummy trace to serve as a deflactor.
-
-in your javascript:
 ```javascript
 
 var dataSources = [
@@ -440,13 +438,12 @@ var dataSources = [
 		}
 		]
 	}
-];
-	
+];	
 ```
 
 ### settings
 
-This is an object that controls the features added to your plot
+This is an object that controls the features added to your plot.
 
 #### object structure
 
@@ -454,13 +451,13 @@ This is an object that controls the features added to your plot
 
    * **desiredFrequencies:** (array of strings) Include frequencies to be calculated (in case allowFrequencyResampling set to true) Available: "daily", "weekly", "monthly", "quarterly", "semiannual", "annual".
 
-   * **series:** (object) To include frequency and aggregation for calculated traces:
+   * **series:** (object) To provide a name for the frequency and aggregation of the supplied data (initial):
 
-      * **baseFrequency:** (string) To provide a name for the base frequencies as per initial data provided. Could be 'base', 'daily', 'weekly', 'monthly', 'quarterly', 'annual' or your custom name or none.
+      * **baseFrequency:** (string) To provide a name for the base frequencies as per initial data provided. Could be "base", "daily", "weekly", "monthly", "quarterly", "annual" or your custom name or none.
 
-      * **baseAggregation:** (string) To provide a name of the base aggregation as per initial data provided. Could be 'base', 'close', 'average', 'change', 'percChange', 'sqrPercChange', 'cumulative', your custom name or none.
+      * **baseAggregation:** (string) To provide a name of the base aggregation as per initial data provided. Could be "base", "close", "average", "change", "percChange", "sqrPercChange", "cumulative", your custom name or none.
 
-   * **targetFrequencyDisplay:** (string) Maximum frequency for display of x axis, could be 'daily', 'weekly', 'monthly', 'quarterly', 'semiannual', 'yearly'.
+   * **targetFrequencyDisplay:** (string) Minimum display granularity of x axis, could be "daily", "weekly", "monthly", "quarterly", "semiannual", "yearly".
 
    * **endOfWeek:** (integer between 0 and 6) Sets the end of week. Applies to calculation of weekly values and display of weeks. 0 Sunday, 1 Monday, etc.
 
@@ -470,9 +467,9 @@ This is an object that controls the features added to your plot
 
    * **initialRealNominal:** (string) Optional. Set to "real" or "nominal". Sets the initial display of traces to which real transformation is applicable)
 
-   * **baseRealDate:** (string) Any of  "end of range", "end of domain", "beggining of range", beggining of domain", or a date "yyyy-mm-dd hh:mm:ss.sss-04:00". It would set the base at which real values are to be calculated. Range refers to the displayed range and domain to the available date range for the index trace.
+   * **baseRealDate:** (string) Any of  "end of range", "end of domain", "beggining of range", beggining of domain", or a date "yyyy-mm-dd hh:mm:ss.sss-04:00". It would set the base at which real values are to be calculated. Range refers to the displayed range and domain to the available date range for the deflactor trace.
 
-   * **allowDownload:** (boolean) Optional. Would display button to download displayed traces over its full domain.
+   * **allowDownload:** (boolean) Optional. Would display button to download current displayed traces over its full dates domain.
 
    * **downloadedFileName:** (string) Optional. Name to be set to downloaded file.
 
@@ -480,11 +477,11 @@ This is an object that controls the features added to your plot
 
    * **allowCompare:** (boolean) displays button to allow comparison of traces to a base unit value.
 
-   * **transformToBaseIndex:** (boolean) Optional, series would be transformed to common value of 1 at beginning
+   * **transformToBaseIndex:** (boolean) Optional, series would be transformed to common value of 1 at beginning of displayed dates range at the initial displayed plot.
 
    * **allowSelectorOptions:** (boolean) If set to true would display buttons for time range selection, 3m, 6m, 1y, YTD, 5y, etc.
 
-   * **allowLogLinear:** (boolean) If set to true, display button to toogle yaxis to log/linear.
+   * **allowLogLinear:** (boolean) If set to true, display button to toogle yaxis to log/linear type.
 
    * **textAndSpaceToTextRatio:** (number) Default 1.8. Sets spacing of text to void space in xaxis ticks.
 
@@ -496,20 +493,17 @@ Use this object to instruct handling of dates range
 
 #### object properties
 
-   * **yearsToPlot:** (number) Optional. number of years to plot from current date backwards.
+   * **yearsToPlot:** (number) Optional. number of years to plot from current date backwards in the initial plot.
 
-   * **tracesInitialDate:** (date string formatted as 'yyyy-mm-dd') Optional. Traces will be trimmed for dates earlier than provided value.
+   * **tracesInitialDate:** (date string formatted as "yyyy-mm-dd") Optional. Traces will be trimmed for dates earlier than provided value. Data before tracesInitialDate will not be included in the data.
 
-   * **InitialDateForInitialDisplay:** (date string formatted as 'yyyy-mm-dd') Optional. Date at which initial display will begin.
+   * **InitialDateForInitialDisplay:** (date string formatted as "yyyy-mm-dd") Optional. Date at which initial display will begin.
 
-   * **endDateForInitialDisplay:** '(date string formatted as 'yyyy-mm-dd') Optional. Date at which initial display of traces will end.
+   * **endDateForInitialDisplay:** (date string formatted as "yyyy-mm-dd") Optional. Date at which initial display of traces will end.
 
 #### Examples
 in your javascript:
 ```javascript	
-
-//X AXIS DATE RANGE PARAMETERS
-
 var timeInfo = {
 
 	// affects only the initial display
@@ -518,7 +512,6 @@ var timeInfo = {
 	// include and initial date if applicable (data will be trimmed to before this date)
 	tracesInitialDate: "1998-12-31"
 };
-
 ```
 
 
@@ -529,7 +522,6 @@ The layout object follows Plotly's definition.
 Example:
 in your javascript:
 ```javascript
-
 // include layout as per Plotly's layout
 
 var layout = {
@@ -546,7 +538,6 @@ var layout = {
 		r: 43
 	}
 };
-
 ```
 
 ### options
@@ -558,7 +549,6 @@ It's and optional parameter.
 Example:
  in your javascript:
 ```javascript
-
 // include options as per Plotly's options
 
 var **options** = {
@@ -570,23 +560,25 @@ var **options** = {
 	displayModeBar: false
 
 };
-
 ```
 
 ## Remarks
 
-   * This function works with time series. X values are supposed to be dates.
+   * This function works with time series. The values in the x axis are supposed to be dates.
    * Dates should be ordered from latest to oldest. You may use options to sort data sourced.
-   * Dates should be provided as "yyyy-mm-dd".
-   * If no time and time zone is provided they will be assumed to have occured at 00:00:00 (hh:mm:ss) on the date indicated at the time zone used by the browser wherever it may be. It will work fine as no change of time is made. So December 31, 2000 (2000-12-31) will be displayed so regardless of where the user is located.
-   * On the contrary, you may provide complete dates, i.e, "yyyy-mm-dd hh-mm-ss.ssss+hh:mm" or "yyyy-mm-dd hh-mm-ss.ssss-hh:mm"
+   * Dates should be provided as "yyyy-mm-dd". Use process dates options to make adjustements.
+   * If no time and time zone is provided dates will be assumed to have occured at 00:00:00 (hh:mm:ss) on the date indicated at the time zone used by the browser wherever it may be. It will work fine as no change of time is made. So December 31, 2000 (2000-12-31) will be displayed as such regardless of where the user is located.
+   * You may provide complete dates with time and timezone, i.e, "yyyy-mm-dd hh-mm-ss.ssss+hh:mm" or "yyyy-mm-dd hh-mm-ss.ssss-hh:mm". There results would be the same.
 
 ## Install
 
-Include libraries for plotly and aoPlotlyAddOn:
+Include libraries for plotly, jquery (will make adjustments to remove use of jquery) and aoPlotlyAddOn:
 
 ```html
 <head>
+<!-- jQuery -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+
 <!-- Plotly.js -->
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
    
@@ -615,7 +607,6 @@ Include libraries for plotly and aoPlotlyAddOn:
     // all the code for one plot here
 
 })();
-
 ```
 
 ### Putting all together
@@ -626,9 +617,10 @@ Include libraries for plotly and aoPlotlyAddOn:
 <!-- Plotly.js -->
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-<script src="https://rawgit.com/ajoposor/aoPlotlyAddOn/568cffa81478b6fd46400b291b53ce0fdbfebe59/dist/aoPlotlyAddOn.js"></script>
+<script src="https://rawgit.com/ajoposor/aoPlotlyAddOn/master/dist/aoPlotlyAddOn.js"></script>
 </head>
 <body>
+
 <div id="myWholeDiv_01" style="visibility:hidden">
 
 <h3>My Plot Title and header</h3>
@@ -689,20 +681,20 @@ Data source: <a href="https://www.quandl.com">Quandl.</a>
 	
 		
 	var dataSources = [
+	{
+	urlType: "csv",
+	url: "https://rawgit.com/ajoposor/test-csv-files/master/files/SP500%20sectors-1998-12-2017-04.csv",
+	onlyAddXDateSuffix: "00:00:00-04:00",
+	traces: [
 		{
-		urlType: "csv",
-		url: "https://rawgit.com/ajoposor/test-csv-files/master/files/SP500%20sectors-1998-12-2017-04.csv",
-		onlyAddXDateSuffix: "00:00:00-04:00",
-		traces: [
-			{
-			xSeriesName: "Date",
-			ySeriesName: "SP500 Adjusted Close",
-			xDateSuffix: "",//"T00:00:00-04:00",
-			traceID: "S&P 500"
-			},...
-		]
-		}
-		];
+		xSeriesName: "Date",
+		ySeriesName: "SP500 Adjusted Close",
+		xDateSuffix: "",//"T00:00:00-04:00",
+		traceID: "S&P 500"
+		},...
+	]
+	}
+	];
 
 	var settings = {
 		series: {
@@ -759,9 +751,10 @@ Data source: <a href="https://www.quandl.com">Quandl.</a>
 
 	
 })();
-
 ```
-### Go to a Working Example
+
+
+## Working Example
 
 [![test it in codepen](https://github.com/ajoposor/aoPlotlyAddOn/blob/master/img/codepen%20aoPlotlyAddOn%20example.png)](https://codepen.io/ajoposor/pen/owzmeZ?editors=0010)
 
@@ -779,21 +772,21 @@ This functions returns and object with the the tickvals and ticktext arrays for 
 #### Arguments:
 
  
-**from:** (date strings as 'yyyy-mm-dd')
+**from:** (date strings as "yyyy-mm-dd")
 
-**to:** (date strings as 'yyyy-mm-dd')
+**to:** (date strings as "yyyy-mm-dd")
 
 **textAndSpaceToTextRatio:** (number) Ratio between (tick text + space between text) lenght to tick text length.
 
-**targetFrequency:** (string) Any of 'daily', 'everyOtherDay', 'weekly', 'biweekly', 'monthly', 'quarterly', 'semiannual', 'annual', 'biennial', 'quinquennial', 'decennial', 'quadranscentennial', 'semicentennial', 'centennial', 'bicentennial', 'sestercentennial', 'quincentenary', 'milennial'
+**targetFrequency:** (string) Any of "daily", "everyOtherDay", "weekly", "biweekly", "monthly", "quarterly", "semiannual", "annual", "biennial", "quinquennial", "decennial", "quadranscentennial", "semicentennial", "centennial", "bicentennial", "sestercentennial", "quincentenary", "milennial"
 
-The returned ticktext and tickvals would be the best minimum fit, upwards from the targetFrequency, e.g., if 'monthly' is passed, it would return whichever fit best from monthly, quarterly, semiannual, annual and onwards
+The returned ticktext and tickvals would be the best minimum fit, upwards from the targetFrequency, e.g., if "monthly" is passed, it would return whichever fit best from monthly, quarterly, semiannual, annual and onwards
 
 **fontFamily:** (string) Font family name.
 
 **fontSize:** (number) Font size. 
 
-**divWidth:** (number) Width in pixels of the current division, can be read as jQuery('name of division').width()
+**divWidth:** (number) Width in pixels of the current division, can be read as jQuery("name of division").width()
 
 **leftMargin:** (number) Margins from plot to division in pixels. If layout.margin.l/r are defined, read from there, otherwise use 80 (plotly's default)
 
@@ -810,7 +803,7 @@ This function will populate the data object with an originalData.x, y and object
 #### Arguments:
 
 
-**data:** (array of data objects [{x[], y[]}, ....]) With x as date strings 'yyyy-mm-dd' and y as values.
+**data:** (array of data objects [{x[], y[]}, ....]) With x as date strings "yyyy-mm-dd" and y as values.
 
 **periodKeys:** (object) An object with the frequencies to be calculated, set to true or false. { day: true/false, week: true/false, month: true/false, quarter: true/false, semester: true/false, year: true }
 
