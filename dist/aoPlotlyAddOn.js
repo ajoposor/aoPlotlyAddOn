@@ -3144,7 +3144,7 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 		initialDateAsDate = new Date(localProcessDate(tracesInitialDate, timeOffsetText));
 	}
 	
-	console.log("allRows: ", allRows);
+	//console.log("allRows: ", allRows);
 	
 	// total rows of csv file loaded
 	// allRows is an array of objects
@@ -3156,7 +3156,7 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 	// get number of tables, sort and preprocessing of dates options
 	setTablesParametersSortPreprocessing(tableParams, dataSources);
 	
-	console.log("table params", tableParams);
+	//console.log("table params", tableParams);
 
 	// apply date preprocessing options
 	applyDateProprocessing(allRows, tableParams, urlType);
@@ -3247,8 +3247,8 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 		
 		// get data
 		allRows = tableParams[xSeriesName]["allRows"];
-		console.log("tableParams", tableParams);
-		console.log("allRows from table params", allRows);
+		//console.log("tableParams", tableParams);
+		//console.log("allRows from table params", allRows);
 
 		
 		//datesReady = localNameIsOnArrayOfNames(xSeriesName,processedColumnDates);
@@ -3377,10 +3377,10 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 			readTraceInitialDateAsDate = new Date(allRows[readTraceEndIndex][xSeriesName]);
 		}
 		*/
-		console.log("readTraceInitialIndex ", readTraceInitialIndex);
-		console.log("readTraceEndIndex ", readTraceEndIndex);
-		console.log("xSeriesName: ", xSeriesName);
-		console.log("allRows: ",allRows);
+		//console.log("readTraceInitialIndex ", readTraceInitialIndex);
+		//console.log("readTraceEndIndex ", readTraceEndIndex);
+		//console.log("xSeriesName: ", xSeriesName);
+		//console.log("allRows: ",allRows);
 		
 		readTraceEndDateAsDate = new Date(allRows[readTraceInitialIndex][xSeriesName]);
 		readTraceInitialDateAsDate = new Date(allRows[readTraceEndIndex][xSeriesName]);
@@ -5564,8 +5564,8 @@ function readDataAndMakeChart(data, iS, param, callback) {
 	
 	else {
 		// once all files all read, i.e. iS === series.length, this section is executed
-		console.log("data: ", data);
-		console.log("param: ", param);
+		//console.log("data: ", data);
+		//console.log("param: ", param);
 		
 		makeChart(data, param);
 		callback("all read and plotted");
@@ -5577,7 +5577,7 @@ function readDataAndMakeChart(data, iS, param, callback) {
 
 function makeChart(data, param){
 	
-	console.log("issue #1");
+	//console.log("issue #1");
 
 	// variable definitions
 	var x0 = "2000-01-01",
