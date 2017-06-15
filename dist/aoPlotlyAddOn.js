@@ -3256,39 +3256,13 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 		
 		// get data
 		allRows = tableParams[xSeriesName]["allRows"];
-		//console.log("tableParams", tableParams);
-		//console.log("allRows from table params", allRows);
+		console.log("tableParams", tableParams);
+		console.log("allRows from table params", allRows);
 
-		
-		//datesReady = localNameIsOnArrayOfNames(xSeriesName,processedColumnDates);
-		
-		/*
-		// set xSeriesName and ySeriesName to tags in case yqlGoogleCSV
-		if(yqlGoogleCSV){
-			for (var key in tags){
-				if (tags.hasOwnProperty(key)) {
-					if(tags[key].toString().trim() === xSeriesName.toString()){
-						xSeriesName = key;
-					}
-					if(tags[key].toString().trim() === ySeriesName.toString()){
-						ySeriesName = key;
-					}
-				}
-			}
-		}
-
-
-		
-		transformToEndOfMonth = false;
-		if(typeof dataSources.traces[j].postProcessData !== "undefined"){
-			if(dataSources.traces[j].postProcessData === "end of month" && !datesReady){
-				transformToEndOfMonth = true;
-			}
-		}
-		*/
 		
 		// find trace index (position in data array)
 		iData = localFindTraceIdIndex(traceID,otherDataProperties);
+		console.log("iData", iData);
 		
 		// find weather trace will be added to existing trace
 		insertTrace = false;
@@ -3304,92 +3278,15 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 		y.length = iLimit;
 		
 		
-		/*
-		// sort read data in descending order if required and noy yet done
-		if(latestSorted !== xSeriesName){
-			if(typeof dataSources.traces[j].sort !== "undefined"){	
-				if(dataSources.traces[j].sort === true){
-					if(!yqlGoogleCSV){
-						allRows.sort(localSortByDatesAsStrings(xSeriesName), delta);
-					}
-					else{
-						allRows.sort(localSortByGoogleDatesAsStrings(xSeriesName), delta);
-					}
-					latestSorted = xSeriesName;
-				}
-			}	
-		}
-		*/
-
-		/*
-		// find readTraceInitialIndex
-		for(i=0; i <iLimit; i++){
-			if(allRows[i][xSeriesName]!== ""){
-				readTraceInitialIndex = i;
-				i= iLimit;
-			}
-		}
-		
-		// find readTraceEndIndex
-		for(i=iLimit-1; i > -1; i--){
-			if(allRows[i][xSeriesName]!== ""){
-				readTraceEndIndex = i;
-				readTraceLength = i+1-readTraceInitialIndex;
-				i=-1;
-			}
-		}*/
-		
 		readTraceInitialIndex = 0;
 		
 		readTraceEndIndex = allRows.length === 0 ? 0 : allRows.length-1;
 		readTraceLength = allRows.length;
 		
-		
-		/*
-		// dates not yet processed
-		if(!datesReady){
-			if(!yqlGoogleCSV){
-				readTraceInitialDateAsDate = localProcessDate(
-					""+allRows[readTraceEndIndex][xSeriesName] + xDateSuffix, timeOffsetText
-					);
-
-				readTraceEndDateAsDate = localProcessDate(
-					""+allRows[readTraceInitialIndex][xSeriesName] + xDateSuffix, timeOffsetText
-					);
-			}
-			else {
-				readTraceInitialDateAsDate = localProcessDate(
-					""+
-					localGoogleMDYToYMD(allRows[readTraceEndIndex][xSeriesName]) +
-					xDateSuffix, timeOffsetText
-					);
-
-				readTraceEndDateAsDate = localProcessDate(
-					""+
-					localGoogleMDYToYMD(allRows[readTraceInitialIndex][xSeriesName])+
-					xDateSuffix, timeOffsetText
-					);
-			}
-			
-			if(transformToEndOfMonth){
-				readTraceInitialDateAsDate = localChangeDateToEndOfMonth(readTraceInitialDateAsDate);
-				readTraceEndDateAsDate = localChangeDateToEndOfMonth(readTraceEndDateAsDate);
-			}
-			
-			readTraceEndDateAsDate = new Date(readTraceEndDateAsDate);
-			readTraceInitialDateAsDate = new Date(readTraceInitialDateAsDate);
-		}
-		
-		// dates already processed
-		else {
-			readTraceEndDateAsDate = new Date(allRows[readTraceInitialIndex][xSeriesName]);
-			readTraceInitialDateAsDate = new Date(allRows[readTraceEndIndex][xSeriesName]);
-		}
-		*/
-		//console.log("readTraceInitialIndex ", readTraceInitialIndex);
-		//console.log("readTraceEndIndex ", readTraceEndIndex);
-		//console.log("xSeriesName: ", xSeriesName);
-		//console.log("allRows: ",allRows);
+		console.log("readTraceInitialIndex ", readTraceInitialIndex);
+		console.log("readTraceEndIndex ", readTraceEndIndex);
+		console.log("xSeriesName: ", xSeriesName);
+		console.log("allRows: ",allRows);
 		
 		readTraceEndDateAsDate = new Date(allRows[readTraceInitialIndex][xSeriesName]);
 		readTraceInitialDateAsDate = new Date(allRows[readTraceEndIndex][xSeriesName]);
@@ -3398,6 +3295,8 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 		adjustFactor = 1.0;
 		calculateAdjustedClose = 
 			tableParams[xSeriesName]["yCalculateAdjustedClose"][tableParams[xSeriesName]["yNames"].indexOf(ySeriesName)];
+		
+		console.log("calculateAdjustedClose", calculateAdjustedClose);
 		
 		if(insertTrace){
 			
@@ -3478,52 +3377,19 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 
 			// overlap, but new data is older than existing
 			else if (readTraceInitialDateAsDate < existingInitialDateAsDate ) {
-				/*if(datesReady){*/				
-					for(i=readTraceLimit -1 ; i > readTraceInitialIndex-1; i--){
-						if(new Date(allRows[i][xSeriesName]) >= existingInitialDateAsDate){
-							initialIndex = i+1;
-							traceLength = readTraceLimit - initialIndex;
-							insertPoint = data[iData].x.length;
-							if(calculateAdjustedClose){
-								adjust = "new"; // "new", "existing" or "none"
-								adjustFactor = existingInitialValue / allRows[i][ySeriesName];
-							}
-							i = -1;
+				console.log("overlap, but new data is older than existing");
+				for(i=readTraceLimit -1 ; i > readTraceInitialIndex-1; i--){
+					if(new Date(allRows[i][xSeriesName]) >= existingInitialDateAsDate){
+						initialIndex = i+1;
+						traceLength = readTraceLimit - initialIndex;
+						insertPoint = data[iData].x.length;
+						if(calculateAdjustedClose){
+							adjust = "new"; // "new", "existing" or "none"
+							adjustFactor = existingInitialValue / allRows[i][ySeriesName];
 						}
+						i = -1;
 					}
-				/*}*/
-				/*
-				// change to end of month
-				else if(transformToEndOfMonth){		
-					for(i=readTraceLimit -1 ; i > readTraceInitialIndex-1; i--){
-						processedDate = localProcessDate(
-							""+
-							!yqlGoogleCSV ? allRows[i][xSeriesName] :  localGoogleMDYToYMD(allRows[i][xSeriesName])+ 
-							xDateSuffix, timeOffsetText);
-						processedDate = new Date(localChangeDateToEndOfMonth(processedDate));
-						if(processedDate >= existingInitialDateAsDate){
-							initialIndex = i+1;
-							traceLength = readTraceLimit - initialIndex;
-							insertPoint = data[iData].x.length;
-							i = -1;
-						}
-					}			
-				}
-				// procesed date
-				else {
-					for(i=readTraceLimit -1 ; i > readTraceInitialIndex-1; i--){
-						processedDate = new Date(localProcessDate(
-							""+
-							!yqlGoogleCSV ? allRows[i][xSeriesName] :  localGoogleMDYToYMD(allRows[i][xSeriesName])+ 
-							xDateSuffix, timeOffsetText));
-						if(processedDate >= existingInitialDateAsDate){
-							initialIndex = i+1;
-							traceLength = readTraceLimit - initialIndex;
-							insertPoint = data[iData].x.length;
-							i = -1;
-						}
-					}	
-				}*/	
+				}	
 			}
 
 			// case total overlap, find space available
@@ -3572,79 +3438,32 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 		// fill temporary x, y arrays with read data
 		readItems = 0;
 		kLimit = traceLength;
-		/*
-		//case Change date to End of Month
-		if(transformToEndOfMonth) {
-			for(k=0, i=initialIndex; k < kLimit; i++, k++){
-				processedDate = !yqlGoogleCSV ? allRows[i][xSeriesName] :  localGoogleMDYToYMD(allRows[i][xSeriesName]);
-				processedDate = localProcessDate(""+processedDate + xDateSuffix, timeOffsetText);
-				processedDate = localChangeDateToEndOfMonth(processedDate);	 
-				if (
-					tracesInitialDate === "" ||
-					new Date(processedDate) >= initialDateAsDate
-				) {
-					allRows[i][xSeriesName]=processedDate;
-					x[k]=processedDate;
-					y[k]=allRows[i][ySeriesName];
-					readItems++;
-				}
-				else {
-					// stop reading when initialDateAsDate has been reached.
-					k= kLimit;
-				}
-
-			}		
-		}*/
-		/*
-		// no change to end of month but process
-		else if(!datesReady) {
-			for(k=0, i=initialIndex; k < kLimit ; i++, k++){
-				processedDate = !yqlGoogleCSV ? allRows[i][xSeriesName] :  localGoogleMDYToYMD(allRows[i][xSeriesName]);
-				processedDate = localProcessDate(""+processedDate + xDateSuffix, timeOffsetText);	 
-				if (
-					tracesInitialDate === "" ||
-					new Date(processedDate) >= initialDateAsDate
-				) {
-					allRows[i][xSeriesName]=processedDate;
-					x[k]=processedDate;
-					y[k]=allRows[i][ySeriesName];
-					readItems++;
-				}
-				else {
-					// stop reading when initialDateAsDate has been reached.
-					k= kLimit;
-				}
-
-			}	
-
-
-		}*/
 
 		
 		// just fill in processed dates
-		/*else {*/
-			for(k=0, i=initialIndex; k < kLimit ; i++, k++){ 
-				processedDate = allRows[i][xSeriesName];
-				if (
-					tracesInitialDate === "" ||
-					new Date(processedDate) >= initialDateAsDate
-				) {
-					x[k]=processedDate;
-					y[k]=allRows[i][ySeriesName];
-					readItems++;
-				}
-				else {
-					// stop reading when initialDateAsDate has been reached.
-					k= kLimit;
-				}
-			}	
-		/*}*/
+		console.log("fill processed dates");
+		for(k=0, i=initialIndex; k < kLimit ; i++, k++){ 
+			processedDate = allRows[i][xSeriesName];
+			if (
+				tracesInitialDate === "" ||
+				new Date(processedDate) >= initialDateAsDate
+			) {
+				x[k]=processedDate;
+				y[k]=allRows[i][ySeriesName];
+				readItems++;
+			}
+			else {
+				// stop reading when initialDateAsDate has been reached.
+				k= kLimit;
+			}
+		}	
 
 		// remove excess points
 		if (x.length > readItems){
 			x.length = readItems;
 			y.length = readItems;
-		}		
+		}
+		console.log("excess points removed");
 		
 		
 		// create x and y properties if not yet defined for current trace
