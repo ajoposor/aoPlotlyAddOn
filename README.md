@@ -1,6 +1,6 @@
 # aoPlotlyAddOn.newTimeseriesPlot()
 
-## A javascript function to add features to <a href="https://plot.ly/javascript/">Plotly's</a> time series plots using only parameters.
+## A one stop javascript function to add features to <a href="https://plot.ly/javascript/">Plotly's</a> time series plots using only parameters.
 
 <kbd>
 <img src="https://github.com/ajoposor/aoPlotlyAddOn/blob/master/img/aoplotly.gif">
@@ -39,58 +39,46 @@ It helps you in two stages: **data sourcing** and **plot funtionality**.
 
 ## Features
 
-* **Data sources**: handle various data sources with preprocessing options. For example, include url to a csv file, provide options to sort, of change dates formats
+* **Data sources**: handle various data sources with preprocessing options. For example, include url to a csv file, provide options to sort, or change dates formats
    * **Automatic data sourcing**: just provide the links to sources of data, like quandl's csvs, fred's jsons, yql queries, or just assing data directly in the data array
    * **Processing options**:
       * **preprocess dates**:
-         * **end of month**: certain dates come as first on month, but actually refer to end of month. You would add a parameter so that the function makes the changes.
-         * add **time and timezone stamp**: yyyy-mm-dd dates may be better described by adding the date and timezone to which it refers. There are options for this to be made.
-         * **standarize dates**: some dates may come with a non-standard format, the function will analize the strings and convert it to a standard format
+         * **end of month**: certain dates come as first of month, but actually refer to end of month. You would add a parameter so that the function makes the changes.
+         * add **time and timezone stamp**: yyyy-mm-dd dates may be better described by adding the time and timezone to which it refers. There are options for this to be made.
+         * **standarize dates**: some dates may come with a non-standard format (for instance: "yy-m-d", the function will analize the strings and convert them into a standard format ("yyyy-mm-dd")
       * **sorting**: in case your data comes with unsorted dates, this option will sort them.
-      * **order or reading**: in case where files are to be read from bottom up.
+      * **order of reading**: in case where files are to be read from bottom up (dates are to be loaded from latest to oldest).
       * **adjust values**: when combining mutilple sources into one trace, you may need to adjust the values to a common base. Share prices for instance are to be adjusted when the price changes due to splits or share dividends. The function will use a common date to calculate the adjusting factor and apply it to the older data, maintining the values for the most recent dates.
-      * **Trim** the series to be read from an initial date.
+      * **Trim** You may provide a starting date, so that all data is trimmed for previous dates. It is useful when you have varoius date ranges for your read data and you want a clean plot, with all traces having a common dates range.
    * **Flexible sourcing**  
       * **many to one**: get data for one trace from many sources or,
       * **one to many** use one source to feed multiple traces
-      * **non-standard csv'**: allows a file with many date fields, with different frequencies (for instance: one daily, another monthly) to be split and handled independently.
+      * **non-standard csv**: allows a file with many date fields, with different frequencies (for instance: one daily, another monthly) to be split and handled independently.
 
 * **Plot functionality**
-   * **Responsive** your plot will be responsive
+   * **Responsive** your plot will be responsive by default.
    * **Loader**: automatic display of a loader while the data is sourced and the plot is rendered.
-   * **Frequency resampling** (daily, weekly, monthly, etc.) and various **aggregations** (close, average, change, %change, etc.). 
-   * **Log/linear** yaxis button
-   * **Real/Nominal** button
-   * **Compare/Uncompare** button, a button to compare series to a base value at the beggining of the range
-   * It includes the display of **xaxis ticks** for a specific time range, naming quarters, years or half-years as the case may be.
-
+   * **Frequency resampling** (daily, weekly, monthly, etc.) and various **aggregations** (close, average, change, %change, etc.). The function will make the calculations and display whatever frequency and aggregation you select from dropdown menus in the plot.
+   * **Log/linear** The plot will display a button to toggle the type of y axis from linear to log.
+   * **Real/Nominal** Plot button to calculate real / nominal values
+   * **Compare/Uncompare** Plot button to compare series to a base value at the beggining of the displayed range.
+   * **Responsive dates ticks** The x axis will display **xaxis ticks** better suited for dates. As you change the range displayed, dates will change from days, to weeks, to months , year-month ("yyyy-mm"), quarters (Q1-yyyy), half-years (H1-yyyy), years (yyyy) and so forth, as the case may be. You may set an option for your desired maximum granularity, for instance, if you have year series, you would use years and nothing but years or a higher aggregation will be displayed.
+   * **Download** Plot button will allow to download the data in the format displayed for the whole dates range.
+   
 ## Arguments in detail
 
 ### divInfo
 
 The divInfo object contains the following properties:
 
-   * **wholeDivID** (string) "your whole div id".  Whole div name, where you will have your plot, including other html items, like your titles and footnotes. required to hide div while plot loads.
+   * **wholeDivID** (string) "your whole div id".  Whole div name, where you will have your plot, including other html items, like your titles and footnotes. Required to hide the div while the plot loads.
 
-   * **plotDivID** "(string) "your plotly Div id". Div in which plot will be included should be a div within 'wholeDiv'.
+   * **plotDivID** "(string) "your plotly Div id". Div where the plot will be included. It should be a div within 'wholeDiv'.
    
 
 #### Example
 
-In your javascript:
-```javascript
-var divInfo = {
-	//whole div, including your titles and footnotes. 
-	// required to hide div while plot loads.
-	wholeDivID: "myWholeDiv_01",
-
-	// div in which plot will be included
-	// should be a div within 'wholeDiv'
-	plotDivID: "myPlotDiv_01"
-};
-```
-
-and your html would have:
+In your html you would structure the wholeDiv and plotDiv and include your plot titles and footnotes in between:
 ```html
 <body>
    <div id="myWholeDiv_01" style="visibility:hidden">
@@ -111,6 +99,20 @@ and your html would have:
 </body>
 ```
 
+In your javascript, declare and defined the divInfo object:
+```javascript
+var divInfo = {
+	//whole div, including your titles and footnotes. 
+	// required to hide div while plot loads.
+	wholeDivID: "myWholeDiv_01",
+
+	// div in which plot will be included
+	// should be a div within 'wholeDiv'
+	plotDivID: "myPlotDiv_01"
+};
+```
+
+
 ### data
 
  Data follows Plotly's structure and properties. Data is an array of objects, each one with the information for each trace in the plot. The properties x and y, with the dates and value arrays may be supplied directly or be added by the function based on the data sources parameters.
@@ -118,7 +120,7 @@ and your html would have:
  
  #### Example
  
-Data example with three traces displayed and one used to make calculations as deflactor. One of the traces has values defines, the others will be feed using the function and the dataSources parameters.
+Data example with three traces displayed and one used to make calculations as deflactor. One of the traces has values defined, the others will be fed using the function and the dataSources parameters.
  
  in your javascript:
  ```javascript
@@ -177,14 +179,14 @@ Data example with three traces displayed and one used to make calculations as de
 
 ### otherDataProperties
 
-This array of objects links the data array with the dataSources array with a commont traceID. The traceID is independent from the trace name property, which is used by Plotly to name the trace. 
+This array of objects links the data array with the dataSources array using a common traceID. The traceID is independent from the trace name property, which is used by Plotly to name the trace. 
 
 The otherDataProperties array has the same number of elements as the data array. 
 
-It also includes other options for the traces, not part of the standard plotly traces properties.
+It also includes other options for the traces, not part of plotly's traces properties.
 
 #### Object definition
-Each object has the the following properties:
+Each object within the otherDataProperties array has the the following properties:
 
    * **traceID**: (string, required) A unique id for the trace.
    * **toggleRealNominal**: (boolean, optional) Determines weather a trace shall be recalculated if a real / nominal change of basis is required.
@@ -220,26 +222,69 @@ This is and array of objects. It has as many elements as sources of data you may
 
 Each object in the dataSouces will get a chunk of data, process it and feed as many traces as instructed.
 
-#### object definition (one for each element in the dataSources array
+#### object definition (one object for each element in the dataSources array)
 
-   * **urlType** (string) Any of "csv", "yqlJson", "yqlGoogleCSV", "pureJson".
-      * csv:
-      * yqlJson
-      * yqlGoogleCSV
-      * pureJson
+   * **url** (string) Full url where data is to be read from. Required except for "arrayOfJsons" urlType.
 
+   * **urlType** (string) Any of "csv", "yqlJson", "yqlGoogleCSV", "pureJson" or "arrayOfJsons".
+      * **csv**: A csv file will be read from the url using Plotly.d3.csv.
+      * **yqlJson**: use this option if data is sourced using yql and is returned as json. From json returned by $.getJSON, json object would be readJson.query.results.json.observation. 
+      
+      An example, get jsonn data from FRED through yql :
+      
+      ```javascript
+      var fredKey = 'your FRED key';
+      var seriesId = 'UNRATE';
+      var seriesUnits ='lin';
+      var urlFred = 'https://api.stlouisfed.org/fred/series/observations? 
+         series_id='+seriesId+'&api_key='+fredKey+'&units='+seriesUnits+'&file_type=json';
+      var baseUri = "https://query.yahooapis.com/v1/public/yql?q=";
+      var uriQuery = encodeURIComponent("SELECT * from json where url='"+urlFred+"'");
+      var url =  baseUri + uriQuery+"&format=json";
+      ```
+      
+      * **yqlGoogleCSV**: In this case, the url to be provided is a google url that returns a csv file. The yql portion will be added by the function as "https://query.yahooapis.com/v1/public/yql?q="+encodeURIComponent("SELECT * from csv where url='"+url+"'")+"&format=json". From json returned by $.getJSON (or Plotly.d3.json), json object would be readJson.query.results.row
+      * **pureJson**: Use this case when you provide and url that returns an array of jsons. An array of jons will have one object for each data point. Each object should contain at least a property for the dates vales and a property for the y value. This arrayOfJsons has the same structure as that returned by Plotly.d3.csv. 
+      * **arrayOfJsons**: Use this case to provide data  you sourced from elsewhere, that you would like to be processed (change of date format, or calculate adjusted values). An array of jons will have one object for each data point. Each object should contain at least a property for the dates vales and a property for the y value. This arrayOfJsons has the same structure as that returned by Plotly.d3.csv. 
 
-   * **url** (string) "full url where data is to be read from. Required except for XXX urlType.
-
- **xSeriesName:** (string)  Label for variable as they appear in the CSV or Json files.
-
- **ySeriesName:** (string) Label for variable as they appear in the CSV or Json files.
-
- **xDateSuffix:** (string) Optional. To add information to read Dates. Could have content like "T00:00:00-04:00", to provide time and time zone offset.
-
- **postProcessData:** "end of month" Optional. Could be used for series where dates are provided at beginning of month, and need to be converted to end of month.
-
-   * ** traces** (array of objects) one object for each trace to be fed with a source
+   * **xSeriesName:** (string)  Label that identifies dates as they appear in the CSV or Json files. You may place it here, if all traces from this source have the same xSeriesName, or in the traces array.
+   * **ySeriesName:** (string) Label  that identifies y values as they appear in the CSV or Json files. You may place it here, if all traces from this source have the same ySeriesName, or in the traces array.
+   
+   ```
+   your csv file:
+   date,open,high,low,close
+   2000-12-31,14,16,13,15
+   1999-12-31,15,17,13,16
+   
+   or your array of jsons
+   [{date: "2000-12-31", open: 14, high: 16, low: 13, close: 15},
+    {date: "1999-12-31", open: 15, high: 17, low: 13, close: 16}]
+    ```  
+   you want:
+    ``` javascript 
+   data = [
+   {x: ["2000-12-31", "1999-12-31"],
+    y: [ 15, 16]},
+    
+    {x: ["2000-12-31", "1999-12-31"],
+    y: [ 16, 17]}
+    ];
+    ```
+    so you would set in dataSources:
+       ``` javascript 
+    dataSources[0].xSeriesName = "date";
+    dataSources[0].trace[0].ySeriesName = "close";
+    dataSources[0].trace[1].ySeriesName = "high";
+      ```
+   
+   * **xDateSuffix:** (string) Optional. To add information to read Dates. Could have content like " 00:00:00-04:00", to provide time and time zone offset. You may place it here, if all traces from this source have the same XDateSuffix, or in the traces array.
+   * **onlyAddDateSuffix**: (string) Optional. If provided, dates will be processed by only adding this suffix. You may place it here, if all traces from this source have the same option, or in the traces array.
+   * **processDates**: (boolean) Optional. If set to false, no processing of dates will be made (no adding of suffixes or change to end of month or any other). Set to false only if dates are consistent all over the data arrays and have "yyyy-dd-mm 00:00:00-04:00" format which includes time and timezone offset. Otherwise, dates may produce undesired results as browsers translate then to local timezones and may assume dates "yyyy-mm-dd" where GMT. You may place it here, if all traces from this source have the same option, or in the traces array.
+   * **postProcessData:** "end of month" Optional. Could be used for series where dates are provided at beginning of month, and need to be converted to end of month. You may place it here, if all traces from this source have the same postProcessDate, or in the traces array.
+   * **calculateAdjustedClose**: (boolean) Optional. If set to true, traces that come from more than one source will be normalized using the overlapping date. Older values will be changed. You need to provide at least one overlapping date in order for this option to be applied. You may place it here, if all traces from this source have the same option, or in the traces array.
+   * **sort**: (boolean) Optional. If set to true, all values as ySeriesNames in use with this xSeriesName and this xSeriesName will be sorted. This function works with dates ordered from latest to oldest.  You may place it here, if all traces from this source have the same option, or in the traces array.
+   
+   * **traces** (array of objects) one object for each trace to be fed with a source
       * **traceID**: (string) Required. Unique string that will be used together with the otherDataParameters array to identify the data array element to which the data will be fed.
       * **xSeriesName**: (string) Tag that identifies the column or property which contains the date in the data file (csv, or json) and will feed the data x array.
       * **ySeriesName**: (string) Tag that identifies the column or property which contains the value in the data file (csv, or json) that will feed the data y array.
