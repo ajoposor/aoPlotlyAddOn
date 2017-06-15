@@ -5756,8 +5756,7 @@ function makeChart(data, param){
 		layout.margin.l,
 		layout.margin.r
 	);
-
-	//console.log("tick vals and text done");
+	console.log("tick vals and text done");
 
 	// set layout ticktext and tickvals
 	layout.xaxis.ticktext = ticktextAndTickvals.ticktext;
@@ -5799,9 +5798,9 @@ function makeChart(data, param){
 		divInfo.logLinearButtonElement.addEventListener('click', function() {
 
 			Plotly.relayout(divInfo.plotlyDivElement, 
-											{
-											changeYaxisTypeToLog: layout.yaxis.type==="log" ? false: true
-											});
+						{
+						changeYaxisTypeToLog: layout.yaxis.type==="log" ? false: true
+						});
 
 		}, false);
 
@@ -5878,7 +5877,7 @@ function makeChart(data, param){
 
 
 	}
-
+	console.log("data as real passed");
 	//console.log("data as real",data);
 
 
@@ -5922,7 +5921,7 @@ function makeChart(data, param){
 		//addToUpdateMenus(param.compareUpdateMenu, updateMenus, layout);
 	}
 
-
+	console.log("allow compare functionality added");
 
 
 	// set y axis range
@@ -5958,7 +5957,7 @@ function makeChart(data, param){
 		layout.xaxis.rangeselector = param.selectorOptions;
 		setNewXToRangeSelector(divWidth, layout);
 	}
-
+	console.log("selector options loaded");
 
 	//console.log("myPlot", myPlot);
 	//console.log("layout", layout);
@@ -5973,7 +5972,7 @@ function makeChart(data, param){
 
 
 
-			//instruction resizes plot
+	//instruction resizes plot
 	window.addEventListener("resize", function() {
 		Plotly.Plots.resize(document.getElementById(divInfo.plotlyDivID));
 	});
@@ -5982,7 +5981,7 @@ function makeChart(data, param){
 
 
 
-	//console.log("start relayout handler");
+	console.log("start relayout handler");
 
 
 	// UPDATE PLOT UNDER RELAYOUT EVENTS
