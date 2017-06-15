@@ -595,7 +595,8 @@ Include libraries for plotly, jquery (will make adjustments to remove use of jqu
 <head>
 <!-- Plotly.js -->
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-<script src="https://raw.githubusercontent.com/ajoposor/aoPlotlyAddOn/master/dist/aoPlotlyAddOn.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script src="https://rawgit.com/ajoposor/aoPlotlyAddOn/master/dist/aoPlotlyAddOn.min.js"></script>
 </head>
 ```
 
@@ -617,7 +618,7 @@ Include libraries for plotly, jquery (will make adjustments to remove use of jqu
 <!-- Plotly.js -->
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-<script src="https://rawgit.com/ajoposor/aoPlotlyAddOn/master/dist/aoPlotlyAddOn.js"></script>
+<script src="https://rawgit.com/ajoposor/aoPlotlyAddOn/master/dist/aoPlotlyAddOn.min.js"></script>
 </head>
 <body>
 
@@ -684,12 +685,11 @@ Data source: <a href="https://www.quandl.com">Quandl.</a>
 	{
 	urlType: "csv",
 	url: "https://rawgit.com/ajoposor/test-csv-files/master/files/SP500%20sectors-1998-12-2017-04.csv",
-	onlyAddXDateSuffix: "00:00:00-04:00",
+	onlyAddXDateSuffix: " 00:00:00-04:00",
 	traces: [
 		{
 		xSeriesName: "Date",
 		ySeriesName: "SP500 Adjusted Close",
-		xDateSuffix: "",//"T00:00:00-04:00",
 		traceID: "S&P 500"
 		},...
 	]
