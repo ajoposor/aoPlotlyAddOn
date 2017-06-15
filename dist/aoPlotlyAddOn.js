@@ -2403,6 +2403,7 @@ function readData(data, iS, param, callback) {
 	if (urlType === "csv") {
 		Plotly.d3.csv(url, function(readData) {
 			console.log("csv", iS.value);
+			console.log("readData", readData);
 			processCsvData(
 				readData, 
 				data,
@@ -2410,6 +2411,7 @@ function readData(data, iS, param, callback) {
 				param.otherDataProperties,
 				param.dataSources[iS.value]
 				);
+			console.log("processCsvData finished");
 			iS.value++;
 			readData="";
 			readDataAndMakeChart(data, iS, param, callback);
