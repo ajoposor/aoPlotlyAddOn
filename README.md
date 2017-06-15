@@ -244,39 +244,40 @@ Each object in the dataSouces will get a chunk of data, process it and feed as m
          var url =  baseUri + uriQuery+"&format=json";
          ```
       
-      * **yqlGoogleCSV**: In this case, the url to be provided is a google url that returns a csv file. The yql portion will be added by the function as `"https://query.yahooapis.com/v1/public/yql?q="+encodeURIComponent("SELECT * from csv where url='"+url+"'")+"&format=json"`. From json returned by $.getJSON (or Plotly.d3.json), json object would be readJson.query.results.row
-      * **pureJson**: Use this case when you provide and url that returns an array of jsons. An array of jons will have one object for each data point. Each object should contain at least a property for the dates vales and a property for the y value. This arrayOfJsons has the same structure as that returned by Plotly.d3.csv. 
-      * **arrayOfJsons**: Use this case to provide data  you sourced from elsewhere, that you would like to be processed (change of date format, or calculate adjusted values). An array of jons will have one object for each data point. Each object should contain at least a property for the dates vales and a property for the y value. This arrayOfJsons has the same structure as that returned by Plotly.d3.csv. 
+      * **yqlGoogleCSV**: In this case, the url to be provided is a google url that returns a csv file. The yql portion will be added by the function as `"https://query.yahooapis.com/v1/public/yql?q="+encodeURIComponent("SELECT * from csv where url='"+url+"'")+"&format=json"`. From readJson returned by `$.getJSON` (or `Plotly.d3.json`), json object would be `readJson.query.results.row`.
+      * **pureJson**: Use this case when you provide and url that returns an array of jsons. The url will be processed with `$.getJSON` (or `Plotly.d3.json`). An array of jons will have one object for each data point. Each object should contain at least a property for the dates vales and a property for the y value. This arrayOfJsons has the same structure as that returned by Plotly.d3.csv. 
+      * **arrayOfJsons**: Use this case to provide data you sourced from elsewhere, that you would like to be processed (change of date format, or calculate adjusted values). An array of jons will have one object for each data point. Each object should contain at least a property for the dates vales and a property for the y value. This arrayOfJsons has the same structure as that returned by Plotly.d3.csv. In this case, the function will not get data from an url.
 
    * **xSeriesName:** (string)  Label that identifies dates as they appear in the CSV or Json files. You may place it here, if all traces from this source have the same xSeriesName, or in the traces array.
    * **ySeriesName:** (string) Label  that identifies y values as they appear in the CSV or Json files. You may place it here, if all traces from this source have the same ySeriesName, or in the traces array.
-   
-   ```
-   your csv file:
-   date,open,high,low,close
-   2000-12-31,14,16,13,15
-   1999-12-31,15,17,13,16
-   
-   or your array of jsons
-   [{date: "2000-12-31", open: 14, high: 16, low: 13, close: 15},
-    {date: "1999-12-31", open: 15, high: 17, low: 13, close: 16}]
-    ```  
-   you want:
-    ``` javascript 
-   data = [
-   {x: ["2000-12-31", "1999-12-31"],
-    y: [ 15, 16]},
-    
-    {x: ["2000-12-31", "1999-12-31"],
-    y: [ 16, 17]}
-    ];
-    ```
-    so you would set in dataSources:
-       ``` javascript 
-    dataSources[0].xSeriesName = "date";
-    dataSources[0].trace[0].ySeriesName = "close";
-    dataSources[0].trace[1].ySeriesName = "high";
+      
+      **Example**:
       ```
+      your csv file:
+      date,open,high,low,close
+      2000-12-31,14,16,13,15
+      1999-12-31,15,17,13,16
+       
+      or your array of jsons
+      [{date: "2000-12-31", open: 14, high: 16, low: 13, close: 15},
+       {date: "1999-12-31", open: 15, high: 17, low: 13, close: 16}]
+      ```  
+      you want:
+      ```javascript 
+      data = [
+      {x: ["2000-12-31", "1999-12-31"],
+       y: [ 15, 16]},
+       
+       {x: ["2000-12-31", "1999-12-31"],
+       y: [ 16, 17]}
+       ];
+       ```
+       so you would set in dataSources:
+       ```javascript 
+       dataSources[0].xSeriesName = "date";
+       dataSources[0].trace[0].ySeriesName = "close";
+       dataSources[0].trace[1].ySeriesName = "high";
+       ```
    
    * **xDateSuffix:** (string) Optional. To add information to read Dates. Could have content like " 00:00:00-04:00", to provide time and time zone offset. You may place it here, if all traces from this source have the same XDateSuffix, or in the traces array.
    * **onlyAddDateSuffix**: (string) Optional. If provided, dates will be processed by only adding this suffix. You may place it here, if all traces from this source have the same option, or in the traces array.
