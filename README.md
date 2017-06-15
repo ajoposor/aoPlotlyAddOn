@@ -230,18 +230,19 @@ Each object in the dataSouces will get a chunk of data, process it and feed as m
       * **csv**: A csv file will be read from the url using Plotly.d3.csv.
       * **yqlJson**: use this option if data is sourced using yql and is returned as json. From json returned by $.getJSON, json object would be readJson.query.results.json.observation. 
       
-      An example, get jsonn data from FRED through yql :
-      
-      ```javascript
-      var fredKey = 'your FRED key';
-      var seriesId = 'UNRATE';
-      var seriesUnits ='lin';
-      var urlFred = 'https://api.stlouisfed.org/fred/series/observations? 
-         series_id='+seriesId+'&api_key='+fredKey+'&units='+seriesUnits+'&file_type=json';
-      var baseUri = "https://query.yahooapis.com/v1/public/yql?q=";
-      var uriQuery = encodeURIComponent("SELECT * from json where url='"+urlFred+"'");
-      var url =  baseUri + uriQuery+"&format=json";
-      ```
+         **An example**: 
+         
+         get json data from FRED through yql:
+         ```javascript
+         var fredKey = 'your FRED key';
+         var seriesId = 'UNRATE';
+         var seriesUnits ='lin';
+         var urlFred = 'https://api.stlouisfed.org/fred/series/observations?'+ 
+            		'series_id='+seriesId+'&api_key='+fredKey+'&units='+seriesUnits+'&file_type=json';
+         var baseUri = "https://query.yahooapis.com/v1/public/yql?q=";
+         var uriQuery = encodeURIComponent("SELECT * from json where url='"+urlFred+"'");
+         var url =  baseUri + uriQuery+"&format=json";
+         ```
       
       * **yqlGoogleCSV**: In this case, the url to be provided is a google url that returns a csv file. The yql portion will be added by the function as "https://query.yahooapis.com/v1/public/yql?q="+encodeURIComponent("SELECT * from csv where url='"+url+"'")+"&format=json". From json returned by $.getJSON (or Plotly.d3.json), json object would be readJson.query.results.row
       * **pureJson**: Use this case when you provide and url that returns an array of jsons. An array of jons will have one object for each data point. Each object should contain at least a property for the dates vales and a property for the y value. This arrayOfJsons has the same structure as that returned by Plotly.d3.csv. 
