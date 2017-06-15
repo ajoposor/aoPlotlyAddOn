@@ -24,6 +24,8 @@
 * [Remarks](#remarks)
 * [Install](#install)
 * [Use examples](#use-example)
+* [Miscelaneous functions](#miscelaneous-functions)
+* [Creators](#creators)
 * [License](#license)
 
 
@@ -173,11 +175,11 @@ Data example with three traces displayed and one used to make calculations as de
 ];
 ```
 
-### otherDataParameters
+### otherDataProperties
 
 This array of objects links the data array with the dataSources array with a commont traceID. The traceID is independent from the trace name property, which is used by Plotly to name the trace. 
 
-The otherDataParamenters array has the same number of elements as the data array. 
+The otherDataProperties array has the same number of elements as the data array. 
 
 It also includes other options for the traces, not part of the standard plotly traces properties.
 
