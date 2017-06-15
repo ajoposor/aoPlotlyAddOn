@@ -2493,8 +2493,8 @@ function readData(data, iS, param, callback) {
 	     
     
 	    
-function findSpliceInfo(newArray, xSeriesName, newArrayInitialIndex, newArrayElements, existingArray,
-			/*datesReady, transformToEndOfMonth, yqlGoogleCSV, xDateSuffix, timeOffsetText*/){
+function findSpliceInfo(newArray, xSeriesName, newArrayInitialIndex, newArrayElements, existingArray/*,
+			datesReady, transformToEndOfMonth, yqlGoogleCSV, xDateSuffix, timeOffsetText*/){
 	
 	var j=0, iLimit, jLimit = existingArray.length;
 	var currentDate = new Date();
