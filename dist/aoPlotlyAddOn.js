@@ -3154,22 +3154,27 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 	
 	
 	// Preprocess options for all Rows
+	console.log("start preprocess");
 	
 	// get number of tables, sort and preprocessing of dates options
 	setTablesParametersSortPreprocessing(tableParams, dataSources);
-	
-	//console.log("table params", tableParams);
+	console.log("table params set: ", tableParams);
 
 	// apply date preprocessing options
 	applyDateProprocessing(allRows, tableParams, urlType);
+	console.log("data processing options applied");
+	console.log("allRows",allRows);
 
 	// split subtables trim by InitialDateAsDate and reorder by firstItemToRead
 	splitSubtablesAndTrim(allRows, tableParams, dataSources, initialDateAsDate);
+	console.log("tables split, and reordered");
+	console.log("table Params", tableParams);
 	allRows = [];
 	
 	
 	// sort subtables
 	sortSubTables(tableParams);
+	console.log("SubTable sorted");
 
 
 	/*	
@@ -3240,6 +3245,8 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 	
 	// iterate through traces to be loaded
 	for(j=0; j < jLimit; j++){
+		
+		console.log("starting trace: ", j);
 		
 		// set temporary variable
 		xSeriesName = dataSources.traces[j].xSeriesName;
