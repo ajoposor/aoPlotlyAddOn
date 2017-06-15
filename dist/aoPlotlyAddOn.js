@@ -3175,72 +3175,6 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 	// sort subtables
 	sortSubTables(tableParams);
 	console.log("SubTable sorted");
-
-
-	/*	
-	// if firstItemtoRead is provided and it is last, array will be reordered
-	if(typeof dataSources["firstItemToRead"] !== "undefined" &&  dataSources["firstItemToRead"] === "last"){
-		allRows = reverseOrderOfArray(allRows);
-	}
-	
-	xDateSuffix = "";
-	if(typeof dataSources["xDateSuffix"] !== "undefined"){
-		xDateSuffix =  dataSources["xDateSuffix"];
-	}
-	
-	xSeriesName = "";
-	if(typeof dataSources["xSeriesName"] !== "undefined"){
-		xSeriesName =  dataSources["xSeriesName"];
-		// set xSeriesName to tags in case yqlGoogleCSV
-		if(yqlGoogleCSV){
-			for (var key in tags){
-				if (tags.hasOwnProperty(key)) {
-					if(tags[key].toString().trim() === xSeriesName.toString()){
-						xSeriesName = key;
-					}
-				}
-			}
-		}
-	}
-	
-	// Preprocess dates
-	var datesProcessed = true;
-	if(typeof dataSources["processDates"] !== "undefined" && dataSources["processDates"] === true){
-		if(typeof dataSources["postProcessData"] !== "undefined" && dataSources["postProcessData"] === "end of month"){
-			transformAllRowsToEndOfMonth(allRows, xSeriesName, xDateSuffix, urlType);
-		}
-		else{
-			processDatesToAllRows(allRows, xSeriesName, xDateSuffix, urlType);
-		}
-	}
-	// transform to end of month if required
-	else if(typeof dataSources["postProcessData"] !== "undefined" && dataSources["postProcessData"] === "end of month"){ 
-		transformAllRowsToEndOfMonth(allRows,xSeriesName, xDateSuffix, urlType);
-	}
-	else{
-		datesProcessed = false;
-	}
-	
-	// set column as processed if datesProcessed
-	if(datesProcessed){
-		if(processedColumnDates.indexOf(xSeriesName) === -1){
-			processedColumnDates.push(xSeriesName);
-		}
-	}
-	
-	
-	// Sort dates and flag column as sorted
-	if(typeof dataSources["sort"] !== "undefined" && dataSources["sort"] ===true){
-		if(!yqlGoogleCSV){
-			allRows.sort(localSortByDatesAsStrings(xSeriesName), delta);
-		}
-		else{
-			allRows.sort(localSortByGoogleDatesAsStrings(xSeriesName), delta);
-		}
-		latestSorted = dataSources["xSeriesName"];
-	}
-
-	*/
 	
 	
 	// iterate through traces to be loaded
@@ -3299,17 +3233,23 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 		console.log("calculateAdjustedClose", calculateAdjustedClose);
 		
 		if(insertTrace){
-			
+			console.log("insert trace");
 			// default insert point
 			insertPoint = 0;
 			
 			readTraceLimit = readTraceLength+readTraceInitialIndex;
+			console.log("readTraceLimit",readTraceLimit);
 
 			// get existing data x range
 			existingInitialDateAsDate = new Date(data[iData].x[data[iData].x.length - 1]);
 			existingEndDateAsDate = new Date(data[iData].x[0]);
 			existingInitialValue =data[iData].y[data[iData].x.length - 1];
 			existingEndValue =data[iData].y[0];
+			
+			console.log("existingInitialDateAsDate", existingInitialDateAsDate);
+			console.log("existingEndDateAsDate", existingEndDateAsDate);
+			console.log("existingInitialValue", existingInitialValue);
+			console.log("existingEndValue", existingEndValue);
 
 			// find trace range to be read
 
@@ -3331,7 +3271,6 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 			// overlap, but new data is more recent than existing
 			else if (readTraceEndDateAsDate > existingEndDateAsDate ) {
 				initialIndex = 0;
-				/*if(datesReady){*/
 				for(i=readTraceInitialIndex; i<readTraceLimit;i++){
 					if(new Date(allRows[i][xSeriesName]) <= existingEndDateAsDate){
 						traceLength = i-readTraceInitialIndex;
@@ -3339,40 +3278,9 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 							adjust = "existing"; // "new", "existing" or "none"
 							adjustFactor = allRows[i][ySeriesName]/existingEndValue;
 						}
-						i = iLimit;
+						i = readTraceLimit;
 					}
 				}	
-				/*}*/
-				/*
-				// change to end of month
-				else if(transformToEndOfMonth && !yqlGoogleCSV){
-					for(i=readTraceInitialIndex; i<readTraceLimit;i++){
-						
-						processedDate = localProcessDate(
-							""+
-							!yqlGoogleCSV ? allRows[i][xSeriesName] :  localGoogleMDYToYMD(allRows[i][xSeriesName])+ 
-							xDateSuffix, timeOffsetText);
-						processedDate = new Date(localChangeDateToEndOfMonth(processedDate));
-						if(processedDate <= existingEndDateAsDate){
-						   traceLength = i-readTraceInitialIndex;
-						   i = iLimit;
-						}
-					}
-				}				
-				// process dates
-				else {
-					for(i=readTraceInitialIndex; i<readTraceLimit;i++){
-						processedDate = new Date(localProcessDate(
-							""+
-							!yqlGoogleCSV ? allRows[i][xSeriesName] :  localGoogleMDYToYMD(allRows[i][xSeriesName])+ 
-							xDateSuffix, timeOffsetText));
-						if(processedDate <= existingEndDateAsDate){
-						   traceLength = i-readTraceInitialIndex;
-						   i = iLimit;	
-						}
-					}
-				}
-				*/
 			}
 
 			// overlap, but new data is older than existing
@@ -3387,7 +3295,7 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 							adjust = "new"; // "new", "existing" or "none"
 							adjustFactor = existingInitialValue / allRows[i][ySeriesName];
 						}
-						i = -1;
+						i = readTraceInitialIndex-1;
 					}
 				}	
 			}
