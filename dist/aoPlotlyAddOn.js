@@ -2404,7 +2404,7 @@ function readData(data, iS, param, callback) {
 		Plotly.d3.csv(url, function(readData) {
 			console.log("csv", iS.value);
 			console.log("readData", readData);
-			if(iS===0){
+			if(iS.value ===0){
 				for(var y=0; y<readData.length; y++){
 					console.log(readData[y]);
 				}
