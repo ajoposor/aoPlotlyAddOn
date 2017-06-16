@@ -2404,6 +2404,11 @@ function readData(data, iS, param, callback) {
 		Plotly.d3.csv(url, function(readData) {
 			console.log("csv", iS.value);
 			console.log("readData", readData);
+			if(iS===0){
+				for(var y=0; y<allRows.length; y++){
+					console.log(allRows[y]);
+				}
+			}
 			processCsvData(
 				readData, 
 				data,
@@ -3145,6 +3150,11 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 	if (tracesInitialDate !== "") {
 		initialDateAsDate = new Date(localProcessDate(tracesInitialDate, timeOffsetText));
 	}
+	
+	console.log("initialDateAsDate", initialDateAsDate);
+	
+		
+	
 	
 	//console.log("allRows: ", allRows);
 	
