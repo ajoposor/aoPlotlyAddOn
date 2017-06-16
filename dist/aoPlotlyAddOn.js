@@ -2405,8 +2405,8 @@ function readData(data, iS, param, callback) {
 			console.log("csv", iS.value);
 			console.log("readData", readData);
 			if(iS===0){
-				for(var y=0; y<allRows.length; y++){
-					console.log(allRows[y]);
+				for(var y=0; y<readData.length; y++){
+					console.log(readData[y]);
 				}
 			}
 			processCsvData(
