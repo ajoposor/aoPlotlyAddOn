@@ -2283,7 +2283,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 
 // SUPPORT FUNCTIONS
 
-// 1.-  Set X Axis Range - setsxaxisRange array based of timeInfo parameters and Min Max dates from series.
+// 1.-  SET X AXIS RANGE - setsxaxisRange array based of timeInfo parameters and Min Max dates from series.
 function setDatesRangeAsString(minDateAsString, maxDateAsString, timeInfo) {
 	var initialDate, endDate, xaxisRange = [];
 
@@ -2326,6 +2326,14 @@ function setDatesRangeAsString(minDateAsString, maxDateAsString, timeInfo) {
 
 	return xaxisRange;
 }
+
+	
+	 
+	 
+	 
+	 
+	 
+// 2. DATES PROCESSING FUNCTIONS	 
 
 // transform yyyy-m-d to yyyy-mm-dd
 function parseDateStringToYMD(dateAsString) {
@@ -2398,10 +2406,340 @@ function dateToString(date) {
 }
 
 
+// get the day before	 
+// dateAsYYYYMMDDString = "YYYY-MM-DD"
+function getdayBeforeAsString(dateAsYYYYMMDDString){
+	var timeOffsetText = getTimeOffsetText();
+	
+	dateAsYYYYMMDDString +=" 00:00:00"+timeOffsetText;
+	
+	console.log(dateAsYYYYMMDDString.substr(0,4));
+	
+	var dayBefore = new Date(
+		Number(dateAsYYYYMMDDString.substr(0,4)),
+		Number(dateAsYYYYMMDDString.substr(5,2))-1,
+		Number(dateAsYYYYMMDDString.substr(8,2))
+	);
+	
+	console.log(dayBefore);
+	
+	
+	dayBefore = new Date(dayBefore.getTime() -24*60*60*1000);
+	
+	console.log(dayBefore);
+
+	
+	console.log(dayBefore);
+	console.log(dayBefore.getFullYear());
+	
+	return dateAsDateToString(dayBefore);
+	
+} 
+	 
+	 
+	
+// transform a date as Date into a string "yyyy-mm-dd"	 
+function dateAsDateToString(dateAsDate){
+	
+	function padTo2(number) {
+    return number < 10 ? '0' + number : '' + number;
+  }
+	
+	return "" + dateAsDate.getFullYear() + "-"+
+		padTo2(dateAsDate.getMonth()+1)+"-"+
+		padTo2(dateAsDate.getDate());
+	
+}	 
+	 
+
+//transform google date format "day-monthString-year" into "yyyy-mm-dd"
+
+function GoogleMDYToYMD(googleDate){
+	
+	var year =0;
+	var monthString = "";
+	var month = "";
+	
+	googleDate=googleDate.trim();
+	var stringParts=googleDate.split("-");
+
+	
+	var newString ="";
+	
+	if((year = Number(stringParts[2])) < 100 ){
+		year += year< 50 ? 2000 : 1900;
+	}
+	
+	newString = year.toString();
+	
+		
+	monthString = stringParts[1];
+	if(monthString === "Jan") month = "01";
+	else if (monthString === "Feb") month = "02";
+	else if (monthString === "Mar") month = "03";
+	else if (monthString === "Apr") month = "04";
+	else if (monthString === "May") month = "05";
+	else if (monthString === "Jun") month = "06";
+	else if (monthString === "Jul") month = "07";
+	else if (monthString === "Aug") month = "08";
+	else if (monthString === "Sep") month = "09";
+	else if (monthString === "Oct") month = "10";
+	else if (monthString === "Nov") month = "11";
+	else if (monthString === "Dec") month = "12";
+	
+	newString +="-"+month+"-";
+
+	newString += Number(stringParts[0]) < 10 ? "0" + stringParts[0] : stringParts[0];
+	
+	return newString;
+	
+}
+	 
+	 
+
+function changeDateToEndOfMonth(dateAsStringAndProcessed){
+	
+	var currentDate = new Date(dateAsStringAndProcessed);
+	var endOfMonthDate = new Date(currentDate.getFullYear(), currentDate.getMonth()+1, 0);
+
+	var lastDay = endOfMonthDate.getDate().toString();
+	
+
+	dateAsStringAndProcessed = dateAsStringAndProcessed.substring(0, 8) + 
+           lastDay + 
+          dateAsStringAndProcessed.substring(10, dateAsStringAndProcessed.length);
+
+	
+	return dateAsStringAndProcessed;
+}
+	 
+	 
+
+function processFrequenciesDates(data, periodKeys){
+	var iLimit=0, j=0, jLimit =0;
+
+	var timeOffset  = (new Date()).getTimezoneOffset();
+	var timeOffsetText ="";
+	var key = "";
+
+	timeOffsetText = (timeOffset > 0 ) ? 	("-"+convertOffsetToHHMM(timeOffset)): ("+"+convertOffsetToHHMM(-timeOffset));
+
+	iLimit = data.length;
+
+	for (var i=0; i < iLimit ;i++){
+		for(key in periodKeys){
+			if (periodKeys.hasOwnProperty(key)) {
+				if(periodKeys[key]=== true){
+					//DEBUG && console.log("[key]",key);
+					//DEBUG && console.log("data[i][key]",data[i][key]);
+					jLimit = data[i][key].x.length;
+					for(j=0; j<jLimit;j++){	
+							data[i][key].x[j] = processDate(data[i][key].x[j], timeOffsetText);
+					}	
+				}	
+			}
+		}
+	}
+}		
 
 
 
-// 2. Read Data - support function, reads data and add it to data object, increases global iS variable
+
+// make data dates into  'yyyy-mm-dd hh:mm:sss.sss+00:00
+// dates inputs with optional hour and optional time zone
+// which are filled with time 0, and local time zone if not provided.
+function preProcessDataDates(data){
+	var iLimit=0, j=0, jLimit =0;
+	var dateString = "";
+	var dateParts=["","",""];
+	var split=[];
+	var dateTimeTail = "";
+	var offset  = (new Date()).getTimezoneOffset();
+	var offsetText ="";
+
+	offsetText = offset > 0 ? ("-"+convertOffsetToHHMM(offset)): ("+"+convertOffsetToHHMM(-offset));
+
+	//DEBUG && console.log(offsetText);
+
+	iLimit = data.length;
+
+	for (var i=0; i<iLimit ;i++){
+		jLimit = data[i].x.length;
+		for(j=0; j<jLimit;j++){
+
+
+			dateString = data[i].x[j];
+
+
+			// search for timezone info
+			if (dateString.includes("Z")){
+				split = dateString.split("Z");
+
+				dateParts[2]="+00:00";
+				dateTimeTail=split[0];
+			}
+
+			else if(dateString.includes("+") ||dateString.includes("-") ){
+				if(dateString.includes("+")) {
+					split = dateString.split("+");
+					dateParts[2]="+"+split[1];
+						dateTimeTail=split[0];
+				}
+				if(dateString.includes("-")) {
+					split = dateString.split("-");
+					if(split.length===3){
+						dateParts[2]= offsetText;
+						dateTimeTail = split[0]+"-"+split[1]+"-"+split[2];
+					}
+					else if (split.length == 2){
+						dateParts[2]=offsetText;
+						dateTimeTail = split[0]+"-"+split[1];
+					}
+					else {
+						dateParts[2]="-"+split[3];
+						dateTimeTail=split[0]+"-"+split[1]+"-"+split[2];
+					}			
+
+				}
+			}
+			else{
+				dateParts[2]=offsetText;
+				dateTimeTail = dateString+"-12-31";
+			}
+
+
+
+			// search for hour info
+			if(dateTimeTail.includes(" ") ||dateTimeTail.includes("T") ){
+
+				if(dateString.includes(" ")) split = dateTimeTail.split(" ");
+				if(dateString.includes("T")) split = dateTimeTail.split("T");
+
+				data[i].x[j]=split[0]+" "+split[1]+dateParts[2];
+
+			}
+			else{
+				data[i].x[j]=dateTimeTail+" 00:00:00"+dateParts[2];
+			}
+
+		}
+
+	}	
+
+}
+
+
+function getTimeOffsetText(){
+		var offset  = (new Date()).getTimezoneOffset();
+
+		return ((offset > 0) ? ("-"+convertOffsetToHHMM(offset)): ("+"+convertOffsetToHHMM(-offset)));			
+}
+
+
+function makeDateComplete(dateString){
+	var timeOffsetText = "";		
+
+	var offset  = (new Date()).getTimezoneOffset();
+
+	timeOffsetText = (offset > 0) ? ("-"+convertOffsetToHHMM(offset)): ("+"+convertOffsetToHHMM(-offset));			
+
+	return processDate(dateString,timeOffsetText);
+
+
+}
+
+
+// make  date into  'yyyy-mm-dd hh:mm:sss.sss+00:00
+// dates inputs with optional hour and optional time zone
+// which are filled with time 0, and local time zone if not provided.
+	function processDate(dateString, timeOffsetText){
+	var dateTimeZone="";
+	var split=[];
+	var dateTimeTail = "";
+
+
+	// search for timezone info
+	if (dateString.includes("Z")){
+		split = dateString.split("Z");
+
+		dateTimeZone="+00:00";
+		dateTimeTail=split[0];
+	}
+
+	else if(dateString.includes("+") ||dateString.includes("-") ){
+		if(dateString.includes("+")) {
+			split = dateString.split("+");
+			dateTimeZone="+"+split[1];
+				dateTimeTail=split[0];
+		}
+		if(dateString.includes("-")) {
+			split = dateString.split("-");
+			if(split.length===3){
+				dateTimeZone= timeOffsetText;
+				dateTimeTail = split[0]+"-"+split[1]+"-"+split[2];
+			}
+			else if (split.length == 2){
+				dateTimeZone=timeOffsetText;
+				dateTimeTail = split[0]+"-"+split[1];
+			}
+			else {
+				dateTimeZone="-"+split[3];
+				dateTimeTail=split[0]+"-"+split[1]+"-"+split[2];
+			}			
+
+		}
+	}
+	else{
+		dateTimeZone=timeOffsetText;
+		dateTimeTail = dateString+"-12-31";
+	}
+
+
+
+	// search for hour info
+	if(dateTimeTail.includes(" ") ||dateTimeTail.includes("T") ){
+
+		if(dateString.includes(" ")) split = dateTimeTail.split(" ");
+		if(dateString.includes("T")) split = dateTimeTail.split("T");
+
+		return split[0]+" "+split[1]+dateTimeZone;
+
+	}
+	else{
+		return dateTimeTail+" 00:00:00"+dateTimeZone;
+	}
+
+
+}
+
+
+function convertOffsetToHHMM(offset){
+		var m = 0, h=0;
+				var stringHH = "", stringMM = "";
+
+		m = offset % 60;
+		h = (offset - m)/60;
+
+				stringHH = h.toString();
+				stringMM = m.toString();
+
+				stringHH = stringHH.length === 1 ? ("0"+stringHH): stringHH;
+				stringMM = stringMM.length === 1 ? ("0"+stringMM): stringMM;
+
+				return stringHH+":"+stringMM;
+
+}
+
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+
+// 3. READ DATA - support function, reads data and add it to data object, increases global iS variable
 function readData(data, iS, param, callback) {
 	
 	var urlType = param.dataSources[iS.value].urlType;
@@ -2723,6 +3061,7 @@ function reverseOrderOfArray(allRows){
 		
 }
 
+/*	 
 function transformAllRowsToEndOfMonth(allRows, xSeriesName, xDateSuffix, urlType){
 	var iLimit = allRows.lenght;
 	var processedDate = "";
@@ -2743,8 +3082,9 @@ function transformAllRowsToEndOfMonth(allRows, xSeriesName, xDateSuffix, urlType
 		processedDate = localChangeDateToEndOfMonth(processedDate);		
 		allRows[i][xSeriesName] = processedDate;	
 	}
-}
-	    
+}*/
+	
+/*	 
 function processDatesToAllRows(allRows, xSeriesName, xDateSuffix, urlType){
 	var iLimit = allRows.lenght;
 	var processedDate = "";
@@ -2764,6 +3104,7 @@ function processDatesToAllRows(allRows, xSeriesName, xDateSuffix, urlType){
 		allRows[i][xSeriesName] = processedDate;
 	}
 }
+*/
 	    
 function processYqlGoogleCSVTags(dataSources){
 	var j, jLimit = dataSources.traces.length;
@@ -3580,57 +3921,7 @@ function processYqlGoogleCsvData(allRows, tracesInitialDate, serie) {
 
 */
 
-
-//transform google date format "day-monthString-year" into "yyyy-mm-dd"
-
-function GoogleMDYToYMD(googleDate){
-	
-	var year =0;
-	var monthString = "";
-	var month = "";
-	
-	googleDate=googleDate.trim();
-	var stringParts=googleDate.split("-");
-
-	
-	var newString ="";
-	
-	if((year = Number(stringParts[2])) < 100 ){
-		year += year< 50 ? 2000 : 1900;
-	}
-	
-	newString = year.toString();
-	
-		
-	monthString = stringParts[1];
-	if(monthString === "Jan") month = "01";
-	else if (monthString === "Feb") month = "02";
-	else if (monthString === "Mar") month = "03";
-	else if (monthString === "Apr") month = "04";
-	else if (monthString === "May") month = "05";
-	else if (monthString === "Jun") month = "06";
-	else if (monthString === "Jul") month = "07";
-	else if (monthString === "Aug") month = "08";
-	else if (monthString === "Sep") month = "09";
-	else if (monthString === "Oct") month = "10";
-	else if (monthString === "Nov") month = "11";
-	else if (monthString === "Dec") month = "12";
-	
-	newString +="-"+month+"-";
-
-	newString += Number(stringParts[0]) < 10 ? "0" + stringParts[0] : stringParts[0];
-	
-	return newString;
-	
-}
-
-
-
-
-	    
-	    
-	    
-	    
+ 
 	    
 /*
 // In case trace x and y are provided direct, and not to be read from a file.
@@ -3688,7 +3979,13 @@ function processDirectData(tracesInitialDate, serie) {
 	return trace;
 }*/
 
-// 3. recessions handling
+	
+	 
+	 
+	 
+	 
+	 
+// 4. RECESSIONS HANDLING
 
 //set recession shapes for the specified range data to be plotted and returns subset of recessions to the used
 function setRecessions(usRecessions, initialDate, endDate) {
@@ -3705,8 +4002,14 @@ function setRecessions(usRecessions, initialDate, endDate) {
 	}
 	return currentRecessions;
 }
+	 
+	 
 
-// 4. Handle Initial Loading of division
+	 
+	 
+	 
+
+// 5. HANDLE INITIAL LOADING OF DIVISIONS
 function wholeDivShow(wholeDivElement) {
 	wholeDivElement.style.visibility = "visible";
 }
@@ -3714,28 +4017,13 @@ function wholeDivShow(wholeDivElement) {
 function loaderHide(loaderElement) {
 	loaderElement.style.visibility = "hidden";
 }
+	 
+	 
+	 
+	 
+	 
 
-// 5.- DATA HANDLING
-
-
-
-function changeDateToEndOfMonth(dateAsStringAndProcessed){
-	
-	var currentDate = new Date(dateAsStringAndProcessed);
-	var endOfMonthDate = new Date(currentDate.getFullYear(), currentDate.getMonth()+1, 0);
-
-	var lastDay = endOfMonthDate.getDate().toString();
-	
-
-	dateAsStringAndProcessed = dateAsStringAndProcessed.substring(0, 8) + 
-           lastDay + 
-          dateAsStringAndProcessed.substring(10, dateAsStringAndProcessed.length);
-
-	
-	return dateAsStringAndProcessed;
-}
-
-
+// 6.- DATA HANDLING
 
 // function to save original data into data.xOriginal data.yOriginal arrays
 // Already in library as createDataOriginal(data)
@@ -3913,226 +4201,6 @@ function getYminYmax(x0, x1, data) {
 	var minMax = [minValue, maxValue];
 	return minMax;
 }
-
-
-
-
-	function processFrequenciesDates(data, periodKeys){
-		var iLimit=0, j=0, jLimit =0;
-
-		var timeOffset  = (new Date()).getTimezoneOffset();
-		var timeOffsetText ="";
-		var key = "";
-		
-		timeOffsetText = (timeOffset > 0 ) ? 	("-"+convertOffsetToHHMM(timeOffset)): ("+"+convertOffsetToHHMM(-timeOffset));
-		
-		iLimit = data.length;
-
-		for (var i=0; i < iLimit ;i++){
-			for(key in periodKeys){
-				if (periodKeys.hasOwnProperty(key)) {
-					if(periodKeys[key]=== true){
-						//DEBUG && console.log("[key]",key);
-						//DEBUG && console.log("data[i][key]",data[i][key]);
-						jLimit = data[i][key].x.length;
-						for(j=0; j<jLimit;j++){	
-								data[i][key].x[j] = processDate(data[i][key].x[j], timeOffsetText);
-						}	
-					}	
-				}
-			}
-		}
-	}		
-
-
-
-
-	// make data dates into  'yyyy-mm-dd hh:mm:sss.sss+00:00
-	// dates inputs with optional hour and optional time zone
-	// which are filled with time 0, and local time zone if not provided.
-	function	preProcessDataDates(data){
-		var iLimit=0, j=0, jLimit =0;
-		var dateString = "";
-		var dateParts=["","",""];
-		var split=[];
-		var dateTimeTail = "";
-		var offset  = (new Date()).getTimezoneOffset();
-		var offsetText ="";
-		
-		offsetText = offset > 0 ? ("-"+convertOffsetToHHMM(offset)): ("+"+convertOffsetToHHMM(-offset));
-		
-		//DEBUG && console.log(offsetText);
-		
-		iLimit = data.length;
-
-		for (var i=0; i<iLimit ;i++){
-			jLimit = data[i].x.length;
-			for(j=0; j<jLimit;j++){
-				
-				
-				
-				
-				dateString = data[i].x[j];
-
-
-				// search for timezone info
-				if (dateString.includes("Z")){
-					split = dateString.split("Z");
-
-					dateParts[2]="+00:00";
-					dateTimeTail=split[0];
-				}
-
-				else if(dateString.includes("+") ||dateString.includes("-") ){
-					if(dateString.includes("+")) {
-						split = dateString.split("+");
-						dateParts[2]="+"+split[1];
-							dateTimeTail=split[0];
-					}
-					if(dateString.includes("-")) {
-						split = dateString.split("-");
-						if(split.length===3){
-							dateParts[2]= offsetText;
-							dateTimeTail = split[0]+"-"+split[1]+"-"+split[2];
-						}
-						else if (split.length == 2){
-							dateParts[2]=offsetText;
-							dateTimeTail = split[0]+"-"+split[1];
-						}
-						else {
-							dateParts[2]="-"+split[3];
-							dateTimeTail=split[0]+"-"+split[1]+"-"+split[2];
-						}			
-
-					}
-				}
-				else{
-					dateParts[2]=offsetText;
-					dateTimeTail = dateString+"-12-31";
-				}
-
-				
-				
-				// search for hour info
-				if(dateTimeTail.includes(" ") ||dateTimeTail.includes("T") ){
-				
-					if(dateString.includes(" ")) split = dateTimeTail.split(" ");
-					if(dateString.includes("T")) split = dateTimeTail.split("T");
-					
-					data[i].x[j]=split[0]+" "+split[1]+dateParts[2];
-
-				}
-				else{
-					data[i].x[j]=dateTimeTail+" 00:00:00"+dateParts[2];
-				}
-
-			}
-
-		}	
-		
-	}
-
-
-	function getTimeOffsetText(){
-			var offset  = (new Date()).getTimezoneOffset();
-		
-			return ((offset > 0) ? ("-"+convertOffsetToHHMM(offset)): ("+"+convertOffsetToHHMM(-offset)));			
-	}
-
-
-	function makeDateComplete(dateString){
-		var timeOffsetText = "";		
-	
-		var offset  = (new Date()).getTimezoneOffset();
-		
-		timeOffsetText = (offset > 0) ? ("-"+convertOffsetToHHMM(offset)): ("+"+convertOffsetToHHMM(-offset));			
-
-		return processDate(dateString,timeOffsetText);
-		
-		
-	}
-
-
-  // make  date into  'yyyy-mm-dd hh:mm:sss.sss+00:00
-	// dates inputs with optional hour and optional time zone
-	// which are filled with time 0, and local time zone if not provided.
-		function processDate(dateString, timeOffsetText){
-		var dateTimeZone="";
-		var split=[];
-		var dateTimeTail = "";
-
-	
-		// search for timezone info
-		if (dateString.includes("Z")){
-			split = dateString.split("Z");
-
-			dateTimeZone="+00:00";
-			dateTimeTail=split[0];
-		}
-
-		else if(dateString.includes("+") ||dateString.includes("-") ){
-			if(dateString.includes("+")) {
-				split = dateString.split("+");
-				dateTimeZone="+"+split[1];
-					dateTimeTail=split[0];
-			}
-			if(dateString.includes("-")) {
-				split = dateString.split("-");
-				if(split.length===3){
-					dateTimeZone= timeOffsetText;
-					dateTimeTail = split[0]+"-"+split[1]+"-"+split[2];
-				}
-				else if (split.length == 2){
-					dateTimeZone=timeOffsetText;
-					dateTimeTail = split[0]+"-"+split[1];
-				}
-				else {
-					dateTimeZone="-"+split[3];
-					dateTimeTail=split[0]+"-"+split[1]+"-"+split[2];
-				}			
-				
-			}
-		}
-		else{
-			dateTimeZone=timeOffsetText;
-			dateTimeTail = dateString+"-12-31";
-		}
-
-
-
-		// search for hour info
-		if(dateTimeTail.includes(" ") ||dateTimeTail.includes("T") ){
-
-			if(dateString.includes(" ")) split = dateTimeTail.split(" ");
-			if(dateString.includes("T")) split = dateTimeTail.split("T");
-
-			return split[0]+" "+split[1]+dateTimeZone;
-
-		}
-		else{
-			return dateTimeTail+" 00:00:00"+dateTimeZone;
-		}
-
-		
-	}
-					
-					
-	function convertOffsetToHHMM(offset){
-			var m = 0, h=0;
-					var stringHH = "", stringMM = "";
-
-			m = offset % 60;
-			h = (offset - m)/60;
-
-					stringHH = h.toString();
-					stringMM = m.toString();
-
-					stringHH = stringHH.length === 1 ? ("0"+stringHH): stringHH;
-					stringMM = stringMM.length === 1 ? ("0"+stringMM): stringMM;
-
-					return stringHH+":"+stringMM;
-
-	}
 									
 
 
@@ -4183,7 +4251,10 @@ function getDataXminXmaxAsString(data) {
 	return minMax;
 }
 
-// 6. UPDATE MENUS
+	 
+	 
+	 
+// 7. UPDATE MENUS
 
 // add menus to updatemenus if specified
 function addToUpdateMenus(newUpdateMenu, updateMenus, layout) {
@@ -4398,7 +4469,7 @@ function getLabelFromButtonsGivenArg(argValue, buttons){
 
 
 
-// 7. LAYOUT UPDATES
+// 8. LAYOUT UPDATES
 
 // move x axis range to accommodate new x axis domain
 
@@ -4562,8 +4633,11 @@ function setLeftRightMarginDefault(
 		layout.margin.r = defaultRightMargin;
 	}
 }
+	 
+	 
+	 
 
-// 8. TRANSFORM TO UNIQUE BASE
+// 9. TRANSFORM TO UNIQUE BASE
 
 // function to transforM data for comparison option, sets all traces values
 // to 1 at baseIndexDate. Data contains, x and y arrays.
@@ -4628,7 +4702,9 @@ function prepareTransformToBaseIndex(
 	return uncomparedSaved;
 }
 
-// 9 Utility Functions
+	 
+	 
+// 10 Utility Functions
 
 // rounds number to next multiple
 function getNextMultiple(number, multiple){
@@ -4732,10 +4808,6 @@ function getRoundedYAxisRange(yMin, yMax, yAxisType, numberOfIntervalsInYAxis, p
 
 
 
-
-
-
-
 function propertyInObject(property, object) {
 	var found = false;
 
@@ -4747,6 +4819,8 @@ function propertyInObject(property, object) {
 
 	return found;
 }
+	 
+	 
 
 // return a string with at least lenght characters
 function fillStringUpTo(baseString, stringLengthInPixels, fontFamily, fontSize){
@@ -4937,31 +5011,31 @@ function insertDesiredFrequency(frequency, desiredFrequencies, orderedPossibleFr
 }
 
 
-	// Set periodKeys based on desiredFrequencies	
-	function setPeriodKeysBasedOnDesiredFrequencies(periodKeys, desiredFrequencies, periodDictionary){
-		var iLimit =0;
-		var key = "";
-		
-		for(key in periodKeys){
-			if (periodKeys.hasOwnProperty(key)) {
-				periodKeys[key]=false;
-			}
+// Set periodKeys based on desiredFrequencies	
+function setPeriodKeysBasedOnDesiredFrequencies(periodKeys, desiredFrequencies, periodDictionary){
+	var iLimit =0;
+	var key = "";
+
+	for(key in periodKeys){
+		if (periodKeys.hasOwnProperty(key)) {
+			periodKeys[key]=false;
 		}
-	
-		
-		iLimit = desiredFrequencies.length;
-		for(var i =0; i<iLimit; i++){
-			key = desiredFrequencies[i];
-			if(typeof periodDictionary[key] !== "undefined"){
-				periodKeys[periodDictionary[key]]=true;
-			}
+	}
+
+
+	iLimit = desiredFrequencies.length;
+	for(var i =0; i<iLimit; i++){
+		key = desiredFrequencies[i];
+		if(typeof periodDictionary[key] !== "undefined"){
+			periodKeys[periodDictionary[key]]=true;
 		}
+	}
 
-	}	
+}	
 
 
 
-
+//11 CSV FILE AND CONVERSION
 function convertDataToCSV(xName, data) {
   var str = "", 
       line = "",
@@ -5059,7 +5133,7 @@ function downloadCSVData(xName, data, fileTitle) {
 
 
 
-// REAL / NOMINAL CONVERSION FUNCTIONS
+//12  REAL / NOMINAL CONVERSION FUNCTIONS
 
 function getIDeflactor(otherDataProperties){
 	var iLimit = otherDataProperties.length;
