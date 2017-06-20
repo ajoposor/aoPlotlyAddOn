@@ -8,8 +8,7 @@
 
 // set DEBUG option (for display of console.log messages)
 // console.log will also be removed with closure compiler	 
-var DEBUG = false;	    
-	 
+var DEBUG = false;
 	 
 
     
@@ -179,7 +178,14 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		
 		
 	var settingsDefaults = {
+		// display shaded area during recession periods
 		displayRecessions: true,
+		// recession fill color and opacity
+		recessionsFillColor: "#000000",
+		recessionsOpacity: 0.15,
+		// url should return a zip file as provided by fred api for the USRECP serie for dates after 2015, set to "" in parameters passed
+		// to disable trying to get zip file with update values.
+		newRecessionsUrl: "http://www.kapitalvalue.com/plots_data/testing/fredRecessions-unlocked.php?observation_start=2015-12-01",
 		allowCompare: false,
 		transformToBaseIndex: false, //series would be transformed to common value of 1 at beginning
 		allowFrequencyResampling: false, // includes buttons to allow for calculation of aggregation and methods (monthly, quarterly), close, average, etc.
@@ -307,6 +313,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		//shapes: setRecessions(usRecessions, initialDate, currentDate)
 	};
 
+	// set layout defauls
 	setJsonDefaults(layoutDefaults, layout);	
 		
 		
@@ -889,6 +896,127 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	//RECESSIONS DEFINED
 
 	//Recessions data. Include all available recession periods here
+	
+	var knownRecessionsDates =  [
+		{
+		x0: "1857-06-01",
+		x1: "1858-11-30"
+		},{
+		x0: "1860-10-01",
+		x1: "1861-05-31"
+		},{
+		x0: "1865-04-01",
+		x1: "1867-11-30"
+		},{
+		x0: "1869-06-01",
+		x1: "1870-11-30"
+		}, {
+		x0: "1873-10-01",
+		x1: "1879-02-28"
+		},{
+		x0: "1882-03-01",
+		x1: "1885-04-30"
+		},{
+		x0: "1887-03-01",
+		x1: "1888-03-31"
+		},{
+		x0: "1890-07-01",
+		x1: "1891-04-30"
+		},{
+		x0: "1893-01-01",
+		x1: "1894-05-31"
+		},{
+		x0: "1895-12-01",
+		x1: "1897-05-31"
+		},{
+		x0: "1899-06-01",
+		x1: "1900-11-30",
+		},{
+		x0: "1902-09-01",
+		x1: "1904-07-31",
+		},{
+		x0: "1907-05-01",
+		x1: "1908-05-31"
+		},{
+		x0: "1910-01-01",
+		x1: "1911-12-31"
+		},{
+		x0: "1913-01-01",
+		x1: "1914-11-30"
+		},{
+		x0: "1918-08-01",
+		x1: "1919-02-28"
+		},{
+		x0: "1920-01-01",
+		x1: "1921-06-30"
+		}, {
+		x0: "1923-05-01",
+		x1: "1924-06-30"
+		},{
+		x0: "1926-10-01",
+		x1: "1927-10-31"
+		},{
+		x0: "1929-08-01",
+		x1: "1933-02-28"
+		},{
+		x0: "1937-05-01",
+		x1: "1938-05-31"
+		},{
+		x0: "1945-02-01",
+		x1: "1945-09-30"
+		},{
+		x0: "1948-11-01",
+		x1: "1949-09-30"
+		},{
+		x0: "1953-07-01",
+		x1: "1954-04-30"
+		},{
+		x0: "1957-08-01",
+		x1: "1958-03-31"
+		},{
+		x0: "1960-04-01",
+		x1: "1961-01-31"
+		},{
+		x0: "1969-12-01",
+		x1: "1970-10-31"
+		},{
+		x0: "1973-11-01",
+		x1: "1975-02-28"
+		},{
+		x0: "1980-01-01",
+		x1: "1980-06-30"
+		},{
+		x0: "1981-07-01",
+		x1: "1982-10-31"
+		}, {
+		x0: "1990-07-01",
+		x1: "1991-02-28"
+		},{
+		x0: "2001-03-01",
+		x1: "2001-10-31"
+		}, {
+		x0: "2007-12-01",
+		x1: "2009-05-31"
+		}];
+	
+	var usRecessions = createRecessionShapes(knownRecessionsDates, 
+						 settings.recessionsFillColor, 
+						 settings.recessionsOpacity);
+	
+	// this function will get a zip file and update the usRecessions
+	// in an async manner. This assumes the variable will be updated 
+	// before plotly is called
+	var fredZipXHLHttpRequestOptions = {
+		responseType: "arraybuffer",
+		method: "GET",
+		async: true,
+		url: "settings.newRecessionsUrl",
+	};
+	
+	if(fredZipXHLHttpRequestOptions.url !== ""){
+		directXMLHttpRequest(fredZipXHLHttpRequestOptions, afterFredZipFileLoaded(usRecessions)); 
+	}
+	/*
 	var usRecessions = [
 		{
 			type: "rect",
@@ -1417,7 +1545,8 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 				width: 0
 			}
 		}
-	];
+	];*/
+	
 
 	// TIME RANGE SELECTORS / a.k.a SELECTOR OPTIONS DEFINED
 	// Section deals with buttons for time range selection, these would allow for display of 1m, 3m, 6m, 1y, YTD, etc.
@@ -5902,7 +6031,199 @@ function setRecessions(usRecessions, initialDate, endDate) {
 }
 	 
 	 
+// populate recession shapes base on parameters
+function createRecessionShapes(knownRecessionsDates, fillcolor, opacity){
+	var iLimit = knownRecessionsDates.length;
+	var usRecessions=[];
 
+	usRecessions.length = iLimit;
+
+	for(var i=0; i < iLimit; i++){
+		usRecessions[i]={
+			type: "rect",
+			xref: "x",
+			yref: "paper",
+			x0: knownRecessionsDates[i].x0,
+			x1: knownRecessionsDates[i].x1,
+			y0: 0,
+			y1: 1,
+			fillcolor: fillcolor,
+			opacity: opacity,
+			line: {
+				width: 0
+			}	
+		};
+	}
+	return usRecessions;
+}
+
+	 
+function addRecessionsTo(recessionsArray,usRecessions){
+	var x0="x0", x1="x1";
+	var last = usRecessions.length-1;
+	var iLimit = recessionsArray.length;
+	var k=iLimit;
+	var key, j=0;
+	var lastRecessionInBaseEndedAsDate = new Date(usRecessions[last][x0]);
+	
+	DEBUG && console.log("recessionsArray: ", recessionsArray);
+
+	DEBUG && console.log("lastRecessionInBaseEndedAsDate",lastRecessionInBaseEndedAsDate);
+	
+	// get position of new recessions
+	for(var i=0; i < iLimit ; i++){
+		DEBUG && console.log("recessionsArray[i][x0]: ", recessionsArray[i][x0]);
+		if(new Date(recessionsArray[i][x0]) >  lastRecessionInBaseEndedAsDate){
+			k=i;
+			i=iLimit;
+		}
+	}
+	
+	// add recessions
+	j=last;
+	for(i=k ; i<iLimit; i++){
+		usRecessions.push({});
+		for(key in usRecessions[j]){
+			if(usRecessions[j].hasOwnProperty(key)){
+				usRecessions[j+1][key]=usRecessions[j][key];
+			}
+		}
+		j++;
+		usRecessions[j][x0]= recessionsArray[i][x0];
+		usRecessions[j][x1]=	recessionsArray[i][x1];
+	}
+	
+	
+}
+	 
+
+function  textToArrayOfJsons(readTxt,lineSeparator, fieldSeparator)
+{
+	var j=0, jLimit =0, iLimit =0;
+	var arrayOfJsons = [];
+	var line =[];
+	var k=0;
+	
+	// get all lines from readTxt string
+	var array = readTxt.split(lineSeparator);
+	
+	DEBUG && console.log(array);
+	
+	// fieldNames from first row
+	var fieldNames = array[0].split(fieldSeparator);
+	
+
+	iLimit=array.length -1;
+	jLimit = fieldNames.length;
+	arrayOfJsons.length = iLimit;
+	
+	k=0;
+	
+	for(var i=0; i < iLimit; i++){
+		line = array[i+1].split(fieldSeparator);
+		if(line.length === jLimit){
+			k++;
+			arrayOfJsons[i]={};
+			for(j=0; j<jLimit; j++){
+				arrayOfJsons[i][fieldNames[j]] = line[j];	
+			}
+		}
+	}
+	
+	arrayOfJsons.length = k;
+	DEBUG && console.log(arrayOfJsons);
+	return arrayOfJsons;
+	
+}
+
+function getRecessionsFromUSRecField(readUSRec){
+	
+	var iLimit = readUSRec.length;
+	var getNewRecession = true;
+	var getEndOfRecession = false;
+	var USRECFlag = "USRECP";
+	var observationDate = "observation_date";
+	var x0="x0", x1="x1";
+	var dayBeforeAsString = "";
+	
+	var recessions = [];
+	
+	var k=0;
+	
+	for (var i=0; i < iLimit ; i++){
+		if(getNewRecession){
+			if(readUSRec[i][USRECFlag] === "1"){
+				recessions.push({});
+				recessions[k][x0]=readUSRec[i][observationDate];	
+				getNewRecession = false;
+				getEndOfRecession = true;
+			}
+		} else if (getEndOfRecession){
+			if(readUSRec[i][USRECFlag] === "0"){
+				dayBeforeAsString = getdayBeforeAsString(readUSRec[i][observationDate]);
+				recessions[k][x1]=dayBeforeAsString;	
+				getNewRecession = true;
+				getEndOfRecession = false;
+				k++;
+			}		
+		}
+	}
+	
+	if(getEndOfRecession){
+		recession[k][x1]= dateAsDateToString(new Date());
+	}
+	
+	DEBUG && console.log(recessions);
+	return recessions;
+}	 
+	 
+function directXMLHttpRequest(options, callback) {
+  var xhttp = new XMLHttpRequest();
+	// use "arraybuffer" for zip files.
+	xhttp.responseType = options.responseType;
+	
+	// once file is read, afterFileLoaded function is triggered
+  xhttp.onreadystatechange = callback;
+	
+	// here async is set to true
+	// get current fred recessions zip file from:
+	// https://api.stlouisfed.org/fred/series/observations?series_id=USRECP&api_key=YourFredApiKey&file_type=txt
+  xhttp.open(options.method,
+	     options.url,
+	     options.async);
+		 //"https://rawgit.com/ajoposor/test-csv-files/master/files/USRECP_1_txt.zip?raw=true", 
+		 //true);
+  xhttp.send();
+}
+	 
+
+
+
+function afterFredZipFileLoaded(usRecessions) {
+	if (this.readyState == 4 && this.status == 200) {
+		
+		// create an instance of JSZip
+		var zip = new JSZip();
+	    
+		// loads the zip content into the zip instance
+		zip.loadAsync(this.response).then(
+			function (zip) {
+				return zip.file("USRECP_1.txt").async("string");
+			}).then(
+			function (readTxt) {
+				var readJson = textToArrayOfJsons(readTxt,"\r\n","\t");
+			    	var fredRecessionsArray = getRecessionsFromUSRecField(readJson);
+			    	addRecessionsTo(fredRecessionsArray,usRecessions);
+			    	DEBUG && console.log("usRecessions: ",usRecessions);
+		   	}
+		);
+	}
+}	 
+	 
+	 
+	 
+	 
+	 
 	 
 	 
 	 
