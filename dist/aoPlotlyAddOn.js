@@ -1006,7 +1006,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	// this function will get a zip file and update the usRecessions
 	// in an async manner. This assumes the variable will be updated 
 	// before plotly is called
-	var fredZipXHLHttpRequestOptions = {
+	var fredZipXMLHttpRequestOptions = {
 		responseType: "arraybuffer",
 		method: "GET",
 		async: true,
@@ -1014,7 +1014,14 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	};
 	
 	if(fredZipXHLHttpRequestOptions.url !== ""){
-		directXMLHttpRequest(fredZipXHLHttpRequestOptions, afterFredZipFileLoaded(usRecessions)); 
+		
+		function myCallBackFredZip(usRecessions){
+			return function (xhttp) {
+				afterFredZipFileLoaded(xhttp, usRecessions);
+			};
+		}
+
+		directXMLHttpRequest(fredZipXMLHttpRequestOptions, myCallBackFredZip(usRecessions)); 
 	}
 	/*
 	var usRecessions = [
@@ -6184,7 +6191,7 @@ function directXMLHttpRequest(options, onreadyFunction) {
 	
 	// once file is read, afterFileLoaded function is triggered
 	
-	xhttp.onreadystatechange = onreadyFunction.bind(xhttp);
+	xhttp.onreadystatechange = onreadyFunction(xhttp);
 	
 	xhttp.open(
 		options.method,
@@ -6194,17 +6201,14 @@ function directXMLHttpRequest(options, onreadyFunction) {
 
 	xhttp.send();
 }
-	 
+	 	    			      
 
 
-
-function afterFredZipFileLoaded(usRecessions) {
+function afterFredZipFileLoaded(xhttp,usRecessions) {
 	
 	DEBUG && console.log("afterFredZipFileLoaded started");
-	DEBUG && console.log("usRecessions: ",usRecessions);
-	DEBUG && console.log("arguments ", arguments);
 	
-	if (this.readyState == 4 && this.status == 200) {
+	if (xhttp.readyState == 4 && xhttp.status == 200) {
 		
 		// create an instance of JSZip
 		var zip = new JSZip();
