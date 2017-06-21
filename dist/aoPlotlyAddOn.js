@@ -6183,7 +6183,7 @@ function directXMLHttpRequest(options, callback) {
 	xhttp.responseType = options.responseType;
 	
 	// once file is read, afterFileLoaded function is triggered
-  xhttp.onreadystatechange = callback;
+  xhttp.onreadystatechange = callback.call(xhttp);
 	
 	// here async is set to true
 	// get current fred recessions zip file from:
