@@ -994,7 +994,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		},{
 		x0: "2001-03-01",
 		x1: "2001-10-31"
-		}, {
+		},{
 		x0: "2007-12-01",
 		x1: "2009-05-31"
 		}];
@@ -6222,7 +6222,7 @@ function afterFredZipFileLoaded(xhttp,usRecessions) {
 				return zip.file("USRECP_1.txt").async("string");
 			}).then(
 			function (readTxt) {
-				DEBUG && console.log("readTxt",readTxt");
+				DEBUG && console.log("readTxt",readTxt);
 				var readJson = textToArrayOfJsons(readTxt,"\r\n","\t");
 			    	var fredRecessionsArray = getRecessionsFromUSRecField(readJson);
 			    	addRecessionsTo(fredRecessionsArray,usRecessions);
