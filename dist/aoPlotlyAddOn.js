@@ -6184,7 +6184,7 @@ function directXMLHttpRequest(options, onreadyFunction) {
 	
 	// once file is read, afterFileLoaded function is triggered
 	
-	xhttp.onreadystatechange = new onreadyFunction;
+	xhttp.onreadystatechange = onreadyFunction.bind(xhttp);
 	
 	xhttp.open(
 		options.method,
