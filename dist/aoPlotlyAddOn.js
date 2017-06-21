@@ -6177,14 +6177,14 @@ function getRecessionsFromUSRecField(readUSRec){
 	return recessions;
 }	 
 	 
-function directXMLHttpRequest(options, callback) {
+function directXMLHttpRequest(options, onreadyFunction) {
 	var xhttp = new XMLHttpRequest();
 	// use "arraybuffer" for zip files.
 	xhttp.responseType = options.responseType;
 	
 	// once file is read, afterFileLoaded function is triggered
 	
-	xhttp.onreadystatechange = callback;
+	xhttp.onreadystatechange = new onreadyFunction;
 	
 	xhttp.open(
 		options.method,
