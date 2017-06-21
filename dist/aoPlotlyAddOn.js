@@ -6201,7 +6201,8 @@ function directXMLHttpRequest(options, onreadyFunction) {
 function afterFredZipFileLoaded(usRecessions) {
 	
 	DEBUG && console.log("afterFredZipFileLoaded started");
-	DEBUG && console.log("this: ",this);
+	DEBUG && console.log("usRecessions: ",usRecessions);
+	DEBUG && console.log("arguments ", arguments);
 	
 	if (this.readyState == 4 && this.status == 200) {
 		
