@@ -465,7 +465,7 @@ This is an object that controls the features added to your plot.
    
    * **recessionsFillColor:** (string for color code) Optional. Default is "#000000". Set to your desired value. This will control the fillcolor of the shapes used to mark recession periods.
    
-   * **RecessionsOpacity:** (number) Optional. Default is 0.15. Set to your desired value. This will control the shapes used to mark recession periods.
+   * **recessionsOpacity:** (number) Optional. Default is 0.15. Set to your desired value. This will control the shapes used to mark recession periods.
    
    * **newRecessionsUrl:** (string) Optional. Set to "" to avoid looking for new recessions dates. Recessions in library are updated up to 2015-12-31. Otherwise, enter and address that returns a zip file as provided by the FRED api for the serie_id USRECP. The default url will load this file from a proxy server.
    
