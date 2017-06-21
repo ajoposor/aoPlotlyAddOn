@@ -6238,6 +6238,8 @@ function afterFredZipFileLoaded(xhttp,usRecessions) {
 		} else {
 			DEBUG && console.log("fredZip not successful, status:", xhttp.status);
 		}
+	} else {
+		DEBUG && console.log("fredZip readyState:", xhttp.readyState);
 	}
 }	 
 	 
