@@ -6209,7 +6209,7 @@ function directXMLHttpRequest(options, onreadyFunction) {
 function afterFredZipFileLoaded(xhttp,usRecessions) {
 	
 	DEBUG && console.log("afterFredZipFileLoaded started");
-	DEBUG && console.log("passed xhttp:" xhttp);
+	DEBUG && console.log("passed xhttp:", xhttp);
 	
 	if (xhttp.readyState == 4 && xhttp.status == 200) {
 		
