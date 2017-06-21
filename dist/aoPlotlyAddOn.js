@@ -4783,11 +4783,11 @@ function readData(data, iS, param, callback) {
 		Plotly.d3.csv(url, function(readData) {
 			DEBUG && console.log("csv", iS.value);
 			DEBUG && console.log("readData", readData);
-			if(iS.value ===0){
+			/*if(iS.value ===0){
 				for(var y=0; y<readData.length; y++){
 					DEBUG && console.log(readData[y]);
 				}
-			}
+			}*/
 			processCsvData(
 				readData, 
 				data,
@@ -6193,6 +6193,8 @@ function directXMLHttpRequest(options, onreadyFunction) {
 	
 	xhttp.onreadystatechange = onreadyFunction(xhttp);
 	
+	DEBUG && console.log("XMLHttpRequest options: ", options);
+	
 	xhttp.open(
 		options.method,
 		options.url,
@@ -6207,6 +6209,7 @@ function directXMLHttpRequest(options, onreadyFunction) {
 function afterFredZipFileLoaded(xhttp,usRecessions) {
 	
 	DEBUG && console.log("afterFredZipFileLoaded started");
+	DEBUG && console.log("passed xhttp:" xhttp);
 	
 	if (xhttp.readyState == 4 && xhttp.status == 200) {
 		
