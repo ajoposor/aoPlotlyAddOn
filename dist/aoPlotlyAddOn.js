@@ -1013,6 +1013,8 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		url: settings.newRecessionsUrl,
 	};
 	
+	DEBUG && console.log("XMLHttpRequestOptions", fredZipXMLHttpRequestOptions);
+	
 	if(fredZipXMLHttpRequestOptions.url !== ""){
 		
 		function myCallBackFredZip(usRecessions){
