@@ -6178,28 +6178,31 @@ function getRecessionsFromUSRecField(readUSRec){
 }	 
 	 
 function directXMLHttpRequest(options, callback) {
-  var xhttp = new XMLHttpRequest();
+	var xhttp = new XMLHttpRequest();
 	// use "arraybuffer" for zip files.
 	xhttp.responseType = options.responseType;
 	
 	// once file is read, afterFileLoaded function is triggered
-  xhttp.onreadystatechange = callback.call(xhttp);
 	
-	// here async is set to true
-	// get current fred recessions zip file from:
-	// https://api.stlouisfed.org/fred/series/observations?series_id=USRECP&api_key=YourFredApiKey&file_type=txt
-  xhttp.open(options.method,
-	     options.url,
-	     options.async);
-		 //"https://rawgit.com/ajoposor/test-csv-files/master/files/USRECP_1_txt.zip?raw=true", 
-		 //true);
-  xhttp.send();
+	xhttp.onreadystatechange = callback;
+	
+	xhttp.open(
+		options.method,
+		options.url,
+		options.async
+	);
+
+	xhttp.send();
 }
 	 
 
 
 
 function afterFredZipFileLoaded(usRecessions) {
+	
+	DEBUG && console.log("afterFredZipFileLoaded started");
+	DEBUG && console.log("this: ",this);
+	
 	if (this.readyState == 4 && this.status == 200) {
 		
 		// create an instance of JSZip
