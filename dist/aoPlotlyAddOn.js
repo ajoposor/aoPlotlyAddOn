@@ -1751,7 +1751,7 @@ function parallelReadDataAndMakeChart(data, param) {
 	// add read data from dataSources to queue 
 	var iLimit =param.dataSources.length;
 	
-	for(var i=0, i < iLimit; i++){
+	for(var i=0; i < iLimit; i++){
 		plotQueue.defer(localParallelReadData, data, i, param );
 	}
 	
