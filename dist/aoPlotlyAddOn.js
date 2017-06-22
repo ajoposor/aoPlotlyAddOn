@@ -6458,7 +6458,7 @@ function afterFredZipFileLoaded(error, xhttp, usRecessions) {
 				}
 			);*/
 			
-			return (startByLoadingFileIntoHandler(xhttp.response, zip));
+			return (startByLoadingZipIntoHandler(xhttp.response, zip));
 		
 			
 			function startByLoadingZipIntoHandler(response, zip, callback) {
