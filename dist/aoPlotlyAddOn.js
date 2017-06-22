@@ -6461,11 +6461,11 @@ function afterFredZipFileLoaded(error, xhttp, usRecessions) {
 			return (startByLoadingZipIntoHandler(xhttp.response, zip));
 		
 			
-			function startByLoadingZipIntoHandler(response, zip, callback) {
-				return nowGetTxtFromHandler(zip.loadAsync(response));
+			function startByLoadingZipIntoHandler(response, zip) {
+				return nowGetTxtFromHandler(zip.loadAsync(response), zip);
 			}
 		
-			function nowGetTxtFromHandler(zip) {
+			function nowGetTxtFromHandler(zipResponse, zip) {
 				
 				// next function is called with the resulting text
 				return nowProcessText(zip.file("USRECP_1.txt").async("string"));
