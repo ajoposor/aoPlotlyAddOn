@@ -467,6 +467,8 @@ This is an object that controls the features added to your plot.
    
    * **recessionsOpacity:** (number) Optional. Default is 0.15. Set to your desired value. This will control the shapes used to mark recession periods.
    
+   * **queueConcurrencyLimit:** (positive integer) Optional. Default is 10. Sets the value for maximum concurrent async tasks for reading external data from urls.
+   
    * **newRecessionsUrl:** (string) Optional. Set to "" to avoid looking for new recessions dates. Recessions in library are updated up to 2015-12-31. Otherwise, enter and address that returns a zip file as provided by the FRED api for the serie_id USRECP. The default url will load this file from a proxy server.
    
       The url for the zip file is: `https://api.stlouisfed.org/fred/series/observations?series_id=USRECP&api_key=YourFredApiKey&file_type=txt&observation_start=2015-12-31`
