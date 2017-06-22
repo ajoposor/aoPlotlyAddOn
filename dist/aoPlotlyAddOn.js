@@ -1759,10 +1759,14 @@ function parallelReadDataAndMakeChart(data, param) {
 	
 	
 	// add call update recessions from external source to queue
-	DEBUG && console.log("calling update recessions");	
+	DEBUG && console.log("adding update recessions to queue");
+	DEBUG && console.log("param.settings.newRecesssionsUrl",param.settings.newRecesssionsUrl);
+	DEBUG && console.log("param.usRecessions",param.usRecessions);
+	
 	plotQueue.defer(parallelUpdateRecessions, param.settings.newRecesssionsUrl, param.usRecessions);
 	
 	plotQueue.awaitAll(function(error){
+		
 		if(error){
 			DEBUG && console.log("plotQueu await threw error", error);	
 			//display blank plot
@@ -1804,7 +1808,7 @@ function parallelUpdateRecessions(newRecesssionsUrl, usRecessions, callback){
 		responseType: "arraybuffer",
 		method: "GET",
 		async: true,
-		url: settings.newRecessionsUrl,
+		url: newRecesssionsUrl,
 	};
 	
 	DEBUG && console.log("XMLHttpRequestOptions", fredZipXMLHttpRequestOptions);
