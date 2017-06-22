@@ -582,15 +582,21 @@ var **options** = {
 
 ## Install
 
-Include libraries for plotly, jquery (will make adjustments to remove use of jquery) and aoPlotlyAddOn:
+Include libraries for plotly, d3.queue, jquery (will make adjustments to remove use of jquery), jszip (only if zip files from fred are to be sourced to update recessions, it may be omitted if url set to "") and aoPlotlyAddOn:
 
 ```html
 <head>
+<!-- Plotly.js -->
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+<!-- d3.queue -->
+<script src="https://d3js.org/d3-queue.v3.min.js"></script>
+
 <!-- jQuery -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 
-<!-- Plotly.js -->
-<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<!-- jszip.js -->
+<script src="https://rawgit.com/Stuk/jszip/master/dist/jszip.min.js"></script>
    
 <!-- aoPlotlyAddOn.js -->   
 <script src="https://raw.githubusercontent.com/ajoposor/aoPlotlyAddOn/master/dist/aoPlotlyAddOn.min.js"></script>
@@ -603,9 +609,10 @@ Include libraries for plotly, jquery (will make adjustments to remove use of jqu
 
 ```html
 <head>
-<!-- Plotly.js -->
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script src="https://d3js.org/d3-queue.v3.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script src="https://rawgit.com/Stuk/jszip/master/dist/jszip.min.js"></script>
 <script src="https://rawgit.com/ajoposor/aoPlotlyAddOn/master/dist/aoPlotlyAddOn.min.js"></script>
 </head>
 ```
