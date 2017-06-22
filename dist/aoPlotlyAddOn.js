@@ -6444,41 +6444,20 @@ function afterFredZipFileLoaded(error, xhttp, usRecessions) {
 			var zip = new JSZip();
 
 			// loads the zip content into the zip instance
-			/*zip.loadAsync(xhttp.response).then(
-				function (zip, callback) {
+			return(zip.loadAsync(xhttp.response).then(
+				function (zip) {
 					return zip.file("USRECP_1.txt").async("string");
 				}).then(
-				function (readTxt,callback) {
+				function (readTxt) {
 					DEBUG && console.log("readTxt",readTxt);
 					var readJson = textToArrayOfJsons(readTxt,"\r\n","\t");
 					var fredRecessionsArray = getRecessionsFromUSRecField(readJson);
 					addRecessionsTo(fredRecessionsArray,usRecessions);
 					DEBUG && console.log("usRecessions: ",usRecessions);
-					callback(null);
+					return null;
 				}
-			);*/
+			));
 			
-			return (startByLoadingZipIntoHandler(xhttp.response, zip));
-		
-			
-			function startByLoadingZipIntoHandler(response, zip) {
-				return nowGetTxtFromHandler(zip.loadAsync(response), zip);
-			}
-		
-			function nowGetTxtFromHandler(zipResponse, zip) {
-				
-				// next function is called with the resulting text
-				return nowProcessText(zip.file("USRECP_1.txt").async("string"));
-			}
-		
-			function nowProcessText (readTxt) {
-				DEBUG && console.log("readTxt",readTxt);
-				var readJson = textToArrayOfJsons(readTxt,"\r\n","\t");
-				var fredRecessionsArray = getRecessionsFromUSRecField(readJson);
-				addRecessionsTo(fredRecessionsArray,usRecessions);
-				DEBUG && console.log("usRecessions: ",usRecessions);
-				return null;
-			}	
 
 		
 	} else {
