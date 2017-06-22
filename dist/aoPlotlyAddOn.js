@@ -1751,8 +1751,672 @@ function readDataAndMakeChart(data, iS, param, callback) {
 	} // end of else after all read section
 } //  end of readDataAndMakeChart    
 	    
-	    
 
+/**
+*
+* readData section
+*
+*
+*/
+	 
+	 
+function readData(data, iS, param, callback) {
+	
+	var urlType = param.dataSources[iS.value].urlType;
+	var url = param.dataSources[iS.value].url;
+	
+	if (urlType === "csv") {
+		Plotly.d3.csv(url, function(readData) {
+			DEBUG && console.log("csv", iS.value);
+			DEBUG && console.log("readData", readData);
+			/*if(iS.value ===0){
+				for(var y=0; y<readData.length; y++){
+					DEBUG && console.log(readData[y]);
+				}
+			}*/
+			processCsvData(
+				readData, 
+				data,
+				param.timeInfo.tracesInitialDate,
+				param.otherDataProperties,
+				param.dataSources[iS.value]
+				);
+			DEBUG && console.log("processCsvData finished");
+			iS.value++;
+			readData="";
+			readDataAndMakeChart(data, iS, param, callback);
+		});
+	} 
+	else if (urlType === "arrayOfJsons") {
+		DEBUG && console.log("arrayOfJsons", iS.value);
+		processCsvData(
+			param.dataSources[iS.value].arrayOfJsons, 
+			data,
+			param.timeInfo.tracesInitialDate,
+			param.otherDataProperties,
+			param.dataSources[iS.value]
+			);
+		param.dataSources[iS.value].arrayOfJsons = [];
+		iS.value++;
+		readDataAndMakeChart(data, iS, param, callback);
+	} 
+	else if (urlType === "yqlJson") {
+		$.getJSON(url, function(readData) {
+			/* Not required, it can be handled with the CSV function, 
+			set xSeriesName to date and ySeriesName to value*/	    
+			processCsvData(
+				readData.query.results.json.observations,
+				data,
+				param.timeInfo.tracesInitialDate,
+				param.otherDataProperties,
+				param.dataSources[iS.value]
+				);
+			iS.value++;
+			readData="";
+			readDataAndMakeChart(data, iS, param, callback);
+		});
+	}   
+	else if ( urlType === "yqlGoogleCSV") {
+		DEBUG && console.log("Googlecsv", iS.value);
+		Plotly.d3.json("https://query.yahooapis.com/v1/public/yql?q="+
+			encodeURIComponent("SELECT * from csv where url='"+url+"'")+
+			"&format=json", 				
+			function(readData) {
+				processCsvData(
+					readData.query.results.row,
+					data,
+					param.timeInfo.tracesInitialDate,
+					param.otherDataProperties,
+					param.dataSources[iS.value]
+				);
+			iS.value++;
+			readData="";
+			readDataAndMakeChart(data, iS, param, callback);
+		});
+  	} 
+	else if (urlType === "pureJson") {
+		$.getJSON(url, function(readData) {
+			processCsvData(
+				readData, 
+				data,
+				param.timeInfo.tracesInitialDate, 
+				param.otherDataProperties,
+				param.dataSources[iS.value]
+				);
+			iS.value++;
+			readData="";
+			readDataAndMakeChart(data, iS, param, callback);
+		});
+	} 
+	/*
+	else if (urlType === "direct") {
+		processDirectData(
+			data,
+			param.timeInfo.tracesInitialDate, 
+			param.otherDataProperties,
+			param.dataSources[iS.value]
+			);
+		iS.value++;
+		readDataAndMakeChart(data, iS, param, callback);
+	}
+	*/
+}
+
+// 2. Process CSVData - support function, reads data and add it to data object, increases global iS variable	     
+    
+	    
+	    
+// FUNCTIONS TO PARSE CVS, JSON OR DIRECT SERIES
+// main code, reads cvs files and creates traces and combine them in data
+function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, dataSources) {
+	var x = [], y = []; //[];
+	var initialDateAsDate = new Date("0001-01-01");
+	var processedDate ="";
+	var timeOffsetText = getTimeOffsetText();
+	var i = 0, j, ia, ib, iLimit, jLimit, iData;
+	var xSeriesName="", xDateSuffix ="", ySeriesName="", traceID = "";
+	var processedColumnDates = [];
+	var insertTrace = false;
+	var readTraceInitialDateAsDate, readTraceEndDateAsDate;
+	var existingInitialDateAsDate, existingEndDateAsDate;
+	var existingInitialValue, existingEndValue;
+	var insertPoint = -1;
+	var initialIndex=0;
+	var readTraceLength = 0, readTraceInitialIndex =0, traceLength, readTraceLimit =0;
+	var readTraceEndIndex =0;
+	var spliceInfo = {};
+	var k=0, kLimit =0, readItems;
+	var latestSorted = "";
+	var delta =0.0;
+	var datesReady = false, transformToEndOfMonth = false;
+	var urlType = dataSources.urlType;
+	var tags=allRows[0];
+	var yqlGoogleCSV = false;
+	var tableParams = {};
+	var adjustFactor = 1.0, adjust="";
+	var calculateAdjustedClose = false;
+	
+	// save function references
+	var localProcessDate = processDate;
+	var localChangeDateToEndOfMonth = changeDateToEndOfMonth;
+	var localNameIsOnArrayOfNames = nameIsOnArrayOfNames;
+	var localFindTraceIdIndex = findTraceIdIndex;
+	var localSortByDatesAsStrings = sortByDatesAsStrings;
+	var localSortByGoogleDatesAsStrings = sortByGoogleDatesAsStrings;
+	var localInsertArrayInto = insertArrayInto;
+	var localMyConcat = myConcat;
+	var localFindSpliceInfo = findSpliceInfo;
+	var localGoogleMDYToYMD = GoogleMDYToYMD;
+	
+	// number of traces to be read on this data source
+	jLimit = dataSources.traces.length;
+	
+	// set flag for yqlGoogleCSV type and removes first row of array and translate names of columns to values
+	if(urlType === "yqlGoogleCSV"){
+		yqlGoogleCSV = true;
+		processYqlGoogleCSVTags(dataSources);
+		allRows.shift();
+	}
+	
+	xSeriesName = "";
+	if(typeof dataSources["xSeriesName"] !== "undefined"){
+		xSeriesName =  dataSources["xSeriesName"];
+	}
+	
+
+	// update initialDateAsDate if tracesInitialDate provided
+	if (tracesInitialDate !== "") {
+		initialDateAsDate = new Date(localProcessDate(tracesInitialDate, timeOffsetText));
+	}
+	
+	DEBUG && console.log("initialDateAsDate", initialDateAsDate);
+	
+		
+	
+	
+	//DEBUG && console.log("allRows: ", allRows);
+	
+	// total rows of csv file loaded
+	// allRows is an array of objects
+	iLimit = allRows.length;
+	
+	
+	// Preprocess options for all Rows
+	DEBUG && console.log("start preprocess");
+	
+	// get number of tables, sort and preprocessing of dates options
+	setTablesParametersSortPreprocessing(tableParams, dataSources);
+	DEBUG && console.log("table params set: ", tableParams);
+
+	// apply date preprocessing options
+	applyDateProprocessing(allRows, tableParams, urlType);
+	DEBUG && console.log("data processing options applied");
+	DEBUG && console.log("allRows",allRows);
+
+	// split subtables trim by InitialDateAsDate and reorder by firstItemToRead
+	splitSubtablesAndTrim(allRows, tableParams, dataSources, initialDateAsDate);
+	DEBUG && console.log("tables split, and reordered");
+	DEBUG && console.log("table Params", tableParams);
+	allRows = [];
+	
+	
+	// sort subtables
+	sortSubTables(tableParams);
+	DEBUG && console.log("SubTable sorted");
+	
+	
+	// iterate through traces to be loaded
+	for(j=0; j < jLimit; j++){
+		
+		DEBUG && console.log("starting trace: ", j);
+		
+		// set temporary variable
+		xSeriesName = dataSources.traces[j].xSeriesName;
+		ySeriesName = dataSources.traces[j].ySeriesName;
+		xDateSuffix = dataSources.traces[j].xDateSuffix;
+		traceID = dataSources.traces[j].traceID;
+		
+		// get data
+		allRows = tableParams[xSeriesName]["allRows"];
+		DEBUG && console.log("tableParams", tableParams);
+		DEBUG && console.log("allRows from table params", allRows);
+
+		
+		// find trace index (position in data array)
+		iData = localFindTraceIdIndex(traceID,otherDataProperties);
+		DEBUG && console.log("iData", iData);
+		
+		// find weather trace will be added to existing trace
+		insertTrace = false;
+		if(typeof data[iData].x !== "undefined"){
+			insertTrace = true;
+		}
+			
+		// initialite x, y temporary arrays
+		x = [];
+		x.length = iLimit; 
+		
+		y = [];
+		y.length = iLimit;
+		
+		
+		readTraceInitialIndex = 0;
+		
+		readTraceEndIndex = allRows.length === 0 ? 0 : allRows.length-1;
+		readTraceLength = allRows.length;
+		
+		DEBUG && console.log("readTraceInitialIndex ", readTraceInitialIndex);
+		DEBUG && console.log("readTraceEndIndex ", readTraceEndIndex);
+		DEBUG && console.log("xSeriesName: ", xSeriesName);
+		DEBUG && console.log("allRows: ",allRows);
+		
+		readTraceEndDateAsDate = new Date(allRows[readTraceInitialIndex][xSeriesName]);
+		readTraceInitialDateAsDate = new Date(allRows[readTraceEndIndex][xSeriesName]);
+		
+		adjust = "none";
+		adjustFactor = 1.0;
+		calculateAdjustedClose = 
+			tableParams[xSeriesName]["yCalculateAdjustedClose"][tableParams[xSeriesName]["yNames"].indexOf(ySeriesName)];
+		
+		DEBUG && console.log("calculateAdjustedClose", calculateAdjustedClose);
+		
+		if(insertTrace){
+			DEBUG && console.log("insert trace");
+			// default insert point
+			insertPoint = 0;
+			
+			readTraceLimit = readTraceLength+readTraceInitialIndex;
+			DEBUG && console.log("readTraceLimit",readTraceLimit);
+
+			// get existing data x range
+			existingInitialDateAsDate = new Date(data[iData].x[data[iData].x.length - 1]);
+			existingEndDateAsDate = new Date(data[iData].x[0]);
+			existingInitialValue =data[iData].y[data[iData].x.length - 1];
+			existingEndValue =data[iData].y[0];
+			
+			DEBUG && console.log("existingInitialDateAsDate", existingInitialDateAsDate);
+			DEBUG && console.log("existingEndDateAsDate", existingEndDateAsDate);
+			DEBUG && console.log("existingInitialValue", existingInitialValue);
+			DEBUG && console.log("existingEndValue", existingEndValue);
+
+			// find trace range to be read
+
+			// case no overlap, more recent
+			if( readTraceInitialDateAsDate > existingEndDateAsDate){
+				initialIndex = readTraceInitialIndex;
+				traceLength = readTraceLength;
+
+			}
+			
+			// case no overlap, older
+			else if( readTraceEndDateAsDate < existingInitialDateAsDate){
+				insertPoint = data[iData].x.length;
+				initialIndex = readTraceInitialIndex;
+				traceLength = readTraceLength;
+
+			}
+
+			// overlap, but new data is more recent than existing
+			else if (readTraceEndDateAsDate > existingEndDateAsDate ) {
+				initialIndex = 0;
+				for(i=readTraceInitialIndex; i<readTraceLimit;i++){
+					if(new Date(allRows[i][xSeriesName]) <= existingEndDateAsDate){
+						traceLength = i-readTraceInitialIndex;
+						if(calculateAdjustedClose){
+							adjust = "existing"; // "new", "existing" or "none"
+							adjustFactor = allRows[i][ySeriesName]/existingEndValue;
+						}
+						i = readTraceLimit;
+					}
+				}	
+			}
+
+			// overlap, but new data is older than existing
+			else if (readTraceInitialDateAsDate < existingInitialDateAsDate ) {
+				DEBUG && console.log("overlap, but new data is older than existing");
+				for(i=readTraceLimit -1 ; i > readTraceInitialIndex-1; i--){
+					if(new Date(allRows[i][xSeriesName]) >= existingInitialDateAsDate){
+						initialIndex = i+1;
+						traceLength = readTraceLimit - initialIndex;
+						insertPoint = data[iData].x.length;
+						if(calculateAdjustedClose){
+							adjust = "new"; // "new", "existing" or "none"
+							adjustFactor = existingInitialValue / allRows[i][ySeriesName];
+						}
+						i = readTraceInitialIndex-1;
+					}
+				}	
+			}
+
+			// case total overlap, find space available
+			else {
+				spliceInfo = localFindSpliceInfo(
+					allRows,   xSeriesName, readTraceInitialIndex,
+					readTraceLength, data[iData].x/*,  datesReady,
+					transformToEndOfMonth, yqlGoogleCSV,xDateSuffix, timeOffsetText*/);
+				initialIndex = spliceInfo.initialIndex;
+				traceLength = spliceInfo.traceLength;
+				insertPoint = spliceInfo.insertPoint;
+		
+				if(calculateAdjustedClose){
+					adjust = "new"; // "new", "existing" or "none"
+					adjustFactor = getAdjustFactor(allRows, xSeriesName, ySeriesName, initialIndex, data[iData], insertPoint);
+				}
+
+			}
+			
+			if(calculateAdjustedClose){
+				if(adjust !== "none" && adjustFactor !== 1.0){
+					if(adjust === "new"){
+						iLimit = allRows.length;
+						for(i = 0; i < iLimit ; i++){
+							allRows[i][ySeriesName] *= adjustFactor;
+						}
+					}
+					else if(adjust === "existing"){
+						iLimit = data[iData].y.length;
+						for(i = 0; i < iLimit ; i++){
+							data[iData].y[i] *= adjustFactor;
+						}
+					}
+				}
+			}
+			
+		} 
+
+		// no trace inserted only charge
+		else {
+			initialIndex = readTraceInitialIndex;
+			traceLength = readTraceLength;
+			insertPoint = 0;
+		}
+		
+		// fill temporary x, y arrays with read data
+		readItems = 0;
+		kLimit = traceLength;
+
+		
+		// just fill in processed dates
+		DEBUG && console.log("fill processed dates");
+		for(k=0, i=initialIndex; k < kLimit ; i++, k++){ 
+			processedDate = allRows[i][xSeriesName];
+			if (
+				tracesInitialDate === "" ||
+				new Date(processedDate) >= initialDateAsDate
+			) {
+				x[k]=processedDate;
+				y[k]=allRows[i][ySeriesName];
+				readItems++;
+			}
+			else {
+				// stop reading when initialDateAsDate has been reached.
+				k= kLimit;
+			}
+		}	
+
+		// remove excess points
+		if (x.length > readItems){
+			x.length = readItems;
+			y.length = readItems;
+		}
+		DEBUG && console.log("excess points removed");
+		
+		
+		// create x and y properties if not yet defined for current trace
+		if(typeof data[iData].x === "undefined" ||
+		   typeof data[iData].y === "undefined") {
+			data[iData].x = [];
+			data[iData].y = [];
+		}
+
+
+		// add read data to current data
+		if(readItems >0){
+			
+			// case new data come first
+			if(insertPoint === 0){
+				if(data[iData].x.length >0){
+					data[iData].x = localMyConcat(x,data[iData].x);
+					data[iData].y = localMyConcat(y,data[iData].y);	
+				}
+				else{
+					data[iData].x = x;
+					data[iData].y = y;
+				}
+			}
+			// new data comes after
+			else if (insertPoint === data[iData].x.length){
+				data[iData].x = localMyConcat(data[iData].x,x);
+				data[iData].y = localMyConcat(data[iData].y,y);	
+			}
+			// new data comes inside
+			else {
+				data[iData].x = localInsertArrayInto(x,insertPoint, data[iData].x);
+				data[iData].y = localInsertArrayInto(y,insertPoint, data[iData].y);
+			}
+		}
+		
+		
+		// set column as processed
+		if(processedColumnDates.indexOf(xSeriesName) === -1){
+			processedColumnDates.push(xSeriesName);
+		}
+	}
+}
+
+	    
+  
+	    
+	    
+/* Not required, it can be handled with the CSV function, set xSeriesName to date and ySeriesName to value	    
+function processJsonData(jsonData, tracesInitialDate, serie) {
+	var x = [], y = [], trace = {}; //[];
+	var initialDateAsDate = new Date("0001-01-01");
+	var processedDate ="";
+	var timeOffsetText = getTimeOffsetText();
+	var readFlag = false;
+	var i = 0;
+
+	if (tracesInitialDate !== "") {
+		initialDateAsDate = new Date(processDate(tracesInitialDate,timeOffsetText));
+	}
+	
+	if(typeof serie.postProcessData !== "undefined"){
+		if(serie.postProcessData === "end of month"){
+			readFlag = true;
+
+			for (i = 0; i < jsonData.count; i++) {
+				processedDate = processDate(jsonData.observations[i].date+ serie.xDateSuffix,timeOffsetText);	
+				processedDate = changeDateToEndOfMonth(processedDate);
+
+				if (
+					tracesInitialDate === "" ||
+					new Date(processedDate) >= initialDateAsDate
+				) {
+					x.push(processedDate);
+					y.push(jsonData.observations[i].value);
+				}
+			}
+		}	
+	}	
+	
+	if(!readFlag){
+		readFlag = true;
+		for (i = 0; i < jsonData.count; i++) {
+			processedDate = processDate(jsonData.observations[i].date+ serie.xDateSuffix,timeOffsetText);	
+
+			if (
+				tracesInitialDate === "" ||
+				new Date(processedDate) >= initialDateAsDate
+			) {
+				x.push(processedDate);
+				y.push(jsonData.observations[i].value);
+			}
+		}	
+		
+	}
+			
+	trace = deepCopy(serie.traceAttributes);
+	trace.x = x;
+	trace.y = y;
+	return trace;
+}
+*/
+	
+/* merge into processCSVData 
+// // read data from google finance history csv files	    
+function processYqlGoogleCsvData(allRows, tracesInitialDate, serie) {
+	var x = [], y = [], trace = {}; //[];
+	var initialDateAsDate = new Date("0001-01-01");
+	var processedDate ="";
+	var timeOffsetText = getTimeOffsetText();
+	var readFlag = false;
+	var i = 0;
+	var row;
+	var xTag ="", yTag="";
+
+	var tags=allRows[0];
+	
+	
+	for (var key in tags){
+		if (tags.hasOwnProperty(key)) {
+			
+			if(tags[key].toString().trim() === serie.xSeriesName.toString()){
+				xTag = key;
+			}
+			
+			
+			if(tags[key].toString().trim() === serie.ySeriesName.toString()){
+				yTag = key;
+			}
+		}
+	}
+	
+	
+	if (tracesInitialDate !== "") {
+		initialDateAsDate = new Date(processDate(tracesInitialDate, timeOffsetText));
+	}
+
+	if(typeof serie.postProcessData !== "undefined"){
+		if(serie.postProcessData === "end of month"){
+			readFlag = true;
+			//DEBUG && console.log(allRows.length);
+			//DEBUG && console.log("allRows",allRows);
+			//DEBUG && console.log("initialDateAsDate",initialDateAsDate);
+			//DEBUG && console.log("tracesInitialDate",tracesInitialDate);
+			//DEBUG && console.log(serie);
+			
+			for (i = 1; i < allRows.length; i++) {
+				row = allRows[i];
+				processedDate = processDate(GoogleMDYToYMD(row[xTag]) + serie.xDateSuffix, timeOffsetText);
+				//DEBUG && console.log("processedDate",processedDate);
+				processedDate = changeDateToEndOfMonth(processedDate);
+				//DEBUG && console.log("processedDate",processedDate);
+				if (
+					tracesInitialDate === "" ||
+					new Date(processedDate) >= initialDateAsDate
+				) {
+					x.push(processedDate);
+					y.push(row[yTag]);
+				}
+			}
+		}
+	}
+	
+	
+	if(!readFlag) {
+		readFlag = true;
+		for (i = 1; i < allRows.length; i++) {
+			row = allRows[i];
+			//DEBUG && console.log("row",row);
+			processedDate = processDate(GoogleMDYToYMD(row[xTag]) + serie.xDateSuffix, timeOffsetText);
+			//DEBUG && console.log("processedDate",processedDate);
+
+			if (
+				tracesInitialDate === "" ||
+				new Date(processedDate) >= initialDateAsDate
+			) {
+				x.push(processedDate);
+				y.push(row[yTag]);
+			}
+		}
+	}	
+
+	trace = deepCopy(serie.traceAttributes);
+	trace.x = x;
+	trace.y = y;
+	return trace;
+}
+
+*/
+
+ 
+	    
+/*
+// In case trace x and y are provided direct, and not to be read from a file.
+function processDirectData(tracesInitialDate, serie) {
+	var x = [], y = [], trace = {}; //[];
+	var initialDateAsDate = new Date("0001-01-01");
+	var processedDate ="";
+	var timeOffsetText = getTimeOffsetText();
+	var readFlag = false;
+	var i=0;
+	
+	if (tracesInitialDate !== "") {
+		initialDateAsDate = new Date(processDate(tracesInitialDate, timeOffsetText));
+	}
+	
+	if(typeof serie.postProcessData !== "undefined"){
+		if(serie.postProcessData === "end of month"){
+			readFlag = true;
+
+			for (i = 0; i < serie.traceAttributes.x.length; i++) {
+				processedDate = processDate("" + serie.traceAttributes.x[i] + serie.xDateSuffix, timeOffsetText);			
+				processedDate = changeDateToEndOfMonth(processedDate);
+
+				if (
+					tracesInitialDate === "" ||
+					new Date(processedDate) >= 	initialDateAsDate
+				) {
+					x.push(processedDate);
+					y.push(serie.traceAttributes.y[i]);
+				}
+			}
+		}		
+	}		
+	
+	if(!readFlag){
+			readFlag = true;
+
+			for (i = 0; i < serie.traceAttributes.x.length; i++) {
+				processedDate = processDate("" + serie.traceAttributes.x[i] + serie.xDateSuffix, timeOffsetText);			
+
+				if (
+					tracesInitialDate === "" ||
+					new Date(processedDate) >= 	initialDateAsDate
+				) {
+					x.push(processedDate);
+					y.push(serie.traceAttributes.y[i]);
+				}
+			}		
+	}
+
+	
+	trace = deepCopy(serie.traceAttributes);
+	trace.x = x;
+	trace.y = y;
+	return trace;
+}*/
+
+	 
+	 
+
+	 
+	 
+	 
+	 
+	 
+	 
 /**
 *
 * makeChart does 
@@ -4319,567 +4983,17 @@ function getPeriodLimitsAsYYYYMMDD(year, month, day, endOfWeek) {
 
 // SUPPORT FUNCTIONS
 
-// 1.-  SET X AXIS RANGE - setsxaxisRange array based of timeInfo parameters and Min Max dates from series.
-function setDatesRangeAsString(minDateAsString, maxDateAsString, timeInfo) {
-	var initialDate, endDate, xaxisRange = [];
-
-	if (typeof timeInfo.yearsToPlot !== "undefined") {
-		if (timeInfo.yearsToPlot > 0) {
-			var yearsToPlot = timeInfo.yearsToPlot; // years to be displayed, if provided
-			var currentTime = new Date(maxDateAsString);
-			endDate = maxDateAsString;
-			initialDate = dateToString(
-				new Date(
-					currentTime.getFullYear() -
-						yearsToPlot +
-						"-" +
-						(currentTime.getMonth() + 1) +
-						"-" +
-						currentTime.getDate()
-				)
-			);
-		} else {
-			initialDate = minDateAsString;
-			endDate = maxDateAsString;
-		}
-	} else {
-		if (typeof timeInfo.initialDateForInitialDisplay !== "undefined") {
-			initialDate = makeDateComplete(timeInfo.initialDateForInitialDisplay);
-		} else {
-			initialDate = minDateAsString;
-		}
-
-		if (typeof timeInfo.endDateForInitialDisplay !== "undefined") {
-			endDate = dateToString(new Date(timeInfo.endDateForInitialDisplay));
-		} else {
-			endDate = maxDateAsString;
-		}
-	}
-
-	xaxisRange.push(initialDate);
-	xaxisRange.push(endDate);
-
-
-	return xaxisRange;
-}
 
 	
 	 
 	 
-	 
-	 
-	 
-// 2. DATES PROCESSING FUNCTIONS	 
-
-// transform yyyy-m-d to yyyy-mm-dd
-function parseDateStringToYMD(dateAsString) {
-	var allParts = dateAsString.split(" ");
-	var parts = allParts[0].split("-");
-	
-	function padTo2(number) {
-		return number < 10 ? "0" + number : "" + number;
-	}
-
-	return "" + parts[0] + "-" + padTo2(Number(parts[1]))+ "-" + padTo2(Number(parts[2]));
-}
-
-// transform date to string
-function dateToStringYMD(date) {
-	function padTo2(number) {
-		return number < 10 ? "0" + number : "" + number;
-	}
-
-	return (
-		"" +
-		date.getFullYear() +
-		"-" +
-		padTo2(date.getMonth() + 1) +
-		"-" +
-		padTo2(date.getDate())
-	);
-}
-
-// transform date to full string
-function dateToString(date) {
-	
-		var offset  = (new Date()).getTimezoneOffset();
-		var offsetText ="";
-		
-		offsetText = offset > 0 ? ("-"+convertOffsetToHHMM(offset)): ("+"+convertOffsetToHHMM(-offset));
-	
-	function padTo2(number) {
-		return number < 10 ? "0" + number : "" + number;
-	}
-	
-	function padTo3(number) {
-		if(number <100){
-			return "0"+padTo2(number);
-		}
-		else{
-			return number;
-		}
-	}
-
-	return (
-		"" +
-		date.getFullYear() +
-		"-" +
-		padTo2(date.getMonth() + 1) +
-		"-" +
-		padTo2(date.getDate())+" "+
-		
-		padTo2(date.getHours())+":"+
-		
-		padTo2(date.getMinutes())+":"+
-		
-		padTo2(date.getSeconds())+
-		
-		(date.getMilliseconds()!==0? "."+padTo3(date.getMilliseconds()):"")+
-		
-		offsetText
-		
-	);
-}
-
-
-// get the day before	 
-// dateAsYYYYMMDDString = "YYYY-MM-DD"
-function getdayBeforeAsString(dateAsYYYYMMDDString){
-	var timeOffsetText = getTimeOffsetText();
-	
-	dateAsYYYYMMDDString +=" 00:00:00"+timeOffsetText;
-	
-	console.log(dateAsYYYYMMDDString.substr(0,4));
-	
-	var dayBefore = new Date(
-		Number(dateAsYYYYMMDDString.substr(0,4)),
-		Number(dateAsYYYYMMDDString.substr(5,2))-1,
-		Number(dateAsYYYYMMDDString.substr(8,2))
-	);
-	
-	console.log(dayBefore);
-	
-	
-	dayBefore = new Date(dayBefore.getTime() -24*60*60*1000);
-	
-	console.log(dayBefore);
-
-	
-	console.log(dayBefore);
-	console.log(dayBefore.getFullYear());
-	
-	return dateAsDateToString(dayBefore);
-	
-} 
-	 
-	 
-	
-// transform a date as Date into a string "yyyy-mm-dd"	 
-function dateAsDateToString(dateAsDate){
-	
-	function padTo2(number) {
-    return number < 10 ? '0' + number : '' + number;
-  }
-	
-	return "" + dateAsDate.getFullYear() + "-"+
-		padTo2(dateAsDate.getMonth()+1)+"-"+
-		padTo2(dateAsDate.getDate());
-	
-}	 
-	 
-
-//transform google date format "day-monthString-year" into "yyyy-mm-dd"
-
-function GoogleMDYToYMD(googleDate){
-	
-	var year =0;
-	var monthString = "";
-	var month = "";
-	
-	googleDate=googleDate.trim();
-	var stringParts=googleDate.split("-");
-
-	
-	var newString ="";
-	
-	if((year = Number(stringParts[2])) < 100 ){
-		year += year< 50 ? 2000 : 1900;
-	}
-	
-	newString = year.toString();
-	
-		
-	monthString = stringParts[1];
-	if(monthString === "Jan") month = "01";
-	else if (monthString === "Feb") month = "02";
-	else if (monthString === "Mar") month = "03";
-	else if (monthString === "Apr") month = "04";
-	else if (monthString === "May") month = "05";
-	else if (monthString === "Jun") month = "06";
-	else if (monthString === "Jul") month = "07";
-	else if (monthString === "Aug") month = "08";
-	else if (monthString === "Sep") month = "09";
-	else if (monthString === "Oct") month = "10";
-	else if (monthString === "Nov") month = "11";
-	else if (monthString === "Dec") month = "12";
-	
-	newString +="-"+month+"-";
-
-	newString += Number(stringParts[0]) < 10 ? "0" + stringParts[0] : stringParts[0];
-	
-	return newString;
-	
-}
+ 
 	 
 	 
 
-function changeDateToEndOfMonth(dateAsStringAndProcessed){
-	
-	var currentDate = new Date(dateAsStringAndProcessed);
-	var endOfMonthDate = new Date(currentDate.getFullYear(), currentDate.getMonth()+1, 0);
-
-	var lastDay = endOfMonthDate.getDate().toString();
-	
-
-	dateAsStringAndProcessed = dateAsStringAndProcessed.substring(0, 8) + 
-           lastDay + 
-          dateAsStringAndProcessed.substring(10, dateAsStringAndProcessed.length);
-
-	
-	return dateAsStringAndProcessed;
-}
+// 1. READ DATA and ProcessCSV support functions 
+ 
 	 
-	 
-
-function processFrequenciesDates(data, periodKeys){
-	var iLimit=0, j=0, jLimit =0;
-
-	var timeOffset  = (new Date()).getTimezoneOffset();
-	var timeOffsetText ="";
-	var key = "";
-
-	timeOffsetText = (timeOffset > 0 ) ? 	("-"+convertOffsetToHHMM(timeOffset)): ("+"+convertOffsetToHHMM(-timeOffset));
-
-	iLimit = data.length;
-
-	for (var i=0; i < iLimit ;i++){
-		for(key in periodKeys){
-			if (periodKeys.hasOwnProperty(key)) {
-				if(periodKeys[key]=== true){
-					//DEBUG && console.log("[key]",key);
-					//DEBUG && console.log("data[i][key]",data[i][key]);
-					jLimit = data[i][key].x.length;
-					for(j=0; j<jLimit;j++){	
-							data[i][key].x[j] = processDate(data[i][key].x[j], timeOffsetText);
-					}	
-				}	
-			}
-		}
-	}
-}		
-
-
-
-
-// make data dates into  'yyyy-mm-dd hh:mm:sss.sss+00:00
-// dates inputs with optional hour and optional time zone
-// which are filled with time 0, and local time zone if not provided.
-function preProcessDataDates(data){
-	var iLimit=0, j=0, jLimit =0;
-	var dateString = "";
-	var dateParts=["","",""];
-	var split=[];
-	var dateTimeTail = "";
-	var offset  = (new Date()).getTimezoneOffset();
-	var offsetText ="";
-
-	offsetText = offset > 0 ? ("-"+convertOffsetToHHMM(offset)): ("+"+convertOffsetToHHMM(-offset));
-
-	//DEBUG && console.log(offsetText);
-
-	iLimit = data.length;
-
-	for (var i=0; i<iLimit ;i++){
-		jLimit = data[i].x.length;
-		for(j=0; j<jLimit;j++){
-
-
-			dateString = data[i].x[j];
-
-
-			// search for timezone info
-			if (dateString.includes("Z")){
-				split = dateString.split("Z");
-
-				dateParts[2]="+00:00";
-				dateTimeTail=split[0];
-			}
-
-			else if(dateString.includes("+") ||dateString.includes("-") ){
-				if(dateString.includes("+")) {
-					split = dateString.split("+");
-					dateParts[2]="+"+split[1];
-						dateTimeTail=split[0];
-				}
-				if(dateString.includes("-")) {
-					split = dateString.split("-");
-					if(split.length===3){
-						dateParts[2]= offsetText;
-						dateTimeTail = split[0]+"-"+split[1]+"-"+split[2];
-					}
-					else if (split.length == 2){
-						dateParts[2]=offsetText;
-						dateTimeTail = split[0]+"-"+split[1];
-					}
-					else {
-						dateParts[2]="-"+split[3];
-						dateTimeTail=split[0]+"-"+split[1]+"-"+split[2];
-					}			
-
-				}
-			}
-			else{
-				dateParts[2]=offsetText;
-				dateTimeTail = dateString+"-12-31";
-			}
-
-
-
-			// search for hour info
-			if(dateTimeTail.includes(" ") ||dateTimeTail.includes("T") ){
-
-				if(dateString.includes(" ")) split = dateTimeTail.split(" ");
-				if(dateString.includes("T")) split = dateTimeTail.split("T");
-
-				data[i].x[j]=split[0]+" "+split[1]+dateParts[2];
-
-			}
-			else{
-				data[i].x[j]=dateTimeTail+" 00:00:00"+dateParts[2];
-			}
-
-		}
-
-	}	
-
-}
-
-
-function getTimeOffsetText(){
-		var offset  = (new Date()).getTimezoneOffset();
-
-		return ((offset > 0) ? ("-"+convertOffsetToHHMM(offset)): ("+"+convertOffsetToHHMM(-offset)));			
-}
-
-
-function makeDateComplete(dateString){
-	var timeOffsetText = "";		
-
-	var offset  = (new Date()).getTimezoneOffset();
-
-	timeOffsetText = (offset > 0) ? ("-"+convertOffsetToHHMM(offset)): ("+"+convertOffsetToHHMM(-offset));			
-
-	return processDate(dateString,timeOffsetText);
-
-
-}
-
-
-// make  date into  'yyyy-mm-dd hh:mm:sss.sss+00:00
-// dates inputs with optional hour and optional time zone
-// which are filled with time 0, and local time zone if not provided.
-	function processDate(dateString, timeOffsetText){
-	var dateTimeZone="";
-	var split=[];
-	var dateTimeTail = "";
-
-
-	// search for timezone info
-	if (dateString.includes("Z")){
-		split = dateString.split("Z");
-
-		dateTimeZone="+00:00";
-		dateTimeTail=split[0];
-	}
-
-	else if(dateString.includes("+") ||dateString.includes("-") ){
-		if(dateString.includes("+")) {
-			split = dateString.split("+");
-			dateTimeZone="+"+split[1];
-				dateTimeTail=split[0];
-		}
-		if(dateString.includes("-")) {
-			split = dateString.split("-");
-			if(split.length===3){
-				dateTimeZone= timeOffsetText;
-				dateTimeTail = split[0]+"-"+split[1]+"-"+split[2];
-			}
-			else if (split.length == 2){
-				dateTimeZone=timeOffsetText;
-				dateTimeTail = split[0]+"-"+split[1];
-			}
-			else {
-				dateTimeZone="-"+split[3];
-				dateTimeTail=split[0]+"-"+split[1]+"-"+split[2];
-			}			
-
-		}
-	}
-	else{
-		dateTimeZone=timeOffsetText;
-		dateTimeTail = dateString+"-12-31";
-	}
-
-
-
-	// search for hour info
-	if(dateTimeTail.includes(" ") ||dateTimeTail.includes("T") ){
-
-		if(dateString.includes(" ")) split = dateTimeTail.split(" ");
-		if(dateString.includes("T")) split = dateTimeTail.split("T");
-
-		return split[0]+" "+split[1]+dateTimeZone;
-
-	}
-	else{
-		return dateTimeTail+" 00:00:00"+dateTimeZone;
-	}
-
-
-}
-
-
-function convertOffsetToHHMM(offset){
-		var m = 0, h=0;
-				var stringHH = "", stringMM = "";
-
-		m = offset % 60;
-		h = (offset - m)/60;
-
-				stringHH = h.toString();
-				stringMM = m.toString();
-
-				stringHH = stringHH.length === 1 ? ("0"+stringHH): stringHH;
-				stringMM = stringMM.length === 1 ? ("0"+stringMM): stringMM;
-
-				return stringHH+":"+stringMM;
-
-}
-
-	 
-	 
-	 
-	 
-	 
-	 
-	 
-	 
-
-// 3. READ DATA - support function, reads data and add it to data object, increases global iS variable
-function readData(data, iS, param, callback) {
-	
-	var urlType = param.dataSources[iS.value].urlType;
-	var url = param.dataSources[iS.value].url;
-	
-	if (urlType === "csv") {
-		Plotly.d3.csv(url, function(readData) {
-			DEBUG && console.log("csv", iS.value);
-			DEBUG && console.log("readData", readData);
-			/*if(iS.value ===0){
-				for(var y=0; y<readData.length; y++){
-					DEBUG && console.log(readData[y]);
-				}
-			}*/
-			processCsvData(
-				readData, 
-				data,
-				param.timeInfo.tracesInitialDate,
-				param.otherDataProperties,
-				param.dataSources[iS.value]
-				);
-			DEBUG && console.log("processCsvData finished");
-			iS.value++;
-			readData="";
-			readDataAndMakeChart(data, iS, param, callback);
-		});
-	} 
-	else if (urlType === "arrayOfJsons") {
-		DEBUG && console.log("arrayOfJsons", iS.value);
-		processCsvData(
-			param.dataSources[iS.value].arrayOfJsons, 
-			data,
-			param.timeInfo.tracesInitialDate,
-			param.otherDataProperties,
-			param.dataSources[iS.value]
-			);
-		param.dataSources[iS.value].arrayOfJsons = [];
-		iS.value++;
-		readDataAndMakeChart(data, iS, param, callback);
-	} 
-	else if (urlType === "yqlJson") {
-		$.getJSON(url, function(readData) {
-			/* Not required, it can be handled with the CSV function, 
-			set xSeriesName to date and ySeriesName to value*/	    
-			processCsvData(
-				readData.query.results.json.observations,
-				data,
-				param.timeInfo.tracesInitialDate,
-				param.otherDataProperties,
-				param.dataSources[iS.value]
-				);
-			iS.value++;
-			readData="";
-			readDataAndMakeChart(data, iS, param, callback);
-		});
-	}   
-	else if ( urlType === "yqlGoogleCSV") {
-		DEBUG && console.log("Googlecsv", iS.value);
-		Plotly.d3.json("https://query.yahooapis.com/v1/public/yql?q="+
-			encodeURIComponent("SELECT * from csv where url='"+url+"'")+
-			"&format=json", 				
-			function(readData) {
-				processCsvData(
-					readData.query.results.row,
-					data,
-					param.timeInfo.tracesInitialDate,
-					param.otherDataProperties,
-					param.dataSources[iS.value]
-				);
-			iS.value++;
-			readData="";
-			readDataAndMakeChart(data, iS, param, callback);
-		});
-  	} 
-	else if (urlType === "pureJson") {
-		$.getJSON(url, function(readData) {
-			processCsvData(
-				readData, 
-				data,
-				param.timeInfo.tracesInitialDate, 
-				param.otherDataProperties,
-				param.dataSources[iS.value]
-				);
-			iS.value++;
-			readData="";
-			readDataAndMakeChart(data, iS, param, callback);
-		});
-	} 
-	/*
-	else if (urlType === "direct") {
-		processDirectData(
-			data,
-			param.timeInfo.tracesInitialDate, 
-			param.otherDataProperties,
-			param.dataSources[iS.value]
-			);
-		iS.value++;
-		readDataAndMakeChart(data, iS, param, callback);
-	}
-	*/
-}
-
-	     
-    
 	    
 function findSpliceInfo(newArray, xSeriesName, newArrayInitialIndex, newArrayElements, existingArray/*,
 			datesReady, transformToEndOfMonth, yqlGoogleCSV, xDateSuffix, timeOffsetText*/){
@@ -5470,553 +5584,413 @@ function getAdjustFactor(allRows, xSeriesName, ySeriesName, initialIndex, existi
 }	    
 	    
 	    
-	    
-	    
-// FUNCTIONS TO PARSE CVS, JSON OR DIRECT SERIES
-// main code, reads cvs files and creates traces and combine them in data
-function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, dataSources) {
-	var x = [], y = []; //[];
-	var initialDateAsDate = new Date("0001-01-01");
-	var processedDate ="";
-	var timeOffsetText = getTimeOffsetText();
-	var i = 0, j, ia, ib, iLimit, jLimit, iData;
-	var xSeriesName="", xDateSuffix ="", ySeriesName="", traceID = "";
-	var processedColumnDates = [];
-	var insertTrace = false;
-	var readTraceInitialDateAsDate, readTraceEndDateAsDate;
-	var existingInitialDateAsDate, existingEndDateAsDate;
-	var existingInitialValue, existingEndValue;
-	var insertPoint = -1;
-	var initialIndex=0;
-	var readTraceLength = 0, readTraceInitialIndex =0, traceLength, readTraceLimit =0;
-	var readTraceEndIndex =0;
-	var spliceInfo = {};
-	var k=0, kLimit =0, readItems;
-	var latestSorted = "";
-	var delta =0.0;
-	var datesReady = false, transformToEndOfMonth = false;
-	var urlType = dataSources.urlType;
-	var tags=allRows[0];
-	var yqlGoogleCSV = false;
-	var tableParams = {};
-	var adjustFactor = 1.0, adjust="";
-	var calculateAdjustedClose = false;
-	
-	// save function references
-	var localProcessDate = processDate;
-	var localChangeDateToEndOfMonth = changeDateToEndOfMonth;
-	var localNameIsOnArrayOfNames = nameIsOnArrayOfNames;
-	var localFindTraceIdIndex = findTraceIdIndex;
-	var localSortByDatesAsStrings = sortByDatesAsStrings;
-	var localSortByGoogleDatesAsStrings = sortByGoogleDatesAsStrings;
-	var localInsertArrayInto = insertArrayInto;
-	var localMyConcat = myConcat;
-	var localFindSpliceInfo = findSpliceInfo;
-	var localGoogleMDYToYMD = GoogleMDYToYMD;
-	
-	// number of traces to be read on this data source
-	jLimit = dataSources.traces.length;
-	
-	// set flag for yqlGoogleCSV type and removes first row of array and translate names of columns to values
-	if(urlType === "yqlGoogleCSV"){
-		yqlGoogleCSV = true;
-		processYqlGoogleCSVTags(dataSources);
-		allRows.shift();
-	}
-	
-	xSeriesName = "";
-	if(typeof dataSources["xSeriesName"] !== "undefined"){
-		xSeriesName =  dataSources["xSeriesName"];
-	}
-	
 
-	// update initialDateAsDate if tracesInitialDate provided
-	if (tracesInitialDate !== "") {
-		initialDateAsDate = new Date(localProcessDate(tracesInitialDate, timeOffsetText));
-	}
-	
-	DEBUG && console.log("initialDateAsDate", initialDateAsDate);
-	
-		
-	
-	
-	//DEBUG && console.log("allRows: ", allRows);
-	
-	// total rows of csv file loaded
-	// allRows is an array of objects
-	iLimit = allRows.length;
-	
-	
-	// Preprocess options for all Rows
-	DEBUG && console.log("start preprocess");
-	
-	// get number of tables, sort and preprocessing of dates options
-	setTablesParametersSortPreprocessing(tableParams, dataSources);
-	DEBUG && console.log("table params set: ", tableParams);
-
-	// apply date preprocessing options
-	applyDateProprocessing(allRows, tableParams, urlType);
-	DEBUG && console.log("data processing options applied");
-	DEBUG && console.log("allRows",allRows);
-
-	// split subtables trim by InitialDateAsDate and reorder by firstItemToRead
-	splitSubtablesAndTrim(allRows, tableParams, dataSources, initialDateAsDate);
-	DEBUG && console.log("tables split, and reordered");
-	DEBUG && console.log("table Params", tableParams);
-	allRows = [];
-	
-	
-	// sort subtables
-	sortSubTables(tableParams);
-	DEBUG && console.log("SubTable sorted");
-	
-	
-	// iterate through traces to be loaded
-	for(j=0; j < jLimit; j++){
-		
-		DEBUG && console.log("starting trace: ", j);
-		
-		// set temporary variable
-		xSeriesName = dataSources.traces[j].xSeriesName;
-		ySeriesName = dataSources.traces[j].ySeriesName;
-		xDateSuffix = dataSources.traces[j].xDateSuffix;
-		traceID = dataSources.traces[j].traceID;
-		
-		// get data
-		allRows = tableParams[xSeriesName]["allRows"];
-		DEBUG && console.log("tableParams", tableParams);
-		DEBUG && console.log("allRows from table params", allRows);
-
-		
-		// find trace index (position in data array)
-		iData = localFindTraceIdIndex(traceID,otherDataProperties);
-		DEBUG && console.log("iData", iData);
-		
-		// find weather trace will be added to existing trace
-		insertTrace = false;
-		if(typeof data[iData].x !== "undefined"){
-			insertTrace = true;
-		}
-			
-		// initialite x, y temporary arrays
-		x = [];
-		x.length = iLimit; 
-		
-		y = [];
-		y.length = iLimit;
-		
-		
-		readTraceInitialIndex = 0;
-		
-		readTraceEndIndex = allRows.length === 0 ? 0 : allRows.length-1;
-		readTraceLength = allRows.length;
-		
-		DEBUG && console.log("readTraceInitialIndex ", readTraceInitialIndex);
-		DEBUG && console.log("readTraceEndIndex ", readTraceEndIndex);
-		DEBUG && console.log("xSeriesName: ", xSeriesName);
-		DEBUG && console.log("allRows: ",allRows);
-		
-		readTraceEndDateAsDate = new Date(allRows[readTraceInitialIndex][xSeriesName]);
-		readTraceInitialDateAsDate = new Date(allRows[readTraceEndIndex][xSeriesName]);
-		
-		adjust = "none";
-		adjustFactor = 1.0;
-		calculateAdjustedClose = 
-			tableParams[xSeriesName]["yCalculateAdjustedClose"][tableParams[xSeriesName]["yNames"].indexOf(ySeriesName)];
-		
-		DEBUG && console.log("calculateAdjustedClose", calculateAdjustedClose);
-		
-		if(insertTrace){
-			DEBUG && console.log("insert trace");
-			// default insert point
-			insertPoint = 0;
-			
-			readTraceLimit = readTraceLength+readTraceInitialIndex;
-			DEBUG && console.log("readTraceLimit",readTraceLimit);
-
-			// get existing data x range
-			existingInitialDateAsDate = new Date(data[iData].x[data[iData].x.length - 1]);
-			existingEndDateAsDate = new Date(data[iData].x[0]);
-			existingInitialValue =data[iData].y[data[iData].x.length - 1];
-			existingEndValue =data[iData].y[0];
-			
-			DEBUG && console.log("existingInitialDateAsDate", existingInitialDateAsDate);
-			DEBUG && console.log("existingEndDateAsDate", existingEndDateAsDate);
-			DEBUG && console.log("existingInitialValue", existingInitialValue);
-			DEBUG && console.log("existingEndValue", existingEndValue);
-
-			// find trace range to be read
-
-			// case no overlap, more recent
-			if( readTraceInitialDateAsDate > existingEndDateAsDate){
-				initialIndex = readTraceInitialIndex;
-				traceLength = readTraceLength;
-
-			}
-			
-			// case no overlap, older
-			else if( readTraceEndDateAsDate < existingInitialDateAsDate){
-				insertPoint = data[iData].x.length;
-				initialIndex = readTraceInitialIndex;
-				traceLength = readTraceLength;
-
-			}
-
-			// overlap, but new data is more recent than existing
-			else if (readTraceEndDateAsDate > existingEndDateAsDate ) {
-				initialIndex = 0;
-				for(i=readTraceInitialIndex; i<readTraceLimit;i++){
-					if(new Date(allRows[i][xSeriesName]) <= existingEndDateAsDate){
-						traceLength = i-readTraceInitialIndex;
-						if(calculateAdjustedClose){
-							adjust = "existing"; // "new", "existing" or "none"
-							adjustFactor = allRows[i][ySeriesName]/existingEndValue;
-						}
-						i = readTraceLimit;
-					}
-				}	
-			}
-
-			// overlap, but new data is older than existing
-			else if (readTraceInitialDateAsDate < existingInitialDateAsDate ) {
-				DEBUG && console.log("overlap, but new data is older than existing");
-				for(i=readTraceLimit -1 ; i > readTraceInitialIndex-1; i--){
-					if(new Date(allRows[i][xSeriesName]) >= existingInitialDateAsDate){
-						initialIndex = i+1;
-						traceLength = readTraceLimit - initialIndex;
-						insertPoint = data[iData].x.length;
-						if(calculateAdjustedClose){
-							adjust = "new"; // "new", "existing" or "none"
-							adjustFactor = existingInitialValue / allRows[i][ySeriesName];
-						}
-						i = readTraceInitialIndex-1;
-					}
-				}	
-			}
-
-			// case total overlap, find space available
-			else {
-				spliceInfo = localFindSpliceInfo(
-					allRows,   xSeriesName, readTraceInitialIndex,
-					readTraceLength, data[iData].x/*,  datesReady,
-					transformToEndOfMonth, yqlGoogleCSV,xDateSuffix, timeOffsetText*/);
-				initialIndex = spliceInfo.initialIndex;
-				traceLength = spliceInfo.traceLength;
-				insertPoint = spliceInfo.insertPoint;
-		
-				if(calculateAdjustedClose){
-					adjust = "new"; // "new", "existing" or "none"
-					adjustFactor = getAdjustFactor(allRows, xSeriesName, ySeriesName, initialIndex, data[iData], insertPoint);
-				}
-
-			}
-			
-			if(calculateAdjustedClose){
-				if(adjust !== "none" && adjustFactor !== 1.0){
-					if(adjust === "new"){
-						iLimit = allRows.length;
-						for(i = 0; i < iLimit ; i++){
-							allRows[i][ySeriesName] *= adjustFactor;
-						}
-					}
-					else if(adjust === "existing"){
-						iLimit = data[iData].y.length;
-						for(i = 0; i < iLimit ; i++){
-							data[iData].y[i] *= adjustFactor;
-						}
-					}
-				}
-			}
-			
-		} 
-
-		// no trace inserted only charge
-		else {
-			initialIndex = readTraceInitialIndex;
-			traceLength = readTraceLength;
-			insertPoint = 0;
-		}
-		
-		// fill temporary x, y arrays with read data
-		readItems = 0;
-		kLimit = traceLength;
-
-		
-		// just fill in processed dates
-		DEBUG && console.log("fill processed dates");
-		for(k=0, i=initialIndex; k < kLimit ; i++, k++){ 
-			processedDate = allRows[i][xSeriesName];
-			if (
-				tracesInitialDate === "" ||
-				new Date(processedDate) >= initialDateAsDate
-			) {
-				x[k]=processedDate;
-				y[k]=allRows[i][ySeriesName];
-				readItems++;
-			}
-			else {
-				// stop reading when initialDateAsDate has been reached.
-				k= kLimit;
-			}
-		}	
-
-		// remove excess points
-		if (x.length > readItems){
-			x.length = readItems;
-			y.length = readItems;
-		}
-		DEBUG && console.log("excess points removed");
-		
-		
-		// create x and y properties if not yet defined for current trace
-		if(typeof data[iData].x === "undefined" ||
-		   typeof data[iData].y === "undefined") {
-			data[iData].x = [];
-			data[iData].y = [];
-		}
-
-
-		// add read data to current data
-		if(readItems >0){
-			
-			// case new data come first
-			if(insertPoint === 0){
-				if(data[iData].x.length >0){
-					data[iData].x = localMyConcat(x,data[iData].x);
-					data[iData].y = localMyConcat(y,data[iData].y);	
-				}
-				else{
-					data[iData].x = x;
-					data[iData].y = y;
-				}
-			}
-			// new data comes after
-			else if (insertPoint === data[iData].x.length){
-				data[iData].x = localMyConcat(data[iData].x,x);
-				data[iData].y = localMyConcat(data[iData].y,y);	
-			}
-			// new data comes inside
-			else {
-				data[iData].x = localInsertArrayInto(x,insertPoint, data[iData].x);
-				data[iData].y = localInsertArrayInto(y,insertPoint, data[iData].y);
-			}
-		}
-		
-		
-		// set column as processed
-		if(processedColumnDates.indexOf(xSeriesName) === -1){
-			processedColumnDates.push(xSeriesName);
-		}
-	}
-}
-
-	    
-aoPlotlyAddOn.findSpliceInfo = findSpliceInfo;	        
-aoPlotlyAddOn.processCsvData = processCsvData;	    
-	    
-	    
-/* Not required, it can be handled with the CSV function, set xSeriesName to date and ySeriesName to value	    
-function processJsonData(jsonData, tracesInitialDate, serie) {
-	var x = [], y = [], trace = {}; //[];
-	var initialDateAsDate = new Date("0001-01-01");
-	var processedDate ="";
-	var timeOffsetText = getTimeOffsetText();
-	var readFlag = false;
-	var i = 0;
-
-	if (tracesInitialDate !== "") {
-		initialDateAsDate = new Date(processDate(tracesInitialDate,timeOffsetText));
-	}
-	
-	if(typeof serie.postProcessData !== "undefined"){
-		if(serie.postProcessData === "end of month"){
-			readFlag = true;
-
-			for (i = 0; i < jsonData.count; i++) {
-				processedDate = processDate(jsonData.observations[i].date+ serie.xDateSuffix,timeOffsetText);	
-				processedDate = changeDateToEndOfMonth(processedDate);
-
-				if (
-					tracesInitialDate === "" ||
-					new Date(processedDate) >= initialDateAsDate
-				) {
-					x.push(processedDate);
-					y.push(jsonData.observations[i].value);
-				}
-			}
-		}	
-	}	
-	
-	if(!readFlag){
-		readFlag = true;
-		for (i = 0; i < jsonData.count; i++) {
-			processedDate = processDate(jsonData.observations[i].date+ serie.xDateSuffix,timeOffsetText);	
-
-			if (
-				tracesInitialDate === "" ||
-				new Date(processedDate) >= initialDateAsDate
-			) {
-				x.push(processedDate);
-				y.push(jsonData.observations[i].value);
-			}
-		}	
-		
-	}
-			
-	trace = deepCopy(serie.traceAttributes);
-	trace.x = x;
-	trace.y = y;
-	return trace;
-}
-*/
-	
-/* merge into processCSVData 
-// // read data from google finance history csv files	    
-function processYqlGoogleCsvData(allRows, tracesInitialDate, serie) {
-	var x = [], y = [], trace = {}; //[];
-	var initialDateAsDate = new Date("0001-01-01");
-	var processedDate ="";
-	var timeOffsetText = getTimeOffsetText();
-	var readFlag = false;
-	var i = 0;
-	var row;
-	var xTag ="", yTag="";
-
-	var tags=allRows[0];
-	
-	
-	for (var key in tags){
-		if (tags.hasOwnProperty(key)) {
-			
-			if(tags[key].toString().trim() === serie.xSeriesName.toString()){
-				xTag = key;
-			}
-			
-			
-			if(tags[key].toString().trim() === serie.ySeriesName.toString()){
-				yTag = key;
-			}
-		}
-	}
-	
-	
-	if (tracesInitialDate !== "") {
-		initialDateAsDate = new Date(processDate(tracesInitialDate, timeOffsetText));
-	}
-
-	if(typeof serie.postProcessData !== "undefined"){
-		if(serie.postProcessData === "end of month"){
-			readFlag = true;
-			//DEBUG && console.log(allRows.length);
-			//DEBUG && console.log("allRows",allRows);
-			//DEBUG && console.log("initialDateAsDate",initialDateAsDate);
-			//DEBUG && console.log("tracesInitialDate",tracesInitialDate);
-			//DEBUG && console.log(serie);
-			
-			for (i = 1; i < allRows.length; i++) {
-				row = allRows[i];
-				processedDate = processDate(GoogleMDYToYMD(row[xTag]) + serie.xDateSuffix, timeOffsetText);
-				//DEBUG && console.log("processedDate",processedDate);
-				processedDate = changeDateToEndOfMonth(processedDate);
-				//DEBUG && console.log("processedDate",processedDate);
-				if (
-					tracesInitialDate === "" ||
-					new Date(processedDate) >= initialDateAsDate
-				) {
-					x.push(processedDate);
-					y.push(row[yTag]);
-				}
-			}
-		}
-	}
-	
-	
-	if(!readFlag) {
-		readFlag = true;
-		for (i = 1; i < allRows.length; i++) {
-			row = allRows[i];
-			//DEBUG && console.log("row",row);
-			processedDate = processDate(GoogleMDYToYMD(row[xTag]) + serie.xDateSuffix, timeOffsetText);
-			//DEBUG && console.log("processedDate",processedDate);
-
-			if (
-				tracesInitialDate === "" ||
-				new Date(processedDate) >= initialDateAsDate
-			) {
-				x.push(processedDate);
-				y.push(row[yTag]);
-			}
-		}
-	}	
-
-	trace = deepCopy(serie.traceAttributes);
-	trace.x = x;
-	trace.y = y;
-	return trace;
-}
-
-*/
-
- 
-	    
-/*
-// In case trace x and y are provided direct, and not to be read from a file.
-function processDirectData(tracesInitialDate, serie) {
-	var x = [], y = [], trace = {}; //[];
-	var initialDateAsDate = new Date("0001-01-01");
-	var processedDate ="";
-	var timeOffsetText = getTimeOffsetText();
-	var readFlag = false;
-	var i=0;
-	
-	if (tracesInitialDate !== "") {
-		initialDateAsDate = new Date(processDate(tracesInitialDate, timeOffsetText));
-	}
-	
-	if(typeof serie.postProcessData !== "undefined"){
-		if(serie.postProcessData === "end of month"){
-			readFlag = true;
-
-			for (i = 0; i < serie.traceAttributes.x.length; i++) {
-				processedDate = processDate("" + serie.traceAttributes.x[i] + serie.xDateSuffix, timeOffsetText);			
-				processedDate = changeDateToEndOfMonth(processedDate);
-
-				if (
-					tracesInitialDate === "" ||
-					new Date(processedDate) >= 	initialDateAsDate
-				) {
-					x.push(processedDate);
-					y.push(serie.traceAttributes.y[i]);
-				}
-			}
-		}		
-	}		
-	
-	if(!readFlag){
-			readFlag = true;
-
-			for (i = 0; i < serie.traceAttributes.x.length; i++) {
-				processedDate = processDate("" + serie.traceAttributes.x[i] + serie.xDateSuffix, timeOffsetText);			
-
-				if (
-					tracesInitialDate === "" ||
-					new Date(processedDate) >= 	initialDateAsDate
-				) {
-					x.push(processedDate);
-					y.push(serie.traceAttributes.y[i]);
-				}
-			}		
-	}
-
-	
-	trace = deepCopy(serie.traceAttributes);
-	trace.x = x;
-	trace.y = y;
-	return trace;
-}*/
-
-	
 	 
+	 
+	 
+// 3. DATES PROCESSING FUNCTIONS	 
+
+// transform yyyy-m-d to yyyy-mm-dd
+function parseDateStringToYMD(dateAsString) {
+	var allParts = dateAsString.split(" ");
+	var parts = allParts[0].split("-");
+	
+	function padTo2(number) {
+		return number < 10 ? "0" + number : "" + number;
+	}
+
+	return "" + parts[0] + "-" + padTo2(Number(parts[1]))+ "-" + padTo2(Number(parts[2]));
+}
+
+// transform date to string
+function dateToStringYMD(date) {
+	function padTo2(number) {
+		return number < 10 ? "0" + number : "" + number;
+	}
+
+	return (
+		"" +
+		date.getFullYear() +
+		"-" +
+		padTo2(date.getMonth() + 1) +
+		"-" +
+		padTo2(date.getDate())
+	);
+}
+
+// transform date to full string
+function dateToString(date) {
+	
+		var offset  = (new Date()).getTimezoneOffset();
+		var offsetText ="";
+		
+		offsetText = offset > 0 ? ("-"+convertOffsetToHHMM(offset)): ("+"+convertOffsetToHHMM(-offset));
+	
+	function padTo2(number) {
+		return number < 10 ? "0" + number : "" + number;
+	}
+	
+	function padTo3(number) {
+		if(number <100){
+			return "0"+padTo2(number);
+		}
+		else{
+			return number;
+		}
+	}
+
+	return (
+		"" +
+		date.getFullYear() +
+		"-" +
+		padTo2(date.getMonth() + 1) +
+		"-" +
+		padTo2(date.getDate())+" "+
+		
+		padTo2(date.getHours())+":"+
+		
+		padTo2(date.getMinutes())+":"+
+		
+		padTo2(date.getSeconds())+
+		
+		(date.getMilliseconds()!==0? "."+padTo3(date.getMilliseconds()):"")+
+		
+		offsetText
+		
+	);
+}
+
+
+// get the day before	 
+// dateAsYYYYMMDDString = "YYYY-MM-DD"
+function getdayBeforeAsString(dateAsYYYYMMDDString){
+	var timeOffsetText = getTimeOffsetText();
+	
+	dateAsYYYYMMDDString +=" 00:00:00"+timeOffsetText;
+	
+	console.log(dateAsYYYYMMDDString.substr(0,4));
+	
+	var dayBefore = new Date(
+		Number(dateAsYYYYMMDDString.substr(0,4)),
+		Number(dateAsYYYYMMDDString.substr(5,2))-1,
+		Number(dateAsYYYYMMDDString.substr(8,2))
+	);
+	
+	console.log(dayBefore);
+	
+	
+	dayBefore = new Date(dayBefore.getTime() -24*60*60*1000);
+	
+	console.log(dayBefore);
+
+	
+	console.log(dayBefore);
+	console.log(dayBefore.getFullYear());
+	
+	return dateAsDateToString(dayBefore);
+	
+} 
+	 
+	 
+	
+// transform a date as Date into a string "yyyy-mm-dd"	 
+function dateAsDateToString(dateAsDate){
+	
+	function padTo2(number) {
+    return number < 10 ? '0' + number : '' + number;
+  }
+	
+	return "" + dateAsDate.getFullYear() + "-"+
+		padTo2(dateAsDate.getMonth()+1)+"-"+
+		padTo2(dateAsDate.getDate());
+	
+}	 
+	 
+
+//transform google date format "day-monthString-year" into "yyyy-mm-dd"
+
+function GoogleMDYToYMD(googleDate){
+	
+	var year =0;
+	var monthString = "";
+	var month = "";
+	
+	googleDate=googleDate.trim();
+	var stringParts=googleDate.split("-");
+
+	
+	var newString ="";
+	
+	if((year = Number(stringParts[2])) < 100 ){
+		year += year< 50 ? 2000 : 1900;
+	}
+	
+	newString = year.toString();
+	
+		
+	monthString = stringParts[1];
+	if(monthString === "Jan") month = "01";
+	else if (monthString === "Feb") month = "02";
+	else if (monthString === "Mar") month = "03";
+	else if (monthString === "Apr") month = "04";
+	else if (monthString === "May") month = "05";
+	else if (monthString === "Jun") month = "06";
+	else if (monthString === "Jul") month = "07";
+	else if (monthString === "Aug") month = "08";
+	else if (monthString === "Sep") month = "09";
+	else if (monthString === "Oct") month = "10";
+	else if (monthString === "Nov") month = "11";
+	else if (monthString === "Dec") month = "12";
+	
+	newString +="-"+month+"-";
+
+	newString += Number(stringParts[0]) < 10 ? "0" + stringParts[0] : stringParts[0];
+	
+	return newString;
+	
+}
+	 
+	 
+
+function changeDateToEndOfMonth(dateAsStringAndProcessed){
+	
+	var currentDate = new Date(dateAsStringAndProcessed);
+	var endOfMonthDate = new Date(currentDate.getFullYear(), currentDate.getMonth()+1, 0);
+
+	var lastDay = endOfMonthDate.getDate().toString();
+	
+
+	dateAsStringAndProcessed = dateAsStringAndProcessed.substring(0, 8) + 
+           lastDay + 
+          dateAsStringAndProcessed.substring(10, dateAsStringAndProcessed.length);
+
+	
+	return dateAsStringAndProcessed;
+}
+	 
+	 
+
+function processFrequenciesDates(data, periodKeys){
+	var iLimit=0, j=0, jLimit =0;
+
+	var timeOffset  = (new Date()).getTimezoneOffset();
+	var timeOffsetText ="";
+	var key = "";
+
+	timeOffsetText = (timeOffset > 0 ) ? 	("-"+convertOffsetToHHMM(timeOffset)): ("+"+convertOffsetToHHMM(-timeOffset));
+
+	iLimit = data.length;
+
+	for (var i=0; i < iLimit ;i++){
+		for(key in periodKeys){
+			if (periodKeys.hasOwnProperty(key)) {
+				if(periodKeys[key]=== true){
+					//DEBUG && console.log("[key]",key);
+					//DEBUG && console.log("data[i][key]",data[i][key]);
+					jLimit = data[i][key].x.length;
+					for(j=0; j<jLimit;j++){	
+							data[i][key].x[j] = processDate(data[i][key].x[j], timeOffsetText);
+					}	
+				}	
+			}
+		}
+	}
+}		
+
+
+
+
+// make data dates into  'yyyy-mm-dd hh:mm:sss.sss+00:00
+// dates inputs with optional hour and optional time zone
+// which are filled with time 0, and local time zone if not provided.
+function preProcessDataDates(data){
+	var iLimit=0, j=0, jLimit =0;
+	var dateString = "";
+	var dateParts=["","",""];
+	var split=[];
+	var dateTimeTail = "";
+	var offset  = (new Date()).getTimezoneOffset();
+	var offsetText ="";
+
+	offsetText = offset > 0 ? ("-"+convertOffsetToHHMM(offset)): ("+"+convertOffsetToHHMM(-offset));
+
+	//DEBUG && console.log(offsetText);
+
+	iLimit = data.length;
+
+	for (var i=0; i<iLimit ;i++){
+		jLimit = data[i].x.length;
+		for(j=0; j<jLimit;j++){
+
+
+			dateString = data[i].x[j];
+
+
+			// search for timezone info
+			if (dateString.includes("Z")){
+				split = dateString.split("Z");
+
+				dateParts[2]="+00:00";
+				dateTimeTail=split[0];
+			}
+
+			else if(dateString.includes("+") ||dateString.includes("-") ){
+				if(dateString.includes("+")) {
+					split = dateString.split("+");
+					dateParts[2]="+"+split[1];
+						dateTimeTail=split[0];
+				}
+				if(dateString.includes("-")) {
+					split = dateString.split("-");
+					if(split.length===3){
+						dateParts[2]= offsetText;
+						dateTimeTail = split[0]+"-"+split[1]+"-"+split[2];
+					}
+					else if (split.length == 2){
+						dateParts[2]=offsetText;
+						dateTimeTail = split[0]+"-"+split[1];
+					}
+					else {
+						dateParts[2]="-"+split[3];
+						dateTimeTail=split[0]+"-"+split[1]+"-"+split[2];
+					}			
+
+				}
+			}
+			else{
+				dateParts[2]=offsetText;
+				dateTimeTail = dateString+"-12-31";
+			}
+
+
+
+			// search for hour info
+			if(dateTimeTail.includes(" ") ||dateTimeTail.includes("T") ){
+
+				if(dateString.includes(" ")) split = dateTimeTail.split(" ");
+				if(dateString.includes("T")) split = dateTimeTail.split("T");
+
+				data[i].x[j]=split[0]+" "+split[1]+dateParts[2];
+
+			}
+			else{
+				data[i].x[j]=dateTimeTail+" 00:00:00"+dateParts[2];
+			}
+
+		}
+
+	}	
+
+}
+
+
+function getTimeOffsetText(){
+		var offset  = (new Date()).getTimezoneOffset();
+
+		return ((offset > 0) ? ("-"+convertOffsetToHHMM(offset)): ("+"+convertOffsetToHHMM(-offset)));			
+}
+
+
+function makeDateComplete(dateString){
+	var timeOffsetText = "";		
+
+	var offset  = (new Date()).getTimezoneOffset();
+
+	timeOffsetText = (offset > 0) ? ("-"+convertOffsetToHHMM(offset)): ("+"+convertOffsetToHHMM(-offset));			
+
+	return processDate(dateString,timeOffsetText);
+
+
+}
+
+
+// make  date into  'yyyy-mm-dd hh:mm:sss.sss+00:00
+// dates inputs with optional hour and optional time zone
+// which are filled with time 0, and local time zone if not provided.
+	function processDate(dateString, timeOffsetText){
+	var dateTimeZone="";
+	var split=[];
+	var dateTimeTail = "";
+
+
+	// search for timezone info
+	if (dateString.includes("Z")){
+		split = dateString.split("Z");
+
+		dateTimeZone="+00:00";
+		dateTimeTail=split[0];
+	}
+
+	else if(dateString.includes("+") ||dateString.includes("-") ){
+		if(dateString.includes("+")) {
+			split = dateString.split("+");
+			dateTimeZone="+"+split[1];
+				dateTimeTail=split[0];
+		}
+		if(dateString.includes("-")) {
+			split = dateString.split("-");
+			if(split.length===3){
+				dateTimeZone= timeOffsetText;
+				dateTimeTail = split[0]+"-"+split[1]+"-"+split[2];
+			}
+			else if (split.length == 2){
+				dateTimeZone=timeOffsetText;
+				dateTimeTail = split[0]+"-"+split[1];
+			}
+			else {
+				dateTimeZone="-"+split[3];
+				dateTimeTail=split[0]+"-"+split[1]+"-"+split[2];
+			}			
+
+		}
+	}
+	else{
+		dateTimeZone=timeOffsetText;
+		dateTimeTail = dateString+"-12-31";
+	}
+
+
+
+	// search for hour info
+	if(dateTimeTail.includes(" ") ||dateTimeTail.includes("T") ){
+
+		if(dateString.includes(" ")) split = dateTimeTail.split(" ");
+		if(dateString.includes("T")) split = dateTimeTail.split("T");
+
+		return split[0]+" "+split[1]+dateTimeZone;
+
+	}
+	else{
+		return dateTimeTail+" 00:00:00"+dateTimeZone;
+	}
+
+
+}
+
+
+function convertOffsetToHHMM(offset){
+		var m = 0, h=0;
+				var stringHH = "", stringMM = "";
+
+		m = offset % 60;
+		h = (offset - m)/60;
+
+				stringHH = h.toString();
+				stringMM = m.toString();
+
+				stringHH = stringHH.length === 1 ? ("0"+stringHH): stringHH;
+				stringMM = stringMM.length === 1 ? ("0"+stringMM): stringMM;
+
+				return stringHH+":"+stringMM;
+
+}
+
+	 
+	 
+	 
+	 
+	 
+		 
 	 
 	 
 	 
@@ -6263,9 +6237,54 @@ function loaderHide(loaderElement) {
 	 
 	 
 	 
+// 6.-  SET X AXIS RANGE - setsxaxisRange array based of timeInfo parameters and Min Max dates from series.
+function setDatesRangeAsString(minDateAsString, maxDateAsString, timeInfo) {
+	var initialDate, endDate, xaxisRange = [];
+
+	if (typeof timeInfo.yearsToPlot !== "undefined") {
+		if (timeInfo.yearsToPlot > 0) {
+			var yearsToPlot = timeInfo.yearsToPlot; // years to be displayed, if provided
+			var currentTime = new Date(maxDateAsString);
+			endDate = maxDateAsString;
+			initialDate = dateToString(
+				new Date(
+					currentTime.getFullYear() -
+						yearsToPlot +
+						"-" +
+						(currentTime.getMonth() + 1) +
+						"-" +
+						currentTime.getDate()
+				)
+			);
+		} else {
+			initialDate = minDateAsString;
+			endDate = maxDateAsString;
+		}
+	} else {
+		if (typeof timeInfo.initialDateForInitialDisplay !== "undefined") {
+			initialDate = makeDateComplete(timeInfo.initialDateForInitialDisplay);
+		} else {
+			initialDate = minDateAsString;
+		}
+
+		if (typeof timeInfo.endDateForInitialDisplay !== "undefined") {
+			endDate = dateToString(new Date(timeInfo.endDateForInitialDisplay));
+		} else {
+			endDate = maxDateAsString;
+		}
+	}
+
+	xaxisRange.push(initialDate);
+	xaxisRange.push(endDate);
+
+
+	return xaxisRange;
+}
+	 
+	 
 	 
 
-// 6.- DATA HANDLING
+// 7.- DATA HANDLING
 
 // function to save original data into data.xOriginal data.yOriginal arrays
 // Already in library as createDataOriginal(data)
@@ -6496,7 +6515,7 @@ function getDataXminXmaxAsString(data) {
 	 
 	 
 	 
-// 7. UPDATE MENUS
+// 8. UPDATE MENUS
 
 // add menus to updatemenus if specified
 function addToUpdateMenus(newUpdateMenu, updateMenus, layout) {
@@ -6711,7 +6730,7 @@ function getLabelFromButtonsGivenArg(argValue, buttons){
 
 
 
-// 8. LAYOUT UPDATES
+// 9. LAYOUT UPDATES
 
 // move x axis range to accommodate new x axis domain
 
@@ -6879,7 +6898,7 @@ function setLeftRightMarginDefault(
 	 
 	 
 
-// 9. TRANSFORM TO UNIQUE BASE
+// 10. TRANSFORM TO UNIQUE BASE
 
 // function to transforM data for comparison option, sets all traces values
 // to 1 at baseIndexDate. Data contains, x and y arrays.
@@ -6946,7 +6965,7 @@ function prepareTransformToBaseIndex(
 
 	 
 	 
-// 10 Utility Functions
+// 11 Utility Functions
 
 // rounds number to next multiple
 function getNextMultiple(number, multiple){
@@ -7277,7 +7296,7 @@ function setPeriodKeysBasedOnDesiredFrequencies(periodKeys, desiredFrequencies, 
 
 
 
-//11 CSV FILE AND CONVERSION
+//12 CSV FILE AND CONVERSION
 function convertDataToCSV(xName, data) {
   var str = "", 
       line = "",
@@ -7375,7 +7394,7 @@ function downloadCSVData(xName, data, fileTitle) {
 
 
 
-//12  REAL / NOMINAL CONVERSION FUNCTIONS
+//13  REAL / NOMINAL CONVERSION FUNCTIONS
 
 function getIDeflactor(otherDataProperties){
 	var iLimit = otherDataProperties.length;
@@ -7619,7 +7638,8 @@ function transformDataToReal(data, deflactorDictionary, baseRealNominalDate, oth
 
 
 
-
+aoPlotlyAddOn.findSpliceInfo = findSpliceInfo;	        
+aoPlotlyAddOn.processCsvData = processCsvData;	  
 	    
   
       
