@@ -186,6 +186,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		// url should return a zip file as provided by fred api for the USRECP serie for dates after 2015, set to "" in parameters passed
 		// to disable trying to get zip file with update values.
 		newRecessionsUrl: "http://www.kapitalvalue.com/plots_data/testing/fredRecessions-unlocked.php?observation_start=2015-12-01",
+		knownRecessionsDates: knownRecessionsDates,
 		queueConcurrencyLimit: 10,
 		allowCompare: false,
 		transformToBaseIndex: false, //series would be transformed to common value of 1 at beginning
