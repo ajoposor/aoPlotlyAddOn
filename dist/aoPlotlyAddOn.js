@@ -1745,6 +1745,7 @@ function parallelReadDataAndMakeChart(data, param) {
 	var localParallelReadData = parallelReadData;
 	
 	// define queue and set concurrenty
+	DEBUG && console.log("queueConcurrencyLimit: ", param.settings.queueConcurrencyLimit);
 	var plotQueue = d3.queue(param.settings.queueConcurrencyLimit);
 	
 	
@@ -1752,15 +1753,18 @@ function parallelReadDataAndMakeChart(data, param) {
 	var iLimit =param.dataSources.length;
 	
 	for(var i=0; i < iLimit; i++){
+		DEBUG && console.log("add call parallelReadData to defer: ",i);
 		plotQueue.defer(localParallelReadData, data, i, param );
 	}
 	
 	
 	// add call update recessions from external source to queue
+	DEBUG && console.log("calling update recessions");	
 	plotQueue.defer(parallelUpdateRecessions, param.settings.newRecesssionsUrl, param.usRecessions);
 	
 	plotQueue.awaitAll(function(error){
 		if(error){
+			DEBUG && console.log("plotQueu await threw error", error);	
 			//display blank plot
 		} else {
 			// once all files all read, i.e. iS === series.length, this section is executed
