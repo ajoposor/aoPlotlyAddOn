@@ -6445,10 +6445,10 @@ function afterFredZipFileLoaded(error, xhttp, usRecessions, callback) {
 
 			// loads the zip content into the zip instance
 			zip.loadAsync(xhttp.response).then(
-				function (zip) {
+				function (zip, callback) {
 					return zip.file("USRECP_1.txt").async("string");
 				}).then(
-				function (readTxt) {
+				function (readTxt,callback) {
 					DEBUG && console.log("readTxt",readTxt);
 					var readJson = textToArrayOfJsons(readTxt,"\r\n","\t");
 					var fredRecessionsArray = getRecessionsFromUSRecField(readJson);
