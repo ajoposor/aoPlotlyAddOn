@@ -186,6 +186,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		// url should return a zip file as provided by fred api for the USRECP serie for dates after 2015, set to "" in parameters passed
 		// to disable trying to get zip file with update values.
 		newRecessionsUrl: "http://www.kapitalvalue.com/plots_data/testing/fredRecessions-unlocked.php?observation_start=2015-12-01",
+		queueConcurrencyLimit: 10,
 		allowCompare: false,
 		transformToBaseIndex: false, //series would be transformed to common value of 1 at beginning
 		allowFrequencyResampling: false, // includes buttons to allow for calculation of aggregation and methods (monthly, quarterly), close, average, etc.
@@ -1003,28 +1004,6 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 						 settings.recessionsFillColor, 
 						 settings.recessionsOpacity);
 	
-	// this function will get a zip file and update the usRecessions
-	// in an async manner. This assumes the variable will be updated 
-	// before plotly is called
-	var fredZipXMLHttpRequestOptions = {
-		responseType: "arraybuffer",
-		method: "GET",
-		async: true,
-		url: settings.newRecessionsUrl,
-	};
-	
-	DEBUG && console.log("XMLHttpRequestOptions", fredZipXMLHttpRequestOptions);
-	
-	if(fredZipXMLHttpRequestOptions.url !== ""){
-		
-		function myCallBackFredZip(usRecessions){
-			return function (xhttp) {
-				afterFredZipFileLoaded(xhttp, usRecessions);
-			};
-		}
-
-		directXMLHttpRequest(fredZipXMLHttpRequestOptions, myCallBackFredZip(usRecessions)); 
-	}
 	/*
 	var usRecessions = [
 		{
@@ -1695,9 +1674,9 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	// After all settings ready, call function to read data, adjust ranges, set menus and make chart
 	// var data = []; //, dataOriginal = [];
 	// var dataOriginalModes = [];
-	var iS = {
+	/*var iS = {
 		value: 0
-	};
+	};*/
 	
 	// handles tracesInitialDate default info
 	if (typeof timeInfo.tracesInitialDate === "undefined") {
@@ -1719,10 +1698,15 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		options: options
 	};
 
+	/*
 	//Call Read and Make Chart Function
 	readDataAndMakeChart(data, iS, passedParameters, function(message) {
 		DEBUG && console.log(message);
-	});
+	});*/
+	
+	parallelReadDataAndMakeChart(data, passedParameters);
+	
+	
 }; // END OF newTimeseriesPlot FUNCTION
 
 	 
@@ -1730,7 +1714,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	 
 
 
-// FUNCTION TO READ DATA AND THEN MAKE CHART 
+// FUNCTION TO READ DATA AND THEN MAKE CHART - LOADS IN SERIES
 function readDataAndMakeChart(data, iS, param, callback) {
 	
 	
@@ -1752,6 +1736,124 @@ function readDataAndMakeChart(data, iS, param, callback) {
 } //  end of readDataAndMakeChart    
 	    
 
+	 
+	 
+// FUNCTION TO READ DATA AND THEN MAKE CHART - LOADS IN PARALLEL
+function parallelReadDataAndMakeChart(data, param) {
+	
+	// set function to local variable
+	var localParallelReadData = parallelReadData;
+	
+	// define queue and set concurrenty
+	var plotQueue = d3.queue(param.settings.queueConcurrencyLimit);
+	
+	
+	// add read data from dataSources to queue 
+	var iLimit =param.dataSources.length;
+	
+	for(var i=0, i < iLimit; i++){
+		plotQueue.defer(localParallelReadData, data, i, param );
+	}
+	
+	
+	// add call update recessions from external source to queue
+	plotQueue.defer(parallelUpdateRecessions, param.settings.newRecesssionsUrl, param.usRecessions);
+	
+	plotQueue.awaitAll(function(error){
+		if(error){
+			//display blank plot
+		} else {
+			// once all files all read, i.e. iS === series.length, this section is executed
+			DEBUG && console.log("data: ", data);
+			DEBUG && console.log("param: ", param);	
+			makeChart(data, param);
+			DEBUG && console.log("allread and ploted");
+			
+		}
+		
+	});
+	/*
+	// first all files are to be read, in a recursive way, with iS < series.length
+
+	if (iS.value < param.dataSources.length) {
+		readData(data, iS, param, callback);
+	} 
+	
+	else {
+		// once all files all read, i.e. iS === series.length, this section is executed
+		DEBUG && console.log("data: ", data);
+		DEBUG && console.log("param: ", param);
+		
+		makeChart(data, param);
+		callback("all read and plotted");
+	
+	} // end of else after all read section*/
+} //  end of readDataAndMakeChart    	 
+	 
+	
+function parallelUpdateRecessions(newRecesssionsUrl, usRecessions, callback){
+
+	// this function will get a zip file and update the usRecessions
+	// in an async manner. This assumes the variable will be updated 
+	// before plotly is called
+	var fredZipXMLHttpRequestOptions = {
+		responseType: "arraybuffer",
+		method: "GET",
+		async: true,
+		url: settings.newRecessionsUrl,
+	};
+	
+	DEBUG && console.log("XMLHttpRequestOptions", fredZipXMLHttpRequestOptions);
+	
+	if(fredZipXMLHttpRequestOptions.url !== ""){
+		
+		function myCallBackFredZip(usRecessions){
+			return function (error, xhttp) {
+				afterFredZipFileLoaded(error, xhttp, usRecessions).then(function(){return callback(null);});
+				
+			};
+		}
+		
+		
+		var fredZipQueue = d3.queue;
+		fredZipQueue.defer( directXMLHttpRequest, fredZipXMLHttpRequestOptions,  myCallBackFredZip(usRecessions));
+		//}(fredZipXMLHttpRequestOptions, myCallBackFredZip(usRecessions)); 
+		fredZipQueue.wait(function(error){
+			callback(error);
+		});
+	}			
+			
+}
+	
+/*	 
+function updateRecessions(newRecesssionsUrl, usRecessions){
+
+	// this function will get a zip file and update the usRecessions
+	// in an async manner. This assumes the variable will be updated 
+	// before plotly is called
+	var fredZipXMLHttpRequestOptions = {
+		responseType: "arraybuffer",
+		method: "GET",
+		async: true,
+		url: settings.newRecessionsUrl,
+	};
+	
+	DEBUG && console.log("XMLHttpRequestOptions", fredZipXMLHttpRequestOptions);
+	
+	if(fredZipXMLHttpRequestOptions.url !== ""){
+		
+		function myCallBackFredZip(usRecessions){
+			return function (error, xhttp) {
+				afterFredZipFileLoaded(error, xhttp, usRecessions);
+			};
+		}
+
+		directXMLHttpRequest(fredZipXMLHttpRequestOptions, myCallBackFredZip(usRecessions)); 
+	}			
+			
+}			
+*/			
+	 
 /**
 *
 * readData section
@@ -1862,6 +1964,109 @@ function readData(data, iS, param, callback) {
 	*/
 }
 
+
+	 
+	 
+function parallelReadData(data, i, param, callback) {
+	
+	var urlType = param.dataSources[i].urlType;
+	var url = param.dataSources[i].url;
+	
+	if (urlType === "csv") {
+		Plotly.d3.csv(url, function(readData) {
+			DEBUG && console.log("csv", i);
+			DEBUG && console.log("readData", readData);
+			/*if(iS.value ===0){
+				for(var y=0; y<readData.length; y++){
+					DEBUG && console.log(readData[y]);
+				}
+			}*/
+			processCsvData(
+				readData, 
+				data,
+				param.timeInfo.tracesInitialDate,
+				param.otherDataProperties,
+				param.dataSources[i]
+				);
+			DEBUG && console.log("processCsvData",i,"finished");
+			readData="";
+			callback(null);
+			//readDataAndMakeChart(data, iS, param, callback);
+		});
+	} 
+	else if (urlType === "arrayOfJsons") {
+		DEBUG && console.log("arrayOfJsons", i);
+		processCsvData(
+			param.dataSources[i].arrayOfJsons, 
+			data,
+			param.timeInfo.tracesInitialDate,
+			param.otherDataProperties,
+			param.dataSources[i]
+			);
+		DEBUG && console.log("process ArrayOfJsons",i,"finished");
+		param.dataSources[i].arrayOfJsons = [];
+		callback(null);
+		//readDataAndMakeChart(data, iS, param, callback);
+	} 
+	else if (urlType === "yqlJson") {
+		DEBUG && console.log("yqlJson", i);
+		$.getJSON(url, function(readData) {
+			/* Not required, it can be handled with the CSV function, 
+			set xSeriesName to date and ySeriesName to value*/	    
+			processCsvData(
+				readData.query.results.json.observations,
+				data,
+				param.timeInfo.tracesInitialDate,
+				param.otherDataProperties,
+				param.dataSources[i]
+				);
+			DEBUG && console.log("process yqlJson",i,"finished");
+			readData="";
+			callback(null);
+			//readDataAndMakeChart(data, iS, param, callback);
+		});
+	}   
+	else if ( urlType === "yqlGoogleCSV") {
+		DEBUG && console.log("yqlGoogleCSV", i);
+		Plotly.d3.json("https://query.yahooapis.com/v1/public/yql?q="+
+			encodeURIComponent("SELECT * from csv where url='"+url+"'")+
+			"&format=json", 				
+			function(readData) {
+				processCsvData(
+					readData.query.results.row,
+					data,
+					param.timeInfo.tracesInitialDate,
+					param.otherDataProperties,
+					param.dataSources[i]
+				);
+			DEBUG && console.log("process yqlGoogleCSV",i,"finished");
+			readData="";
+			callback(null);
+			//readDataAndMakeChart(data, iS, param, callback);
+		});
+  	} 
+	else if (urlType === "pureJson") {
+		DEBUG && console.log("pureJson", i);
+		$.getJSON(url, function(readData) {
+			processCsvData(
+				readData, 
+				data,
+				param.timeInfo.tracesInitialDate, 
+				param.otherDataProperties,
+				param.dataSources[i]
+				);
+			DEBUG && console.log("process pureJson",i,"finished");
+			readData="";
+			callback(null);
+			//readDataAndMakeChart(data, iS, param, callback);
+		});
+	} 
+}
+	 
+	 
+	 
+	 
+	 
 // 2. Process CSVData - support function, reads data and add it to data object, increases global iS variable	     
     
 	    
@@ -6160,7 +6365,7 @@ function getRecessionsFromUSRecField(readUSRec){
 	return recessions;
 }	 
 	 
-function directXMLHttpRequest(options, onreadyFunction) {
+/*function directXMLHttpRequest(options, onreadyFunction) {
 	var xhttp = new XMLHttpRequest();
 	// use "arraybuffer" for zip files.
 	xhttp.responseType = options.responseType;
@@ -6178,21 +6383,53 @@ function directXMLHttpRequest(options, onreadyFunction) {
 	);
 
 	xhttp.send();
-}
+}*/
 	 	    			      
 
+function directXMLHttpRequest(options, onreadyFunction, callback) {
+	var xhttp = new XMLHttpRequest();
+	// use "arraybuffer" for zip files.
+	xhttp.responseType = options.responseType;
+	
+	DEBUG && console.log("XMLHttpRequest options: ", options);
+	
+	xhttp.open(
+		options.method,
+		options.url,
+		options.async
+	);
 
-function afterFredZipFileLoaded(xhttp,usRecessions) {
+	xhttp.send();
+	
+	// once file is read, afterFileLoaded function is triggered
+	// this version checks readyState and status at this level
+	xhttp.onreadystatechange = function(){
+		DEBUG && console.log("readyState= ", xhttp.readyState);
+		DEBUG && console.log("status= ", xhttp.status);
+		
+		// xhttp.readyState == 4, the transfer has completed and the server closed the connection.
+		if (xhttp.readyState == 4) {
+			
+			if(xhttp.status == 200) {
+				// no error passed
+				onreadyFunction(null,xhttp).then(function(){ return callback(null)});
+			} else {
+				// unsuccessful zip read, call back with no processing
+				callback(null);
+			}
+		}
+	}
+	
+	
+}
+	
+function afterFredZipFileLoaded(error, xhttp, usRecessions, callback) {
 	
 	DEBUG && console.log("afterFredZipFileLoaded started");
+	DEBUG && console.log("passed error:", error);
 	DEBUG && console.log("passed xhttp:", xhttp);
 	
-	if (xhttp.readyState == 4) {
-		DEBUG && console.log("readyState 4");
-		if (xhttp.status == 200) {
-
-			DEBUG && console.log("status 200");
-
+	if (!error) {
 			// create an instance of JSZip
 			var zip = new JSZip();
 
@@ -6208,12 +6445,10 @@ function afterFredZipFileLoaded(xhttp,usRecessions) {
 					addRecessionsTo(fredRecessionsArray,usRecessions);
 					DEBUG && console.log("usRecessions: ",usRecessions);
 				}
-			);
-		} else {
-			DEBUG && console.log("fredZip not successful, status:", xhttp.status);
-		}
+			).then(function(){ return callback(null)});
 	} else {
-		DEBUG && console.log("fredZip readyState:", xhttp.readyState);
+		DEBUG && console.log("fredZip error:", error);
+		callback(null);
 	}
 }	 
 	 
