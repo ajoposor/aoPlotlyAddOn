@@ -1817,7 +1817,7 @@ function parallelUpdateRecessions(newRecessionsUrl, usRecessions, callback){
 		
 		function myCallBackFredZip(usRecessions){
 			return function (error, xhttp) {
-				afterFredZipFileLoaded(error, xhttp, usRecessions).then(function(){return callback(null);});
+				return afterFredZipFileLoaded(error, xhttp, usRecessions);
 				
 			};
 		}
@@ -6422,7 +6422,7 @@ function directXMLHttpRequest(options, onreadyFunction, callback) {
 			if(xhttp.status == 200) {
 				// no error passed
 				DEBUG && console.log("calling function(error, http){ afterFredZipFileLoaded()}");
-				onreadyFunction(null,xhttp).then(function(){ return callback(null)});
+				callback(onreadyFunction(null,xhttp));
 			} else {
 				// unsuccessful zip read, call back with no processing
 				callback(null);
@@ -6433,7 +6433,7 @@ function directXMLHttpRequest(options, onreadyFunction, callback) {
 	
 }
 	
-function afterFredZipFileLoaded(error, xhttp, usRecessions, callback) {
+function afterFredZipFileLoaded(error, xhttp, usRecessions) {
 	
 	DEBUG && console.log("afterFredZipFileLoaded started");
 	DEBUG && console.log("passed error:", error);
@@ -6444,7 +6444,7 @@ function afterFredZipFileLoaded(error, xhttp, usRecessions, callback) {
 			var zip = new JSZip();
 
 			// loads the zip content into the zip instance
-			zip.loadAsync(xhttp.response).then(
+			/*zip.loadAsync(xhttp.response).then(
 				function (zip, callback) {
 					return zip.file("USRECP_1.txt").async("string");
 				}).then(
@@ -6456,10 +6456,34 @@ function afterFredZipFileLoaded(error, xhttp, usRecessions, callback) {
 					DEBUG && console.log("usRecessions: ",usRecessions);
 					callback(null);
 				}
-			);
+			);*/
+			
+			return (startByLoadingFileIntoZip(xhttp.response, zip));
+		
+			
+			function startByLoadingZipIntoHandler(response, zip, callback) {
+				return nowGetTxtFromHandler(zip.loadAsync(response));
+			}
+		
+			function nowGetTxtFromHandler(zip) {
+				
+				// next function is called with the resulting text
+				return nowProcessText(zip.file("USRECP_1.txt").async("string"));
+			}
+		
+			function nowProcessText (readTxt) {
+				DEBUG && console.log("readTxt",readTxt);
+				var readJson = textToArrayOfJsons(readTxt,"\r\n","\t");
+				var fredRecessionsArray = getRecessionsFromUSRecField(readJson);
+				addRecessionsTo(fredRecessionsArray,usRecessions);
+				DEBUG && console.log("usRecessions: ",usRecessions);
+				return null;
+			}	
+
+		
 	} else {
 		DEBUG && console.log("fredZip error:", error);
-		callback(null);
+		return null;
 	}
 }	 
 	 
