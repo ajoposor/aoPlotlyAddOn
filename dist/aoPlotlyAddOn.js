@@ -1767,8 +1767,9 @@ function parallelReadDataAndMakeChart(data, param) {
 	
 	plotQueue.awaitAll(function(error){
 		
-		if(error){
-			DEBUG && console.log("plotQueu await threw error", error);	
+		if(false){
+			DEBUG && console.log("plotQueu await threw error");
+			DEBUG && console.log("the error is", error);
 			//display blank plot
 		} else {
 			// once all files all read, i.e. iS === series.length, this section is executed
