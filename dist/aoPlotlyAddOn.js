@@ -1773,6 +1773,7 @@ function parallelReadDataAndMakeChart(data, param) {
 			DEBUG && console.log("the error is", error);
 			//display blank plot
 		} else {
+			DEBUG && console.log("param.usRecessions.length before calling makeChart: ", param.usRecessions.length);
 			// once all files all read, i.e. iS === series.length, this section is executed
 			DEBUG && console.log("data: ", data);
 			DEBUG && console.log("param: ", param);	
