@@ -6454,8 +6454,9 @@ function afterFredZipFileLoaded(error, xhttp, usRecessions, callback) {
 					var fredRecessionsArray = getRecessionsFromUSRecField(readJson);
 					addRecessionsTo(fredRecessionsArray,usRecessions);
 					DEBUG && console.log("usRecessions: ",usRecessions);
+					callback(null);
 				}
-			).then(callback(null););
+			);
 	} else {
 		DEBUG && console.log("fredZip error:", error);
 		callback(null);
