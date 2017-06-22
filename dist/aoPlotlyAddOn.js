@@ -1823,7 +1823,7 @@ function parallelUpdateRecessions(newRecesssionsUrl, usRecessions, callback){
 		}
 		
 		
-		var fredZipQueue = d3.queue;
+		var fredZipQueue = d3.queue();
 		DEBUG && console.log("calling directXMLHttpRequest");
 		fredZipQueue.defer( directXMLHttpRequest, fredZipXMLHttpRequestOptions,  myCallBackFredZip(usRecessions));
 		//}(fredZipXMLHttpRequestOptions, myCallBackFredZip(usRecessions)); 
