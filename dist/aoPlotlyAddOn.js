@@ -1760,10 +1760,10 @@ function parallelReadDataAndMakeChart(data, param) {
 	
 	// add call update recessions from external source to queue
 	DEBUG && console.log("adding update recessions to queue");
-	DEBUG && console.log("param.settings.newRecesssionsUrl",param.settings.newRecesssionsUrl);
+	DEBUG && console.log("param.settings.newRecessionsUrl",param.settings.newRecessionsUrl);
 	DEBUG && console.log("param.usRecessions",param.usRecessions);
 	
-	plotQueue.defer(parallelUpdateRecessions, param.settings.newRecesssionsUrl, param.usRecessions);
+	plotQueue.defer(parallelUpdateRecessions, param.settings.newRecessionsUrl, param.usRecessions);
 	
 	plotQueue.awaitAll(function(error){
 		
@@ -1799,7 +1799,7 @@ function parallelReadDataAndMakeChart(data, param) {
 } //  end of readDataAndMakeChart    	 
 	 
 	
-function parallelUpdateRecessions(newRecesssionsUrl, usRecessions, callback){
+function parallelUpdateRecessions(newRecessionsUrl, usRecessions, callback){
 
 	// this function will get a zip file and update the usRecessions
 	// in an async manner. This assumes the variable will be updated 
@@ -1808,7 +1808,7 @@ function parallelUpdateRecessions(newRecesssionsUrl, usRecessions, callback){
 		responseType: "arraybuffer",
 		method: "GET",
 		async: true,
-		url: newRecesssionsUrl,
+		url: newRecessionsUrl,
 	};
 	
 	DEBUG && console.log("XMLHttpRequestOptions", fredZipXMLHttpRequestOptions);
@@ -1835,7 +1835,7 @@ function parallelUpdateRecessions(newRecesssionsUrl, usRecessions, callback){
 }
 	
 /*	 
-function updateRecessions(newRecesssionsUrl, usRecessions){
+function updateRecessions(newRecessionsUrl, usRecessions){
 
 	// this function will get a zip file and update the usRecessions
 	// in an async manner. This assumes the variable will be updated 
