@@ -1820,9 +1820,10 @@ function parallelUpdateRecessions(newRecesssionsUrl, usRecessions, callback){
 		
 		
 		var fredZipQueue = d3.queue;
+		DEBUG && console.log("calling directXMLHttpRequest");
 		fredZipQueue.defer( directXMLHttpRequest, fredZipXMLHttpRequestOptions,  myCallBackFredZip(usRecessions));
 		//}(fredZipXMLHttpRequestOptions, myCallBackFredZip(usRecessions)); 
-		fredZipQueue.wait(function(error){
+		fredZipQueue.await(function(error){
 			callback(error);
 		});
 	}			
@@ -6416,6 +6417,7 @@ function directXMLHttpRequest(options, onreadyFunction, callback) {
 			
 			if(xhttp.status == 200) {
 				// no error passed
+				DEBUG && console.log("calling function(error, http){ afterFredZipFileLoaded()}");
 				onreadyFunction(null,xhttp).then(function(){ return callback(null)});
 			} else {
 				// unsuccessful zip read, call back with no processing
