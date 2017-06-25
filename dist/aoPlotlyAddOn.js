@@ -1006,10 +1006,10 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		},{
 		x0: "2001-03-01",
 		x1: "2001-10-31"
-		}/*,{
+		},{
 		x0: "2007-12-01",
 		x1: "2009-05-31"
-		}*/];
+		}];
 	
 	var usRecessions = createRecessionShapes(knownRecessionsDates, 
 						 settings.recessionsFillColor, 
