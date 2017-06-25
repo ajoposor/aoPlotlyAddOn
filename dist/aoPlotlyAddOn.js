@@ -8,7 +8,7 @@
 
 // set DEBUG option (for display of console.log messages)
 // console.log will also be removed with closure compiler	 
-var DEBUG = true;
+var DEBUG = false;
 	 
 
     
