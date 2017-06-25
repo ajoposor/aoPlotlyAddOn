@@ -8,7 +8,7 @@
 
 // set DEBUG option (for display of console.log messages)
 // console.log will also be removed with closure compiler	 
-var DEBUG = false;
+var DEBUG = true;
 	 
 
     
@@ -175,7 +175,17 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	pressedButtonHoverDefaultStyle.color = "#444444";
 		
 		
+	var fredRecessionsDefaultUrl = "://www.kapitalvalue.com/plots_data/testing/fredRecessions-unlocked.php?observation_start=2015-12-01";
+	
+	if(connectionIsSecure()) {
+		DEBUG && console.log("HTTPS:");
+		fredRecessionsDefaultUrl = "https"+fredRecessionsDefaultUrl;
 		
+	} else {
+		DEBUG && console.log("HTTP:");
+		fredRecessionsDefaultUrl = "http"+fredRecessionsDefaultUrl;
+	}
+
 		
 	var settingsDefaults = {
 		// display shaded area during recession periods
@@ -185,7 +195,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		recessionsOpacity: 0.15,
 		// url should return a zip file as provided by fred api for the USRECP serie for dates after 2015, set to "" in parameters passed
 		// to disable trying to get zip file with update values.
-		newRecessionsUrl: "http://www.kapitalvalue.com/plots_data/testing/fredRecessions-unlocked.php?observation_start=2015-12-01",
+		newRecessionsUrl: fredRecessionsDefaultUrl,
 		knownRecessionsDates: knownRecessionsDates,
 		queueConcurrencyLimit: 10,
 		allowCompare: false,
@@ -7866,7 +7876,41 @@ function transformDataToReal(data, deflactorDictionary, baseRealNominalDate, oth
 
 
 
+//14 Test http or https
+function connectionIsSecure(){
 
+	function testWith(someObject) {	
+		if(typeof someObject !== "undefined"){
+			if(someObject !== location){
+				if(typeof someObject.location !== "undefined"){
+					if(typeof someObject.location.protocol !== "undefined"){
+						return someObject.location.protocol;
+					}
+				}			
+			} else{
+				if(typeof someObject !== "undefined"){
+					if(typeof someObject.protocol !== "undefined"){
+						return someObject.protocol;
+					}
+				}
+			}
+		}
+		return false;
+	}
+	
+	var testObjects = [document, window, location];
+	
+	var protocol;
+	for (var i=0; i < testObjects.length; i++){
+ 		protocol = testWith(testObjects[i]);
+		//console.log("object=", testObjects[i]);
+		//console.log("protocol=", protocol);
+		if(protocol) return "https:" === protocol;	
+	}
+
+  return false; 
+			 
+}
 
 
 
