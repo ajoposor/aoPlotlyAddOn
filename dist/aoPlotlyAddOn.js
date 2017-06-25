@@ -5893,7 +5893,7 @@ function getdayBeforeAsString(dateAsYYYYMMDDString){
 	
 	dateAsYYYYMMDDString +=" 00:00:00"+timeOffsetText;
 	
-	console.log(dateAsYYYYMMDDString.substr(0,4));
+	DEBUG && console.log(dateAsYYYYMMDDString.substr(0,4));
 	
 	var dayBefore = new Date(
 		Number(dateAsYYYYMMDDString.substr(0,4)),
@@ -5901,16 +5901,16 @@ function getdayBeforeAsString(dateAsYYYYMMDDString){
 		Number(dateAsYYYYMMDDString.substr(8,2))
 	);
 	
-	console.log(dayBefore);
+	DEBUG && console.log(dayBefore);
 	
 	
 	dayBefore = new Date(dayBefore.getTime() -24*60*60*1000);
 	
-	console.log(dayBefore);
+	DEBUG && console.log(dayBefore);
 
 	
-	console.log(dayBefore);
-	console.log(dayBefore.getFullYear());
+	DEBUG && console.log(dayBefore);
+	DEBUG && console.log(dayBefore.getFullYear());
 	
 	return dateAsDateToString(dayBefore);
 	
@@ -7888,7 +7888,7 @@ function transformDataToReal(data, deflactorDictionary, baseRealNominalDate, oth
 
 
 
-aoPlotlyAddOn.findSpliceInfo = findSpliceInfo;	        
+aoPlotlyAddOn.findSpliceInfo = findSpliceInfo;       
 aoPlotlyAddOn.processCsvData = processCsvData;	  
 	    
   
