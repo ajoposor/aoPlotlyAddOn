@@ -456,8 +456,8 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		
 		divInfo.realNominalButtonElement = 
 			createElement("button", divInfo.realNominalButtonID,
-										settings.initialRealNominal === "real" ? "real":"nominal",
-										settings.buttonsStyle);
+						settings.initialRealNominal === "real" ? "real":"nominal",
+						settings.buttonsStyle);
 
 		if(!settings.allowDownload){
 			divInfo.realNominalButtonElement.style.marginLeft = layout.externalMargin.l+"px";
@@ -469,13 +469,13 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		$("#"+divInfo.realNominalButtonID).hover(
 			function(){
 				buttonOnHover($(this),
-											settings.pressedButtonHoverDefaultStyle["background-color"],
-											settings.pressedButtonHoverDefaultStyle.color);
+					settings.pressedButtonHoverDefaultStyle["background-color"],
+					settings.pressedButtonHoverDefaultStyle.color);
         }, 
 			function(){
 				buttonOnHover($(this),
-											settings.pressedButtonDefaultStyle["background-color"],
-											settings.pressedButtonDefaultStyle.color);
+					settings.pressedButtonDefaultStyle["background-color"],
+					settings.pressedButtonDefaultStyle.color);
 
 			}
 		);
@@ -1767,8 +1767,7 @@ function parallelReadDataAndMakeChart(data, param) {
 	plotQueue.defer(parallelUpdateRecessions, param.settings.newRecessionsUrl, param.usRecessions);
 	
 	plotQueue.awaitAll(function(error){
-		
-		if(false){
+		if(error){
 			DEBUG && console.log("plotQueu await threw error");
 			DEBUG && console.log("the error is", error);
 			//display blank plot
@@ -1819,20 +1818,17 @@ function parallelUpdateRecessions(newRecessionsUrl, usRecessions, callback){
 	if(fredZipXMLHttpRequestOptions.url !== ""){
 		
 		function myCallBackFredZip(usRecessions){
-			return function (error, xhttp) {
-				return afterFredZipFileLoaded(error, xhttp, usRecessions);
+			return function (xhttp, callback) {
+				return afterFredZipFileLoaded(xhttp, usRecessions, callback);
 				
 			};
 		}
 		
 		
-		var fredZipQueue = d3.queue();
-		DEBUG && console.log("calling directXMLHttpRequest");
-		fredZipQueue.defer( directXMLHttpRequest, fredZipXMLHttpRequestOptions,  myCallBackFredZip(usRecessions));
+		DEBUG && console.log("calling wrappedDirectXMLHttpRequest");
+		
+		wrappedDirectXMLHttpRequest(fredZipXMLHttpRequestOptions,  myCallBackFredZip(usRecessions), callback);
 		//}(fredZipXMLHttpRequestOptions, myCallBackFredZip(usRecessions)); 
-		fredZipQueue.await(function(error){
-			callback(error);
-		});
 	}			
 			
 }
@@ -6410,7 +6406,7 @@ function getRecessionsFromUSRecField(readUSRec){
 }*/
 	 	    			      
 
-function directXMLHttpRequest(options, onreadyFunction, callback) {
+function wrappedDirectXMLHttpRequest(options, onreadyFunction, callback) {
 	var xhttp = new XMLHttpRequest();
 	// use "arraybuffer" for zip files.
 	xhttp.responseType = options.responseType;
@@ -6436,8 +6432,8 @@ function directXMLHttpRequest(options, onreadyFunction, callback) {
 			
 			if(xhttp.status == 200) {
 				// no error passed
-				DEBUG && console.log("calling function(error, http){ afterFredZipFileLoaded()}");
-				callback(onreadyFunction(null,xhttp));
+				DEBUG && console.log("calling function(http, callback) { afterFredZipFileLoaded((xhttp, usRecessions, callback))}");
+				onreadyFunction(xhttp,callback);
 			} else {
 				// unsuccessful zip read, call back with no processing
 				callback(null);
@@ -6448,41 +6444,31 @@ function directXMLHttpRequest(options, onreadyFunction, callback) {
 	
 }
 	
-function afterFredZipFileLoaded(error, xhttp, usRecessions) {
+function afterFredZipFileLoaded(xhttp, usRecessions, callback) {
 	
 	DEBUG && console.log("afterFredZipFileLoaded started");
-	DEBUG && console.log("passed error:", error);
 	DEBUG && console.log("passed xhttp:", xhttp);
 	
-	if (!error) {
-			// create an instance of JSZip
-			var zip = new JSZip();
+	// create an instance of JSZip
+	var zip = new JSZip();
 
-			// loads the zip content into the zip instance
-			return(zip.loadAsync(xhttp.response).then(
-				function (zip) {
-					return zip.file("USRECP_1.txt").async("string");
-				}).then(
-				function (readTxt) {
-					DEBUG && console.log("readTxt",readTxt);
-					var readJson = textToArrayOfJsons(readTxt,"\r\n","\t");
-					var fredRecessionsArray = getRecessionsFromUSRecField(readJson);
-					addRecessionsTo(fredRecessionsArray,usRecessions);
-					DEBUG && console.log("usRecessions: ",usRecessions);
-					return null;
-				}
-			));
-			
+	// loads the zip content into the zip instance
+	zip.loadAsync(xhttp.response).then(
+		function (zip) {
+			return zip.file("USRECP_1.txt").async("string");
+		}).then(
+		function (readTxt) {
+			DEBUG && console.log("readTxt",readTxt);
+			var readJson = textToArrayOfJsons(readTxt,"\r\n","\t");
+			var fredRecessionsArray = getRecessionsFromUSRecField(readJson);
+			addRecessionsTo(fredRecessionsArray,usRecessions);
+			DEBUG && console.log("usRecessions: ",usRecessions);
+			callback(null);
+		}
+	);
 
-		
-	} else {
-		DEBUG && console.log("fredZip error:", error);
-		return null;
-	}
 }	 
-	 
-	 
-	 
+
 	 
 	 
 	 
