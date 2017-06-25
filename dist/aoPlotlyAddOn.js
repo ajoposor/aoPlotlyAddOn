@@ -1983,24 +1983,24 @@ function parallelReadData(data, i, param, callback) {
 	
 	var urlType = param.dataSources[i].urlType;
 	var url = param.dataSources[i].url;
+	var yqlGoogleCSVUrl = "";
 	
 	if (urlType === "csv") {
-		Plotly.d3.csv(url, function(readData) {
+		Plotly.d3.csv(url, function(err, readData) {
 			DEBUG && console.log("csv", i);
-			DEBUG && console.log("readData", readData);
-			/*if(iS.value ===0){
-				for(var y=0; y<readData.length; y++){
-					DEBUG && console.log(readData[y]);
-				}
-			}*/
-			processCsvData(
-				readData, 
-				data,
-				param.timeInfo.tracesInitialDate,
-				param.otherDataProperties,
-				param.dataSources[i]
-				);
-			DEBUG && console.log("processCsvData",i,"finished");
+			if(!err){
+				DEBUG && console.log("readData", readData);
+				processCsvData(
+					readData, 
+					data,
+					param.timeInfo.tracesInitialDate,
+					param.otherDataProperties,
+					param.dataSources[i]
+					);
+				DEBUG && console.log("processCsvData",i,"finished");
+			} else {
+				DEBUG && console.log("error reading CsvData",i);
+			}		
 			readData="";
 			callback(null);
 			//readDataAndMakeChart(data, iS, param, callback);
@@ -2022,17 +2022,21 @@ function parallelReadData(data, i, param, callback) {
 	} 
 	else if (urlType === "yqlJson") {
 		DEBUG && console.log("yqlJson", i);
-		$.getJSON(url, function(readData) {
-			/* Not required, it can be handled with the CSV function, 
-			set xSeriesName to date and ySeriesName to value*/	    
-			processCsvData(
-				readData.query.results.json.observations,
-				data,
-				param.timeInfo.tracesInitialDate,
-				param.otherDataProperties,
-				param.dataSources[i]
-				);
-			DEBUG && console.log("process yqlJson",i,"finished");
+		Plotly.d3.json(url, function(err, readData) {
+			if(!err){
+				/* Not required, it can be handled with the CSV function, 
+				set xSeriesName to date and ySeriesName to value*/	    
+				processCsvData(
+					readData.query.results.json.observations,
+					data,
+					param.timeInfo.tracesInitialDate,
+					param.otherDataProperties,
+					param.dataSources[i]
+					);
+				DEBUG && console.log("process yqlJson",i,"finished");
+			} else {
+				DEBUG && console.log("error reading yqlJson",i);
+			}
 			readData="";
 			callback(null);
 			//readDataAndMakeChart(data, iS, param, callback);
@@ -2040,10 +2044,11 @@ function parallelReadData(data, i, param, callback) {
 	}   
 	else if ( urlType === "yqlGoogleCSV") {
 		DEBUG && console.log("yqlGoogleCSV", i);
-		Plotly.d3.json("https://query.yahooapis.com/v1/public/yql?q="+
+		yqlGoogleCSVUrl = "https://query.yahooapis.com/v1/public/yql?q="+
 			encodeURIComponent("SELECT * from csv where url='"+url+"'")+
-			"&format=json", 				
-			function(readData) {
+			"&format=json";
+		Plotly.d3.json(yqlGoogleCSVUrl, function(err, readData) {
+			if(!err){			
 				processCsvData(
 					readData.query.results.row,
 					data,
@@ -2051,7 +2056,10 @@ function parallelReadData(data, i, param, callback) {
 					param.otherDataProperties,
 					param.dataSources[i]
 				);
-			DEBUG && console.log("process yqlGoogleCSV",i,"finished");
+				DEBUG && console.log("process yqlGoogleCSV",i,"finished");
+			} else {
+				DEBUG && console.log("error reading yqlJson",i);
+			}					
 			readData="";
 			callback(null);
 			//readDataAndMakeChart(data, iS, param, callback);
@@ -2059,15 +2067,19 @@ function parallelReadData(data, i, param, callback) {
   	} 
 	else if (urlType === "pureJson") {
 		DEBUG && console.log("pureJson", i);
-		$.getJSON(url, function(readData) {
-			processCsvData(
-				readData, 
-				data,
-				param.timeInfo.tracesInitialDate, 
-				param.otherDataProperties,
-				param.dataSources[i]
-				);
-			DEBUG && console.log("process pureJson",i,"finished");
+		Plotly.d3.json(url, function(err, readData) {
+			if(!err){			
+				processCsvData(
+					readData, 
+					data,
+					param.timeInfo.tracesInitialDate, 
+					param.otherDataProperties,
+					param.dataSources[i]
+					);
+				DEBUG && console.log("process pureJson",i,"finished");
+			} else {
+				DEBUG && console.log("error reading yqlJson",i);
+			}				
 			readData="";
 			callback(null);
 			//readDataAndMakeChart(data, iS, param, callback);
