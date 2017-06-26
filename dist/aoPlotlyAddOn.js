@@ -28,8 +28,8 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 ) {
 	
 
-	DEBUG && DEBUG_TIMES && console.time("newTimeseriesPlot");
-	DEBUG && DEBUG_TIMES && console.time("initialSettingsBeforeReadData");
+	DEBUG && DEBUG_TIMES && console.time("TIME: newTimeseriesPlot");
+	DEBUG && DEBUG_TIMES && console.time("TIME: initialSettingsBeforeReadData");
 	
 	// test arguments are passed complete	
 	if (arguments.length < 3) {
@@ -1750,7 +1750,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		DEBUG && OTHER_DEBUGS && console.log(message);
 	});*/
 	
-	DEBUG && DEBUG_TIMES && console.timeEnd("initialSettingsBeforeReadData");
+	DEBUG && DEBUG_TIMES && console.timeEnd("TIME: initialSettingsBeforeReadData");
 	
 	parallelReadDataAndMakeChart(data, passedParameters);
 	
@@ -1789,7 +1789,7 @@ function readDataAndMakeChart(data, iS, param, callback) {
 // FUNCTION TO READ DATA AND THEN MAKE CHART - LOADS IN PARALLEL
 function parallelReadDataAndMakeChart(data, param) {
 	
-	DEBUG && DEBUG_TIMES && console.time("parallelReadData");
+	DEBUG && DEBUG_TIMES && console.time("TIME: parallelReadData");
 	
 	// set function to local variable
 	var localParallelReadData = parallelReadData;
@@ -1826,7 +1826,7 @@ function parallelReadDataAndMakeChart(data, param) {
 			// once all files all read, i.e. iS === series.length, this section is executed
 			DEBUG && OTHER_DEBUGS && console.log("data: ", data);
 			DEBUG && OTHER_DEBUGS && console.log("param: ", param);	
-			DEBUG && DEBUG_TIMES && console.timeEnd("parallelReadData");
+			DEBUG && DEBUG_TIMES && console.timeEnd("TIME: parallelReadData");
 			makeChart(data, param);
 			DEBUG && OTHER_DEBUGS && console.log("allread and ploted");
 			
@@ -2712,7 +2712,7 @@ function processDirectData(tracesInitialDate, serie) {
 */
 function makeChart(data, param){
 	
-	DEBUG && DEBUG_TIMES && console.time("makeChart");
+	DEBUG && DEBUG_TIMES && console.time("TIME: makeChart");
 	
 	//DEBUG && OTHER_DEBUGS && console.log("issue #1");
 
@@ -2764,7 +2764,9 @@ function makeChart(data, param){
 	}
 
 	// SAVE ORIGINAL DATA
+	DEBUG && DEBUG_TIMES && console.time("TIME: Save Original Data");
 	saveDataXYIntoPropertyXY(data, "xOriginal", "yOriginal");
+	DEBUG && DEBUG_TIMES && console.timeEnd("TIME: Save Original Data");
 	//DEBUG && OTHER_DEBUGS && console.log("original data saved");
 
 	//DEBUG && OTHER_DEBUGS && console.log("tracesInitialDate", tracesInitialDate);
@@ -2920,17 +2922,17 @@ function makeChart(data, param){
 
 		addToUpdateMenus(param.frequencyUpdateMenu, updateMenus, layout);
 		if (!frequenciesDataCreated) {
-			DEBUG && DEBUG_TIMES && console.time("transformSeriesByFrequencies");
+			DEBUG && DEBUG_TIMES && console.time("TIME: transformSeriesByFrequencies");
 			aoPlotlyAddOn.transformSeriesByFrequencies(
 				data,
 				settings.periodKeys,
 				settings.endOfWeek
 			);
-			DEBUG && DEBUG_TIMES && console.timeEnd("transformSeriesByFrequencies");
+			DEBUG && DEBUG_TIMES && console.timeEnd("TIME: transformSeriesByFrequencies");
 			frequenciesDataCreated = true;
-			DEBUG && DEBUG_TIMES && console.time("processFrequenciesDates");
+			DEBUG && DEBUG_TIMES && console.time("TIME: processFrequenciesDates");
 			processFrequenciesDates(data, settings.periodKeys);
-			DEBUG && DEBUG_TIMES && console.timeEnd("processFrequenciesDates");
+			DEBUG && DEBUG_TIMES && console.timeEnd("TIME: processFrequenciesDates");
 		}
 	}
 
@@ -3113,11 +3115,11 @@ function makeChart(data, param){
 	//DEBUG && OTHER_DEBUGS && console.log(param.displayOptions);
 
 	// make initial plot
-	DEBUG && DEBUG_TIMES && console.time("Execute Plotly.newPlot");
+	DEBUG && DEBUG_TIMES && console.time("TIME: Execute Plotly.newPlot");
 	Plotly.newPlot(myPlot, data, layout, options).then(function() {
 		wholeDivShow(param.divInfo.wholeDivElement);
 		loaderHide(param.divInfo.loaderElement);
-		DEBUG && DEBUG_TIMES && console.timeEnd("Execute Plotly.newPlot");
+		DEBUG && DEBUG_TIMES && console.timeEnd("TIME: Execute Plotly.newPlot");
 	});
 
 
@@ -3140,7 +3142,7 @@ function makeChart(data, param){
 
 
 	myPlot.on("plotly_relayout", function(relayoutData) {
-		DEBUG && DEBUG_TIMES && console.time("relayout");
+		DEBUG && DEBUG_TIMES && console.time("TIME: relayout");
 		//myPlot.addEventListener('plotly_relayout', function(relayoutData) {
 		//DEBUG && OTHER_DEBUGS && console.log("relayout en myPlot.on", isUnderRelayout);
 		//DEBUG && OTHER_DEBUGS && console.log("relayoutData",relayoutData);
@@ -4622,15 +4624,15 @@ function makeChart(data, param){
 			} // end of if flag is true
 		} // end of 'else' relayout cases, CASE 9
 
-	DEBUG && DEBUG_TIMES && console.timeEnd("relayout");
+	DEBUG && DEBUG_TIMES && console.timeEnd("TIME: relayout");
 	}); // end of handling of relayout event
 
 
 	//});
 	//});			
 
-	DEBUG && DEBUG_TIMES && console.timeEnd("makeChart");
-	DEBUG && DEBUG_TIMES && console.timeEnd("newTimeseriesPlot");
+	DEBUG && DEBUG_TIMES && console.timeEnd("TIME: makeChart");
+	DEBUG && DEBUG_TIMES && console.timeEnd("TIME: newTimeseriesPlot");
 
 
 
