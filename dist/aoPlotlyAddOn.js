@@ -6726,17 +6726,25 @@ function loadData(data, key) {
 function saveDataXYIntoPropertyXY(data, xProperty, yProperty) {
 	var iLimit = data.length;
 	var jLimit = 0, j = 0;
+	var x, y, dataIX, dataIY;
 
 	for (var i = 0; i < iLimit; i++) {
 		// duplicates data into base for future use
-		data[i][xProperty] = [];
-		data[i][yProperty] = [];
+		x = [];
+		y = [];
 		jLimit = data[i].x.length;
-
+		x.length = jLimit;
+		y.length = jLimit;
+		dataIX = data[i].x;
+		dataIY = data[i].y;
 		for (j = 0; j < jLimit; j++) {
-			data[i][xProperty].push(data[i].x[j]);
-			data[i][yProperty].push(data[i].y[j]);
+			x[j] = dataIX[j];
+			y[j] = dataIY[j];
+			//data[i][xProperty].push(data[i].x[j]);
+			//data[i][yProperty].push(data[i].y[j]);
 		}
+		data[i][xProperty] = x;
+		data[i][yProperty] = y;	
 	}
 }
 
