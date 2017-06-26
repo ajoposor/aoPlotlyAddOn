@@ -3,7 +3,7 @@
 //I recommend this
  'use strict';
  function defineLibrary(){
-  
+ 
  var aoPlotlyAddOn = {};    
 
 // set DEBUG && OTHER_DEBUGS option (for display of console.log messages)
@@ -5004,12 +5004,14 @@ aoPlotlyAddOn.createDataOriginal = createDataOriginal;
 function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 	var j=0, jLimit, k=0, iLimit = data.length; 
 	var   currentDate = {},
+	    currentDateString = "",
 	    currentY = 0.0,
 	    temp = 0.0,
 	    priorBankingDate = {},
 	    nextBankingDate = {},
 	    priorLimits = {},
 	    currentLimits = {},
+	    limitsLibrary = {},
 	    begin = true;
 	var key = "",
 	    aggKey = "",
@@ -5025,9 +5027,12 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 	var itemsLength = [];
 	var itemsIndex = [];
 	var index = 0;
+	
+	
 	var startBankingDate = new Date();
 	var startDateLimit = new Date();
 	var elapsedBankingDate, elapsedDateLimit;
+	var startDataI = new Date();
 	
 	var localGetPriorNonUSBankingWorkingDay = getPriorNonUSBankingWorkingDay;
 	var localGetNextNonUSBankingWorkingDay =  getNextNonUSBankingWorkingDay;
@@ -5063,6 +5068,8 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 		dataIYO = data[i].yOriginal;
 		jLimit = dataIXO.length;
 		
+		startDataI = new Date();
+		
 		if(doCalculations) {
 		
 			for(k=0; k < kLimit; k++){
@@ -5081,7 +5088,8 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 			for (j = jLimit - 1; j > -1; j--) {
 				//DEBUG && OTHER_DEBUGS && console.log('j',j);
 				// get periods ranges and dates
-				currentDate = stripDateIntoObject(dataIXO[j]);
+				currentDateString = dataIXO[j];
+				currentDate = stripDateIntoObject(currentDateString);
 				priorXString = begin ? "undefined" : dataIXO[j + 1];
 				nextXString = (j > 0) ? dataIXO[j - 1] : "undefined";
 				
@@ -5089,25 +5097,35 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 				
 				startBankingDate = new Date();
 				//DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.time("Time: GetBankingDays");
-				priorBankingDate = stripDateIntoObject(
-					localGetPriorNonUSBankingWorkingDay(currentDate.year,
+				if(typeof priorBankingDate[currentDateString] === "undefined") {
+					priorBankingDate[currentDateString] = 
+						localGetPriorNonUSBankingWorkingDay(currentDate.year,
 									    currentDate.month,
-									    currentDate.day));
+									    currentDate.day);
+				} 
 				
-				nextBankingDate = stripDateIntoObject(
-					localGetNextNonUSBankingWorkingDay(currentDate.year,
+				if(typeof nextBankingDate[currentDateString] === "undefined") {
+					nextBankingDate[currentDateString] =
+						localGetNextNonUSBankingWorkingDay(currentDate.year,
 									   currentDate.month,
-									   currentDate.day));
+									   currentDate.day);
+				}
 				
 				//DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.timeEnd("Time: GetBankingDays");
 				elapsedBankingDate += (new Date() - startBankingDate); 
 				
 				// checks and procedures for the first point in the trace
 				if (begin) {
-					priorLimits = localGetPeriodLimitsAsYYYYMMDD(currentDate.year,
+					
+					if(typeof limitsLibrary[currentDateString] === "undefined") {
+						limitsLibrary[currentDateString] = localGetPeriodLimitsAsYYYYMMDD(
+										currentDate.year,
 										currentDate.month,
 										currentDate.day,
 										endOfWeek);
+					}
+							
+					priorLimits = limitsLibrary[currentDateString];
 					
 					for(k=0; k < kLimit; k++){
 						average[k] = {
@@ -5121,10 +5139,17 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 				
 				startDateLimit = new Date();
 				//DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.time("Time: GetPeriodLimits");
-				currentLimits = localGetPeriodLimitsAsYYYYMMDD(currentDate.year,
-									  currentDate.month,
-									  currentDate.day,
-									  endOfWeek);
+				if(typeof limitsLibrary[currentDateString] === "undefined") {
+					limitsLibrary[currentDateString] = localGetPeriodLimitsAsYYYYMMDD(
+										currentDate.year,
+										currentDate.month,
+										currentDate.day,
+										endOfWeek);
+				}
+				
+				
+				currentLimits = limitsLibrary[currentDateString];
+				
 				elapsedDateLimit += (new Date() - startDateLimit); 
 				//DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.timeEnd("Time: GetPeriodLimits");
 				
@@ -5137,7 +5162,7 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 					
 					// case: Period begin found
 					if (priorXString < currentLimitKeyBegins ||
-					    priorBankingDate.string < currentLimitKeyBegins){
+					    priorBankingDate[currentDateString] < currentLimitKeyBegins){
 						// allow average calculation.
 						averageK.calculate= true;
 					}
@@ -5150,7 +5175,7 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 					
 					// case: period end found
 					if ((nextXString != 'undefined' && nextXString >= currentLimitKeyEnds) ||
-					    nextBankingDate.string >= currentLimitKeyEnds) {
+					    nextBankingDate[currentDateString] >= currentLimitKeyEnds) {
 						
 						// create data[i][key] object if not already created.
 						if (typeof data[i][key] === 'undefined') {
@@ -5191,10 +5216,10 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 						}
 						
 						// add close
-						dataIK.close.unshift(currentY);
+						dataIK.close[index] = currentY;
 						
 						//add cumulative
-						dataIK.cumulative.unshift(priorCumulative[k] + currentY);  
+						dataIK.cumulative[index] = priorCumulative[k] + currentY;  
 						
 						// check if priorClose.key exists and update changes
 						if (priorClose[k] !== "undefined") {
@@ -5249,10 +5274,12 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 
 			
 		} // end of doCalculations condition
+		DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.info("Time:dataI: %f %dms",i, new Date() - startDataI);
+		
 	} // next i
 	
-	console.info("Time: elapsedBankingDate time: %dms", elapsedBankingDate);
-	console.info("Time: elapsedDateLimit time: %dms", elapsedDateLimit);
+	DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.info("Time: elapsedBankingDate time: %dms", elapsedBankingDate);
+	DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.info("Time: elapsedDateLimit time: %dms", elapsedDateLimit);
 	
 } // end of function
  	 
