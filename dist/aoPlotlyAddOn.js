@@ -11,6 +11,7 @@
 var DEBUG = true;
 var DEBUG_TIMES = true;
 var OTHER_DEBUGS = false;
+var DEBUG_TRANSFORM_BY_FREQUENCIES = true;
 	 
 
     
@@ -5053,18 +5054,24 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 		// flags begin
 		begin = true;
 		
+		dataIXO = data[i].xOriginal;
+		dataIYO = data[i].yOriginal;
+		jLimit = dataIXO.length;
+		
 		if(doCalculations) {
+		
 			for(k=0; k < kLimit; k++){
 				key = periodKeysArray[k];
 				priorClose[k] = "undefined";
 				priorCumulative[k]=0.0;
 				itemsLength[k] = 0;
+				itemsIndex[k] = jLimit-1;
 			}
 			
 			// iterates over trace points
-			dataIXO = data[i].xOriginal;
-			dataIYO = data[i].yOriginal;
-			jLimit = dataIXO.length;
+
+			DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.log("jLimit", jLimit);
+			
 			for (j = jLimit - 1; j > -1; j--) {
 				//DEBUG && OTHER_DEBUGS && console.log('j',j);
 				// get periods ranges and dates
@@ -5073,6 +5080,7 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 				nextXString = (j > 0) ? dataIXO[j - 1] : "undefined";
 				
 				currentY = Number(dataIYO[j]);
+				DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.time("Time: GetBankingDays");
 				priorBankingDate = stripDateIntoObject(
 					localGetPriorNonUSBankingWorkingDay(currentDate.year,
 									    currentDate.month,
@@ -5082,6 +5090,8 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 					localGetNextNonUSBankingWorkingDay(currentDate.year,
 									   currentDate.month,
 									   currentDate.day));
+				
+				DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.timeEnd("Time: GetBankingDays");
 				
 				// checks and procedures for the first point in the trace
 				if (begin) {
@@ -5096,16 +5106,17 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 							n: 0,
 							calculate: false
 							};
-						
-						itemsIndex[k] = jLimit-1;
 					}
 					begin = false;
 				}
 				
+				DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.time("Time: GetPeriodLimits");
 				currentLimits = localGetPeriodLimitsAsYYYYMMDD(currentDate.year,
 									  currentDate.month,
 									  currentDate.day,
 									  endOfWeek);
+				
+				DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.timeEnd("Time: GetPeriodLimits");
 				
 				for(k=0; k < kLimit; k++){
 					key = periodKeysArray[k];
@@ -5211,9 +5222,10 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 			// after all j's splice the resulting arrays
 			
 			for (k = 0; k < kLimit; k++) {
-				for (aggKey in data[i][k]) {
-					if (data[i][k].hasOwnProperty(aggKey)) {
-						data[i][k][aggKey].splice(0, jLimit - itemsLength[k]);
+				key = periodKeysArray[k];
+				for (aggKey in data[i][key]) {
+					if (data[i][key].hasOwnProperty(aggKey)) {
+						data[i][key][aggKey].splice(0, jLimit - itemsLength[k]);
 					}
 				}
 			}
