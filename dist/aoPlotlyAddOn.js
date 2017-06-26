@@ -6936,29 +6936,33 @@ function getXminXmax(xArray) {
 
 // function to find x range over all data traces.
 // data array contains data[i].x
+// the data is ordered from oldest to newest
 // returns array with [minValue, maxValue]
 function getDataXminXmaxAsString(data) {
 	var minValue, maxValue, x = new Date();
 	var iLimit = data.length;
 	var jLimit = 0;
 	var minMax =["",""];
+	var dataIX;
 	
-
 	for (var i = 0; i < iLimit; i++) {
-		jLimit = data[i].x.length;
-		for (var j = 0; j < jLimit; j++) {
-			x = new Date(data[i].x[j]);
-			if (typeof maxValue === "undefined" || x > maxValue) {
-				maxValue = x;
-				minMax[1]= data[i].x[j];
-			}
-			if (typeof minValue === "undefined" || x < minValue) {
-				minValue = x;
-				minMax[0]= data[i].x[j];
-			}
+		dataIX = data[i].x;
+		jLimit = dataIX.length;
+		
+		x = new Date(dataIX[0]);
+		if (typeof maxValue === "undefined" || x > maxValue) {
+			maxValue = x;
+			minMax[1]= dataIX[0];
 		}
-	}
+		
+		x = new Date(dataIX[jLimit - 1]);
+		if (typeof minValue === "undefined" || x < minValue) {
+			minValue = x;
+			minMax[0]= dataIX[jLimit - 1];
+		}
 
+	}
+	
 	return minMax;
 }
 
