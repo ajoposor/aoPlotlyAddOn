@@ -2930,10 +2930,11 @@ function makeChart(data, param){
 				settings.periodKeys,
 				settings.endOfWeek
 			);
+			DEBUG && DEGUB_TIMES && console.log("data", data);
 			DEBUG && DEBUG_TIMES && console.timeEnd("TIME: transformSeriesByFrequencies");
 			frequenciesDataCreated = true;
 			DEBUG && DEBUG_TIMES && console.time("TIME: processFrequenciesDates");
-			processFrequenciesDates(data, settings.periodKeys);
+			//processFrequenciesDates(data, settings.periodKeys);
 			DEBUG && DEBUG_TIMES && console.timeEnd("TIME: processFrequenciesDates");
 		}
 	}
