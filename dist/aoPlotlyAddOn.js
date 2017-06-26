@@ -6153,8 +6153,11 @@ function processFrequenciesDates(data, periodKeys){
 		for(key in periodKeys){
 			if (periodKeys.hasOwnProperty(key)) {
 				if(periodKeys[key]=== true){
-					//DEBUG && OTHER_DEBUGS && console.log("[key]",key);
-					//DEBUG && OTHER_DEBUGS && console.log("data[i][key]",data[i][key]);
+					//dataIKX = data[i][key].x
+					DEBUG && console.log("processFrequenciesDates, [key]",key);
+					DEBUG && console.log("processFrequenciesDates, data[i][key]",data[i][key]);
+					//DEBUG && OTHER_DEBUGS && console.log("processFrequenciesDates, [key]",key);
+					//DEBUG && OTHER_DEBUGS && console.log("processFrequenciesDates, data[i][key]",data[i][key]);
 					jLimit = data[i][key].x.length;
 					for(j=0; j<jLimit;j++){	
 							data[i][key].x[j] = processDate(data[i][key].x[j], timeOffsetText);
