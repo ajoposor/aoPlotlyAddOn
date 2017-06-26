@@ -2966,12 +2966,13 @@ function makeChart(data, param){
 		// determine base date
 		/* could be "end of range", "end of domain", "beggining of range", beggining of domain",
 		or a date "yyyy-mm-dd hh:mm:ss.sss-04:00"*/
-		baseRealNominalDate = setBaseRealNominalDateAsString(settings.baseRealDate, 
-								 layout.xaxis.range[0],
-								 layout.xaxis.range[1],
-								 minDateAsString,
-								 maxDateAsString
-								);
+		baseRealNominalDate = setBaseRealNominalDateAsString(
+							settings.baseRealDate, 
+							layout.xaxis.range[0],
+							layout.xaxis.range[1],
+							minDateAsString,
+							maxDateAsString
+							);
 
 		//DEBUG && console.log("baseRealNominalDate",baseRealNominalDate);
 
@@ -3697,12 +3698,13 @@ function makeChart(data, param){
 
 					if(transformToReal){
 
-						newBaseRealNominalDate = setBaseRealNominalDateAsString(settings.baseRealDate, 
-																																 layout.xaxis.range[0],
-																																 layout.xaxis.range[1],
-																																 minDateAsString,
-																																 maxDateAsString
-																																);
+						newBaseRealNominalDate = setBaseRealNominalDateAsString(
+										settings.baseRealDate, 
+										layout.xaxis.range[0],
+										layout.xaxis.range[1],
+										minDateAsString,
+										maxDateAsString);
+						
 						if(newBaseRealNominalDate !== baseRealNominalDate){
 
 							baseRealNominalDate =newBaseRealNominalDate;
@@ -4320,12 +4322,13 @@ function makeChart(data, param){
 
 						loadData(data,"nominal");
 
-						newBaseRealNominalDate = setBaseRealNominalDateAsString(settings.baseRealDate, 
-											layout.xaxis.range[0],
-											layout.xaxis.range[1],
-											minDateAsString,
-											maxDateAsString
-											);
+						newBaseRealNominalDate = setBaseRealNominalDateAsString(
+										settings.baseRealDate, 
+										layout.xaxis.range[0],
+										layout.xaxis.range[1],
+										minDateAsString,
+										maxDateAsString
+										);
 						//DEBUG && console.log("newBaseRealNominalDate",newBaseRealNominalDate);
 						//DEBUG && console.log("baseRealNominalDate",baseRealNominalDate);
 						if(newBaseRealNominalDate !== baseRealNominalDate){
@@ -4463,7 +4466,8 @@ function makeChart(data, param){
 
 						loadData(data,"nominal");
 
-						newBaseRealNominalDate = setBaseRealNominalDateAsString(settings.baseRealDate,
+						newBaseRealNominalDate = setBaseRealNominalDateAsString(
+									settings.baseRealDate,
 									layout.xaxis.range[0],
 									layout.xaxis.range[1],
 									minDateAsString,
@@ -7936,7 +7940,6 @@ function transformDataToReal(data, deflactorDictionary, baseRealNominalDate, oth
 		if(otherDataProperties[i].toggleRealNominal){
 			jLimit = data[i].y.length;
 			for (j = 0; j < jLimit; j++) {
-
 				data[i].y[j] = base*data[i].y[j]/Number(deflactorDictionary[data[i].x[j]]);
 			}
 		}
