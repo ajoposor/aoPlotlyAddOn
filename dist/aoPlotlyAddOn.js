@@ -6686,19 +6686,34 @@ function setDatesRangeAsString(minDateAsString, maxDateAsString, timeInfo) {
 // sets data.x and data.y to the corresponding frequency and aggregation
 function loadFrequencyAndAggregationIntoData(data, frequency, aggregation) {
 	var iLimit = data.length;
-	var jLimit = 0, j = 0;
+	var jLimit = 0, j = 0, k=0;
+	var x, y, dataIX, dataIY;	
 
 	for (var i = 0; i < iLimit; i++) {
-		data[i].x = [];
-		data[i].y = [];
-		jLimit = data[i][frequency].x.length;
+		x = [];
+		y = [];
+		dataIX = data[i][frequency].x;
+		dataIY = data[i][frequency][aggregation];
+		jLimit = dataIX.length;
+		x.length = jLimit;
+		y.length = jLimit;
 
-		for (j = 0; j < jLimit; j++) {
-			if (!isNaN(data[i][frequency][aggregation][j])) {
-				data[i].x.push(data[i][frequency].x[j]);
-				data[i].y.push(data[i][frequency][aggregation][j]);
+		//jLimit = data[i][frequency].x.length;
+		
+		for (j = 0, k=0; j < jLimit; j++) {
+			//if (!isNaN(data[i][frequency][aggregation][j])) {
+			if (!isNaN(dataIY[j])) {				
+				x[j] = dataIX[j];
+				y[j] = dataIY[j];
+				k++;
+				//data[i].x.push(data[i][frequency].x[j]);
+				//data[i].y.push(data[i][frequency][aggregation][j]);
 			}
 		}
+		x.length = k;
+		y.length = k;
+		data[i].x = x;
+		data[i].y = y;
 	}
 }
 
@@ -6706,16 +6721,26 @@ function loadFrequencyAndAggregationIntoData(data, frequency, aggregation) {
 function loadData(data, key) {
 	var iLimit = data.length;
 	var j = 0, jLimit = 0;
+	var x, y, dataIX, dataIY;
 
 	for (var i = 0; i < iLimit; i++) {
-		jLimit = data[i][key].x.length;
-		data[i].x = [];
-		data[i].y = [];
+		x = [];
+		y = [];
+		dataIX = data[i][key].x;
+		dataIY = data[i][key].y;
+		jLimit = dataIX.length;
+		x.length = jLimit;
+		y.length = jLimit;
 
 		for (j = 0; j < jLimit; j++) {
-			data[i].x.push(data[i][key].x[j]);
-			data[i].y.push(data[i][key].y[j]);
+			x[j] = dataIX[j];
+			y[j] = dataIY[j];
+			//data[i].x.push(data[i][key].x[j]);
+			//data[i].y.push(data[i][key].y[j]);
 		}
+		
+		data[i].x = x;
+		data[i].y = y;
 	}
 }
 
@@ -6732,11 +6757,12 @@ function saveDataXYIntoPropertyXY(data, xProperty, yProperty) {
 		// duplicates data into base for future use
 		x = [];
 		y = [];
-		jLimit = data[i].x.length;
-		x.length = jLimit;
-		y.length = jLimit;
 		dataIX = data[i].x;
 		dataIY = data[i].y;
+		jLimit = dataIX.length;
+		x.length = jLimit;
+		y.length = jLimit;
+
 		for (j = 0; j < jLimit; j++) {
 			x[j] = dataIX[j];
 			y[j] = dataIY[j];
@@ -6751,17 +6777,26 @@ function saveDataXYIntoPropertyXY(data, xProperty, yProperty) {
 function saveDataXYIntoProperty(data, property) {
 	var iLimit = data.length;
 	var jLimit = 0, j = 0;
+	var x, y, dataIX, dataIY;
 	
 	for (var i = 0; i < iLimit; i++) {
 		// duplicates data into base for future use
-		data[i][property] = {};
-		data[i][property].x =[];
-		data[i][property].y =[];
-		jLimit = data[i].x.length;
+		x = [];
+		y = [];
+		dataIX = data[i].x;
+		dataIY = data[i].y;
+		jLimit = dataIX.length;
+		x.length = jLimit;
+		y.length = jLimit;
 		for (j = 0; j < jLimit; j++) {
-			data[i][property].x.push(data[i].x[j]);
-			data[i][property].y.push(data[i].y[j]);
-		}			
+			x[j] = dataIX[j];
+			y[j] = dataIY[j];		
+			//data[i][property].x.push(data[i].x[j]);
+			//data[i][property].y.push(data[i].y[j]);
+		}
+		data[i][property] = {};
+		data[i][property].x = x;
+		data[i][property].y = y;
 	}
 }
 
@@ -6769,16 +6804,27 @@ function loadDataIntoXYFromPropertyXY(data, propertyForX, propertyForY) {
 	var iLimit = data.length;
 	var j = 0;
 	var jLimit = 0;
+	var x, y, dataIX, dataIY;
 	
 	for (var i = 0; i < iLimit; i++) {
-		data[i].x = [];
-		data[i].y = [];
-		jLimit = data[i][propertyForX].length;
-	
+		x = [];
+		y = [];
+		dataIX = data[i][propertyForX].x;
+		dataIY = data[i][propertyForY].y;
+		jLimit = dataIX.length;
+		x.length = jLimit;
+		y.length = jLimit;
+		//jLimit = data[i][propertyForX].length;
 		for (j = 0; j < jLimit; j++) {
-			data[i].x.push(data[i][propertyForX][j]);
-			data[i].y.push(data[i][propertyForY][j]);
+			x[j] = dataIX[j];
+			y[j] = dataIY[j];
+			
+			//data[i].x.push(data[i][propertyForX][j]);
+			//data[i].y.push(data[i][propertyForY][j]);
 		}
+		
+		data[i].x = x;
+		data[i].y = y;
 	}
 }
 
