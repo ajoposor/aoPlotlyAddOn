@@ -2930,11 +2930,11 @@ function makeChart(data, param){
 				settings.periodKeys,
 				settings.endOfWeek
 			);
-			DEBUG && DEBUG_TIMES && console.log("data", data);
+			//DEBUG && DEBUG_TIMES && console.log("data", data);
 			DEBUG && DEBUG_TIMES && console.timeEnd("TIME: transformSeriesByFrequencies");
 			frequenciesDataCreated = true;
 			DEBUG && DEBUG_TIMES && console.time("TIME: processFrequenciesDates");
-			//processFrequenciesDates(data, settings.periodKeys);
+			processFrequenciesDates(data, settings.periodKeys);
 			DEBUG && DEBUG_TIMES && console.timeEnd("TIME: processFrequenciesDates");
 		}
 	}
@@ -6138,30 +6138,35 @@ function changeDateToEndOfMonth(dateAsStringAndProcessed){
 }
 	 
 	 
-
+// this function adds a timezone string to dates 
+// that already come as "yyyy-mm-dd"
 function processFrequenciesDates(data, periodKeys){
-	var iLimit=0, j=0, jLimit =0;
+	var key = "";
+	var j=0, jLimit =0;
+	var dataIKX;
+	var iLimit = data.length;
 
 	var timeOffset  = (new Date()).getTimezoneOffset();
-	var timeOffsetText ="";
-	var key = "";
+	var timeOffsetText = (timeOffset > 0 ) ?
+	    			("-"+convertOffsetToHHMM(timeOffset)):
+				("+"+convertOffsetToHHMM(-timeOffset));
 
-	timeOffsetText = (timeOffset > 0 ) ? 	("-"+convertOffsetToHHMM(timeOffset)): ("+"+convertOffsetToHHMM(-timeOffset));
+	var timeTimeZoneSuffix = " 00:00:00"+timeOffsetText;
 
-	iLimit = data.length;
 
 	for (var i=0; i < iLimit ;i++){
 		for(key in periodKeys){
 			if (periodKeys.hasOwnProperty(key)) {
 				if(periodKeys[key]=== true){
-					//dataIKX = data[i][key].x
-					DEBUG && console.log("processFrequenciesDates, [key]",key);
-					DEBUG && console.log("processFrequenciesDates, data[i][key]",data[i][key]);
+					dataIKX = data[i][key].x;
+					//DEBUG && console.log("processFrequenciesDates, [key]",key);
+					//DEBUG && console.log("processFrequenciesDates, data[i][key]",data[i][key]);
 					//DEBUG && OTHER_DEBUGS && console.log("processFrequenciesDates, [key]",key);
 					//DEBUG && OTHER_DEBUGS && console.log("processFrequenciesDates, data[i][key]",data[i][key]);
-					jLimit = data[i][key].x.length;
-					for(j=0; j<jLimit;j++){	
-							data[i][key].x[j] = processDate(data[i][key].x[j], timeOffsetText);
+					jLimit = dataIKX.length;
+					for(j=0; j < jLimit; j++){
+						dataIKX[j]+= timeTimeZoneSuffix;
+						//data[i][key].x[j] = processDate(data[i][key].x[j], timeOffsetText);
 					}	
 				}	
 			}
