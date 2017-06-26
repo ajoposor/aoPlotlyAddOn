@@ -2844,7 +2844,9 @@ function makeChart(data, param){
 
 	// this section finds the x range for the traces (which is already trimmed by tracesInitialDate)
 	// range required in order to set the recession shapes.
+	DEBUG && DEBUG_TIMES && console.time("getDataXminXmaxAsString");
 	var minMaxDatesAsString = getDataXminXmaxAsString(data);
+	DEBUG && DEBUG_TIMES && console.timeEnd("getDataXminXmaxAsString");
 	//DEBUG && OTHER_DEBUGS && console.log(minMaxDatesAsString);
 	minDateAsString = makeDateComplete(minMaxDatesAsString[0]);
 	maxDateAsString = makeDateComplete(minMaxDatesAsString[1]);
