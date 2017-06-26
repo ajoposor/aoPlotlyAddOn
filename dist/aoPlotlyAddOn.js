@@ -6809,8 +6809,8 @@ function loadDataIntoXYFromPropertyXY(data, propertyForX, propertyForY) {
 	for (var i = 0; i < iLimit; i++) {
 		x = [];
 		y = [];
-		dataIX = data[i][propertyForX].x;
-		dataIY = data[i][propertyForY].y;
+		dataIX = data[i][propertyForX];
+		dataIY = data[i][propertyForY];
 		jLimit = dataIX.length;
 		x.length = jLimit;
 		y.length = jLimit;
