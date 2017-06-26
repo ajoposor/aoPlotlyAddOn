@@ -4991,7 +4991,7 @@ aoPlotlyAddOn.createDataOriginal = createDataOriginal;
 * Optimized transformSeriesByFrequenciesNew
 *
 * changes vs prior version:
-*  1.- dates at x already come as 'yyyy-mm-dd 00:00:00-00:00'
+*  1.- dates at xOriginal already come as 'yyyy-mm-dd 00:00:00-00:00'
 *  2.- no prior calculation has been made, no need to test
 *
 * data object contains arrays x and y. x has dates as 'yyyy-mm-dd 00:00:00-00:00',
@@ -5018,6 +5018,13 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 	    periodKeys = {},
 	    periodKeysArray = [];
 	    doCalculations = false;
+	var dataIXO, dataIYO, dataIK;
+	var averageKey;
+	var currentLimitKeyBegins, currentLimitKeyEnds;
+	
+	var localGetPriorNonUSBankingWorkingDay = getPriorNonUSBankingWorkingDay;
+	var localGetNextNonUSBankingWorkingDay =  getNextNonUSBankingWorkingDay;
+	var localGetPeriodLimitsAsYYYYMMDD = getPeriodLimitsAsYYYYMMDD;
 	
 	
 	// create periodKeysArray to iterate to required keys to be calculated
@@ -5043,126 +5050,140 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 				priorClose[key] = "undefined";
 				priorCumulative[key]=0.0;
 			}
-
 			
-
-	      // iterates over trace points
-	      for (j = data[i].xOriginal.length - 1; j > -1; j--) {
-		//DEBUG && OTHER_DEBUGS && console.log('j',j);
-		// get periods ranges and dates
-		currentDate = stripDateIntoObject(data[i].xOriginal[j]);
-		priorXString = begin ? "undefined" : data[i].xOriginal[j + 1];
-		nextXString = (j > 0) ? data[i].xOriginal[j - 1] : "undefined";
-
-		currentY = Number(data[i].yOriginal[j]);
-		priorBankingDate = stripDateIntoObject(
-		  getPriorNonUSBankingWorkingDay(currentDate.year,
-		    currentDate.month,
-		    currentDate.day));
-		nextBankingDate = stripDateIntoObject(
-		  getNextNonUSBankingWorkingDay(currentDate.year,
-		    currentDate.month,
-		    currentDate.day));
-
-		// checks and procedures for the first point in the trace
-		if (begin) {
-		  priorLimits = getPeriodLimitsAsYYYYMMDD(currentDate.year,
-		    currentDate.month,
-		    currentDate.day,
-		    endOfWeek);
-
-		  for (key in periodKeys) {
-		    if (periodKeys.hasOwnProperty(key)) {
-		      average[key] = {
-			sum: 0.0,
-			n: 0,
-			calculate: false
-		      };
-		    }
-		  }
-		  begin = false;
-		}
-
-		currentLimits = getPeriodLimitsAsYYYYMMDD(currentDate.year,
-		  currentDate.month,
-		  currentDate.day,
-		  endOfWeek);
-
-		for (key in periodKeys) {
-		  if (periodKeys.hasOwnProperty(key)) {
-		    // case: Period begin found
-		    if (priorXString < currentLimits.begins[key] || priorBankingDate.string < currentLimits.begins[key]){
-		      // allow average calculation.
-		      average[key].calculate= true;
-		    }
-
-		    // add value to average
-		    if(average[key].calculate=== true){
-		      average[key].sum = Number(average[key].sum)+currentY;
-		      average[key].n = Number(average[key].n)+1;
-		    }
-
-		    // case: period end found
-		    if ((nextXString != 'undefined' && nextXString >= currentLimits.ends[key]) ||
-			nextBankingDate.string >= currentLimits.ends[key]) {
-
-		      // create data[i][key] object if not already created.
-		      if (typeof data[i][key] === 'undefined') {
-			data[i][key] = {
-			  x: [],
-			  close: [],
-			  average: [],
-			  change: [],
-			  percChange: [],
-			  sqrPercChange: [],
-			  cumulative: [],
-			};
-		      }
-		      // add date to trace for this key
-		      data[i][key].x.unshift(currentLimits.label[key]);
-		      // add average if applicable
-		      if (average[key].calculate === true) {
-			data[i][key].average.unshift(average[key].sum / average[key].n);
-			average[key].sum=0.0;
-			average[key].n=0;
-			average[key].calculate= false;
-		      } else {
-			data[i][key].average.unshift('N/A');
-		      }
-		      // add close
-		      data[i][key].close.unshift(currentY);
-
-		      //add cumulative
-		      data[i][key].cumulative.unshift(priorCumulative[key] + currentY);            
-
-		      // check if priorClose.key exists and update changes
-		      if (priorClose[key] !== 'undefined') {
-			temp = currentY - priorClose[key];
-			data[i][key].change.unshift(temp);
-			temp = (priorClose[key] !== 0) ? temp / priorClose[key] : 'N/A';
-			data[i][key].percChange.unshift(temp);
-			data[i][key].sqrPercChange.unshift(temp != 'N/A' ? temp * temp : 'N/A');
-		      } 
-		      else {
-			data[i][key].change.unshift('N/A');
-			data[i][key].percChange.unshift('N/A');
-			data[i][key].sqrPercChange.unshift('N/A');
-		      }
-
-		      //update priorClose
-		      priorClose[key] = currentY;
-		      priorCumulative[key]=  priorCumulative[key]+currentY;
-		    }
-		    else { // case: within period
-		      // do something if applicable
-		    }
-		  } // periodKey has ownProperty
-		}  // periodKey
-		priorLimits = currentLimits;
-	      } // next j
-	    } // end of doCalculations condition
-	  } // next i
-}; // end of function
+			// iterates over trace points
+			dataIXO = data[i].xOriginal;
+			dataIYO = data[i].yOriginal;
+			for (j = dataIXO.length - 1; j > -1; j--) {
+				//DEBUG && OTHER_DEBUGS && console.log('j',j);
+				// get periods ranges and dates
+				currentDate = stripDateIntoObject(dataIXO[j]);
+				priorXString = begin ? "undefined" : dataIXO[j + 1];
+				nextXString = (j > 0) ? dataIXO[j - 1] : "undefined";
+				
+				currentY = Number(dataIYO[j]);
+				priorBankingDate = stripDateIntoObject(
+					localGetPriorNonUSBankingWorkingDay(currentDate.year,
+									    currentDate.month,
+									    currentDate.day));
+				
+				nextBankingDate = stripDateIntoObject(
+					localGetNextNonUSBankingWorkingDay(currentDate.year,
+									   currentDate.month,
+									   currentDate.day));
+				
+				// checks and procedures for the first point in the trace
+				if (begin) {
+					priorLimits = localGetPeriodLimitsAsYYYYMMDD(currentDate.year,
+										currentDate.month,
+										currentDate.day,
+										endOfWeek);
+					
+					for(k=0; k < kLimit; k++){
+						key = periodKeysArray[k];
+						average[key] = {
+							sum: 0.0,
+							n: 0,
+							calculate: false
+							};
+					}
+					begin = false;
+				}
+				
+				currentLimits = localGetPeriodLimitsAsYYYYMMDD(currentDate.year,
+									  currentDate.month,
+									  currentDate.day,
+									  endOfWeek);
+				
+				for(k=0; k < kLimit; k++){
+					key = periodKeysArray[k];
+					averageKey = average[key];
+					currentLimitKeyBegins = currentLimits.begins[key];
+					currentLimitKeyEnds = currentLimits.ends[key];
+					
+					
+					// case: Period begin found
+					if (priorXString < currentLimitKeyBegins ||
+					    priorBankingDate.string < currentLimitKeyBegins){
+						// allow average calculation.
+						averageKey.calculate= true;
+					}
+					
+					// add value to average
+					if(averageKey.calculate){
+						averageKey.sum = Number(averageKey.sum)+currentY;
+						averageKey.n = Number(averageKey.n)+1;
+					}
+					
+					// case: period end found
+					if ((nextXString != 'undefined' && nextXString >= currentLimitKeyEnds) ||
+					    nextBankingDate.string >= currentLimitKeyEnds) {
+						
+						// create data[i][key] object if not already created.
+						if (typeof data[i][key] === 'undefined') {
+							data[i][key] = {
+								x: [],
+								close: [],
+								average: [],
+								change: [],
+								percChange: [],
+								sqrPercChange: [],
+								cumulative: []
+							};
+						}
+						
+						dataIK = data[i][key];
+						
+						// add date to trace for this key
+						dataIK.x.unshift(currentLimits.label[key]);
+						
+						// add average if applicable
+						if (averageKey.calculatetrue) {
+							dataIK.average.unshift(averageKey.sum / averageKey.n);
+							averageKey.sum = 0.0;
+							averageKey.n = 0;
+							averageKey.calculate = false;
+						} else {
+							dataIK.average.unshift('N/A');
+						}
+						
+						// add close
+						dataIK.close.unshift(currentY);
+						
+						//add cumulative
+						dataIK.cumulative.unshift(priorCumulative[key] + currentY);  
+						
+						// check if priorClose.key exists and update changes
+						if (priorClose[key] !== 'undefined') {
+							temp = currentY - priorClose[key];
+							dataIK.change.unshift(temp);
+							temp = (priorClose[key] !== 0) ?
+								temp / priorClose[key] :
+								'N/A';
+							dataIK.percChange.unshift(temp);
+							dataIK.sqrPercChange.unshift(temp != 'N/A' ? temp * temp : 'N/A');
+						} else {
+							dataIK.change.unshift('N/A');
+							dataIK.percChange.unshift('N/A');
+							dataIK.sqrPercChange.unshift('N/A');
+						}
+						
+						//update priorClose
+						priorClose[key] = currentY;
+						priorCumulative[key]=  priorCumulative[key] + currentY;
+					} // end of period end found
+					
+					else {
+						// case: within period
+						// do something if applicable
+					}
+				}  // end of periodKeysArray for
+				
+				priorLimits = currentLimits;
+			} // next j
+		} // end of doCalculations condition
+	} // next i
+} // end of function
  	 
 	 
 	 
