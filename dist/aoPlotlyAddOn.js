@@ -206,7 +206,8 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		allowCompare: false,
 		transformToBaseIndex: false, //series would be transformed to common value of 1 at beginning
 		
-		// includes buttons to allow for calculation of aggregation and methods (monthly, quarterly), close, average, etc.
+		// includes buttons to allow for calculation of aggregation and methods (monthly, quarterly),
+		// close, average, etc.
 		allowFrequencyResampling: false,
 		targetFrequencyDisplay: "daily",
 		defaultNames: {
@@ -361,7 +362,8 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		
 	
 	// create footer div in case required to home buttons
-	if(settings.allowCompare || settings.allowLogLinear || settings.allowDownload || settings.allowRealNominal){
+	if(settings.allowCompare || settings.allowLogLinear || 
+	   settings.allowDownload || settings.allowRealNominal){
 		divInfo.footerDivID = divInfo.plotDivID+"_plotlyFooter";
 		divInfo.footerDivElement = 
 			createElement("div", divInfo.footerDivID);			
@@ -568,12 +570,12 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
      
 	function removetouchclass(e){
 		if (!isTouch && curRootClass === "can-touch"){ 
-		//remove 'can-touch' class if not triggered by a touch event and class is present
-		    isTouch = false;
-		    curRootClass = "";
-		    document.documentElement.classList.remove("can-touch");
-							settings.pressedButtonHoverDefaultStyle["background-color"]=
-								settings.pressedButtonHoverDefaultStyle["mouse-background-color"];
+			//remove 'can-touch' class if not triggered by a touch event and class is present
+			isTouch = false;
+			curRootClass = "";
+			document.documentElement.classList.remove("can-touch");
+			settings.pressedButtonHoverDefaultStyle["background-color"]=
+				settings.pressedButtonHoverDefaultStyle["mouse-background-color"];
 		}
 	}
      
@@ -770,9 +772,9 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 			if(settings.series.baseAggregationType === "not available"){
 				settings.series.baseAggregation = settings.defaultNames.aggregation;
 				settings.series.baseAggregationLabel = settings.defaultNames.aggregation;
-				settings.series.customAggregation = true;				
+				settings.series.customAggregation = true;
 				singleAggregationButton[0].label = settings.defaultNames.aggregation;
-				singleAggregationButton[0].args[1] = settings.defaultNames.aggregation;				
+				singleAggregationButton[0].args[1] = settings.defaultNames.aggregation;
 			}
 			else{
 				// settings.series.baseAggregation = settings.series.baseAggregation
@@ -781,7 +783,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 					settings.series.baseAggregationLabel = 
 						settings.series.baseAggregation.substring(
 							0,
-							settings.maxNumberOfCharactersInAggregationButton-1)+'.';					
+							settings.maxNumberOfCharactersInAggregationButton-1)+'.';
 				}
 				else{
 					settings.series.baseAggregationLabel =settings.series.baseAggregation;
@@ -789,7 +791,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 				
 				settings.series.customAggregation = true;	
 				singleAggregationButton[0].label = settings.series.baseAggregationLabel;
-				singleAggregationButton[0].args[1] = settings.series.baseAggregationLabel;		
+				singleAggregationButton[0].args[1] = settings.series.baseAggregationLabel;
 			}
 			
 			addButtonsToButtons(singleAggregationButton, combinedAggregationButtons);
@@ -836,7 +838,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 							frequencyUpdateMenu[1].font.size,
 							canvas
 						);
-				singleAggregationButton[0].args[1] = settings.series.baseAggregation;				
+				singleAggregationButton[0].args[1] = settings.series.baseAggregation;
 				
 			}
 			
@@ -855,8 +857,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 							frequencyUpdateMenu[1].font.size,
 							canvas
 						);				
-				singleAggregationButton[0].args[1] = settings.series.baseAggregation;						
-				
+				singleAggregationButton[0].args[1] = settings.series.baseAggregation;	
 			}
 			
 			frequencyUpdateMenu[1].buttons = singleAggregationButton;
@@ -2115,7 +2116,7 @@ function parallelReadData(data, i, param, callback) {
 	 
 	 
 	 
-// 2. Process CSVData - support function, reads data and add it to data object, increases global iS variable	     
+// 2. Process CSVData - support function, reads data and add it to data object, increases global iS variable
     
 	    
 	    
@@ -2462,7 +2463,7 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
   
 	    
 	    
-/* Not required, it can be handled with the CSV function, set xSeriesName to date and ySeriesName to value	    
+/* Not required, it can be handled with the CSV function, set xSeriesName to date and ySeriesName to value
 function processJsonData(jsonData, tracesInitialDate, serie) {
 	var x = [], y = [], trace = {}; //[];
 	var initialDateAsDate = new Date("0001-01-01");
@@ -2480,7 +2481,7 @@ function processJsonData(jsonData, tracesInitialDate, serie) {
 			readFlag = true;
 
 			for (i = 0; i < jsonData.count; i++) {
-				processedDate = processDate(jsonData.observations[i].date+ serie.xDateSuffix,timeOffsetText);	
+				processedDate = processDate(jsonData.observations[i].date+ serie.xDateSuffix,timeOffsetText);
 				processedDate = changeDateToEndOfMonth(processedDate);
 
 				if (
@@ -2497,7 +2498,7 @@ function processJsonData(jsonData, tracesInitialDate, serie) {
 	if(!readFlag){
 		readFlag = true;
 		for (i = 0; i < jsonData.count; i++) {
-			processedDate = processDate(jsonData.observations[i].date+ serie.xDateSuffix,timeOffsetText);	
+			processedDate = processDate(jsonData.observations[i].date+ serie.xDateSuffix,timeOffsetText);
 
 			if (
 				tracesInitialDate === "" ||
@@ -2625,7 +2626,7 @@ function processDirectData(tracesInitialDate, serie) {
 			readFlag = true;
 
 			for (i = 0; i < serie.traceAttributes.x.length; i++) {
-				processedDate = processDate("" + serie.traceAttributes.x[i] + serie.xDateSuffix, timeOffsetText);			
+				processedDate = processDate("" + serie.traceAttributes.x[i] + serie.xDateSuffix, timeOffsetText);
 				processedDate = changeDateToEndOfMonth(processedDate);
 
 				if (
@@ -2643,7 +2644,7 @@ function processDirectData(tracesInitialDate, serie) {
 			readFlag = true;
 
 			for (i = 0; i < serie.traceAttributes.x.length; i++) {
-				processedDate = processDate("" + serie.traceAttributes.x[i] + serie.xDateSuffix, timeOffsetText);			
+				processedDate = processDate("" + serie.traceAttributes.x[i] + serie.xDateSuffix, timeOffsetText);
 
 				if (
 					tracesInitialDate === "" ||
@@ -3213,7 +3214,7 @@ function makeChart(data, param){
 
 						{
 
-					//	load data	
+					// load data
 					//DEBUG && console.log("case 1 to load from calculated freqs");
 
 					flag = true;
@@ -3269,7 +3270,7 @@ function makeChart(data, param){
 					currentFrequency === settings.series.baseFrequency &&
 					settings.series.baseFrequencyType !== "normal" &&
 					relayoutData.myFrequency !== settings.series.baseFrequency &&
-					settings.series.baseAggregationType === "normal")	{
+					settings.series.baseAggregationType === "normal") {
 
 					//DEBUG && console.log("change frequency. case 3");
 					flag = true;
@@ -3292,9 +3293,9 @@ function makeChart(data, param){
 								layout.updatemenus[index].buttons
 							);
 
-					layout.updatemenus[index].visible = true;	
-					layout.updatemenus[index].type = "dropdown";	
-					layout.updatemenus[index].showactive = true;	
+					layout.updatemenus[index].visible = true;
+					layout.updatemenus[index].type = "dropdown";
+					layout.updatemenus[index].showactive = true;
 				}				
 
 
@@ -3303,13 +3304,13 @@ function makeChart(data, param){
 					currentFrequency === settings.series.baseFrequency &&
 					settings.series.baseFrequencyType !== "normal" &&
 					relayoutData.myFrequency !== settings.series.baseFrequency &&
-					settings.series.baseAggregationType !== "normal")	{
+					settings.series.baseAggregationType !== "normal") {
 
 					//DEBUG && console.log("change frequency. case 4");
 
 					flag = true;
 
-					currentAggregation = "close";					
+					currentAggregation = "close";
 
 					// set original aggregation menu
 					index = findIndexOfMenu(layout.updatemenus,"aggregation");
@@ -3350,7 +3351,7 @@ function makeChart(data, param){
 						data,
 						settings.period[relayoutData.myFrequency],
 						currentAggregation
-					);				
+					);
 
 				}
 
@@ -3360,13 +3361,13 @@ function makeChart(data, param){
 					currentFrequency !== settings.series.baseFrequency &&
 					relayoutData.myFrequency === settings.series.baseFrequency &&
 					settings.series.baseFrequencyType !== "normal" &&
-					settings.series.baseAggregationType === "not available")	{
+					settings.series.baseAggregationType === "not available") {
 
 					//DEBUG && console.log("change frequency. case 5");
 
 					flag = true;
 
-					currentAggregation = settings.series.baseAggregation;				
+					currentAggregation = settings.series.baseAggregation;
 
 					// hide aggregation menu
 					index = findIndexOfMenu(layout.updatemenus,"aggregation");
@@ -3410,7 +3411,7 @@ function makeChart(data, param){
 					currentFrequency !== settings.series.baseFrequency &&
 					relayoutData.myFrequency === settings.series.baseFrequency &&
 					settings.series.baseFrequencyType !== "normal" &&
-					settings.series.baseAggregationType !== "not available")	{
+					settings.series.baseAggregationType !== "not available") {
 
 					//DEBUG && console.log("change frequency. case 6");
 
@@ -3424,7 +3425,7 @@ function makeChart(data, param){
 
 					//DEBUG && console.log("index of agg menu",index);
 
-					layout.updatemenus[index].buttons = settings.singleAggregationButton;		
+					layout.updatemenus[index].buttons = settings.singleAggregationButton;
 					layout.updatemenus[index].active = 0;
 					layout.updatemenus[index].visible = true;	
 					layout.updatemenus[index].type = "buttons";
@@ -3433,8 +3434,8 @@ function makeChart(data, param){
 					//DEBUG && console.log("updatemenus",layout.updatemenus);
 
 					// load original data
-					loadDataIntoXYFromPropertyXY(data, "xOriginal", "yOriginal");							
-
+					loadDataIntoXYFromPropertyXY(data, "xOriginal", "yOriginal");
+					
 					// change log linear to original
 					changeLogLinearToOriginal(layout, originalLayout, divInfo, settings);
 					//DEBUG && console.log("6 after change log lin");
@@ -3522,7 +3523,7 @@ function makeChart(data, param){
 
 							// change location of frequency menu
 							setNewXToFrequencyButton(
-								xOfRightItems(divWidth, layout), layout.updatemenus, "frequencies");																
+								xOfRightItems(divWidth, layout), layout.updatemenus, "frequencies");
 						}	
 
 						if(settings.series.baseAggregationType ==="custom"){
@@ -3850,11 +3851,11 @@ function makeChart(data, param){
 					if(transformToReal){
 
 						newBaseRealNominalDate = setBaseRealNominalDateAsString(settings.baseRealDate, 
-													layout.xaxis.range[0],
-													layout.xaxis.range[1],
-													minDateAsString,
-													maxDateAsString
-													);
+										layout.xaxis.range[0],
+										layout.xaxis.range[1],
+										minDateAsString,
+										maxDateAsString
+										);
 						if(newBaseRealNominalDate !== baseRealNominalDate){
 
 							baseRealNominalDate =newBaseRealNominalDate;
@@ -4174,11 +4175,11 @@ function makeChart(data, param){
 						if(baseRealNominalDate!==""){
 
 							baseRealNominalDate = setBaseRealNominalDateAsString(settings.baseRealDate, 
-													layout.xaxis.range[0],
-													layout.xaxis.range[1],
-													minDateAsString,
-													maxDateAsString
-													);
+											layout.xaxis.range[0],
+											layout.xaxis.range[1],
+											minDateAsString,
+											maxDateAsString
+											);
 
 							//DEBUG && console.log("baseRealNominalDate",baseRealNominalDate);
 							setDeflactorDictionaryAtDate(baseRealNominalDate, deflactorDictionary, 
@@ -5567,7 +5568,7 @@ function processYqlGoogleCSVTags(dataSources){
 		}
 	}
 
-	for (j=0; j< jLimit; j++){			
+	for (j=0; j< jLimit; j++){
 		for (key in tags){
 			if (tags.hasOwnProperty(key)) {
 				if(tags[key].toString().trim() === dataSources.traces[j].xSeriesName.toString()){
@@ -7163,7 +7164,8 @@ function setYaxisLayoutRange(yAxisType, minMaxInitialY, layout, numberOfInterval
 
 }
 
-// sets the y axis range in the layout based on the y range for the available data array, y values ovr the xaxis range.
+// sets the y axis range in the layout based on the y range for the available data array, 
+//y values ovr the xaxis range.
 function setYAxisRange(layout, data, numberOfIntervalsInYAxis,possibleYTickMultiples, rangeProportion) {
 
 	// obtain y axis range for the displayed x range
@@ -7905,7 +7907,6 @@ function setBaseRealNominalDateAsString(baseRealDate,
 
 	
 }
-																							
 
 
 
