@@ -5052,6 +5052,8 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 	itemsLength.length = kLimit;
 	itemsIndex.length = kLimit;
 	
+	elapsedBankingDate = 0;
+	elapsedDateLimit = 0;
 	
 	for (var i = 0; i < iLimit; i++) {
 		// flags begin
@@ -5074,8 +5076,7 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 			// iterates over trace points
 
 			DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.log("jLimit", jLimit);
-			elapsedBankingDate = 0;
-			elapsedDateLimit = 0;
+			DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.time("DataI");
 			
 			for (j = jLimit - 1; j > -1; j--) {
 				//DEBUG && OTHER_DEBUGS && console.log('j',j);
@@ -5228,10 +5229,10 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 				priorLimits = currentLimits;
 			} // next j
 			
-			console.info("Time: elapsedBankingDate time: %dms", elapsedBankingDate);
-			console.info("Time: elapsedDateLimit time: %dms", elapsedDateLimit);
+			DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.timeEnd("DataI");
 			// after all j's splice the resulting arrays
 			
+			DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.time("spliceArrays");
 			for (k = 0; k < kLimit; k++) {
 				key = periodKeysArray[k];
 				for (aggKey in data[i][key]) {
@@ -5244,10 +5245,15 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 					}
 				}
 			}
+			DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.timeEnd("spliceArrays");
 
 			
 		} // end of doCalculations condition
 	} // next i
+	
+	console.info("Time: elapsedBankingDate time: %dms", elapsedBankingDate);
+	console.info("Time: elapsedDateLimit time: %dms", elapsedDateLimit);
+	
 } // end of function
  	 
 	 
