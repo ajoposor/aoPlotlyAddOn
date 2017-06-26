@@ -5001,7 +5001,7 @@ aoPlotlyAddOn.createDataOriginal = createDataOriginal;
 */
 
 function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
-	var j=0, k=0, iLimit = data.length; 
+	var j=0, jLimit, k=0, iLimit = data.length; 
 	var   currentDate = {},
 	    currentY = 0.0,
 	    temp = 0.0,
@@ -5010,7 +5010,8 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 	    priorLimits = {},
 	    currentLimits = {},
 	    begin = true;
-	var key = '',
+	var key = "",
+	    aggKey = "",
 	    priorClose = [],
 	    priorCumulative = [],
 	    average = [],
@@ -5020,6 +5021,9 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 	var dataIXO, dataIYO, dataIK;
 	var averageK;
 	var currentLimitKeyBegins, currentLimitKeyEnds;
+	var itemsLength = [];
+	var itemsIndex = [];
+	var index = 0;
 	
 	var localGetPriorNonUSBankingWorkingDay = getPriorNonUSBankingWorkingDay;
 	var localGetNextNonUSBankingWorkingDay =  getNextNonUSBankingWorkingDay;
@@ -5041,7 +5045,8 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 	priorClose.length = kLimit;
 	priorCumulative.length = kLimit;
 	average.length = kLimit;
-	
+	itemsLength.length = kLimit;
+	itemsIndex.length = kLimit;
 	
 	
 	for (var i = 0; i < iLimit; i++) {
@@ -5053,12 +5058,14 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 				key = periodKeysArray[k];
 				priorClose[k] = "undefined";
 				priorCumulative[k]=0.0;
+				itemsLength[k] = 0;
 			}
 			
 			// iterates over trace points
 			dataIXO = data[i].xOriginal;
 			dataIYO = data[i].yOriginal;
-			for (j = dataIXO.length - 1; j > -1; j--) {
+			jLimit = dataIXO.length;
+			for (j = jLimit - 1; j > -1; j--) {
 				//DEBUG && OTHER_DEBUGS && console.log('j',j);
 				// get periods ranges and dates
 				currentDate = stripDateIntoObject(dataIXO[j]);
@@ -5089,6 +5096,8 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 							n: 0,
 							calculate: false
 							};
+						
+						itemsIndex[k] = jLimit-1;
 					}
 					begin = false;
 				}
@@ -5133,21 +5142,31 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 								sqrPercChange: [],
 								cumulative: []
 							};
+							// set initial length to maximum
+							for (aggKey in data[i][key]) {
+								if (data[i][key].hasOwnProperty(aggKey)) {
+									data[i][key][aggKey].length = jLimit;
+								}
+							}
+							
 						}
 						
 						dataIK = data[i][key];
 						
+						// set index
+						index = itemsIndex[k];
+						
 						// add date to trace for this key
-						dataIK.x.unshift(currentLimits.label[key]);
+						dataIK.x[index] = currentLimits.label[key];
 						
 						// add average if applicable
 						if (averageK.calculate) {
-							dataIK.average.unshift(averageK.sum / averageK.n);
+							dataIK.average[index] = averageK.sum / averageK.n;
 							averageK.sum = 0.0;
 							averageK.n = 0;
 							averageK.calculate = false;
 						} else {
-							dataIK.average.unshift('N/A');
+							dataIK.average[index] = 'N/A';
 						}
 						
 						// add close
@@ -5159,17 +5178,21 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 						// check if priorClose.key exists and update changes
 						if (priorClose[k] !== "undefined") {
 							temp = currentY - priorClose[k];
-							dataIK.change.unshift(temp);
+							dataIK.change[index] = temp;
 							temp = (priorClose[k] !== 0) ?
 								temp / priorClose[k] :
 								'N/A';
-							dataIK.percChange.unshift(temp);
-							dataIK.sqrPercChange.unshift(temp != 'N/A' ? temp * temp : 'N/A');
+							dataIK.percChange[index] = temp;
+							dataIK.sqrPercChange[index] = temp != 'N/A' ? temp * temp : 'N/A';
 						} else {
-							dataIK.change.unshift('N/A');
-							dataIK.percChange.unshift('N/A');
-							dataIK.sqrPercChange.unshift('N/A');
+							dataIK.change[index] = 'N/A';
+							dataIK.percChange[index] = 'N/A';
+							dataIK.sqrPercChange[index] = 'N/A';
 						}
+						
+						// updated index and length
+						itemsIndex[k]--;
+						itemsLength[k]++;
 						
 						//update priorClose
 						priorClose[k] = currentY;
@@ -5184,6 +5207,18 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 				
 				priorLimits = currentLimits;
 			} // next j
+			
+			// after all j's splice the resulting arrays
+			
+			for (k = 0; k < kLimit; k++) {
+				for (aggKey in data[i][k]) {
+					if (data[i][k].hasOwnProperty(aggKey)) {
+						data[i][k][aggKey].splice(0, jLimit - itemsLength[k]);
+					}
+				}
+			}
+
+			
 		} // end of doCalculations condition
 	} // next i
 } // end of function
