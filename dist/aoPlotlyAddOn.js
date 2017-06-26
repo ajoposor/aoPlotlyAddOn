@@ -41,6 +41,9 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		opacity: 1
 	};
 	
+	var loaderInitialStylingUrl = 
+	    "url('https://raw.githubusercontent.com/ajoposor/Images/master/files/loader_big_blue.gif') 50% 50% no-repeat #FFFFFF";
+	
 	var loaderInitialStyling = {
 		visibility: "visible",
 		position: "fixed",
@@ -48,7 +51,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		top: "0px",
 		width: "100%",
 		height: "100%",
-		background: "url('https://raw.githubusercontent.com/ajoposor/Images/master/files/loader_big_blue.gif') 50% 50% no-repeat #FFFFFF",
+		background: loaderInitialStylingUrl,
 		opacity: 1	
 	};
 	
@@ -175,7 +178,8 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	pressedButtonHoverDefaultStyle.color = "#444444";
 		
 		
-	var fredRecessionsDefaultUrl = "://www.kapitalvalue.com/plots_data/testing/fredRecessions-unlocked.php?observation_start=2015-12-01";
+	var fredRecessionsDefaultUrl = 
+	    "://www.kapitalvalue.com/plots_data/testing/fredRecessions-unlocked.php?observation_start=2015-12-01";
 	
 	if(connectionIsSecure()) {
 		DEBUG && console.log("HTTPS:");
@@ -193,14 +197,17 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		// recession fill color and opacity
 		recessionsFillColor: "#000000",
 		recessionsOpacity: 0.15,
-		// url should return a zip file as provided by fred api for the USRECP serie for dates after 2015, set to "" in parameters passed
+		// url should return a zip file as provided by fred api for the USRECP serie for dates after 2015, 
+		// set to "" in parameters passed
 		// to disable trying to get zip file with update values.
 		newRecessionsUrl: fredRecessionsDefaultUrl,
 		knownRecessionsDates: knownRecessionsDates,
 		queueConcurrencyLimit: 10,
 		allowCompare: false,
 		transformToBaseIndex: false, //series would be transformed to common value of 1 at beginning
-		allowFrequencyResampling: false, // includes buttons to allow for calculation of aggregation and methods (monthly, quarterly), close, average, etc.
+		
+		// includes buttons to allow for calculation of aggregation and methods (monthly, quarterly), close, average, etc.
+		allowFrequencyResampling: false,
 		targetFrequencyDisplay: "daily",
 		defaultNames: {
 			frequency: "base",
@@ -384,8 +391,8 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		
 		divInfo.logLinearButtonElement = 
 			createElement("button", divInfo.logLinearButtonID,
-										layout.yaxis.type==="log" ? "log" : "linear",
-										settings.buttonsStyle );
+					layout.yaxis.type==="log" ? "log" : "linear",
+					settings.buttonsStyle );
 		
 		divInfo.logLinearButtonElement.style.marginRight = layout.externalMargin.r+"px";
 
@@ -394,13 +401,13 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		$("#"+divInfo.logLinearButtonID).hover(
 			function(){
 				buttonOnHover($(this),
-											settings.pressedButtonHoverDefaultStyle["background-color"],
-											settings.pressedButtonHoverDefaultStyle.color);
+					settings.pressedButtonHoverDefaultStyle["background-color"],
+					settings.pressedButtonHoverDefaultStyle.color);
         }, 
 			function(){
 				buttonOnHover($(this),
-											settings.pressedButtonDefaultStyle["background-color"],
-											settings.pressedButtonDefaultStyle.color);
+					settings.pressedButtonDefaultStyle["background-color"],
+					settings.pressedButtonDefaultStyle.color);
 
 			}
 		);
@@ -425,7 +432,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		divInfo.downloadButtonElement = 
 			createElement("button", divInfo.downloadButtonID,""/*"download"*/, settings.buttonsStyle );
 		divInfo.downloadButtonElement.innerHTML = 
-					'<img src="https://raw.githubusercontent.com/ajoposor/Images/master/files/Download_Arrow_10_Dark.png" />';
+			'<img src="https://raw.githubusercontent.com/ajoposor/Images/master/files/Download_Arrow_10_Dark.png" />';
 		divInfo.downloadButtonElement.style.marginLeft = layout.externalMargin.l+"px";
 
 		divInfo.footerDivElement.appendChild(divInfo.downloadButtonElement);
@@ -433,13 +440,13 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		$("#"+divInfo.downloadButtonID).hover(
 			function(){
 				buttonOnHover($(this),
-											settings.buttonsHoverDefaultStyle["background-color"],
-											settings.buttonsHoverDefaultStyle.color);
+					settings.buttonsHoverDefaultStyle["background-color"],
+					settings.buttonsHoverDefaultStyle.color);
         }, 
 			function(){
 				buttonOnHover($(this),
-											settings.buttonsDefaultStyle["background-color"],
-											settings.buttonsDefaultStyle.color);
+					settings.buttonsDefaultStyle["background-color"],
+					settings.buttonsDefaultStyle.color);
 
 			}
 		);
@@ -510,8 +517,8 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		
 		divInfo.compareButtonElement = 
 			createElement("button", divInfo.compareButtonID,
-										settings.transformToBaseIndex ? "compared":"uncompared",
-										settings.buttonsStyle );
+						settings.transformToBaseIndex ? "compared":"uncompared",
+						settings.buttonsStyle );
 
 		if(!settings.allowDownload && !settings.allowRealNominal){
 			divInfo.compareButtonElement.style.marginLeft = layout.externalMargin.l+"px";
@@ -523,13 +530,13 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		$("#"+divInfo.compareButtonID).hover(
 		function(){
 				buttonOnHover($(this),
-											settings.pressedButtonHoverDefaultStyle["background-color"],
-											settings.pressedButtonHoverDefaultStyle.color);
+						settings.pressedButtonHoverDefaultStyle["background-color"],
+						settings.pressedButtonHoverDefaultStyle.color);
         }, 
 			function(){
 				buttonOnHover($(this),
-											settings.pressedButtonDefaultStyle["background-color"],
-											settings.pressedButtonDefaultStyle.color);
+						settings.pressedButtonDefaultStyle["background-color"],
+						settings.pressedButtonDefaultStyle.color);
 
 			}
 		);
@@ -550,17 +557,18 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		if (curRootClass !== "can-touch"){ //add "can-touch' class if it's not already present
 		    curRootClass = "can-touch";
 		    document.documentElement.classList.add(curRootClass);
-							settings.pressedButtonHoverDefaultStyle["background-color"]=
-								settings.pressedButtonHoverDefaultStyle["touch-background-color"];
+				settings.pressedButtonHoverDefaultStyle["background-color"]=
+				settings.pressedButtonHoverDefaultStyle["touch-background-color"];
 
 
 		}
 		isTouchTimer = setTimeout(function(){isTouch = false;}, 500);
-				//maintain "istouch" state for 500ms so removetouchclass doesn't get fired immediately following a touch event
+		//maintain "istouch" state for 500ms so removetouchclass doesn't get fired immediately following a touch event
 	}
      
 	function removetouchclass(e){
-		if (!isTouch && curRootClass === "can-touch"){ //remove 'can-touch' class if not triggered by a touch event and class is present
+		if (!isTouch && curRootClass === "can-touch"){ 
+		//remove 'can-touch' class if not triggered by a touch event and class is present
 		    isTouch = false;
 		    curRootClass = "";
 		    document.documentElement.classList.remove("can-touch");
@@ -569,8 +577,11 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		}
 	}
      
-	document.addEventListener("touchstart", addtouchclass, false); //this event only gets called when input type is touch
-	document.addEventListener("mouseover", removetouchclass, false); //this event gets called when input type is everything from touch to mouse/ trackpad
+	 //this event only gets called when input type is touch
+	document.addEventListener("touchstart", addtouchclass, false);
+	
+	//this event gets called when input type is everything from touch to mouse/ trackpad
+	document.addEventListener("mouseover", removetouchclass, false); 
 
 		
 		
@@ -791,6 +802,8 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		}
 	
 	}
+	
+	var canvas = document.createElement('canvas');
 		
 	//2.c frequency not normal, aggregation custom or normal
 	if(settings.series.baseFrequencyType !== "normal"){
@@ -820,7 +833,8 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 							settings.series.baseAggregationLabel, 
 							settings.singleButtonStringLengthInPixels,
 							frequencyUpdateMenu[1].font.family,
-							frequencyUpdateMenu[1].font.size
+							frequencyUpdateMenu[1].font.size,
+							canvas
 						);
 				singleAggregationButton[0].args[1] = settings.series.baseAggregation;				
 				
@@ -838,7 +852,8 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 							settings.series.baseAggregationLabel, 
 							settings.singleButtonStringLengthInPixels,
 							frequencyUpdateMenu[1].font.family,
-							frequencyUpdateMenu[1].font.size
+							frequencyUpdateMenu[1].font.size,
+							canvas
 						);				
 				singleAggregationButton[0].args[1] = settings.series.baseAggregation;						
 				
@@ -857,7 +872,8 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	//2d frenquency and aggregation normal
 	if(settings.series.baseFrequencyType==="normal" && settings.series.baseAggregationType ==="normal"){
 			settings.series.baseAggregation = settings.series.baseAggregation;
-			settings.series.baseAggregationLabel = getLabelFromButtonsGivenArg(settings.series.baseAggregation, baseAggregationButtons);
+			settings.series.baseAggregationLabel = 
+				getLabelFromButtonsGivenArg(settings.series.baseAggregation, baseAggregationButtons);
 			settings.series.customAggregation = false;
 			frequencyUpdateMenu[1].buttons = baseAggregationButtons;
 			frequencyUpdateMenu[1].visible = true;
@@ -1701,7 +1717,9 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		settings: settings,
 		timeInfo: timeInfo,
 		usRecessions: usRecessions,
-		selectorOptions: typeof layout.xaxis.rangeselector === "undefined"? selectorOptionsDefaults : layout.xaxis.rangeselector,
+		selectorOptions: typeof layout.xaxis.rangeselector === "undefined"?
+					selectorOptionsDefaults :
+					layout.xaxis.rangeselector,
 		frequencyUpdateMenu: frequencyUpdateMenu,
 		logLinearUpdateMenu: logLinearUpdateMenu,
 		compareUpdateMenu: compareUpdateMenu,
@@ -2335,7 +2353,8 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 		
 				if(calculateAdjustedClose){
 					adjust = "new"; // "new", "existing" or "none"
-					adjustFactor = getAdjustFactor(allRows, xSeriesName, ySeriesName, initialIndex, data[iData], insertPoint);
+					adjustFactor = getAdjustFactor(allRows, xSeriesName, ySeriesName,
+								    initialIndex, data[iData], insertPoint);
 				}
 
 			}
@@ -2829,18 +2848,26 @@ function makeChart(data, param){
 
 	// set default left/right margins if not set
 	setLeftRightMarginDefault(layout, 15, 35);
-
+	
+	var canvas = document.createElement('canvas');
+	var textAndSpaceToTextRatio = settings.textAndSpaceToTextRatio;
+	var xaxisFontFamily=layout.xaxis.tickfont.family;
+	var xaxisFontSize=layout.xaxis.tickfont.size;
+	var layoutMarginL=layout.margin.l;
+	var layoutMarginR=layout.margin.r;
+ 
 	// get ticktext and tickvals based on width and parameters
 	var ticktextAndTickvals = aoPlotlyAddOn.getTicktextAndTickvals(
 		initialDate,
 		endDate,
-		settings.textAndSpaceToTextRatio,
+		textAndSpaceToTextRatio,
 		currentFrequency,
-		layout.xaxis.tickfont.family,
-		layout.xaxis.tickfont.size,
+		xaxisFontFamily,
+		xaxisFontSize,
 		divWidth,
-		layout.margin.l,
-		layout.margin.r
+		layoutMarginL,
+		layoutMarginR,
+		canvas
 	);
 	DEBUG && console.log("tick vals and text done");
 
@@ -2861,16 +2888,17 @@ function makeChart(data, param){
 
 		addToUpdateMenus(param.frequencyUpdateMenu, updateMenus, layout);
 		if (!frequenciesDataCreated) {
+			DEBUG && console.time("transformSeriesByFrequencies");
 			aoPlotlyAddOn.transformSeriesByFrequencies(
 				data,
 				settings.periodKeys,
 				settings.endOfWeek
 			);
-			//DEBUG && console.log("transformed by frequencies");
+			DEBUG && console.timeEnd("transformSeriesByFrequencies");
 			frequenciesDataCreated = true;
-			processFrequenciesDates(data, settings.periodKeys);	
-			//DEBUG && console.log("dates processed");
-			//DEBUG && console.log("data", data.day);
+			DEBUG && console.time("processFrequenciesDates");
+			processFrequenciesDates(data, settings.periodKeys);
+			DEBUG && console.timeEnd("processFrequenciesDates");
 		}
 	}
 
@@ -2878,9 +2906,7 @@ function makeChart(data, param){
 	// loads log, linear updateMenuButtons,
 	if (settings.allowLogLinear) {
 
-
 		// set functionality to log/linear button
-
 		divInfo.logLinearButtonElement.addEventListener('click', function() {
 
 			Plotly.relayout(divInfo.plotlyDivElement, 
@@ -2889,7 +2915,6 @@ function makeChart(data, param){
 						});
 
 		}, false);
-
 
 	}
 
@@ -2939,7 +2964,8 @@ function makeChart(data, param){
 		//DEBUG && console.log("PENDING - InitialprepareTransformToReal");
 
 		// determine base date
-		/* could be "end of range", "end of domain", "beggining of range", beggining of domain", or a date "yyyy-mm-dd hh:mm:ss.sss-04:00"*/
+		/* could be "end of range", "end of domain", "beggining of range", beggining of domain",
+		or a date "yyyy-mm-dd hh:mm:ss.sss-04:00"*/
 		baseRealNominalDate = setBaseRealNominalDateAsString(settings.baseRealDate, 
 								 layout.xaxis.range[0],
 								 layout.xaxis.range[1],
@@ -3056,11 +3082,9 @@ function makeChart(data, param){
 	});
 
 
-
-
 	//instruction resizes plot
 	window.addEventListener("resize", function() {
-		Plotly.Plots.resize(document.getElementById(divInfo.plotlyDivID));
+		Plotly.Plots.resize(myPlot);
 	});
 
 
@@ -3083,7 +3107,8 @@ function makeChart(data, param){
 		//DEBUG && console.log("layout",layout);
 
 
-		// CASE 1. case relayout is autosize, in which case, the updatemenu buttons for frequencies and the x axis labels have to be redefined
+		// CASE 1. case relayout is autosize, in which case, the updatemenu buttons for frequencies and
+		//the x axis labels have to be redefined
 		if (relayoutData.autosize === true) {
 			// adjust frequency updatemenu buttons
 			divWidth = jQuery(myPlot).width();
@@ -3129,13 +3154,14 @@ function makeChart(data, param){
 				ticktextAndTickvals = aoPlotlyAddOn.getTicktextAndTickvals(
 					initialDate,
 					endDate,
-					settings.textAndSpaceToTextRatio,
+					textAndSpaceToTextRatio,
 					currentFrequency,
-					layout.xaxis.tickfont.family,
-					layout.xaxis.tickfont.size,
+					xaxisFontFamily,
+					xaxisFontSize,
 					divWidth,
-					layout.margin.l,
-					layout.margin.r
+					layoutMarginL,
+					layoutMarginR,
+					canvas
 				);
 
 				// set layout ticktext and tickvals
@@ -3152,7 +3178,8 @@ function makeChart(data, param){
 
 
 
-		// CASE 2. EN ESTE ELSE SE INCLUYE EL CAMBIO DE FREQUENCY Y AJUSTAR EL DISPLAY DE TAGS DEL EJE X - FALTARÏA REVISAR Initial date end date	
+		// CASE 2. EN ESTE ELSE SE INCLUYE EL CAMBIO DE FREQUENCY Y AJUSTAR EL DISPLAY DE TAGS DEL EJE X - 
+		// FALTARÏA REVISAR Initial date end date	
 
 		else if (typeof relayoutData.myFrequency !== "undefined") {
 
@@ -3366,7 +3393,8 @@ function makeChart(data, param){
 
 					layout.yaxis.hoverformat= originalLayout.yaxis.hoverformat;
 
-					if(typeof layout.yaxis.tickformat !== "undefined" && typeof originalLayout.yaxis.tickformat === "undefined"){
+					if(typeof layout.yaxis.tickformat !== "undefined" &&
+					   typeof originalLayout.yaxis.tickformat === "undefined"){
 						delete layout.yaxis.tickformat;
 					}
 					else if (typeof originalLayout.yaxis.tickformat !== "undefined"){
@@ -3421,7 +3449,8 @@ function makeChart(data, param){
 
 					layout.yaxis.hoverformat= originalLayout.yaxis.hoverformat;
 
-					if(typeof layout.yaxis.tickformat !== "undefined" && typeof originalLayout.yaxis.tickformat === "undefined"){
+					if(typeof layout.yaxis.tickformat !== "undefined" &&
+					   typeof originalLayout.yaxis.tickformat === "undefined"){
 						delete layout.yaxis.tickformat;
 					}
 					else if (typeof originalLayout.yaxis.tickformat !== "undefined"){
@@ -3470,7 +3499,8 @@ function makeChart(data, param){
 							//DEBUG && console.log("restore compare");
 							transformToBaseIndex = settings.transformToBaseIndex;
 							if(settings.allowCompare){
-								toggleCompareButton(transformToBaseIndex, divInfo.compareButtonElement);
+								toggleCompareButton(transformToBaseIndex, 
+										    divInfo.compareButtonElement);
 							}
 						}
 
@@ -3653,9 +3683,9 @@ function makeChart(data, param){
 
 					// get ticktext and tickvals based on width and parameters
 					ticktextAndTickvals = aoPlotlyAddOn.getTicktextAndTickvals(
-						initialDate, endDate, settings.textAndSpaceToTextRatio, currentFrequency, 
-						layout.xaxis.tickfont.family, layout.xaxis.tickfont.size, 
-						divWidth, layout.margin.l, layout.margin.r
+						initialDate, endDate, textAndSpaceToTextRatio, currentFrequency, 
+						xaxisFontFamily, xaxisFontSize, 
+						divWidth, layoutMarginL, layoutMarginR, canvas
 					);
 
 					// set layout ticktext and tickvals
@@ -3676,12 +3706,16 @@ function makeChart(data, param){
 						if(newBaseRealNominalDate !== baseRealNominalDate){
 
 							baseRealNominalDate =newBaseRealNominalDate;
-							setDeflactorDictionaryAtDate(baseRealNominalDate, deflactorDictionary, data[iDeflactor], 0);					
+							setDeflactorDictionaryAtDate(baseRealNominalDate, 
+										     deflactorDictionary, 
+										     data[iDeflactor], 0);					
 
 						}
 
 
-						transformDataToReal(data, deflactorDictionary, 	baseRealNominalDate, otherDataProperties);
+						transformDataToReal(data, deflactorDictionary, 	
+								    baseRealNominalDate, 
+								    otherDataProperties);
 					}
 
 					if (transformToBaseIndex) {
@@ -3702,7 +3736,9 @@ function makeChart(data, param){
 
 
 					//DEBUG && console.log("yaxis layout befor set",layout.yaxis);
-					setYAxisRange(layout, data, settings.numberOfIntervalsInYAxis, settings.possibleYTickMultiples, settings.rangeProportion);
+					setYAxisRange(layout, data, settings.numberOfIntervalsInYAxis, 
+						      settings.possibleYTickMultiples, 
+						      settings.rangeProportion);
 					//DEBUG && console.log("yaxis layout after set", layout.yaxis);
 
 					settings.updatemenus = layout.updatemenus;
@@ -3798,7 +3834,8 @@ function makeChart(data, param){
 					uncomparedSaved = false;
 					layout.yaxis.hoverformat = originalLayout.yaxis.hoverformat;
 
-					if(typeof layout.yaxis.tickformat !== "undefined" && typeof originalLayout.yaxis.tickformat === "undefined"){
+					if(typeof layout.yaxis.tickformat !== "undefined" &&
+					   typeof originalLayout.yaxis.tickformat === "undefined"){
 						delete layout.yaxis.tickformat;
 					}
 					else if (typeof originalLayout.yaxis.tickformat !== "undefined"){
@@ -3811,25 +3848,28 @@ function makeChart(data, param){
 					if(transformToReal){
 
 						newBaseRealNominalDate = setBaseRealNominalDateAsString(settings.baseRealDate, 
-																																 layout.xaxis.range[0],
-																																 layout.xaxis.range[1],
-																																 minDateAsString,
-																																 maxDateAsString
-																																);
+													layout.xaxis.range[0],
+													layout.xaxis.range[1],
+													minDateAsString,
+													maxDateAsString
+													);
 						if(newBaseRealNominalDate !== baseRealNominalDate){
 
 							baseRealNominalDate =newBaseRealNominalDate;
-							setDeflactorDictionaryAtDate(baseRealNominalDate, deflactorDictionary, data[iDeflactor], 0);					
+							setDeflactorDictionaryAtDate(baseRealNominalDate,
+										     deflactorDictionary, data[iDeflactor], 0);					
 
 						}
 
-						transformDataToReal(data, deflactorDictionary, 	baseRealNominalDate, otherDataProperties);
+						transformDataToReal(data, deflactorDictionary, 	baseRealNominalDate, 
+								    otherDataProperties);
 					}
 
 
 
 					// uncompare in case aggregatin is percChange or sqrPercChange
-					if(relayoutData.myAggregation === "percChange" || relayoutData.myAggregation === "sqrPercChange"){
+					if(relayoutData.myAggregation === "percChange" || 
+					   relayoutData.myAggregation === "sqrPercChange"){
 						transformToBaseIndex = false;
 						if(settings.allowCompare){
 							toggleCompareButton(transformToBaseIndex, divInfo.compareButtonElement);
@@ -3857,7 +3897,8 @@ function makeChart(data, param){
 							//DEBUG && console.log("restore compare");
 							transformToBaseIndex = settings.transformToBaseIndex;
 							if(settings.allowCompare){
-								toggleCompareButton(transformToBaseIndex, divInfo.compareButtonElement);
+								toggleCompareButton(transformToBaseIndex,
+										    divInfo.compareButtonElement);
 							}
 						}				
 
@@ -3928,9 +3969,9 @@ function makeChart(data, param){
 
 					// get ticktext and tickvals based on width and parameters
 					ticktextAndTickvals = aoPlotlyAddOn.getTicktextAndTickvals(
-						initialDate, endDate, settings.textAndSpaceToTextRatio, currentFrequency, 
-						layout.xaxis.tickfont.family, layout.xaxis.tickfont.size, 
-						divWidth, layout.margin.l, layout.margin.r
+						initialDate, endDate, textAndSpaceToTextRatio, currentFrequency, 
+						xaxisFontFamily, xaxisFontSize, 
+						divWidth, layoutMarginL, layoutMarginR, canvas
 					);
 
 					// set layout ticktext and tickvals
@@ -3955,7 +3996,8 @@ function makeChart(data, param){
 						);
 					}
 					//DEBUG && console.log("yaxis layout befor set",layout.yaxis);
-					setYAxisRange(layout, data, settings.numberOfIntervalsInYAxis, settings.possibleYTickMultiples, settings.rangeProportion);
+					setYAxisRange(layout, data, settings.numberOfIntervalsInYAxis, 
+						      settings.possibleYTickMultiples, settings.rangeProportion);
 					//DEBUG && console.log("yaxis layout after set", layout.yaxis);
 
 
@@ -3982,7 +4024,8 @@ function makeChart(data, param){
 						toggleLogLinearButton(false, divInfo.logLinearButtonElement);
 
 						layout.yaxis.type = "linear";
-						setYAxisRange(layout, data, settings.numberOfIntervalsInYAxis, settings.possibleYTickMultiples, settings.rangeProportion);
+						setYAxisRange(layout, data, settings.numberOfIntervalsInYAxis,
+							      settings.possibleYTickMultiples, settings.rangeProportion);
 						Plotly.redraw(myPlot).then(() => {
 							isUnderRelayout = false;
 						});
@@ -4007,7 +4050,8 @@ function makeChart(data, param){
 						//DEBUG && console.log("change y axis to log");
 						layout.yaxis.type = "log";
 						toggleLogLinearButton(true, divInfo.logLinearButtonElement);
-						setYAxisRange(layout, data, settings.numberOfIntervalsInYAxis, settings.possibleYTickMultiples, settings.rangeProportion);
+						setYAxisRange(layout, data, settings.numberOfIntervalsInYAxis, 
+							      settings.possibleYTickMultiples, settings.rangeProportion);
 						Plotly.redraw(myPlot).then(() => {
 							isUnderRelayout = false;
 						});
@@ -4067,7 +4111,8 @@ function makeChart(data, param){
 
 						if (!layout.yaxis.autorange) {
 							// find y range
-							setYAxisRange(layout, data, settings.numberOfIntervalsInYAxis, settings.possibleYTickMultiples, settings.rangeProportion);
+							setYAxisRange(layout, data, settings.numberOfIntervalsInYAxis, 
+								      settings.possibleYTickMultiples, settings.rangeProportion);
 						}
 					} 
 
@@ -4078,7 +4123,8 @@ function makeChart(data, param){
 						//DEBUG && console.log("new data",data);
 
 						if (!layout.yaxis.autorange) {
-							setYAxisRange(layout, data, settings.numberOfIntervalsInYAxis, settings.possibleYTickMultiples, settings.rangeProportion);
+							setYAxisRange(layout, data, settings.numberOfIntervalsInYAxis, 
+								      settings.possibleYTickMultiples, settings.rangeProportion);
 						}
 					}
 
@@ -4119,19 +4165,22 @@ function makeChart(data, param){
 
 
 						// determine base date
-						/* could be "end of range", "end of domain", "beggining of range", beggining of domain", or a date "yyyy-mm-dd hh:mm:ss.sss-04:00"*/
+						/* could be "end of range", "end of domain", "beggining of range", 
+						beggining of domain", 
+						or a date "yyyy-mm-dd hh:mm:ss.sss-04:00"*/
 
 						if(baseRealNominalDate!==""){
 
 							baseRealNominalDate = setBaseRealNominalDateAsString(settings.baseRealDate, 
-																																 layout.xaxis.range[0],
-																																 layout.xaxis.range[1],
-																																 minDateAsString,
-																																 maxDateAsString
-																																);
+													layout.xaxis.range[0],
+													layout.xaxis.range[1],
+													minDateAsString,
+													maxDateAsString
+													);
 
 							//DEBUG && console.log("baseRealNominalDate",baseRealNominalDate);
-							setDeflactorDictionaryAtDate(baseRealNominalDate, deflactorDictionary, data[iDeflactor], 0);
+							setDeflactorDictionaryAtDate(baseRealNominalDate, deflactorDictionary, 
+										     data[iDeflactor], 0);
 						}
 
 						// save nominal if not compared
@@ -4150,7 +4199,8 @@ function makeChart(data, param){
 						}
 
 						//recalculate data to real 
-						transformDataToReal(data, deflactorDictionary, 	baseRealNominalDate, otherDataProperties);
+						transformDataToReal(data, deflactorDictionary, 	baseRealNominalDate, 
+								    otherDataProperties);
 
 						if (transformToBaseIndex) {
 
@@ -4171,7 +4221,8 @@ function makeChart(data, param){
 
 						if (!layout.yaxis.autorange) {
 							// find y range
-							setYAxisRange(layout, data, settings.numberOfIntervalsInYAxis, settings.possibleYTickMultiples, settings.rangeProportion);
+							setYAxisRange(layout, data, settings.numberOfIntervalsInYAxis, 
+								      settings.possibleYTickMultiples, settings.rangeProportion);
 						}
 
 
@@ -4204,7 +4255,8 @@ function makeChart(data, param){
 
 
 						if (!layout.yaxis.autorange) {
-							setYAxisRange(layout, data, settings.numberOfIntervalsInYAxis, settings.possibleYTickMultiples, settings.rangeProportion);
+							setYAxisRange(layout, data, settings.numberOfIntervalsInYAxis, 
+								      settings.possibleYTickMultiples, settings.rangeProportion);
 						}
 
 					}
@@ -4229,7 +4281,8 @@ function makeChart(data, param){
 		} 
 
 
-		// CASE 8. Este caso pide mostrar todo el eje x. EN ESTE CASO EL RELAYOUT HAY QUE AJUSTAR EL EJE X, INCLUIR TAMBIEM EL CAMBIO DE X AXIS LABELS.
+		// CASE 8. Este caso pide mostrar todo el eje x. EN ESTE CASO EL RELAYOUT HAY QUE AJUSTAR EL EJE X, 
+		// INCLUIR TAMBIEM EL CAMBIO DE X AXIS LABELS.
 		else if (relayoutData["xaxis.autorange"] === true) {
 
 			//DEBUG && console.log('xaxis.autorange=true');
@@ -4251,13 +4304,14 @@ function makeChart(data, param){
 					ticktextAndTickvals = aoPlotlyAddOn.getTicktextAndTickvals(
 						initialDate,
 						endDate,
-						settings.textAndSpaceToTextRatio,
+						textAndSpaceToTextRatio,
 						currentFrequency,
-						layout.xaxis.tickfont.family,
-						layout.xaxis.tickfont.size,
+						xaxisFontFamily,
+						xaxisFontSize,
 						divWidth,
-						layout.margin.l,
-						layout.margin.r
+						layoutMarginL,
+						layoutMarginR,
+						canvas
 					);
 
 
@@ -4267,20 +4321,22 @@ function makeChart(data, param){
 						loadData(data,"nominal");
 
 						newBaseRealNominalDate = setBaseRealNominalDateAsString(settings.baseRealDate, 
-																																		layout.xaxis.range[0],
-																																		layout.xaxis.range[1],
-																																		minDateAsString,
-																																		maxDateAsString
-																																	 );
+											layout.xaxis.range[0],
+											layout.xaxis.range[1],
+											minDateAsString,
+											maxDateAsString
+											);
 						//DEBUG && console.log("newBaseRealNominalDate",newBaseRealNominalDate);
 						//DEBUG && console.log("baseRealNominalDate",baseRealNominalDate);
 						if(newBaseRealNominalDate !== baseRealNominalDate){
 							baseRealNominalDate =newBaseRealNominalDate;
-							setDeflactorDictionaryAtDate(baseRealNominalDate, deflactorDictionary, data[iDeflactor], 0);					
+							setDeflactorDictionaryAtDate(baseRealNominalDate, deflactorDictionary, 
+										     data[iDeflactor], 0);					
 
 						}
 						//DEBUG && console.log("newBaseRealNominalDate",newBaseRealNominalDate);
-						transformDataToReal(data, deflactorDictionary, 	baseRealNominalDate, otherDataProperties);
+						transformDataToReal(data, deflactorDictionary, 	baseRealNominalDate, 
+								    otherDataProperties);
 
 						if(transformToBaseIndex){
 							flag = true;	
@@ -4301,8 +4357,8 @@ function makeChart(data, param){
 
 						//DEBUG && console.log("baseIndexDate", baseIndexDate);
 						transformDataToBaseIndex(data, 
-																		 makeDateComplete(layout.xaxis.range[0]), 
-																		 currentAggregation);					
+							makeDateComplete(layout.xaxis.range[0]), 
+								currentAggregation);					
 
 					} 					
 
@@ -4312,8 +4368,8 @@ function makeChart(data, param){
 					//DEBUG && console.log("layout before read x axis range",layout);
 
 					yMinMax = getYminYmax(makeDateComplete(layout.xaxis.range[0]), 
-																makeDateComplete(layout.xaxis.range[1]), 
-																data);
+								makeDateComplete(layout.xaxis.range[1]), 
+								data);
 					yMinValue = yMinMax[0];
 					yMaxValue = yMinMax[1];
 
@@ -4407,19 +4463,21 @@ function makeChart(data, param){
 
 						loadData(data,"nominal");
 
-						newBaseRealNominalDate = setBaseRealNominalDateAsString(settings.baseRealDate, 
-																																		layout.xaxis.range[0],
-																																		layout.xaxis.range[1],
-																																		minDateAsString,
-																																		maxDateAsString
-																																	 );
+						newBaseRealNominalDate = setBaseRealNominalDateAsString(settings.baseRealDate,
+									layout.xaxis.range[0],
+									layout.xaxis.range[1],
+									minDateAsString,
+									maxDateAsString  );
+						
 						if(newBaseRealNominalDate !== baseRealNominalDate){
 							baseRealNominalDate =newBaseRealNominalDate;
-							setDeflactorDictionaryAtDate(baseRealNominalDate, deflactorDictionary, data[iDeflactor], 0);					
+							setDeflactorDictionaryAtDate(baseRealNominalDate, deflactorDictionary, 
+										     data[iDeflactor], 0);					
 
 						}
 						//DEBUG && console.log("newBaseRealNominalDate",newBaseRealNominalDate);
-						transformDataToReal(data, deflactorDictionary, 	baseRealNominalDate, otherDataProperties);
+						transformDataToReal(data, deflactorDictionary, 	baseRealNominalDate, 
+								    otherDataProperties);
 
 						if(transformToBaseIndex){
 							flag = true;	
@@ -4448,13 +4506,14 @@ function makeChart(data, param){
 					ticktextAndTickvals = aoPlotlyAddOn.getTicktextAndTickvals(
 						initialDate,
 						endDate,
-						settings.textAndSpaceToTextRatio,
+						textAndSpaceToTextRatio,
 						currentFrequency,
-						layout.xaxis.tickfont.family,
-						layout.xaxis.tickfont.size,
+						xaxisFontFamily,
+						xaxisFontSize,
 						divWidth,
-						layout.margin.l,
-						layout.margin.r
+						layoutMarginL,
+						layoutMarginR,
+						canvas
 					);
 
 					//DEBUG && console.log('new y range',yMinValue, yMaxValue);
@@ -4522,8 +4581,8 @@ function makeChart(data, param){
 	    
 	    
 // measure length of displayed string  in pixels
-function stringLength(string, fontFamily, size) {
-  var canvas = document.createElement('canvas');
+function stringLength(string, fontFamily, size, canvas) {
+  //var canvas = document.createElement('canvas');
   var ctx = canvas.getContext('2d');
   
   ctx.font = ''+size+'px '+fontFamily;
@@ -4568,12 +4627,14 @@ function padTo2(number) {
 
 aoPlotlyAddOn.padTo2 = padTo2;
         
-// determine the ticktext and tickvals that best fit, given a target frequency display (annual, monthly, etc), and a space between tick text
+// determine the ticktext and tickvals that best fit, given a target frequency display (annual, monthly, etc),
+ //and a space between tick text
 // the space between tick text (textAndSpaceToTextRatio) defined as
 // the ration of  (tick text length + space to next tick) to (tick text length)
 // from: initial date as string 'yyyy-mm-dd'
 // targetFrequency, a string, like  'annual', 'monthly', etc. see below in code for options.
-aoPlotlyAddOn.getTicktextAndTickvals = function (from, to, textAndSpaceToTextRatio, targetFrequency, fontFamily, fontSize, divWidth, leftMargin, rightMargin){
+aoPlotlyAddOn.getTicktextAndTickvals = function (from, to, textAndSpaceToTextRatio, targetFrequency, fontFamily,
+						  fontSize, divWidth, leftMargin, rightMargin, canvas){
   //var initialDate = new Date();  
   //var daysStep = 0, monthsStep =0;
 
@@ -4584,6 +4645,8 @@ aoPlotlyAddOn.getTicktextAndTickvals = function (from, to, textAndSpaceToTextRat
   
   //var fromAsDate = new Date(strippedFrom.year, strippedFrom.month-1, strippedFrom.day);
   var toAsDate = new Date(strippedTo.year, strippedTo.month-1, strippedTo.day);
+	
+
   
   
 var months = ['Jan', 'Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -4631,7 +4694,9 @@ var months = ['Jan', 'Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov'
     }, 
     {
       name: 'quarterly',
-      initialDate: (strippedFrom.month  <4 || strippedFrom.month >9)? new Date(strippedFrom.year, -1+3*Math.floor((strippedFrom.month)/3),31): new Date(strippedFrom.year, -1+3*Math.floor((strippedFrom.month)/3),30),
+      initialDate: (strippedFrom.month  < 4 || strippedFrom.month > 9) ?
+	    		new Date(strippedFrom.year, -1 + 3 * Math.floor((strippedFrom.month)/3),31):
+	    		new Date(strippedFrom.year, -1+3*Math.floor((strippedFrom.month)/3),30),
       monthsStep: 3,
       daysStep:0,
       string: (targetFrequency==='monthly')?'Nov 2000':((targetFrequency==='quarterly')?'Q4 2000':'2000-00'),
@@ -4776,7 +4841,7 @@ var months = ['Jan', 'Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov'
     }
     frequencyData[i].j=j;
     frequencyData[i].xSpace = 
-      j===0?0:(divWidth-leftMargin-rightMargin) /(j*stringLength(frequencyData[i].string,fontFamily,fontSize));    
+      j===0?0:(divWidth-leftMargin-rightMargin) /(j*stringLength(frequencyData[i].string,fontFamily,fontSize, canvas));    
     if(frequencyData[i].xSpace >= textAndSpaceToTextRatio){
       date = new Date(frequencyData[i].initialDate.getTime());
       //DEBUG && console.log('solution found at', frequencyData[i]);
@@ -4785,7 +4850,8 @@ var months = ['Jan', 'Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov'
         result.tickvals.push(''+date.getFullYear()+'-'+padTo2(date.getMonth()+1)+'-'+padTo2(date.getDate()));
 				
 				if(frequencyData[i].stringName === "date"){
-					result.ticktext.push(''+date.getFullYear()+'-'+padTo2(date.getMonth()+1)+'-'+padTo2(date.getDate()));
+					result.ticktext.push(''+date.getFullYear()+
+							     '-'+padTo2(date.getMonth()+1)+'-'+padTo2(date.getDate()));
 				}
 				else if (frequencyData[i].stringName === "month"){
 					result.ticktext.push(months[date.getMonth()]+' '+date.getFullYear());
@@ -4954,7 +5020,8 @@ aoPlotlyAddOn.transformSeriesByFrequencies = function (data, originalPeriodKeys,
             }
 
             // case: period end found
-            if ((nextXString != 'undefined' && nextXString >= currentLimits.ends[key]) || nextBankingDate.string >= currentLimits.ends[key]) {
+            if ((nextXString != 'undefined' && nextXString >= currentLimits.ends[key]) ||
+		nextBankingDate.string >= currentLimits.ends[key]) {
 
               // create data[i][key] object if not already created.
               if (typeof data[i][key] === 'undefined') {
@@ -5119,7 +5186,8 @@ function getNextNonUSBankingWorkingDay(year, month, day) {
 
   } while (checkIsUSBankingHoliday(plainDate.getFullYear(), plainDate.getMonth() + 1, plainDate.getDate()) != 'undefined');
 
-  return plainDate.getFullYear() + '-' + ((plainDate.getMonth() + 1) < 10 ? '0' : '') + (plainDate.getMonth() + 1) + '-' + (plainDate.getDate() < 10 ? '0' : '') + plainDate.getDate();
+  return plainDate.getFullYear() + '-' + ((plainDate.getMonth() + 1) < 10 ? '0' : '') +
+	  (plainDate.getMonth() + 1) + '-' + (plainDate.getDate() < 10 ? '0' : '') + plainDate.getDate();
 }
 
 // get prior non holiday day for a given date as year, month, day
@@ -5133,7 +5201,8 @@ function getPriorNonUSBankingWorkingDay(year, month, day) {
 
   } while (checkIsUSBankingHoliday(plainDate.getFullYear(), plainDate.getMonth() + 1, plainDate.getDate()) != 'undefined');
 
-  return plainDate.getFullYear() + '-' + ((plainDate.getMonth() + 1) < 10 ? '0' : '') + (plainDate.getMonth() + 1) + '-' + (plainDate.getDate() < 10 ? '0' : '') + plainDate.getDate();
+  return plainDate.getFullYear() + '-' + ((plainDate.getMonth() + 1) < 10 ? '0' : '') +
+	  (plainDate.getMonth() + 1) + '-' + (plainDate.getDate() < 10 ? '0' : '') + plainDate.getDate();
 }
 
 // given a date as text, returns object with period limits as Date()
@@ -5254,7 +5323,7 @@ function findSpliceInfo(newArray, xSeriesName, newArrayInitialIndex, newArrayEle
 		/*
 		else {
 			currentDate= localProcessDate("" +
-						 !yqlGoogleCSV ? newArray[i][xSeriesName] :  localGoogleMDYToYMD(newArray[i][xSeriesName])+
+				!yqlGoogleCSV ? newArray[i][xSeriesName] :  localGoogleMDYToYMD(newArray[i][xSeriesName])+
 						 xDateSuffix, timeOffsetText);
 			currentDate = new Date(transformToEndOfMonth ? localChangeDateToEndOfMonth(currentDate) : currentDate);				 
 		}
@@ -5270,17 +5339,8 @@ function findSpliceInfo(newArray, xSeriesName, newArrayInitialIndex, newArrayEle
 							j=jLimit;
 							// search number of items to include
 							for (i=spliceInfo.initialIndex; i<iLimit; i++){
-								/*if(datesReady){*/
 								currentDate = new Date(newArray[i][xSeriesName]);
-								/*}*/
-								/*
-								else {
-									currentDate= localProcessDate(
-										"" +
-										!yqlGoogleCSV ? newArray[i][xSeriesName] :  localGoogleMDYToYMD(newArray[i][xSeriesName])+
-										xDateSuffix, timeOffsetText);
-									currentDate = new Date(transformToEndOfMonth ? localChangeDateToEndOfMonth(currentDate) : currentDate);				 
-								}*/
+
 								if(currentDate <= cutDate ){
 									spliceInfo.traceLength = i-spliceInfo.initialIndex;
 									i=iLimit;
@@ -5308,16 +5368,9 @@ function findSpliceInfo(newArray, xSeriesName, newArrayInitialIndex, newArrayEle
 						j=jLimit;
 						// search number of items to include
 						for (i=spliceInfo.initialIndex; i < iLimit; i++){
-							/*if(datesReady){*/
+
 							currentDate = new Date(newArray[i][xSeriesName]);
-							/*}*/
-							/*else {
-								currentDate= localProcessDate(
-									"" +
-									!yqlGoogleCSV ? newArray[i][xSeriesName] :  localGoogleMDYToYMD(newArray[i][xSeriesName])+
-									xDateSuffix, timeOffsetText);
-								currentDate = new Date(transformToEndOfMonth ? localChangeDateToEndOfMonth(currentDate) : currentDate);				 
-							}*/							
+							
 							if(currentDate <= cutDate ){
 								spliceInfo.traceLength = i-spliceInfo.initialIndex;
 								i=iLimit;
@@ -5385,8 +5438,12 @@ function sortByGoogleDatesAsStrings(xSeriesName, delta){
 			return delta;			
 		}
 		else {
-				return 	new Date(b[xSeriesName]==="" || b[xSeriesName]===null ? "0001-01-01": localGoogleMDYToYMD(b[xSeriesName]))-
-					new Date(a[xSeriesName]==="" || a[xSeriesName]===null ? "0001-01-01": localGoogleMDYToYMD(a[xSeriesName]));
+				return 	new Date(b[xSeriesName]==="" || b[xSeriesName]===null ? 
+						 "0001-01-01": 
+						 localGoogleMDYToYMD(b[xSeriesName]))-
+					new Date(a[xSeriesName]==="" || a[xSeriesName]===null ?
+						 "0001-01-01":
+						 localGoogleMDYToYMD(a[xSeriesName]));
 
 		}
 
@@ -5553,16 +5610,18 @@ function applyDateProprocessing(allRows, tableParams, urlType) {
 				}
 				
 				transformToEndOfMonth = false;
-				if(typeof tableParams[key]["postProcessDate"] !== "undefined" && tableParams[key]["postProcessDate"] === "end of month"){ 
+				if(typeof tableParams[key]["postProcessDate"] !== "undefined" &&
+				   tableParams[key]["postProcessDate"] === "end of month"){ 
 					transformToEndOfMonth = true;
 				}
 				
 				if(yqlGoogleCSV){				   
 					for(i = 0; i < iLimit ; i++){
 						if(allRows[i][xSeriesName]!=="" && allRows[i][xSeriesName]!==null){
-							allRows[i][xSeriesName] = localProcessDate(""+
-											 localGoogleMDYToYMD(allRows[i][xSeriesName])+ 
-											xDateSuffix, timeOffsetText);
+							allRows[i][xSeriesName] = 
+								localProcessDate(""+
+										localGoogleMDYToYMD(allRows[i][xSeriesName])+ 
+										xDateSuffix, timeOffsetText);
 						}
 
 					}
@@ -6442,7 +6501,9 @@ function wrappedDirectXMLHttpRequest(options, onreadyFunction, callback) {
 			
 			if(xhttp.status == 200) {
 				// no error passed
-				DEBUG && console.log("calling function(http, callback) { afterFredZipFileLoaded((xhttp, usRecessions, callback))}");
+				DEBUG && console.log(
+					"calling function(http, callback) { afterFredZipFileLoaded((xhttp, usRecessions, callback))}"
+				);
 				onreadyFunction(xhttp,callback);
 			} else {
 				// unsuccessful zip read, call back with no processing
@@ -7063,10 +7124,12 @@ function translateRange(initialDateAsString,endDateAsString, minDateAsString, ma
 
 
 // after determining y axis range, sets range in layout
-function setYaxisLayoutRange(yAxisType, minMaxInitialY, layout, numberOfIntervalsInYAxis, possibleYTickMultiples, rangeProportion) {
+function setYaxisLayoutRange(yAxisType, minMaxInitialY, layout, numberOfIntervalsInYAxis, 
+			      possibleYTickMultiples, rangeProportion) {
 	var yMinMax =[];
 	
-	yMinMax = getRoundedYAxisRange( minMaxInitialY[0], minMaxInitialY[1], yAxisType, numberOfIntervalsInYAxis, possibleYTickMultiples, rangeProportion);
+	yMinMax = getRoundedYAxisRange( minMaxInitialY[0], minMaxInitialY[1], 
+				       yAxisType, numberOfIntervalsInYAxis, possibleYTickMultiples, rangeProportion);
 	
 	minMaxInitialY[1] = yMinMax[1];
 	minMaxInitialY[0] = yMinMax[0];	
@@ -7107,15 +7170,18 @@ function setYAxisRange(layout, data, numberOfIntervalsInYAxis,possibleYTickMulti
 	);
 
 	// set y axis layout range
-	setYaxisLayoutRange(layout.yaxis.type, minMaxInitialY, layout, numberOfIntervalsInYAxis,possibleYTickMultiples, rangeProportion);
+	setYaxisLayoutRange(layout.yaxis.type, minMaxInitialY, layout, 
+			    numberOfIntervalsInYAxis,possibleYTickMultiples, rangeProportion);
 }
 
 // returns y axois layout range as a two element array
-function returnYaxisLayoutRange(yAxisType, yMinValue, yMaxValue,numberOfIntervalsInYAxis, possibleYTickMultiples, rangeProportion) {
+function returnYaxisLayoutRange(yAxisType, yMinValue, yMaxValue,numberOfIntervalsInYAxis, 
+				 possibleYTickMultiples, rangeProportion) {
 	var yaxisRange = [];
 	var yMinMax =[];
 	
-	yMinMax = getRoundedYAxisRange(yMinValue, yMaxValue, yAxisType, numberOfIntervalsInYAxis, possibleYTickMultiples, rangeProportion);
+	yMinMax = getRoundedYAxisRange(yMinValue, yMaxValue, yAxisType, numberOfIntervalsInYAxis, 
+				       possibleYTickMultiples, rangeProportion);
 	
 
 	yMaxValue = yMinMax[1];
@@ -7276,7 +7342,8 @@ function getTickStep(number, possibleYTickMultiples){
 }
 
 
-function getRoundedYAxisRange(yMin, yMax, yAxisType, numberOfIntervalsInYAxis, possibleYTickMultiples, rangeProportion){
+function getRoundedYAxisRange(yMin, yMax, yAxisType, numberOfIntervalsInYAxis, 
+			       possibleYTickMultiples, rangeProportion){
   var yMinMax = [];
   var yMaxLin = 0.0, yMinLin=0.0;
   var yMinLog = 0.0, yMaxLog =0.0;
@@ -7344,12 +7411,12 @@ function propertyInObject(property, object) {
 	 
 
 // return a string with at least lenght characters
-function fillStringUpTo(baseString, stringLengthInPixels, fontFamily, fontSize){
+function fillStringUpTo(baseString, stringLengthInPixels, fontFamily, fontSize, canvas){
 	var newString= baseString;
 	
-			// measure length of displayed string  in pixels
-		function stringLength(string, fontFamily, fontSize) {
-			var canvas = document.createElement('canvas');
+		// measure length of displayed string  in pixels
+		function stringLength(string, fontFamily, fontSize, canvas) {
+			//var canvas = document.createElement('canvas');
 			var ctx = canvas.getContext('2d');
 
 			ctx.font = ''+fontSize+'px '+fontFamily;
@@ -7360,7 +7427,7 @@ function fillStringUpTo(baseString, stringLengthInPixels, fontFamily, fontSize){
 	
 		for (var i=0; ; i++){
 			
-			if (stringLength(newString+" ", fontFamily, fontSize) > stringLengthInPixels){
+			if (stringLength(newString+" ", fontFamily, fontSize, canvas) > stringLengthInPixels){
 				return newString;
 			}
 			newString += " ";
@@ -7470,7 +7537,7 @@ function changeLogLinearToOriginal(layout, originalLayout, divInfo, settings){
 		layout.yaxis.type = originalLayout.yaxis.type;
 		
 		toggleLogLinearButton(layout.yaxis.type === "log" ? true : false, 
-													divInfo.logLinearButtonElement);
+					divInfo.logLinearButtonElement);
 
 
 	}
@@ -7705,7 +7772,8 @@ function createIndexMap(data, deflactorDictionary, periodKeys, iDeflactor){
 					for(j=0; j < jLimit;j++){	
 						date=data[i][key].x[j];
 						if(typeof deflactorDictionary[date] ==="undefined"){
-							k=setDeflactorDictionaryAtDate(date, deflactorDictionary, data[iDeflactor], k);
+							k=setDeflactorDictionaryAtDate(date, deflactorDictionary,
+										       data[iDeflactor], k);
 						}					
 					}	
 				}	
@@ -7788,19 +7856,21 @@ function calculateIndexAtDate(dateAsDate, dateX0AsDate, dateX1AsDate,  y0, y1){
 	
 
 	return Number(y0)*Math.pow((y1/y0), 
-										 (dateAsDate.getTime()-dateX0AsDate.getTime())/
-										 (dateX1AsDate.getTime() - dateX0AsDate.getTime())
-										);
+				(dateAsDate.getTime()-dateX0AsDate.getTime())/
+				(dateX1AsDate.getTime() - dateX0AsDate.getTime())
+				);
 }
 
 
 // determine base date
-/* base real date could be "end of range", "end of domain", "beggining of range", beggining of domain", or a date "yyyy-mm-dd hh:mm:ss.sss-04:00"*/
+/* base real date could be "end of range", "end of domain", "beggining of range", beggining of domain",
+or a date "yyyy-mm-dd hh:mm:ss.sss-04:00"*/
 function setBaseRealNominalDateAsString(baseRealDate,
-																				rangeX0AsString,
-																				rangeX1AsString,
-																				domainX0AsString,
-																				 domainX1AsString) {
+		rangeX0AsString,
+		rangeX1AsString,
+		domainX0AsString,
+		domainX1AsString) {
+	
 	if(baseRealDate === "end of range"){
 		 return rangeX1AsString;
 	}
