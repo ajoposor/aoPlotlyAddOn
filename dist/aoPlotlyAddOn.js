@@ -5016,7 +5016,7 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 	    average = {},
 	    priorXString, nextXString,
 	    periodKeys = {},
-	    periodKeysArray = [];
+	    periodKeysArray = [],
 	    doCalculations = false;
 	var dataIXO, dataIYO, dataIK;
 	var averageKey;
