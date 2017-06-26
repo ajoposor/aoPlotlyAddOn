@@ -3139,8 +3139,7 @@ function makeChart(data, param){
 					}
 					else{
 						index = findIndexOfMenu(layout.updatemenus,"frequencies" );
-						relayoutUpdateArgs["updatemenus["+index+"].x"] = xOfRightItems(divWidth, layout);	
-
+						relayoutUpdateArgs["updatemenus["+index+"].x"] = xOfRightItems(divWidth, layout);
 					}
 
 				}
@@ -3533,7 +3532,7 @@ function makeChart(data, param){
 							// load one button aggregation menu
 							index = findIndexOfMenu(layout.updatemenus,"aggregation");
 							layout.updatemenus[index].active =0;
-							layout.updatemenus[index].visible = true;				
+							layout.updatemenus[index].visible = true;
 							layout.updatemenus[index].buttons =settings.singleAggregationButton;
 							layout.updatemenus[index].type = "buttons";
 							layout.updatemenus[index].showactive = false;
@@ -3711,7 +3710,7 @@ function makeChart(data, param){
 							baseRealNominalDate =newBaseRealNominalDate;
 							setDeflactorDictionaryAtDate(baseRealNominalDate, 
 										     deflactorDictionary, 
-										     data[iDeflactor], 0);					
+										     data[iDeflactor], 0);
 
 						}
 
@@ -3860,7 +3859,8 @@ function makeChart(data, param){
 
 							baseRealNominalDate =newBaseRealNominalDate;
 							setDeflactorDictionaryAtDate(baseRealNominalDate,
-										     deflactorDictionary, data[iDeflactor], 0);					
+										     deflactorDictionary, 
+										     data[iDeflactor], 0);
 
 						}
 
@@ -3920,7 +3920,7 @@ function makeChart(data, param){
 
 							layout.yaxis.type = "linear";
 							if(settings.allowLogLinear){
-								toggleLogLinearButton(false, divInfo.logLinearButtonElement);					
+								toggleLogLinearButton(false, divInfo.logLinearButtonElement);
 							}
 
 						}
@@ -3979,9 +3979,7 @@ function makeChart(data, param){
 
 					// set layout ticktext and tickvals
 					layout.xaxis.tickvals = ticktextAndTickvals.tickvals;
-					layout.xaxis.ticktext = ticktextAndTickvals.ticktext;							
-
-
+					layout.xaxis.ticktext = ticktextAndTickvals.ticktext;
 
 
 					if (transformToBaseIndex) {
@@ -4092,7 +4090,7 @@ function makeChart(data, param){
 						// save nominal data
 						if(!nominalSaved && !transformToReal){
 							saveDataXYIntoProperty(data, "nominal");
-							nominalSaved = true;									
+							nominalSaved = true;
 						}
 
 						// update baseIndex Date
@@ -4119,7 +4117,7 @@ function makeChart(data, param){
 						}
 					} 
 
-					// uncompare, transform uncompared data (check frequencies);				
+					// uncompare, transform uncompared data (check frequencies);
 					else {
 
 						loadData(data, "uncompared");
@@ -4192,7 +4190,7 @@ function makeChart(data, param){
 							// save nominal  data
 							if(!nominalSaved){
 								saveDataXYIntoProperty(data, "nominal");
-								nominalSaved = true;									
+								nominalSaved = true;
 							}
 
 						}
@@ -4334,8 +4332,9 @@ function makeChart(data, param){
 						//DEBUG && console.log("baseRealNominalDate",baseRealNominalDate);
 						if(newBaseRealNominalDate !== baseRealNominalDate){
 							baseRealNominalDate =newBaseRealNominalDate;
-							setDeflactorDictionaryAtDate(baseRealNominalDate, deflactorDictionary, 
-										     data[iDeflactor], 0);					
+							setDeflactorDictionaryAtDate(baseRealNominalDate, 
+										     deflactorDictionary, 
+										     data[iDeflactor], 0);
 
 						}
 						//DEBUG && console.log("newBaseRealNominalDate",newBaseRealNominalDate);
@@ -4476,8 +4475,9 @@ function makeChart(data, param){
 						
 						if(newBaseRealNominalDate !== baseRealNominalDate){
 							baseRealNominalDate =newBaseRealNominalDate;
-							setDeflactorDictionaryAtDate(baseRealNominalDate, deflactorDictionary, 
-										     data[iDeflactor], 0);					
+							setDeflactorDictionaryAtDate(baseRealNominalDate, 
+										     deflactorDictionary, 
+										     data[iDeflactor], 0);
 
 						}
 						//DEBUG && console.log("newBaseRealNominalDate",newBaseRealNominalDate);
@@ -5530,7 +5530,7 @@ function transformAllRowsToEndOfMonth(allRows, xSeriesName, xDateSuffix, urlType
 		allRows[i][xSeriesName] = processedDate;	
 	}
 }*/
-	
+
 /*	 
 function processDatesToAllRows(allRows, xSeriesName, xDateSuffix, urlType){
 	var iLimit = allRows.lenght;
@@ -5547,7 +5547,7 @@ function processDatesToAllRows(allRows, xSeriesName, xDateSuffix, urlType){
 	// 
 	for (var i=0; i < iLimit; i++){
 		processedDate = !yqlGoogleCSV ? allRows[i][xSeriesName] :  localGoogleMDYToYMD(allRows[i][xSeriesName]);
-		processedDate = localProcessDate(""+processedDate + xDateSuffix, timeOffsetText);	
+		processedDate = localProcessDate(""+processedDate + xDateSuffix, timeOffsetText);
 		allRows[i][xSeriesName] = processedDate;
 	}
 }
@@ -5700,32 +5700,32 @@ function setTablesParametersSortPreprocessing(tableParams, dataSources){
 
 		// add sort info
 		if(typeof dataSources["sort"] !== "undefined"){
-			tableParams[xSeriesName]["sort"] =  dataSources["sort"];				
+			tableParams[xSeriesName]["sort"] =  dataSources["sort"];
 		} 
 
 		// add xDateSuffix info
 		if(typeof dataSources["xDateSuffix"] !== "undefined"){
-			tableParams[xSeriesName]["xDateSuffix"] =  dataSources["xDateSuffix"];				
+			tableParams[xSeriesName]["xDateSuffix"] =  dataSources["xDateSuffix"];	
 		} 
 
 		// add firstItemToRead info
 		if(typeof dataSources["firstItemToRead"] !== "undefined"){
-			tableParams[xSeriesName]["firstItemToRead"] =  dataSources["firstItemToRead"];				
+			tableParams[xSeriesName]["firstItemToRead"] =  dataSources["firstItemToRead"];
 		} 
 
 		// add processDate info
 		if(typeof dataSources["processDates"] !== "undefined"){
-			tableParams[xSeriesName]["processDates"] =  dataSources["processDates"];				
+			tableParams[xSeriesName]["processDates"] =  dataSources["processDates"];
 		}
 
 		// add postProcessDate info
 		if(typeof dataSources["postProcessDate"] !== "undefined"){
-			tableParams[xSeriesName]["postProcessDate"] =  dataSources["postProcessDate"];				
+			tableParams[xSeriesName]["postProcessDate"] =  dataSources["postProcessDate"];
 		} 
 		
 		// add onlyAddXDateSuffix info
 		if(typeof dataSources["onlyAddXDateSuffix"] !== "undefined"){
-			tableParams[xSeriesName]["onlyAddXDateSuffix"] =  dataSources["onlyAddXDateSuffix"];				
+			tableParams[xSeriesName]["onlyAddXDateSuffix"] =  dataSources["onlyAddXDateSuffix"];
 		} 
 
 
@@ -5733,7 +5733,7 @@ function setTablesParametersSortPreprocessing(tableParams, dataSources){
 
 		// add sort info, default false
 		if(typeof traces[j]["sort"] !== "undefined"){
-			tableParams[xSeriesName]["sort"] =  traces[j]["sort"];				
+			tableParams[xSeriesName]["sort"] =  traces[j]["sort"];
 		} else{
 			if(typeof tableParams[xSeriesName]["sort"] === "undefined")
 				tableParams[xSeriesName]["sort"] =  false;	
@@ -5741,7 +5741,7 @@ function setTablesParametersSortPreprocessing(tableParams, dataSources){
 
 		// add xDateSuffix info, default ""
 		if(typeof traces[j]["xDateSuffix"] !== "undefined"){
-			tableParams[xSeriesName]["xDateSuffix"] =  traces[j]["xDateSuffix"];				
+			tableParams[xSeriesName]["xDateSuffix"] =  traces[j]["xDateSuffix"];
 		} else{
 			if(typeof tableParams[xSeriesName]["xDateSuffix"] === "undefined")
 				tableParams[xSeriesName]["xDateSuffix"] =  "";	
@@ -5749,7 +5749,7 @@ function setTablesParametersSortPreprocessing(tableParams, dataSources){
 
 		// add firstItemToRead info, default first
 		if(typeof traces[j]["firstItemToRead"] !== "undefined"){
-			tableParams[xSeriesName]["firstItemToRead"] =  traces[j]["firstItemToRead"];				
+			tableParams[xSeriesName]["firstItemToRead"] =  traces[j]["firstItemToRead"];
 		} else{
 			if(typeof tableParams[xSeriesName]["firstItemToRead"] === "undefined")
 				tableParams[xSeriesName]["firstItemToRead"] =  "first";	
@@ -5757,7 +5757,7 @@ function setTablesParametersSortPreprocessing(tableParams, dataSources){
 
 		// add processDate info, default true
 		if(typeof traces[j]["processDates"] !== "undefined"){
-			tableParams[xSeriesName]["processDates"] =  traces[j]["processDates"];				
+			tableParams[xSeriesName]["processDates"] =  traces[j]["processDates"];
 		} else{
 			if(typeof tableParams[xSeriesName]["processDates"] === "undefined")
 				tableParams[xSeriesName]["processDates"] =  true;	
@@ -5765,12 +5765,12 @@ function setTablesParametersSortPreprocessing(tableParams, dataSources){
 
 		// add postProcessDate info, default undefined
 		if(typeof traces[j]["postProcessDate"] !== "undefined"){
-			tableParams[xSeriesName]["postProcessDate"] =  traces[j]["postProcessDate"];				
+			tableParams[xSeriesName]["postProcessDate"] =  traces[j]["postProcessDate"];
 		} 
 		
 		// add onlyAddXDateSuffix info, default undefined
 		if(typeof  traces[j]["onlyAddXDateSuffix"] !== "undefined"){
-			tableParams[xSeriesName]["onlyAddXDateSuffix"] =  traces[j]["onlyAddXDateSuffix"];				
+			tableParams[xSeriesName]["onlyAddXDateSuffix"] =  traces[j]["onlyAddXDateSuffix"];
 		} 
 
 			
@@ -6186,7 +6186,7 @@ function preProcessDataDates(data){
 function getTimeOffsetText(){
 		var offset  = (new Date()).getTimezoneOffset();
 
-		return ((offset > 0) ? ("-"+convertOffsetToHHMM(offset)): ("+"+convertOffsetToHHMM(-offset)));			
+		return ((offset > 0) ? ("-"+convertOffsetToHHMM(offset)): ("+"+convertOffsetToHHMM(-offset)));
 }
 
 
@@ -6195,8 +6195,8 @@ function makeDateComplete(dateString){
 
 	var offset  = (new Date()).getTimezoneOffset();
 
-	timeOffsetText = (offset > 0) ? ("-"+convertOffsetToHHMM(offset)): ("+"+convertOffsetToHHMM(-offset));			
-
+	timeOffsetText = (offset > 0) ? ("-"+convertOffsetToHHMM(offset)): ("+"+convertOffsetToHHMM(-offset));
+	
 	return processDate(dateString,timeOffsetText);
 
 
