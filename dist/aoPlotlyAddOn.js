@@ -5011,15 +5011,14 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 	    currentLimits = {},
 	    begin = true;
 	var key = '',
-	    priorClose = {},
-	    priorCumulative = {},
-	    average = {},
+	    priorClose = [],
+	    priorCumulative = [],
+	    average = [],
 	    priorXString, nextXString,
-	    periodKeys = {},
 	    periodKeysArray = [],
 	    doCalculations = false;
 	var dataIXO, dataIYO, dataIK;
-	var averageKey;
+	var averageK;
 	var currentLimitKeyBegins, currentLimitKeyEnds;
 	
 	var localGetPriorNonUSBankingWorkingDay = getPriorNonUSBankingWorkingDay;
@@ -5039,6 +5038,11 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 	}
 	
 	var kLimit = periodKeysArray.length;
+	priorClose.length = kLimit;
+	priorCumulative.length = kLimit;
+	average.length = kLimit;
+	
+	
 	
 	for (var i = 0; i < iLimit; i++) {
 		// flags begin
@@ -5047,8 +5051,8 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 		if(doCalculations) {
 			for(k=0; k < kLimit; k++){
 				key = periodKeysArray[k];
-				priorClose[key] = "undefined";
-				priorCumulative[key]=0.0;
+				priorClose[k] = "undefined";
+				priorCumulative[k]=0.0;
 			}
 			
 			// iterates over trace points
@@ -5080,8 +5084,7 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 										endOfWeek);
 					
 					for(k=0; k < kLimit; k++){
-						key = periodKeysArray[k];
-						average[key] = {
+						average[k] = {
 							sum: 0.0,
 							n: 0,
 							calculate: false
@@ -5097,7 +5100,7 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 				
 				for(k=0; k < kLimit; k++){
 					key = periodKeysArray[k];
-					averageKey = average[key];
+					averageK = average[k];
 					currentLimitKeyBegins = currentLimits.begins[key];
 					currentLimitKeyEnds = currentLimits.ends[key];
 					
@@ -5106,13 +5109,13 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 					if (priorXString < currentLimitKeyBegins ||
 					    priorBankingDate.string < currentLimitKeyBegins){
 						// allow average calculation.
-						averageKey.calculate= true;
+						averageK.calculate= true;
 					}
 					
 					// add value to average
-					if(averageKey.calculate){
-						averageKey.sum = Number(averageKey.sum)+currentY;
-						averageKey.n = Number(averageKey.n)+1;
+					if(averageK.calculate){
+						averageK.sum = Number(averageK.sum)+currentY;
+						averageK.n = Number(averageK.n)+1;
 					}
 					
 					// case: period end found
@@ -5138,11 +5141,11 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 						dataIK.x.unshift(currentLimits.label[key]);
 						
 						// add average if applicable
-						if (averageKey.calculatetrue) {
-							dataIK.average.unshift(averageKey.sum / averageKey.n);
-							averageKey.sum = 0.0;
-							averageKey.n = 0;
-							averageKey.calculate = false;
+						if (averageK.calculate) {
+							dataIK.average.unshift(averageK.sum / averageK.n);
+							averageK.sum = 0.0;
+							averageK.n = 0;
+							averageK.calculate = false;
 						} else {
 							dataIK.average.unshift('N/A');
 						}
@@ -5151,14 +5154,14 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 						dataIK.close.unshift(currentY);
 						
 						//add cumulative
-						dataIK.cumulative.unshift(priorCumulative[key] + currentY);  
+						dataIK.cumulative.unshift(priorCumulative[k] + currentY);  
 						
 						// check if priorClose.key exists and update changes
-						if (priorClose[key] !== 'undefined') {
-							temp = currentY - priorClose[key];
+						if (priorClose[k] !== "undefined") {
+							temp = currentY - priorClose[k];
 							dataIK.change.unshift(temp);
-							temp = (priorClose[key] !== 0) ?
-								temp / priorClose[key] :
+							temp = (priorClose[k] !== 0) ?
+								temp / priorClose[k] :
 								'N/A';
 							dataIK.percChange.unshift(temp);
 							dataIK.sqrPercChange.unshift(temp != 'N/A' ? temp * temp : 'N/A');
@@ -5169,8 +5172,8 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 						}
 						
 						//update priorClose
-						priorClose[key] = currentY;
-						priorCumulative[key]=  priorCumulative[key] + currentY;
+						priorClose[k] = currentY;
+						priorCumulative[k]=  priorCumulative[k] + currentY;
 					} // end of period end found
 					
 					else {
