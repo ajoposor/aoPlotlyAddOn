@@ -42,7 +42,8 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	};
 	
 	var loaderInitialStylingUrl = 
-	    "url('https://raw.githubusercontent.com/ajoposor/Images/master/files/loader_big_blue.gif') 50% 50% no-repeat #FFFFFF";
+	    "url('https://raw.githubusercontent.com/ajoposor/Images/master/files/loader_big_blue.gif')"+
+	    "50% 50% no-repeat #FFFFFF";
 	
 	var loaderInitialStyling = {
 		visibility: "visible",
@@ -434,7 +435,9 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		divInfo.downloadButtonElement = 
 			createElement("button", divInfo.downloadButtonID,""/*"download"*/, settings.buttonsStyle );
 		divInfo.downloadButtonElement.innerHTML = 
-			'<img src="https://raw.githubusercontent.com/ajoposor/Images/master/files/Download_Arrow_10_Dark.png" />';
+			'<img src="'+
+			'https://raw.githubusercontent.com/ajoposor/Images/master/files/Download_Arrow_10_Dark.png'+
+			'" />';
 		divInfo.downloadButtonElement.style.marginLeft = layout.externalMargin.l+"px";
 
 		divInfo.footerDivElement.appendChild(divInfo.downloadButtonElement);
@@ -564,8 +567,11 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 
 
 		}
+
+		//maintain "istouch" state for 500ms so removetouchclass 
+		// doesn't get fired immediately following a touch event
 		isTouchTimer = setTimeout(function(){isTouch = false;}, 500);
-		//maintain "istouch" state for 500ms so removetouchclass doesn't get fired immediately following a touch event
+
 	}
      
 	function removetouchclass(e){
@@ -779,7 +785,8 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 			else{
 				// settings.series.baseAggregation = settings.series.baseAggregation
 				
-				if(settings.series.baseAggregation.length > settings.maxNumberOfCharactersInAggregationButton){
+				if(settings.series.baseAggregation.length > 
+				   settings.maxNumberOfCharactersInAggregationButton){
 					settings.series.baseAggregationLabel = 
 						settings.series.baseAggregation.substring(
 							0,
@@ -815,7 +822,8 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 
 				settings.series.baseAggregation = settings.series.baseAggregation;
 
-				if(settings.series.baseAggregation.length > settings.maxNumberOfCharactersInAggregationButton){
+				if(settings.series.baseAggregation.length > 
+				   settings.maxNumberOfCharactersInAggregationButton){
 					
 					settings.series.baseAggregationLabel = 
 					settings.series.baseAggregation.substring(
@@ -828,7 +836,8 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 						
 				}
 
-				//DEBUG && console.log("trimmed aggregation label", settings.series.baseAggregationLabel);
+				//DEBUG && console.log("trimmed aggregation label", 
+				//		settings.series.baseAggregationLabel);
 				settings.series.customAggregation = true;
 				singleAggregationButton[0].label = 
 						fillStringUpTo(
@@ -846,7 +855,8 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 			else {
 				
 				settings.series.baseAggregationLabel = 
-					getLabelFromButtonsGivenArg(settings.series.baseAggregation, baseAggregationButtons);
+					getLabelFromButtonsGivenArg(settings.series.baseAggregation,
+								    baseAggregationButtons);
 				
 				settings.series.customAggregation = false;	
 				singleAggregationButton[0].label = 
@@ -1631,7 +1641,9 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		{
 			name: "logLinear",
 			visible: true,
-			active: settings.yaxisInitialScale === "linear" ? 0 : 1, // which button is active, from the array elements
+			active: settings.yaxisInitialScale === "linear" ? 
+					0 : 
+					1, // which button is active, from the array elements
 			y: 1.14,
 			yanchor: "top",
 			x: 0,
@@ -1801,7 +1813,8 @@ function parallelReadDataAndMakeChart(data, param) {
 			DEBUG && console.log("the error is", error);
 			//display blank plot
 		} else {
-			DEBUG && console.log("param.usRecessions.length before calling makeChart: ", param.usRecessions.length);
+			DEBUG && console.log("param.usRecessions.length before calling makeChart: ", 
+					     param.usRecessions.length);
 			// once all files all read, i.e. iS === series.length, this section is executed
 			DEBUG && console.log("data: ", data);
 			DEBUG && console.log("param: ", param);	
@@ -2149,6 +2162,7 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 	var tableParams = {};
 	var adjustFactor = 1.0, adjust="";
 	var calculateAdjustedClose = false;
+	var indexOfYSeriesName;
 	
 	// save function references
 	var localProcessDate = processDate;
@@ -2161,6 +2175,7 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 	var localMyConcat = myConcat;
 	var localFindSpliceInfo = findSpliceInfo;
 	var localGoogleMDYToYMD = GoogleMDYToYMD;
+
 	
 	// number of traces to be read on this data source
 	jLimit = dataSources.traces.length;
@@ -2269,8 +2284,9 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 		
 		adjust = "none";
 		adjustFactor = 1.0;
+		indexOfYSeriesName =tableParams[xSeriesName]["yNames"].indexOf(ySeriesName);
 		calculateAdjustedClose = 
-			tableParams[xSeriesName]["yCalculateAdjustedClose"][tableParams[xSeriesName]["yNames"].indexOf(ySeriesName)];
+			tableParams[xSeriesName]["yCalculateAdjustedClose"][indexOfYSeriesName];
 		
 		DEBUG && console.log("calculateAdjustedClose", calculateAdjustedClose);
 		
@@ -2626,7 +2642,8 @@ function processDirectData(tracesInitialDate, serie) {
 			readFlag = true;
 
 			for (i = 0; i < serie.traceAttributes.x.length; i++) {
-				processedDate = processDate("" + serie.traceAttributes.x[i] + serie.xDateSuffix, timeOffsetText);
+				processedDate = processDate("" + serie.traceAttributes.x[i] + serie.xDateSuffix, 
+						timeOffsetText);
 				processedDate = changeDateToEndOfMonth(processedDate);
 
 				if (
@@ -2641,14 +2658,17 @@ function processDirectData(tracesInitialDate, serie) {
 	}		
 	
 	if(!readFlag){
+	
 			readFlag = true;
 
 			for (i = 0; i < serie.traceAttributes.x.length; i++) {
-				processedDate = processDate("" + serie.traceAttributes.x[i] + serie.xDateSuffix, timeOffsetText);
-
+			
+				processedDate = processDate(
+						"" + serie.traceAttributes.x[i] + serie.xDateSuffix, 
+						timeOffsetText);
 				if (
 					tracesInitialDate === "" ||
-					new Date(processedDate) >= 	initialDateAsDate
+					new Date(processedDate) >=  initialDateAsDate
 				) {
 					x.push(processedDate);
 					y.push(serie.traceAttributes.y[i]);
@@ -2663,15 +2683,15 @@ function processDirectData(tracesInitialDate, serie) {
 	return trace;
 }*/
 
-	 
-	 
+ 
+ 
 
-	 
-	 
-	 
-	 
-	 
-	 
+
+ 
+ 
+ 
+
+ 
 /**
 *
 * makeChart does 
@@ -2791,7 +2811,7 @@ function makeChart(data, param){
 				// Original data already saved
 
 				//DEBUG && console.log('settings.changeFrequencyAggregationTo.frequency',
-				//						settings.changeFrequencyAggregationTo.frequency);
+				// settings.changeFrequencyAggregationTo.frequency);
 				//DEBUG && console.log('currentFrequency',currentFrequency);
 				//PENDING
 				//PENDING
@@ -3039,7 +3059,11 @@ function makeChart(data, param){
 
 
 	// set y axis range
-	setYAxisRange(layout, data, settings.numberOfIntervalsInYAxis, settings.possibleYTickMultiples, settings.rangeProportion);
+	setYAxisRange(layout,
+		      data, 
+		      settings.numberOfIntervalsInYAxis, 
+		      settings.possibleYTickMultiples, 
+		      settings.rangeProportion);
 	//DEBUG && console.log("y axis range set");
 
 	//DEBUG && console.log("baseIndexDate", baseIndexDate);
@@ -3129,17 +3153,19 @@ function makeChart(data, param){
 					relayoutUpdateArgs["updatemenus["+index+"].x"] = newX;
 
 
-					if(layout.updatemenus[findIndexOfMenu(layout.updatemenus,"aggregation")].visible === true){
+					if(layout.updatemenus[findIndexOfMenu(layout.updatemenus,"aggregation")].visible){
 						index = findIndexOfMenu(layout.updatemenus,"frequencies" );
 						relayoutUpdateArgs["updatemenus["+index+"].x"] = newX;
 
 						index = findIndexOfMenu(layout.updatemenus,"aggregation" );
-						relayoutUpdateArgs["updatemenus["+index+"].x"] = xOfRightItems(divWidth, layout);
+						relayoutUpdateArgs["updatemenus["+index+"].x"] = 
+							xOfRightItems(divWidth, layout);
 
 					}
 					else{
 						index = findIndexOfMenu(layout.updatemenus,"frequencies" );
-						relayoutUpdateArgs["updatemenus["+index+"].x"] = xOfRightItems(divWidth, layout);
+						relayoutUpdateArgs["updatemenus["+index+"].x"] = 
+							xOfRightItems(divWidth, layout);
 					}
 
 				}
@@ -3388,7 +3414,9 @@ function makeChart(data, param){
 						//DEBUG && console.log("restore compare");
 						transformToBaseIndex = settings.transformToBaseIndex;
 						if(settings.allowCompare){
-							toggleCompareButton(transformToBaseIndex, divInfo.compareButtonElement);
+							toggleCompareButton(transformToBaseIndex, 
+									    divInfo.compareButtonElement
+							);
 						}
 					}
 
@@ -3444,9 +3472,11 @@ function makeChart(data, param){
 						//DEBUG && console.log("restore compare");
 						transformToBaseIndex = settings.transformToBaseIndex;
 						if(settings.allowCompare){
-							toggleCompareButton(transformToBaseIndex, divInfo.compareButtonElement);
+							toggleCompareButton(transformToBaseIndex, 
+									    divInfo.compareButtonElement
+							);
 						}
-					}		
+					}
 
 					layout.yaxis.hoverformat= originalLayout.yaxis.hoverformat;
 
@@ -3460,7 +3490,7 @@ function makeChart(data, param){
 
 					//DEBUG && console.log("6 after change compare to original");
 
-				}	
+				}
 
 
 
@@ -3522,7 +3552,10 @@ function makeChart(data, param){
 
 							// change location of frequency menu
 							setNewXToFrequencyButton(
-								xOfRightItems(divWidth, layout), layout.updatemenus, "frequencies");
+								xOfRightItems(divWidth, layout), 
+								layout.updatemenus, 
+								"frequencies"
+							);
 						}	
 
 						if(settings.series.baseAggregationType ==="custom"){
@@ -3574,7 +3607,8 @@ function makeChart(data, param){
 						//DEBUG && console.log("load full agg menu");
 
 						index = findIndexOfMenu(layout.updatemenus,"aggregation");
-						//DEBUG && console.log("combinedAgg Bttons", settings.combinedAggregationButtons);
+						/*DEBUG && console.log("combinedAgg Bttons", 
+									settings.combinedAggregationButtons);*/
 						layout.updatemenus[index].buttons =settings.combinedAggregationButtons;
 						layout.updatemenus[index].showactive =true;
 
@@ -3671,7 +3705,11 @@ function makeChart(data, param){
 					//DEBUG && console.log("initialDate", initialDate, "endDate", endDate);
 					//DEBUG && console.log("layout", layout);
 
-					updateXAxisRange(initialDate, endDate, minDateAsString, maxDateAsString, layout.xaxis.range);
+					updateXAxisRange(initialDate, 
+							 endDate, 
+							 minDateAsString, 
+							 maxDateAsString, 
+							 layout.xaxis.range);
 
 					/*if(initialDate < minDateAsString){
 						initialDate = minDateAsString
@@ -3756,7 +3794,8 @@ function makeChart(data, param){
 
 
 		else if (typeof relayoutData.myAggregation !== "undefined") {
-			// CASE 3. EN ESTE ELSE IF SE INCLUYE EL CAMBIO AGGREGATION - faltaría revisar fijación del xaxis range
+			// CASE 3. EN ESTE ELSE IF SE INCLUYE EL CAMBIO AGGREGATION - 
+			// faltaría revisar fijación del xaxis range
 
 			flag = false;
 			//DEBUG && console.log("current Frequency",currentFrequency);
@@ -3875,7 +3914,8 @@ function makeChart(data, param){
 					   relayoutData.myAggregation === "sqrPercChange"){
 						transformToBaseIndex = false;
 						if(settings.allowCompare){
-							toggleCompareButton(transformToBaseIndex, divInfo.compareButtonElement);
+							toggleCompareButton(transformToBaseIndex, 
+									    divInfo.compareButtonElement);
 						}
 
 						layout.yaxis.tickformat = ".2p";
@@ -3967,7 +4007,11 @@ function makeChart(data, param){
 						layout.xaxis.range[1]=	endDate;
 					}*/
 
-					updateXAxisRange(initialDate, endDate, minDateAsString, maxDateAsString, layout.xaxis.range);
+					updateXAxisRange(initialDate, 
+							 endDate, 
+							 minDateAsString, 
+							 maxDateAsString, 
+							 layout.xaxis.range);
 
 
 					// get ticktext and tickvals based on width and parameters
@@ -4112,8 +4156,11 @@ function makeChart(data, param){
 
 						if (!layout.yaxis.autorange) {
 							// find y range
-							setYAxisRange(layout, data, settings.numberOfIntervalsInYAxis, 
-								      settings.possibleYTickMultiples, settings.rangeProportion);
+							setYAxisRange(layout, 
+								      data, 
+								      settings.numberOfIntervalsInYAxis, 
+								      settings.possibleYTickMultiples, 
+								      settings.rangeProportion);
 						}
 					} 
 
@@ -4124,8 +4171,11 @@ function makeChart(data, param){
 						//DEBUG && console.log("new data",data);
 
 						if (!layout.yaxis.autorange) {
-							setYAxisRange(layout, data, settings.numberOfIntervalsInYAxis, 
-								      settings.possibleYTickMultiples, settings.rangeProportion);
+							setYAxisRange(layout, 
+								      data, 
+								      settings.numberOfIntervalsInYAxis,
+								      settings.possibleYTickMultiples, 
+								      settings.rangeProportion);
 						}
 					}
 
@@ -4157,7 +4207,8 @@ function makeChart(data, param){
 
 					// update menu settings
 					//toggleCompareMenu(!relayoutData.compare, layout.updatemenus);
-					toggleRealNominalButton(relayoutData.transformToReal, divInfo.realNominalButtonElement);
+					toggleRealNominalButton(relayoutData.transformToReal, 
+								divInfo.realNominalButtonElement);
 
 					// transform data to real
 					if (transformToReal) {
@@ -4172,16 +4223,20 @@ function makeChart(data, param){
 
 						if(baseRealNominalDate!==""){
 
-							baseRealNominalDate = setBaseRealNominalDateAsString(settings.baseRealDate, 
-											layout.xaxis.range[0],
-											layout.xaxis.range[1],
-											minDateAsString,
-											maxDateAsString
-											);
+							baseRealNominalDate = 
+								setBaseRealNominalDateAsString(	
+									settings.baseRealDate, 
+									layout.xaxis.range[0],
+									layout.xaxis.range[1],
+									minDateAsString,
+									maxDateAsString
+								);
 
 							//DEBUG && console.log("baseRealNominalDate",baseRealNominalDate);
-							setDeflactorDictionaryAtDate(baseRealNominalDate, deflactorDictionary, 
-										     data[iDeflactor], 0);
+							setDeflactorDictionaryAtDate(baseRealNominalDate, 
+										     deflactorDictionary, 
+										     data[iDeflactor], 
+										     0);
 						}
 
 						// save nominal if not compared
@@ -4360,12 +4415,11 @@ function makeChart(data, param){
 
 						//DEBUG && console.log("baseIndexDate", baseIndexDate);
 						transformDataToBaseIndex(data, 
-							makeDateComplete(layout.xaxis.range[0]), 
-								currentAggregation);					
-
-					} 					
-
-					baseIndexDate = makeDateComplete(layout.xaxis.range[0]);	
+									 makeDateComplete(layout.xaxis.range[0]),
+									 currentAggregation);
+					}
+					
+					baseIndexDate = makeDateComplete(layout.xaxis.range[0]);
 
 
 					//DEBUG && console.log("layout before read x axis range",layout);
@@ -4385,7 +4439,7 @@ function makeChart(data, param){
 							settings.numberOfIntervalsInYAxis,
 							settings.possibleYTickMultiples, 
 							settings.rangeProportion
-						);	
+						);
 					} else{
 
 
@@ -4481,7 +4535,9 @@ function makeChart(data, param){
 
 						}
 						//DEBUG && console.log("newBaseRealNominalDate",newBaseRealNominalDate);
-						transformDataToReal(data, deflactorDictionary, 	baseRealNominalDate, 
+						transformDataToReal(data, 
+								    deflactorDictionary,
+								    baseRealNominalDate,
 								    otherDataProperties);
 
 						if(transformToBaseIndex){
@@ -4846,42 +4902,44 @@ var months = ['Jan', 'Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov'
     }
     frequencyData[i].j=j;
     frequencyData[i].xSpace = 
-      j===0?0:(divWidth-leftMargin-rightMargin) /(j*stringLength(frequencyData[i].string,fontFamily,fontSize, canvas));    
+	    j === 0 ?
+	    	0 :
+    		(divWidth-leftMargin-rightMargin) /(j*stringLength(frequencyData[i].string,
+								   fontFamily,
+								   fontSize, 
+								   canvas));    
     if(frequencyData[i].xSpace >= textAndSpaceToTextRatio){
-      date = new Date(frequencyData[i].initialDate.getTime());
-      //DEBUG && console.log('solution found at', frequencyData[i]);
-      //DEBUG && console.log('initial Date',frequencyData[i].initialDate);
-      while(date <= toAsDate){
-        result.tickvals.push(''+date.getFullYear()+'-'+padTo2(date.getMonth()+1)+'-'+padTo2(date.getDate()));
-				
-				if(frequencyData[i].stringName === "date"){
-					result.ticktext.push(''+date.getFullYear()+
-							     '-'+padTo2(date.getMonth()+1)+'-'+padTo2(date.getDate()));
-				}
-				else if (frequencyData[i].stringName === "month"){
-					result.ticktext.push(months[date.getMonth()]+' '+date.getFullYear());
-				}
-				else if (frequencyData[i].stringName === "quarter"){
-					result.ticktext.push('Q' +Math.ceil((date.getMonth()+1)/3)+' '+date.getFullYear());
-				}
-				else if (frequencyData[i].stringName === "semester"){
-					result.ticktext.push('H'+Math.ceil((date.getMonth()+1)/6)+' '+date.getFullYear());
-				}
-				else if (frequencyData[i].stringName === "year"){
-					result.ticktext.push(''+date.getFullYear());
-				}
-				else if (frequencyData[i].stringName === "year-month"){
-	      	result.ticktext.push(''+date.getFullYear()+'-'+padTo2(date.getMonth()+1));				
-				}
-				
-        if (frequencyData[i].daysStep >0){
-          date.setDate(date.getDate()+frequencyData[i].daysStep);
-        }
-        if (frequencyData[i].monthsStep >0){
-          date= new Date(date.getFullYear(), date.getMonth()+frequencyData[i].monthsStep+1, 0);
-        }
-      }
-      i=frequencyData.length;
+	    date = new Date(frequencyData[i].initialDate.getTime());
+	    //DEBUG && console.log('solution found at', frequencyData[i]);
+	    //DEBUG && console.log('initial Date',frequencyData[i].initialDate);
+	    
+	    while(date <= toAsDate){
+		    result.tickvals.push(''+date.getFullYear()+'-'+padTo2(date.getMonth()+1)+'-'+padTo2(date.getDate()));
+		    if(frequencyData[i].stringName === "date"){
+			    result.ticktext.push(''+date.getFullYear()+
+						 '-' + padTo2(date.getMonth()+1) + 
+						 '-' + padTo2(date.getDate()));
+		    } else if (frequencyData[i].stringName === "month"){
+			    result.ticktext.push(months[date.getMonth()]+' '+date.getFullYear());
+		    } else if (frequencyData[i].stringName === "quarter"){
+			    result.ticktext.push('Q' +Math.ceil((date.getMonth()+1)/3)+' '+date.getFullYear());
+		    } else if (frequencyData[i].stringName === "semester"){
+			    result.ticktext.push('H'+Math.ceil((date.getMonth()+1)/6)+' '+date.getFullYear());
+		    } else if (frequencyData[i].stringName === "year"){
+			    result.ticktext.push(''+date.getFullYear());
+		    } else if (frequencyData[i].stringName === "year-month"){
+			    result.ticktext.push(''+date.getFullYear()+'-'+padTo2(date.getMonth()+1));
+		    }
+		    
+		    if (frequencyData[i].daysStep >0){
+			    date.setDate(date.getDate()+frequencyData[i].daysStep);
+		    }
+		    
+		    if (frequencyData[i].monthsStep >0){
+			    date= new Date(date.getFullYear(), date.getMonth()+frequencyData[i].monthsStep+1, 0);
+		    }
+	    }
+	    i=frequencyData.length;
     }
   }
   //DEBUG && console.log(frequencyData.length);
@@ -5322,17 +5380,8 @@ function findSpliceInfo(newArray, xSeriesName, newArrayInitialIndex, newArrayEle
 	iLimit = newArrayInitialIndex + newArrayElements;
 	for (var i=newArrayInitialIndex; i < iLimit; i++){
 		
-		/*if(datesReady){*/
 		currentDate = new Date(newArray[i][xSeriesName]);
-		/*}*/
-		/*
-		else {
-			currentDate= localProcessDate("" +
-				!yqlGoogleCSV ? newArray[i][xSeriesName] :  localGoogleMDYToYMD(newArray[i][xSeriesName])+
-						 xDateSuffix, timeOffsetText);
-			currentDate = new Date(transformToEndOfMonth ? localChangeDateToEndOfMonth(currentDate) : currentDate);				 
-		}
-		*/
+
 		// search for an entry point
 		if(spliceInfo.initialIndex===-1){
 			for(j=-1; j < jLimit; j++){
@@ -5623,10 +5672,11 @@ function applyDateProprocessing(allRows, tableParams, urlType) {
 				if(yqlGoogleCSV){				   
 					for(i = 0; i < iLimit ; i++){
 						if(allRows[i][xSeriesName]!=="" && allRows[i][xSeriesName]!==null){
-							allRows[i][xSeriesName] = 
+							allRows[i][xSeriesName] =
 								localProcessDate(""+
-										localGoogleMDYToYMD(allRows[i][xSeriesName])+ 
-										xDateSuffix, timeOffsetText);
+										 localGoogleMDYToYMD(allRows[i][xSeriesName])+
+										 xDateSuffix, 
+										 timeOffsetText);
 						}
 
 					}
@@ -6507,7 +6557,8 @@ function wrappedDirectXMLHttpRequest(options, onreadyFunction, callback) {
 			if(xhttp.status == 200) {
 				// no error passed
 				DEBUG && console.log(
-					"calling function(http, callback) { afterFredZipFileLoaded((xhttp, usRecessions, callback))}"
+					"calling function(http, callback)"+
+					"{ afterFredZipFileLoaded((xhttp, usRecessions, callback))}"
 				);
 				onreadyFunction(xhttp,callback);
 			} else {
