@@ -26,7 +26,9 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 ) {
 	
 
-		
+	DEBUG & console.time("newTimeseriesPlot");
+	DEBUG & console.time("initialSettingsBeforeReadData");
+	
 	// test arguments are passed complete	
 	if (arguments.length < 3) {
 		return "incomplete arguments";
@@ -1746,6 +1748,8 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		DEBUG && console.log(message);
 	});*/
 	
+	DEBUG & console.timeEND("initialSettingsBeforeReadData");
+	
 	parallelReadDataAndMakeChart(data, passedParameters);
 	
 	
@@ -1783,6 +1787,8 @@ function readDataAndMakeChart(data, iS, param, callback) {
 // FUNCTION TO READ DATA AND THEN MAKE CHART - LOADS IN PARALLEL
 function parallelReadDataAndMakeChart(data, param) {
 	
+	DEBUG & console.time("parallelReadData");
+	
 	// set function to local variable
 	var localParallelReadData = parallelReadData;
 	
@@ -1818,6 +1824,7 @@ function parallelReadDataAndMakeChart(data, param) {
 			// once all files all read, i.e. iS === series.length, this section is executed
 			DEBUG && console.log("data: ", data);
 			DEBUG && console.log("param: ", param);	
+			DEBUG & console.timeEnd("parallelReadData");
 			makeChart(data, param);
 			DEBUG && console.log("allread and ploted");
 			
@@ -2703,6 +2710,8 @@ function processDirectData(tracesInitialDate, serie) {
 */
 function makeChart(data, param){
 	
+	DEBUG & console.time("makeChart");
+	
 	//DEBUG && console.log("issue #1");
 
 	// variable definitions
@@ -3102,9 +3111,11 @@ function makeChart(data, param){
 	//DEBUG && console.log(param.displayOptions);
 
 	// make initial plot
+	DEBUG & console.time("Execute Plotly.newPlot");
 	Plotly.newPlot(myPlot, data, layout, options).then(function() {
 		wholeDivShow(param.divInfo.wholeDivElement);
 		loaderHide(param.divInfo.loaderElement);
+		DEBUG & console.timeEnd("Execute Plotly.newPlot");
 	});
 
 
@@ -3127,6 +3138,7 @@ function makeChart(data, param){
 
 
 	myPlot.on("plotly_relayout", function(relayoutData) {
+		DEBUG & console.time("relayout");
 		//myPlot.addEventListener('plotly_relayout', function(relayoutData) {
 		//DEBUG && console.log("relayout en myPlot.on", isUnderRelayout);
 		//DEBUG && console.log("relayoutData",relayoutData);
@@ -4608,14 +4620,15 @@ function makeChart(data, param){
 			} // end of if flag is true
 		} // end of 'else' relayout cases, CASE 9
 
+	DEBUG & console.timeEnd("relayout");
 	}); // end of handling of relayout event
 
 
 	//});
 	//});			
 
-
-
+	DEBUG & console.timeEnd("makeChart");
+	DEBUG & console.timeEnd("newTimeseriesPlot");
 
 
 
