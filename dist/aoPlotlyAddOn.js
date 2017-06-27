@@ -12,8 +12,6 @@ var DEBUG = false;
 var DEBUG_TIMES = false;
 var OTHER_DEBUGS = false;
 var DEBUG_TRANSFORM_BY_FREQUENCIES = false;
-	 
-
     
        
 // this functions adds items and functionallity, including, buttons, responsiveness, series resampling     
