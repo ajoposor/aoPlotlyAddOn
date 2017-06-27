@@ -5548,7 +5548,7 @@ var date = new Date(milliseconds);
 	
   var obj = {
     year: date.getFullYear(),
-    month: 1+date.getMonth,
+    month: 1+date.getMonth(),
     day: date.getDate()
   };
   
