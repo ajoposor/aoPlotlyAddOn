@@ -5016,7 +5016,7 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 	var itemsIndex = [];
 	var index = 0;
 	var minMaxDatesAsString = getDataXminXmaxAsString(data);
-	var bankingDaysLibrary = getbankingDaysLibrary(minMaxDatesAsString.min, minMaxDatesAsString.max);
+	var bankingDaysLibrary = getBankingDaysLibrary(minMaxDatesAsString.min, minMaxDatesAsString.max);
 	
 	/*
 	var startBankingDate = new Date();
@@ -5463,7 +5463,7 @@ aoPlotlyAddOn.transformSeriesByFrequencies = function (data, originalPeriodKeys,
 // the index are the number of milliseconds between 1 January 1970 00:00:00 UTC 
 //	 is the miliseconds since dates come and are handled in a complete form, that is "yyyy-mm-dd hh:mm:ss+hh:mm"
 //
-function getbankingDaysLibrary(minDateAsString, maxDateAsString) {
+function getBankingDaysLibrary(minDateAsString, maxDateAsString) {
 	var localGetPriorBankingWorkingDayObject = getPriorBankingWorkingDayObject;
 	var localGetNextBankingWorkingDayObject = getNextBankingWorkingDayObject;
 	var localConvertMillisecondsIntoObject = convertMillisecondsIntoObject;
