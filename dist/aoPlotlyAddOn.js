@@ -5016,7 +5016,7 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 	var itemsIndex = [];
 	var index = 0;
 	var minMaxDatesAsString = getDataXminXmaxAsString(data);
-	var bankingDaysLibrary = getBankingDaysLibrary(minMaxDatesAsString.min, minMaxDatesAsString.max);
+	//var bankingDaysLibrary = getBankingDaysLibrary(minMaxDatesAsString.min, minMaxDatesAsString.max);
 	
 	/*
 	var startBankingDate = new Date();
