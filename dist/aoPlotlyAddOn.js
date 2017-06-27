@@ -5263,10 +5263,10 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 				for (aggKey in data[i][key]) {
 					if (data[i][key].hasOwnProperty(aggKey)) {
 						data[i][key][aggKey].splice(0, jLimit - itemsLength[k]);
-						//DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.log("aggKey: ", 
+						/*DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.log("aggKey: ", 
 												       aggKey,
 												       " items length: ",
-												       itemsLength[k]);
+												       itemsLength[k]);*/
 					}
 				}
 			}
