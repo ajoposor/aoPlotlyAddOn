@@ -8093,11 +8093,13 @@ function setElementStyle(element,styling){
 	 
 // Remove Double-click to zoom back out message
 // this removes the message displayed after an area in the chart is selected.
-function removeDoubleClickToZoomBackOut {
+function removeDoubleClickToZoomBackOut() {
+	
 	var newStyle = document.createElement("style");
 	newStyle.type = "text/css";
 	newStyle.innerHTML = "div.plotly-notifier { visibility: hidden; }";
 	document.getElementsByTagName('head')[0].appendChild(newStyle);
+	
 }
 
 
