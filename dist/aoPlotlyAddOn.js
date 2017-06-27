@@ -2892,6 +2892,8 @@ function makeChart(data, param){
 	var xaxisFontSize=layout.xaxis.tickfont.size;
 	var layoutMarginL=layout.margin.l;
 	var layoutMarginR=layout.margin.r;
+	
+	DEBUG && DEBUG_TIMES && console.time("TIME: ticktextAndTickvals");
  
 	// get ticktext and tickvals based on width and parameters
 	var ticktextAndTickvals = aoPlotlyAddOn.getTicktextAndTickvals(
@@ -2906,15 +2908,13 @@ function makeChart(data, param){
 		layoutMarginR,
 		canvas
 	);
-	DEBUG && OTHER_DEBUGS && console.log("tick vals and text done");
+	DEBUG && DEBUG_TIMES && console.timeEnd("TIME: ticktextAndTickvals");
 
 	// set layout ticktext and tickvals
 	layout.xaxis.ticktext = ticktextAndTickvals.ticktext;
 	layout.xaxis.tickvals = ticktextAndTickvals.tickvals;
 
 	var baseIndexDate = initialDate; //If traces are to be converted to index=1 at at certain date
-
-
 
 	// variable will contain all updatemenus to be used,
 	var updateMenus = []; // variable to put all updateMenus.
@@ -4672,19 +4672,7 @@ function stringLength(string, fontFamily, size, canvas) {
   return ctx.measureText(string).width;
 }
 
-
-// strip date as 'yyyy-mm-dd' into object
-function stripDateIntoObject(dateString) {
-  var obj = {
-    string: dateString,
-    year: Number(dateString.substr(0, 4)),
-    month: Number(dateString.substr(5, 2)),
-    day: Number(dateString.substr(8, 2))
-  };
-  
-  return obj;
-  
-}
+ 
 
 // rounds number to next multiple
 function roundUp(numToRound, multiple) {
@@ -5027,6 +5015,8 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 	var itemsLength = [];
 	var itemsIndex = [];
 	var index = 0;
+	var minMaxDatesAsString = getDataXminXmaxAsString(data);
+	var bankingDaysLibrary = getbankingDaysLibrary(minMaxDatesAsString.min, minMaxDatesAsString.max);
 	
 	/*
 	var startBankingDate = new Date();
@@ -5469,26 +5459,176 @@ aoPlotlyAddOn.transformSeriesByFrequencies = function (data, originalPeriodKeys,
  
 
 
-// calculates mode as excel does
-function myMod(n, d) {
-  return (n - d * Math.floor(n / d));
+// returns a dictionary with with the next and prior banking dates for a given date
+// the index are the number of milliseconds between 1 January 1970 00:00:00 UTC 
+//	 is the miliseconds since dates come and are handled in a complete form, that is "yyyy-mm-dd hh:mm:ss+hh:mm"
+//
+function getbankingDaysLibrary(minDateAsString, maxDateAsString) {
+	var localGetPriorBankingWorkingDayObject = getPriorBankingWorkingDayObject;
+	var localGetNextBankingWorkingDayObject = getNextBankingWorkingDayObject;
+	var localConvertMillisecondsIntoObject = convertMillisecondsIntoObject;
+	var dayInMilliseconds = 86400000;
+	
+	var bankingDaysLibrary = {};
+	
+	var currentDateAsString = minDateAsString;
+	var currentDateInMilliseconds = (new Date(currentDateAsString)).valueOf();
+	var currentDateObject = localConvertMillisecondsIntoObject(currentDateInMilliseconds);
 
+	var maxDateInMilliseconds = (new Date(maxDateAsString)).valueOf();
+	
+	var priorBankingDayObject =  localGetPriorBankingWorkingDayObject(
+							currentDateObject.year,
+							currentDateObject.month,
+							currentDateObject.day);
+	    
+	var nextBankingDayObject =  localGetNextBankingWorkingDayObject(
+							currentDateObject.year,
+							currentDateObject.month,
+							currentDateObject.day);
+	
+	
+	while(currentDateInMilliseconds <= maxDateInMilliseconds) {
+		
+		if(typeof bankingDaysLibrary[currentDateInMilliseconds] === "undefined"){
+			
+			if(currentDateInMilliseconds < nextBankingDayObject.milliseconds) {
+				
+				bankingDaysLibrary[currentDateInMilliseconds] = {
+					prior: priorBankingDayObject.string,
+					next:  nextBankingDayObject.string
+				};
+			} else {
+				
+				bankingDaysLibrary[currentDateInMilliseconds] = {
+					prior: priorBankingDayObject.string,
+				};
+				
+				priorBankingDayObject = nextBankingDayObject;
+				
+				nextBankingDayObject =  localGetNextBankingWorkingDayObject(
+								currentDateObject.year,
+								currentDateObject.month,
+								currentDateObject.day);
+				
+				bankingDaysLibrary[currentDateInMilliseconds].next = nextBankingDayObject.string;
+				
+			}
+		}
+		
+		// add new day to current
+		currentDateInMilliseconds += dayInMilliseconds;
+		currentDateObject = localConvertMillisecondsIntoObject(currentDateInMilliseconds);
+	} 
+	
+	return bankingDaysLibrary;
+
+} 	 
+
+
+// strip date as 'yyyy-mm-dd' into object
+function stripDateIntoObject(dateString) {
+  var obj = {
+    string: dateString,
+    year: Number(dateString.substr(0, 4)),
+    month: Number(dateString.substr(5, 2)),
+    day: Number(dateString.substr(8, 2))
+  };
+  
+  return obj;
+  
+}
+	 
+// strip date as miliseconds into object
+// milliseconds are the number of milliseconds between 1 January 1970 00:00:00 UTC and the given date.
+function convertMillisecondsIntoObject(milliseconds) {
+
+var date = new Date(milliseconds);
+	
+	
+  var obj = {
+    year: date.getFullYear(),
+    month: 1+date.getMonth,
+    day: date.getDate()
+  };
+  
+  return obj;
+  
+}	 
+	
+
+	 
+// get next non holiday day for a given date as year, month, day
+// year, month 1-12, day 1-31
+function getNextNonUSBankingWorkingDay(year, month, day) {
+
+  var plainDate = new Date(year, month - 1, day);
+
+  do {
+    plainDate.setDate(plainDate.getDate() + 1);
+
+  } while (checkIsUSBankingHoliday(plainDate.getFullYear(), plainDate.getMonth() + 1, plainDate.getDate()) != 'undefined');
+
+  return plainDate.getFullYear() + '-' + ((plainDate.getMonth() + 1) < 10 ? '0' : '') +
+	  (plainDate.getMonth() + 1) + '-' + (plainDate.getDate() < 10 ? '0' : '') + plainDate.getDate();
 }
 
-// returns Good Friday date as 'yyyy-mm-dd'
-function goodFridayAsString(year) {
-  var daysInMiliseconds = 86400000;
+// get prior non holiday day for a given date as year, month, day
+// year, month 1-12, day 1-31
+function getPriorNonUSBankingWorkingDay(year, month, day) {
 
-  var excelBaseDate = new Date('1899-12-31T00:00:00Z');
-  var excelAprilFirst = (new Date(year.toString() + '-04-02T00:00:00Z') - excelBaseDate) / daysInMiliseconds;
-  var excelGoodFriday = Math.round((excelAprilFirst) / 7 + myMod(19 * myMod(year, 19) - 7, 30) * 0.14) * 7 - 8;
-  var goodFridayDate = new Date((excelGoodFriday - 1) * daysInMiliseconds + excelBaseDate.getTime());
+  var plainDate = new Date(year, month - 1, day);
 
-  var gFMonth = goodFridayDate.getUTCMonth() + 1,
-    gFDate = goodFridayDate.getUTCDate();
+  do {
+    plainDate.setDate(plainDate.getDate() - 1);
 
-  return goodFridayDate.getFullYear() + '-' + (gFMonth < 10 ? '0' : '') + gFMonth + '-' + (gFDate < 10 ? '0' : '') + gFDate;
+  } while (checkIsUSBankingHoliday(plainDate.getFullYear(), plainDate.getMonth() + 1, plainDate.getDate()) != 'undefined');
+
+  return plainDate.getFullYear() + '-' + ((plainDate.getMonth() + 1) < 10 ? '0' : '') +
+	  (plainDate.getMonth() + 1) + '-' + (plainDate.getDate() < 10 ? '0' : '') + plainDate.getDate();
 }
+
+	
+
+function getPriorBankingWorkingDayObject(year, month, day){
+	
+  var plainDate = new Date(year, month - 1, day);
+
+  do {
+    plainDate.setDate(plainDate.getDate() -1);
+
+  } while (checkIsUSBankingHoliday(plainDate.getFullYear(), plainDate.getMonth() + 1, plainDate.getDate()) != 'undefined');
+
+  return {
+	  string: plainDate.getFullYear() + '-' + ((plainDate.getMonth() + 1) < 10 ? '0' : '') +
+	  (plainDate.getMonth() + 1) + '-' + (plainDate.getDate() < 10 ? '0' : '') + plainDate.getDate(),
+	  
+	  milliseconds: plainDate.valueOf()
+  };
+}
+
+	 
+
+function getNextBankingWorkingDayObject(year, month, day){
+	
+  var plainDate = new Date(year, month - 1, day);
+
+  do {
+    plainDate.setDate(plainDate.getDate() + 1);
+
+  } while (checkIsUSBankingHoliday(plainDate.getFullYear(), plainDate.getMonth() + 1, plainDate.getDate()) != 'undefined');
+
+  return {
+	  string: plainDate.getFullYear() + '-' + ((plainDate.getMonth() + 1) < 10 ? '0' : '') +
+	  (plainDate.getMonth() + 1) + '-' + (plainDate.getDate() < 10 ? '0' : '') + plainDate.getDate(),
+	  
+	  milliseconds: plainDate.valueOf()
+  };
+		
+}
+
+	
+	
 
 // year yyyy, month 1-12, day 1-31
 function checkIsUSBankingHoliday(year, month, day) {
@@ -5560,36 +5700,31 @@ function checkIsUSBankingHoliday(year, month, day) {
     (dateYYYYMMDD == goodFridayAsString(year) ? 'Good Friday' : 'undefined')
   );
 }
+	
 
-// get next non holiday day for a given date as year, month, day
-// year, month 1-12, day 1-31
-function getNextNonUSBankingWorkingDay(year, month, day) {
 
-  var plainDate = new Date(year, month - 1, day);
+// returns Good Friday date as 'yyyy-mm-dd'
+function goodFridayAsString(year) {
+  var daysInMiliseconds = 86400000;
 
-  do {
-    plainDate.setDate(plainDate.getDate() + 1);
+  var excelBaseDate = new Date('1899-12-31T00:00:00Z');
+  var excelAprilFirst = (new Date(year.toString() + '-04-02T00:00:00Z') - excelBaseDate) / daysInMiliseconds;
+  var excelGoodFriday = Math.round((excelAprilFirst) / 7 + myMod(19 * myMod(year, 19) - 7, 30) * 0.14) * 7 - 8;
+  var goodFridayDate = new Date((excelGoodFriday - 1) * daysInMiliseconds + excelBaseDate.getTime());
 
-  } while (checkIsUSBankingHoliday(plainDate.getFullYear(), plainDate.getMonth() + 1, plainDate.getDate()) != 'undefined');
+  var gFMonth = goodFridayDate.getUTCMonth() + 1,
+    gFDate = goodFridayDate.getUTCDate();
 
-  return plainDate.getFullYear() + '-' + ((plainDate.getMonth() + 1) < 10 ? '0' : '') +
-	  (plainDate.getMonth() + 1) + '-' + (plainDate.getDate() < 10 ? '0' : '') + plainDate.getDate();
+  return goodFridayDate.getFullYear() + '-' + (gFMonth < 10 ? '0' : '') + gFMonth + '-' + (gFDate < 10 ? '0' : '') + gFDate;
 }
+	 
 
-// get prior non holiday day for a given date as year, month, day
-// year, month 1-12, day 1-31
-function getPriorNonUSBankingWorkingDay(year, month, day) {
+// calculates mode as excel does
+function myMod(n, d) {
+  return (n - d * Math.floor(n / d));
 
-  var plainDate = new Date(year, month - 1, day);
-
-  do {
-    plainDate.setDate(plainDate.getDate() - 1);
-
-  } while (checkIsUSBankingHoliday(plainDate.getFullYear(), plainDate.getMonth() + 1, plainDate.getDate()) != 'undefined');
-
-  return plainDate.getFullYear() + '-' + ((plainDate.getMonth() + 1) < 10 ? '0' : '') +
-	  (plainDate.getMonth() + 1) + '-' + (plainDate.getDate() < 10 ? '0' : '') + plainDate.getDate();
-}
+}	
+	
 
 // given a date as text, returns object with period limits as Date()
 // a data would be within the limits if 
