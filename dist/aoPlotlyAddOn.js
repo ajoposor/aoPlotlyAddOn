@@ -3,12 +3,15 @@
 //I recommend this
  'use strict';
  function defineLibrary(){
-  
+ 
  var aoPlotlyAddOn = {};    
 
-// set DEBUG option (for display of console.log messages)
+// set DEBUG && OTHER_DEBUGS option (for display of console.log messages)
 // console.log will also be removed with closure compiler	 
 var DEBUG = false;
+var DEBUG_TIMES = false;
+var OTHER_DEBUGS = false;
+var DEBUG_TRANSFORM_BY_FREQUENCIES = false;
 	 
 
     
@@ -26,7 +29,9 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 ) {
 	
 
-		
+	DEBUG && DEBUG_TIMES && console.time("TIME: newTimeseriesPlot");
+	DEBUG && DEBUG_TIMES && console.time("TIME: initialSettingsBeforeReadData");
+	
 	// test arguments are passed complete	
 	if (arguments.length < 3) {
 		return "incomplete arguments";
@@ -41,6 +46,10 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		opacity: 1
 	};
 	
+	var loaderInitialStylingUrl = 
+	    "url('https://raw.githubusercontent.com/ajoposor/Images/master/files/loader_big_blue.gif')"+
+	    "50% 50% no-repeat #FFFFFF";
+	
 	var loaderInitialStyling = {
 		visibility: "visible",
 		position: "fixed",
@@ -48,7 +57,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		top: "0px",
 		width: "100%",
 		height: "100%",
-		background: "url('https://raw.githubusercontent.com/ajoposor/Images/master/files/loader_big_blue.gif') 50% 50% no-repeat #FFFFFF",
+		background: loaderInitialStylingUrl,
 		opacity: 1	
 	};
 	
@@ -175,14 +184,15 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	pressedButtonHoverDefaultStyle.color = "#444444";
 		
 		
-	var fredRecessionsDefaultUrl = "://www.kapitalvalue.com/plots_data/testing/fredRecessions-unlocked.php?observation_start=2015-12-01";
+	var fredRecessionsDefaultUrl = 
+	    "://www.kapitalvalue.com/plots_data/testing/fredRecessions-unlocked.php?observation_start=2015-12-01";
 	
 	if(connectionIsSecure()) {
-		DEBUG && console.log("HTTPS:");
+		DEBUG && OTHER_DEBUGS && console.log("HTTPS:");
 		fredRecessionsDefaultUrl = "https"+fredRecessionsDefaultUrl;
 		
 	} else {
-		DEBUG && console.log("HTTP:");
+		DEBUG && OTHER_DEBUGS && console.log("HTTP:");
 		fredRecessionsDefaultUrl = "http"+fredRecessionsDefaultUrl;
 	}
 
@@ -193,14 +203,18 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		// recession fill color and opacity
 		recessionsFillColor: "#000000",
 		recessionsOpacity: 0.15,
-		// url should return a zip file as provided by fred api for the USRECP serie for dates after 2015, set to "" in parameters passed
+		// url should return a zip file as provided by fred api for the USRECP serie for dates after 2015, 
+		// set to "" in parameters passed
 		// to disable trying to get zip file with update values.
 		newRecessionsUrl: fredRecessionsDefaultUrl,
 		knownRecessionsDates: knownRecessionsDates,
 		queueConcurrencyLimit: 10,
 		allowCompare: false,
 		transformToBaseIndex: false, //series would be transformed to common value of 1 at beginning
-		allowFrequencyResampling: false, // includes buttons to allow for calculation of aggregation and methods (monthly, quarterly), close, average, etc.
+		
+		// includes buttons to allow for calculation of aggregation and methods (monthly, quarterly),
+		// close, average, etc.
+		allowFrequencyResampling: false,
 		targetFrequencyDisplay: "daily",
 		defaultNames: {
 			frequency: "base",
@@ -339,7 +353,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	divInfo.plotDivElement = document.getElementById(divInfo.plotDivID);
 		
 	setElementStyle(divInfo.wholeDivElement, wholeDivInitialStyling);
-	//DEBUG && console.log(divInfo.plotDivElement);
+	//DEBUG && OTHER_DEBUGS && console.log(divInfo.plotDivElement);
 		
 	
 	// create children divs in plot
@@ -350,11 +364,12 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		createElement("div", divInfo.plotlyDivID);	
 			
 	divInfo.plotDivElement.appendChild(divInfo.plotlyDivElement);
-	//DEBUG && console.log("plotlyDivElement",divInfo.plotlyDivElement);
+	//DEBUG && OTHER_DEBUGS && console.log("plotlyDivElement",divInfo.plotlyDivElement);
 		
 	
 	// create footer div in case required to home buttons
-	if(settings.allowCompare || settings.allowLogLinear || settings.allowDownload || settings.allowRealNominal){
+	if(settings.allowCompare || settings.allowLogLinear || 
+	   settings.allowDownload || settings.allowRealNominal){
 		divInfo.footerDivID = divInfo.plotDivID+"_plotlyFooter";
 		divInfo.footerDivElement = 
 			createElement("div", divInfo.footerDivID);			
@@ -364,7 +379,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		divInfo.footerDivElement.style["background-color"] = layout.paper_bgcolor;	
 		
 		//divInfo.footerDivElement = document.getElementById(divInfo.footerDivID);
-		//DEBUG && console.log("footerDivElement",divInfo.footerDivElement);	
+		//DEBUG && OTHER_DEBUGS && console.log("footerDivElement",divInfo.footerDivElement);	
 		
 	}
 	
@@ -384,8 +399,8 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		
 		divInfo.logLinearButtonElement = 
 			createElement("button", divInfo.logLinearButtonID,
-										layout.yaxis.type==="log" ? "log" : "linear",
-										settings.buttonsStyle );
+					layout.yaxis.type==="log" ? "log" : "linear",
+					settings.buttonsStyle );
 		
 		divInfo.logLinearButtonElement.style.marginRight = layout.externalMargin.r+"px";
 
@@ -394,13 +409,13 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		$("#"+divInfo.logLinearButtonID).hover(
 			function(){
 				buttonOnHover($(this),
-											settings.pressedButtonHoverDefaultStyle["background-color"],
-											settings.pressedButtonHoverDefaultStyle.color);
+					settings.pressedButtonHoverDefaultStyle["background-color"],
+					settings.pressedButtonHoverDefaultStyle.color);
         }, 
 			function(){
 				buttonOnHover($(this),
-											settings.pressedButtonDefaultStyle["background-color"],
-											settings.pressedButtonDefaultStyle.color);
+					settings.pressedButtonDefaultStyle["background-color"],
+					settings.pressedButtonDefaultStyle.color);
 
 			}
 		);
@@ -425,7 +440,9 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		divInfo.downloadButtonElement = 
 			createElement("button", divInfo.downloadButtonID,""/*"download"*/, settings.buttonsStyle );
 		divInfo.downloadButtonElement.innerHTML = 
-					'<img src="https://raw.githubusercontent.com/ajoposor/Images/master/files/Download_Arrow_10_Dark.png" />';
+			'<img src="'+
+			'https://raw.githubusercontent.com/ajoposor/Images/master/files/Download_Arrow_10_Dark.png'+
+			'" />';
 		divInfo.downloadButtonElement.style.marginLeft = layout.externalMargin.l+"px";
 
 		divInfo.footerDivElement.appendChild(divInfo.downloadButtonElement);
@@ -433,13 +450,13 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		$("#"+divInfo.downloadButtonID).hover(
 			function(){
 				buttonOnHover($(this),
-											settings.buttonsHoverDefaultStyle["background-color"],
-											settings.buttonsHoverDefaultStyle.color);
+					settings.buttonsHoverDefaultStyle["background-color"],
+					settings.buttonsHoverDefaultStyle.color);
         }, 
 			function(){
 				buttonOnHover($(this),
-											settings.buttonsDefaultStyle["background-color"],
-											settings.buttonsDefaultStyle.color);
+					settings.buttonsDefaultStyle["background-color"],
+					settings.buttonsDefaultStyle.color);
 
 			}
 		);
@@ -510,8 +527,8 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		
 		divInfo.compareButtonElement = 
 			createElement("button", divInfo.compareButtonID,
-										settings.transformToBaseIndex ? "compared":"uncompared",
-										settings.buttonsStyle );
+						settings.transformToBaseIndex ? "compared":"uncompared",
+						settings.buttonsStyle );
 
 		if(!settings.allowDownload && !settings.allowRealNominal){
 			divInfo.compareButtonElement.style.marginLeft = layout.externalMargin.l+"px";
@@ -523,13 +540,13 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		$("#"+divInfo.compareButtonID).hover(
 		function(){
 				buttonOnHover($(this),
-											settings.pressedButtonHoverDefaultStyle["background-color"],
-											settings.pressedButtonHoverDefaultStyle.color);
+						settings.pressedButtonHoverDefaultStyle["background-color"],
+						settings.pressedButtonHoverDefaultStyle.color);
         }, 
 			function(){
 				buttonOnHover($(this),
-											settings.pressedButtonDefaultStyle["background-color"],
-											settings.pressedButtonDefaultStyle.color);
+						settings.pressedButtonDefaultStyle["background-color"],
+						settings.pressedButtonDefaultStyle.color);
 
 			}
 		);
@@ -550,27 +567,34 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		if (curRootClass !== "can-touch"){ //add "can-touch' class if it's not already present
 		    curRootClass = "can-touch";
 		    document.documentElement.classList.add(curRootClass);
-							settings.pressedButtonHoverDefaultStyle["background-color"]=
-								settings.pressedButtonHoverDefaultStyle["touch-background-color"];
+				settings.pressedButtonHoverDefaultStyle["background-color"]=
+				settings.pressedButtonHoverDefaultStyle["touch-background-color"];
 
 
 		}
+
+		//maintain "istouch" state for 500ms so removetouchclass 
+		// doesn't get fired immediately following a touch event
 		isTouchTimer = setTimeout(function(){isTouch = false;}, 500);
-				//maintain "istouch" state for 500ms so removetouchclass doesn't get fired immediately following a touch event
+
 	}
      
 	function removetouchclass(e){
-		if (!isTouch && curRootClass === "can-touch"){ //remove 'can-touch' class if not triggered by a touch event and class is present
-		    isTouch = false;
-		    curRootClass = "";
-		    document.documentElement.classList.remove("can-touch");
-							settings.pressedButtonHoverDefaultStyle["background-color"]=
-								settings.pressedButtonHoverDefaultStyle["mouse-background-color"];
+		if (!isTouch && curRootClass === "can-touch"){ 
+			//remove 'can-touch' class if not triggered by a touch event and class is present
+			isTouch = false;
+			curRootClass = "";
+			document.documentElement.classList.remove("can-touch");
+			settings.pressedButtonHoverDefaultStyle["background-color"]=
+				settings.pressedButtonHoverDefaultStyle["mouse-background-color"];
 		}
 	}
      
-	document.addEventListener("touchstart", addtouchclass, false); //this event only gets called when input type is touch
-	document.addEventListener("mouseover", removetouchclass, false); //this event gets called when input type is everything from touch to mouse/ trackpad
+	 //this event only gets called when input type is touch
+	document.addEventListener("touchstart", addtouchclass, false);
+	
+	//this event gets called when input type is everything from touch to mouse/ trackpad
+	document.addEventListener("mouseover", removetouchclass, false); 
 
 		
 		
@@ -598,9 +622,9 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	// 1.b frequency name is provided but is not in the list, then assigns custon name.
 	if (!propertyInObject(settings.series.baseFrequency, possibleFrequencies)) {
 		
-		//DEBUG && console.log('max char',settings.maxNumberOfCharactersInFrequencyButton);
-		//DEBUG && console.log('settings', settings);
-		//DEBUG && console.log('baseFrequency', settings.series.baseFrequency);
+		//DEBUG && OTHER_DEBUGS && console.log('max char',settings.maxNumberOfCharactersInFrequencyButton);
+		//DEBUG && OTHER_DEBUGS && console.log('settings', settings);
+		//DEBUG && OTHER_DEBUGS && console.log('baseFrequency', settings.series.baseFrequency);
 		
 		if(settings.series.baseFrequency.length>settings.maxNumberOfCharactersInFrequencyButton){
 			settings.series.baseFrequency =
@@ -747,7 +771,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 			frequencyUpdateMenu[1].visible = false;
 			frequencyUpdateMenu[1].type = "buttons";
 			frequencyUpdateMenu[1].showactive  = false;
-			//DEBUG && console.log("case 2a frequency update menu", frequencyUpdateMenu);
+			//DEBUG && OTHER_DEBUGS && console.log("case 2a frequency update menu", frequencyUpdateMenu);
 		}
 
 	}
@@ -759,18 +783,19 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 			if(settings.series.baseAggregationType === "not available"){
 				settings.series.baseAggregation = settings.defaultNames.aggregation;
 				settings.series.baseAggregationLabel = settings.defaultNames.aggregation;
-				settings.series.customAggregation = true;				
+				settings.series.customAggregation = true;
 				singleAggregationButton[0].label = settings.defaultNames.aggregation;
-				singleAggregationButton[0].args[1] = settings.defaultNames.aggregation;				
+				singleAggregationButton[0].args[1] = settings.defaultNames.aggregation;
 			}
 			else{
 				// settings.series.baseAggregation = settings.series.baseAggregation
 				
-				if(settings.series.baseAggregation.length > settings.maxNumberOfCharactersInAggregationButton){
+				if(settings.series.baseAggregation.length > 
+				   settings.maxNumberOfCharactersInAggregationButton){
 					settings.series.baseAggregationLabel = 
 						settings.series.baseAggregation.substring(
 							0,
-							settings.maxNumberOfCharactersInAggregationButton-1)+'.';					
+							settings.maxNumberOfCharactersInAggregationButton-1)+'.';
 				}
 				else{
 					settings.series.baseAggregationLabel =settings.series.baseAggregation;
@@ -778,7 +803,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 				
 				settings.series.customAggregation = true;	
 				singleAggregationButton[0].label = settings.series.baseAggregationLabel;
-				singleAggregationButton[0].args[1] = settings.series.baseAggregationLabel;		
+				singleAggregationButton[0].args[1] = settings.series.baseAggregationLabel;
 			}
 			
 			addButtonsToButtons(singleAggregationButton, combinedAggregationButtons);
@@ -786,11 +811,13 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 			frequencyUpdateMenu[1].buttons = combinedAggregationButtons;
 			frequencyUpdateMenu[1].active = 0;
 			frequencyUpdateMenu[1].type = "dropdown";
-			//DEBUG && console.log("case 2b frequency update menu", frequencyUpdateMenu);
+			//DEBUG && OTHER_DEBUGS && console.log("case 2b frequency update menu", frequencyUpdateMenu);
 			
 		}
 	
 	}
+	
+	var canvas = document.createElement('canvas');
 		
 	//2.c frequency not normal, aggregation custom or normal
 	if(settings.series.baseFrequencyType !== "normal"){
@@ -800,7 +827,8 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 
 				settings.series.baseAggregation = settings.series.baseAggregation;
 
-				if(settings.series.baseAggregation.length > settings.maxNumberOfCharactersInAggregationButton){
+				if(settings.series.baseAggregation.length > 
+				   settings.maxNumberOfCharactersInAggregationButton){
 					
 					settings.series.baseAggregationLabel = 
 					settings.series.baseAggregation.substring(
@@ -813,16 +841,18 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 						
 				}
 
-				//DEBUG && console.log("trimmed aggregation label", settings.series.baseAggregationLabel);
+				//DEBUG && OTHER_DEBUGS && console.log("trimmed aggregation label", 
+				//		settings.series.baseAggregationLabel);
 				settings.series.customAggregation = true;
 				singleAggregationButton[0].label = 
 						fillStringUpTo(
 							settings.series.baseAggregationLabel, 
 							settings.singleButtonStringLengthInPixels,
 							frequencyUpdateMenu[1].font.family,
-							frequencyUpdateMenu[1].font.size
+							frequencyUpdateMenu[1].font.size,
+							canvas
 						);
-				singleAggregationButton[0].args[1] = settings.series.baseAggregation;				
+				singleAggregationButton[0].args[1] = settings.series.baseAggregation;
 				
 			}
 			
@@ -830,7 +860,8 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 			else {
 				
 				settings.series.baseAggregationLabel = 
-					getLabelFromButtonsGivenArg(settings.series.baseAggregation, baseAggregationButtons);
+					getLabelFromButtonsGivenArg(settings.series.baseAggregation,
+								    baseAggregationButtons);
 				
 				settings.series.customAggregation = false;	
 				singleAggregationButton[0].label = 
@@ -838,10 +869,10 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 							settings.series.baseAggregationLabel, 
 							settings.singleButtonStringLengthInPixels,
 							frequencyUpdateMenu[1].font.family,
-							frequencyUpdateMenu[1].font.size
+							frequencyUpdateMenu[1].font.size,
+							canvas
 						);				
-				singleAggregationButton[0].args[1] = settings.series.baseAggregation;						
-				
+				singleAggregationButton[0].args[1] = settings.series.baseAggregation;	
 			}
 			
 			frequencyUpdateMenu[1].buttons = singleAggregationButton;
@@ -857,7 +888,8 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	//2d frenquency and aggregation normal
 	if(settings.series.baseFrequencyType==="normal" && settings.series.baseAggregationType ==="normal"){
 			settings.series.baseAggregation = settings.series.baseAggregation;
-			settings.series.baseAggregationLabel = getLabelFromButtonsGivenArg(settings.series.baseAggregation, baseAggregationButtons);
+			settings.series.baseAggregationLabel = 
+				getLabelFromButtonsGivenArg(settings.series.baseAggregation, baseAggregationButtons);
 			settings.series.customAggregation = false;
 			frequencyUpdateMenu[1].buttons = baseAggregationButtons;
 			frequencyUpdateMenu[1].visible = true;
@@ -867,7 +899,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 					settings.series.baseAggregation,
 					baseAggregationButtons
 				);
-			//DEBUG && console.log("case 2d frequency update menu", frequencyUpdateMenu);
+			//DEBUG && OTHER_DEBUGS && console.log("case 2d frequency update menu", frequencyUpdateMenu);
 		
 	}
 		
@@ -1614,7 +1646,9 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		{
 			name: "logLinear",
 			visible: true,
-			active: settings.yaxisInitialScale === "linear" ? 0 : 1, // which button is active, from the array elements
+			active: settings.yaxisInitialScale === "linear" ? 
+					0 : 
+					1, // which button is active, from the array elements
 			y: 1.14,
 			yanchor: "top",
 			x: 0,
@@ -1701,7 +1735,9 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		settings: settings,
 		timeInfo: timeInfo,
 		usRecessions: usRecessions,
-		selectorOptions: typeof layout.xaxis.rangeselector === "undefined"? selectorOptionsDefaults : layout.xaxis.rangeselector,
+		selectorOptions: typeof layout.xaxis.rangeselector === "undefined"?
+					selectorOptionsDefaults :
+					layout.xaxis.rangeselector,
 		frequencyUpdateMenu: frequencyUpdateMenu,
 		logLinearUpdateMenu: logLinearUpdateMenu,
 		compareUpdateMenu: compareUpdateMenu,
@@ -1712,8 +1748,10 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	/*
 	//Call Read and Make Chart Function
 	readDataAndMakeChart(data, iS, passedParameters, function(message) {
-		DEBUG && console.log(message);
+		DEBUG && OTHER_DEBUGS && console.log(message);
 	});*/
+	
+	DEBUG && DEBUG_TIMES && console.timeEnd("TIME: initialSettingsBeforeReadData");
 	
 	parallelReadDataAndMakeChart(data, passedParameters);
 	
@@ -1737,8 +1775,8 @@ function readDataAndMakeChart(data, iS, param, callback) {
 	
 	else {
 		// once all files all read, i.e. iS === series.length, this section is executed
-		DEBUG && console.log("data: ", data);
-		DEBUG && console.log("param: ", param);
+		DEBUG && OTHER_DEBUGS && console.log("data: ", data);
+		DEBUG && OTHER_DEBUGS && console.log("param: ", param);
 		
 		makeChart(data, param);
 		callback("all read and plotted");
@@ -1752,11 +1790,13 @@ function readDataAndMakeChart(data, iS, param, callback) {
 // FUNCTION TO READ DATA AND THEN MAKE CHART - LOADS IN PARALLEL
 function parallelReadDataAndMakeChart(data, param) {
 	
+	DEBUG && DEBUG_TIMES && console.time("TIME: parallelReadData");
+	
 	// set function to local variable
 	var localParallelReadData = parallelReadData;
 	
 	// define queue and set concurrenty
-	DEBUG && console.log("queueConcurrencyLimit: ", param.settings.queueConcurrencyLimit);
+	DEBUG && OTHER_DEBUGS && console.log("queueConcurrencyLimit: ", param.settings.queueConcurrencyLimit);
 	var plotQueue = d3.queue(param.settings.queueConcurrencyLimit);
 	
 	
@@ -1764,30 +1804,32 @@ function parallelReadDataAndMakeChart(data, param) {
 	var iLimit =param.dataSources.length;
 	
 	for(var i=0; i < iLimit; i++){
-		DEBUG && console.log("add call parallelReadData to defer: ",i);
+		DEBUG && OTHER_DEBUGS && console.log("add call parallelReadData to defer: ",i);
 		plotQueue.defer(localParallelReadData, data, i, param );
 	}
 	
 	
 	// add call update recessions from external source to queue
-	DEBUG && console.log("adding update recessions to queue");
-	DEBUG && console.log("param.settings.newRecessionsUrl",param.settings.newRecessionsUrl);
-	DEBUG && console.log("param.usRecessions",param.usRecessions);
+	DEBUG && OTHER_DEBUGS && console.log("adding update recessions to queue");
+	DEBUG && OTHER_DEBUGS && console.log("param.settings.newRecessionsUrl",param.settings.newRecessionsUrl);
+	DEBUG && OTHER_DEBUGS && console.log("param.usRecessions",param.usRecessions);
 	
 	plotQueue.defer(parallelUpdateRecessions, param.settings.newRecessionsUrl, param.usRecessions);
 	
 	plotQueue.awaitAll(function(error){
 		if(error){
-			DEBUG && console.log("plotQueu await threw error");
-			DEBUG && console.log("the error is", error);
+			DEBUG && OTHER_DEBUGS && console.log("plotQueu await threw error");
+			DEBUG && OTHER_DEBUGS && console.log("the error is", error);
 			//display blank plot
 		} else {
-			DEBUG && console.log("param.usRecessions.length before calling makeChart: ", param.usRecessions.length);
+			DEBUG && OTHER_DEBUGS && console.log("param.usRecessions.length before calling makeChart: ", 
+					     param.usRecessions.length);
 			// once all files all read, i.e. iS === series.length, this section is executed
-			DEBUG && console.log("data: ", data);
-			DEBUG && console.log("param: ", param);	
+			DEBUG && OTHER_DEBUGS && console.log("data: ", data);
+			DEBUG && OTHER_DEBUGS && console.log("param: ", param);	
+			DEBUG && DEBUG_TIMES && console.timeEnd("TIME: parallelReadData");
 			makeChart(data, param);
-			DEBUG && console.log("allread and ploted");
+			DEBUG && OTHER_DEBUGS && console.log("allread and ploted");
 			
 		}
 		
@@ -1801,8 +1843,8 @@ function parallelReadDataAndMakeChart(data, param) {
 	
 	else {
 		// once all files all read, i.e. iS === series.length, this section is executed
-		DEBUG && console.log("data: ", data);
-		DEBUG && console.log("param: ", param);
+		DEBUG && OTHER_DEBUGS && console.log("data: ", data);
+		DEBUG && OTHER_DEBUGS && console.log("param: ", param);
 		
 		makeChart(data, param);
 		callback("all read and plotted");
@@ -1823,7 +1865,7 @@ function parallelUpdateRecessions(newRecessionsUrl, usRecessions, callback){
 		url: newRecessionsUrl,
 	};
 	
-	DEBUG && console.log("XMLHttpRequestOptions", fredZipXMLHttpRequestOptions);
+	DEBUG && OTHER_DEBUGS && console.log("XMLHttpRequestOptions", fredZipXMLHttpRequestOptions);
 	
 	if(fredZipXMLHttpRequestOptions.url !== ""){
 		
@@ -1835,7 +1877,7 @@ function parallelUpdateRecessions(newRecessionsUrl, usRecessions, callback){
 		}
 		
 		
-		DEBUG && console.log("calling wrappedDirectXMLHttpRequest");
+		DEBUG && OTHER_DEBUGS && console.log("calling wrappedDirectXMLHttpRequest");
 		
 		wrappedDirectXMLHttpRequest(fredZipXMLHttpRequestOptions,  myCallBackFredZip(usRecessions), callback);
 		//}(fredZipXMLHttpRequestOptions, myCallBackFredZip(usRecessions)); 
@@ -1856,7 +1898,7 @@ function updateRecessions(newRecessionsUrl, usRecessions){
 		url: settings.newRecessionsUrl,
 	};
 	
-	DEBUG && console.log("XMLHttpRequestOptions", fredZipXMLHttpRequestOptions);
+	DEBUG && OTHER_DEBUGS && console.log("XMLHttpRequestOptions", fredZipXMLHttpRequestOptions);
 	
 	if(fredZipXMLHttpRequestOptions.url !== ""){
 		
@@ -1887,11 +1929,11 @@ function readData(data, iS, param, callback) {
 	
 	if (urlType === "csv") {
 		Plotly.d3.csv(url, function(readData) {
-			DEBUG && console.log("csv", iS.value);
-			DEBUG && console.log("readData", readData);
+			DEBUG && OTHER_DEBUGS && console.log("csv", iS.value);
+			DEBUG && OTHER_DEBUGS && console.log("readData", readData);
 			/*if(iS.value ===0){
 				for(var y=0; y<readData.length; y++){
-					DEBUG && console.log(readData[y]);
+					DEBUG && OTHER_DEBUGS && console.log(readData[y]);
 				}
 			}*/
 			processCsvData(
@@ -1901,14 +1943,14 @@ function readData(data, iS, param, callback) {
 				param.otherDataProperties,
 				param.dataSources[iS.value]
 				);
-			DEBUG && console.log("processCsvData finished");
+			DEBUG && OTHER_DEBUGS && console.log("processCsvData finished");
 			iS.value++;
 			readData="";
 			readDataAndMakeChart(data, iS, param, callback);
 		});
 	} 
 	else if (urlType === "arrayOfJsons") {
-		DEBUG && console.log("arrayOfJsons", iS.value);
+		DEBUG && OTHER_DEBUGS && console.log("arrayOfJsons", iS.value);
 		processCsvData(
 			param.dataSources[iS.value].arrayOfJsons, 
 			data,
@@ -1937,7 +1979,7 @@ function readData(data, iS, param, callback) {
 		});
 	}   
 	else if ( urlType === "yqlGoogleCSV") {
-		DEBUG && console.log("Googlecsv", iS.value);
+		DEBUG && OTHER_DEBUGS && console.log("Googlecsv", iS.value);
 		Plotly.d3.json("https://query.yahooapis.com/v1/public/yql?q="+
 			encodeURIComponent("SELECT * from csv where url='"+url+"'")+
 			"&format=json", 				
@@ -1992,10 +2034,13 @@ function parallelReadData(data, i, param, callback) {
 	var yqlGoogleCSVUrl = "";
 	
 	if (urlType === "csv") {
+		DEBUG && DEBUG_TIMES && console.time("Time Read File "+i)
 		Plotly.d3.csv(url, function(err, readData) {
-			DEBUG && console.log("csv", i);
+			DEBUG && OTHER_DEBUGS && console.log("csv", i);
 			if(!err){
-				DEBUG && console.log("readData", readData);
+				DEBUG && OTHER_DEBUGS && console.log("readData", readData);
+				DEBUG && DEBUG_TIMES && console.timeEnd("Time Read File "+i)
+				DEBUG && DEBUG_TIMES && console.time("Time ProcessCsvData "+i)
 				processCsvData(
 					readData, 
 					data,
@@ -2003,9 +2048,10 @@ function parallelReadData(data, i, param, callback) {
 					param.otherDataProperties,
 					param.dataSources[i]
 					);
-				DEBUG && console.log("processCsvData",i,"finished");
+				DEBUG && DEBUG_TIMES && console.timeEnd("Time ProcessCsvData "+i)
+				DEBUG && OTHER_DEBUGS && console.log("processCsvData",i,"finished");
 			} else {
-				DEBUG && console.log("error reading CsvData",i);
+				DEBUG && OTHER_DEBUGS && console.log("error reading CsvData",i);
 			}		
 			readData="";
 			callback(null);
@@ -2013,7 +2059,7 @@ function parallelReadData(data, i, param, callback) {
 		});
 	} 
 	else if (urlType === "arrayOfJsons") {
-		DEBUG && console.log("arrayOfJsons", i);
+		DEBUG && OTHER_DEBUGS && console.log("arrayOfJsons", i);
 		processCsvData(
 			param.dataSources[i].arrayOfJsons, 
 			data,
@@ -2021,13 +2067,13 @@ function parallelReadData(data, i, param, callback) {
 			param.otherDataProperties,
 			param.dataSources[i]
 			);
-		DEBUG && console.log("process ArrayOfJsons",i,"finished");
+		DEBUG && OTHER_DEBUGS && console.log("process ArrayOfJsons",i,"finished");
 		param.dataSources[i].arrayOfJsons = [];
 		callback(null);
 		//readDataAndMakeChart(data, iS, param, callback);
 	} 
 	else if (urlType === "yqlJson") {
-		DEBUG && console.log("yqlJson", i);
+		DEBUG && OTHER_DEBUGS && console.log("yqlJson", i);
 		Plotly.d3.json(url, function(err, readData) {
 			if(!err){
 				/* Not required, it can be handled with the CSV function, 
@@ -2039,9 +2085,9 @@ function parallelReadData(data, i, param, callback) {
 					param.otherDataProperties,
 					param.dataSources[i]
 					);
-				DEBUG && console.log("process yqlJson",i,"finished");
+				DEBUG && OTHER_DEBUGS && console.log("process yqlJson",i,"finished");
 			} else {
-				DEBUG && console.log("error reading yqlJson",i);
+				DEBUG && OTHER_DEBUGS && console.log("error reading yqlJson",i);
 			}
 			readData="";
 			callback(null);
@@ -2049,7 +2095,7 @@ function parallelReadData(data, i, param, callback) {
 		});
 	}   
 	else if ( urlType === "yqlGoogleCSV") {
-		DEBUG && console.log("yqlGoogleCSV", i);
+		DEBUG && OTHER_DEBUGS && console.log("yqlGoogleCSV", i);
 		yqlGoogleCSVUrl = "https://query.yahooapis.com/v1/public/yql?q="+
 			encodeURIComponent("SELECT * from csv where url='"+url+"'")+
 			"&format=json";
@@ -2062,9 +2108,9 @@ function parallelReadData(data, i, param, callback) {
 					param.otherDataProperties,
 					param.dataSources[i]
 				);
-				DEBUG && console.log("process yqlGoogleCSV",i,"finished");
+				DEBUG && OTHER_DEBUGS && console.log("process yqlGoogleCSV",i,"finished");
 			} else {
-				DEBUG && console.log("error reading yqlJson",i);
+				DEBUG && OTHER_DEBUGS && console.log("error reading yqlJson",i);
 			}					
 			readData="";
 			callback(null);
@@ -2072,7 +2118,7 @@ function parallelReadData(data, i, param, callback) {
 		});
   	} 
 	else if (urlType === "pureJson") {
-		DEBUG && console.log("pureJson", i);
+		DEBUG && OTHER_DEBUGS && console.log("pureJson", i);
 		Plotly.d3.json(url, function(err, readData) {
 			if(!err){			
 				processCsvData(
@@ -2082,9 +2128,9 @@ function parallelReadData(data, i, param, callback) {
 					param.otherDataProperties,
 					param.dataSources[i]
 					);
-				DEBUG && console.log("process pureJson",i,"finished");
+				DEBUG && OTHER_DEBUGS && console.log("process pureJson",i,"finished");
 			} else {
-				DEBUG && console.log("error reading yqlJson",i);
+				DEBUG && OTHER_DEBUGS && console.log("error reading yqlJson",i);
 			}				
 			readData="";
 			callback(null);
@@ -2097,7 +2143,7 @@ function parallelReadData(data, i, param, callback) {
 	 
 	 
 	 
-// 2. Process CSVData - support function, reads data and add it to data object, increases global iS variable	     
+// 2. Process CSVData - support function, reads data and add it to data object, increases global iS variable
     
 	    
 	    
@@ -2130,6 +2176,7 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 	var tableParams = {};
 	var adjustFactor = 1.0, adjust="";
 	var calculateAdjustedClose = false;
+	var indexOfYSeriesName;
 	
 	// save function references
 	var localProcessDate = processDate;
@@ -2142,6 +2189,7 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 	var localMyConcat = myConcat;
 	var localFindSpliceInfo = findSpliceInfo;
 	var localGoogleMDYToYMD = GoogleMDYToYMD;
+
 	
 	// number of traces to be read on this data source
 	jLimit = dataSources.traces.length;
@@ -2164,12 +2212,12 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 		initialDateAsDate = new Date(localProcessDate(tracesInitialDate, timeOffsetText));
 	}
 	
-	DEBUG && console.log("initialDateAsDate", initialDateAsDate);
+	DEBUG && OTHER_DEBUGS && console.log("initialDateAsDate", initialDateAsDate);
 	
 		
 	
 	
-	//DEBUG && console.log("allRows: ", allRows);
+	//DEBUG && OTHER_DEBUGS && console.log("allRows: ", allRows);
 	
 	// total rows of csv file loaded
 	// allRows is an array of objects
@@ -2177,33 +2225,33 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 	
 	
 	// Preprocess options for all Rows
-	DEBUG && console.log("start preprocess");
+	DEBUG && OTHER_DEBUGS && console.log("start preprocess");
 	
 	// get number of tables, sort and preprocessing of dates options
 	setTablesParametersSortPreprocessing(tableParams, dataSources);
-	DEBUG && console.log("table params set: ", tableParams);
+	DEBUG && OTHER_DEBUGS && console.log("table params set: ", tableParams);
 
 	// apply date preprocessing options
 	applyDateProprocessing(allRows, tableParams, urlType);
-	DEBUG && console.log("data processing options applied");
-	DEBUG && console.log("allRows",allRows);
+	DEBUG && OTHER_DEBUGS && console.log("data processing options applied");
+	DEBUG && OTHER_DEBUGS && console.log("allRows",allRows);
 
 	// split subtables trim by InitialDateAsDate and reorder by firstItemToRead
 	splitSubtablesAndTrim(allRows, tableParams, dataSources, initialDateAsDate);
-	DEBUG && console.log("tables split, and reordered");
-	DEBUG && console.log("table Params", tableParams);
+	DEBUG && OTHER_DEBUGS && console.log("tables split, and reordered");
+	DEBUG && OTHER_DEBUGS && console.log("table Params", tableParams);
 	allRows = [];
 	
 	
 	// sort subtables
 	sortSubTables(tableParams);
-	DEBUG && console.log("SubTable sorted");
+	DEBUG && OTHER_DEBUGS && console.log("SubTable sorted");
 	
 	
 	// iterate through traces to be loaded
 	for(j=0; j < jLimit; j++){
 		
-		DEBUG && console.log("starting trace: ", j);
+		DEBUG && OTHER_DEBUGS && console.log("starting trace: ", j);
 		
 		// set temporary variable
 		xSeriesName = dataSources.traces[j].xSeriesName;
@@ -2213,13 +2261,13 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 		
 		// get data
 		allRows = tableParams[xSeriesName]["allRows"];
-		DEBUG && console.log("tableParams", tableParams);
-		DEBUG && console.log("allRows from table params", allRows);
+		DEBUG && OTHER_DEBUGS && console.log("tableParams", tableParams);
+		DEBUG && OTHER_DEBUGS && console.log("allRows from table params", allRows);
 
 		
 		// find trace index (position in data array)
 		iData = localFindTraceIdIndex(traceID,otherDataProperties);
-		DEBUG && console.log("iData", iData);
+		DEBUG && OTHER_DEBUGS && console.log("iData", iData);
 		
 		// find weather trace will be added to existing trace
 		insertTrace = false;
@@ -2240,28 +2288,29 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 		readTraceEndIndex = allRows.length === 0 ? 0 : allRows.length-1;
 		readTraceLength = allRows.length;
 		
-		DEBUG && console.log("readTraceInitialIndex ", readTraceInitialIndex);
-		DEBUG && console.log("readTraceEndIndex ", readTraceEndIndex);
-		DEBUG && console.log("xSeriesName: ", xSeriesName);
-		DEBUG && console.log("allRows: ",allRows);
+		DEBUG && OTHER_DEBUGS && console.log("readTraceInitialIndex ", readTraceInitialIndex);
+		DEBUG && OTHER_DEBUGS && console.log("readTraceEndIndex ", readTraceEndIndex);
+		DEBUG && OTHER_DEBUGS && console.log("xSeriesName: ", xSeriesName);
+		DEBUG && OTHER_DEBUGS && console.log("allRows: ",allRows);
 		
 		readTraceEndDateAsDate = new Date(allRows[readTraceInitialIndex][xSeriesName]);
 		readTraceInitialDateAsDate = new Date(allRows[readTraceEndIndex][xSeriesName]);
 		
 		adjust = "none";
 		adjustFactor = 1.0;
+		indexOfYSeriesName =tableParams[xSeriesName]["yNames"].indexOf(ySeriesName);
 		calculateAdjustedClose = 
-			tableParams[xSeriesName]["yCalculateAdjustedClose"][tableParams[xSeriesName]["yNames"].indexOf(ySeriesName)];
+			tableParams[xSeriesName]["yCalculateAdjustedClose"][indexOfYSeriesName];
 		
-		DEBUG && console.log("calculateAdjustedClose", calculateAdjustedClose);
+		DEBUG && OTHER_DEBUGS && console.log("calculateAdjustedClose", calculateAdjustedClose);
 		
 		if(insertTrace){
-			DEBUG && console.log("insert trace");
+			DEBUG && OTHER_DEBUGS && console.log("insert trace");
 			// default insert point
 			insertPoint = 0;
 			
 			readTraceLimit = readTraceLength+readTraceInitialIndex;
-			DEBUG && console.log("readTraceLimit",readTraceLimit);
+			DEBUG && OTHER_DEBUGS && console.log("readTraceLimit",readTraceLimit);
 
 			// get existing data x range
 			existingInitialDateAsDate = new Date(data[iData].x[data[iData].x.length - 1]);
@@ -2269,10 +2318,10 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 			existingInitialValue =data[iData].y[data[iData].x.length - 1];
 			existingEndValue =data[iData].y[0];
 			
-			DEBUG && console.log("existingInitialDateAsDate", existingInitialDateAsDate);
-			DEBUG && console.log("existingEndDateAsDate", existingEndDateAsDate);
-			DEBUG && console.log("existingInitialValue", existingInitialValue);
-			DEBUG && console.log("existingEndValue", existingEndValue);
+			DEBUG && OTHER_DEBUGS && console.log("existingInitialDateAsDate", existingInitialDateAsDate);
+			DEBUG && OTHER_DEBUGS && console.log("existingEndDateAsDate", existingEndDateAsDate);
+			DEBUG && OTHER_DEBUGS && console.log("existingInitialValue", existingInitialValue);
+			DEBUG && OTHER_DEBUGS && console.log("existingEndValue", existingEndValue);
 
 			// find trace range to be read
 
@@ -2308,7 +2357,7 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 
 			// overlap, but new data is older than existing
 			else if (readTraceInitialDateAsDate < existingInitialDateAsDate ) {
-				DEBUG && console.log("overlap, but new data is older than existing");
+				DEBUG && OTHER_DEBUGS && console.log("overlap, but new data is older than existing");
 				for(i=readTraceLimit -1 ; i > readTraceInitialIndex-1; i--){
 					if(new Date(allRows[i][xSeriesName]) >= existingInitialDateAsDate){
 						initialIndex = i+1;
@@ -2335,7 +2384,8 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 		
 				if(calculateAdjustedClose){
 					adjust = "new"; // "new", "existing" or "none"
-					adjustFactor = getAdjustFactor(allRows, xSeriesName, ySeriesName, initialIndex, data[iData], insertPoint);
+					adjustFactor = getAdjustFactor(allRows, xSeriesName, ySeriesName,
+								    initialIndex, data[iData], insertPoint);
 				}
 
 			}
@@ -2372,7 +2422,7 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 
 		
 		// just fill in processed dates
-		DEBUG && console.log("fill processed dates");
+		DEBUG && OTHER_DEBUGS && console.log("fill processed dates");
 		for(k=0, i=initialIndex; k < kLimit ; i++, k++){ 
 			processedDate = allRows[i][xSeriesName];
 			if (
@@ -2394,7 +2444,7 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 			x.length = readItems;
 			y.length = readItems;
 		}
-		DEBUG && console.log("excess points removed");
+		DEBUG && OTHER_DEBUGS && console.log("excess points removed");
 		
 		
 		// create x and y properties if not yet defined for current trace
@@ -2443,7 +2493,7 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
   
 	    
 	    
-/* Not required, it can be handled with the CSV function, set xSeriesName to date and ySeriesName to value	    
+/* Not required, it can be handled with the CSV function, set xSeriesName to date and ySeriesName to value
 function processJsonData(jsonData, tracesInitialDate, serie) {
 	var x = [], y = [], trace = {}; //[];
 	var initialDateAsDate = new Date("0001-01-01");
@@ -2461,7 +2511,7 @@ function processJsonData(jsonData, tracesInitialDate, serie) {
 			readFlag = true;
 
 			for (i = 0; i < jsonData.count; i++) {
-				processedDate = processDate(jsonData.observations[i].date+ serie.xDateSuffix,timeOffsetText);	
+				processedDate = processDate(jsonData.observations[i].date+ serie.xDateSuffix,timeOffsetText);
 				processedDate = changeDateToEndOfMonth(processedDate);
 
 				if (
@@ -2478,7 +2528,7 @@ function processJsonData(jsonData, tracesInitialDate, serie) {
 	if(!readFlag){
 		readFlag = true;
 		for (i = 0; i < jsonData.count; i++) {
-			processedDate = processDate(jsonData.observations[i].date+ serie.xDateSuffix,timeOffsetText);	
+			processedDate = processDate(jsonData.observations[i].date+ serie.xDateSuffix,timeOffsetText);
 
 			if (
 				tracesInitialDate === "" ||
@@ -2535,18 +2585,18 @@ function processYqlGoogleCsvData(allRows, tracesInitialDate, serie) {
 	if(typeof serie.postProcessData !== "undefined"){
 		if(serie.postProcessData === "end of month"){
 			readFlag = true;
-			//DEBUG && console.log(allRows.length);
-			//DEBUG && console.log("allRows",allRows);
-			//DEBUG && console.log("initialDateAsDate",initialDateAsDate);
-			//DEBUG && console.log("tracesInitialDate",tracesInitialDate);
-			//DEBUG && console.log(serie);
+			//DEBUG && OTHER_DEBUGS && console.log(allRows.length);
+			//DEBUG && OTHER_DEBUGS && console.log("allRows",allRows);
+			//DEBUG && OTHER_DEBUGS && console.log("initialDateAsDate",initialDateAsDate);
+			//DEBUG && OTHER_DEBUGS && console.log("tracesInitialDate",tracesInitialDate);
+			//DEBUG && OTHER_DEBUGS && console.log(serie);
 			
 			for (i = 1; i < allRows.length; i++) {
 				row = allRows[i];
 				processedDate = processDate(GoogleMDYToYMD(row[xTag]) + serie.xDateSuffix, timeOffsetText);
-				//DEBUG && console.log("processedDate",processedDate);
+				//DEBUG && OTHER_DEBUGS && console.log("processedDate",processedDate);
 				processedDate = changeDateToEndOfMonth(processedDate);
-				//DEBUG && console.log("processedDate",processedDate);
+				//DEBUG && OTHER_DEBUGS && console.log("processedDate",processedDate);
 				if (
 					tracesInitialDate === "" ||
 					new Date(processedDate) >= initialDateAsDate
@@ -2563,9 +2613,9 @@ function processYqlGoogleCsvData(allRows, tracesInitialDate, serie) {
 		readFlag = true;
 		for (i = 1; i < allRows.length; i++) {
 			row = allRows[i];
-			//DEBUG && console.log("row",row);
+			//DEBUG && OTHER_DEBUGS && console.log("row",row);
 			processedDate = processDate(GoogleMDYToYMD(row[xTag]) + serie.xDateSuffix, timeOffsetText);
-			//DEBUG && console.log("processedDate",processedDate);
+			//DEBUG && OTHER_DEBUGS && console.log("processedDate",processedDate);
 
 			if (
 				tracesInitialDate === "" ||
@@ -2606,7 +2656,8 @@ function processDirectData(tracesInitialDate, serie) {
 			readFlag = true;
 
 			for (i = 0; i < serie.traceAttributes.x.length; i++) {
-				processedDate = processDate("" + serie.traceAttributes.x[i] + serie.xDateSuffix, timeOffsetText);			
+				processedDate = processDate("" + serie.traceAttributes.x[i] + serie.xDateSuffix, 
+						timeOffsetText);
 				processedDate = changeDateToEndOfMonth(processedDate);
 
 				if (
@@ -2621,14 +2672,17 @@ function processDirectData(tracesInitialDate, serie) {
 	}		
 	
 	if(!readFlag){
+	
 			readFlag = true;
 
 			for (i = 0; i < serie.traceAttributes.x.length; i++) {
-				processedDate = processDate("" + serie.traceAttributes.x[i] + serie.xDateSuffix, timeOffsetText);			
-
+			
+				processedDate = processDate(
+						"" + serie.traceAttributes.x[i] + serie.xDateSuffix, 
+						timeOffsetText);
 				if (
 					tracesInitialDate === "" ||
-					new Date(processedDate) >= 	initialDateAsDate
+					new Date(processedDate) >=  initialDateAsDate
 				) {
 					x.push(processedDate);
 					y.push(serie.traceAttributes.y[i]);
@@ -2643,15 +2697,15 @@ function processDirectData(tracesInitialDate, serie) {
 	return trace;
 }*/
 
-	 
-	 
+ 
+ 
 
-	 
-	 
-	 
-	 
-	 
-	 
+
+ 
+ 
+ 
+
+ 
 /**
 *
 * makeChart does 
@@ -2663,7 +2717,9 @@ function processDirectData(tracesInitialDate, serie) {
 */
 function makeChart(data, param){
 	
-	//DEBUG && console.log("issue #1");
+	DEBUG && DEBUG_TIMES && console.time("TIME: makeChart");
+	
+	//DEBUG && OTHER_DEBUGS && console.log("issue #1");
 
 	// variable definitions
 	var x0 = "2000-01-01",
@@ -2704,7 +2760,7 @@ function makeChart(data, param){
 	divInfo = param.divInfo;
 	otherDataProperties = param.otherDataProperties;
 
-	//DEBUG && console.log("settings", settings);
+	//DEBUG && OTHER_DEBUGS && console.log("settings", settings);
 
 	originalLayout.yaxis.hoverformat = layout.yaxis.hoverformat;
 	originalLayout.yaxis.type = layout.yaxis.type;
@@ -2713,10 +2769,12 @@ function makeChart(data, param){
 	}
 
 	// SAVE ORIGINAL DATA
+	DEBUG && DEBUG_TIMES && console.time("TIME: Save Original Data");
 	saveDataXYIntoPropertyXY(data, "xOriginal", "yOriginal");
-	//DEBUG && console.log("original data saved");
+	DEBUG && DEBUG_TIMES && console.timeEnd("TIME: Save Original Data");
+	//DEBUG && OTHER_DEBUGS && console.log("original data saved");
 
-	//DEBUG && console.log("tracesInitialDate", tracesInitialDate);
+	//DEBUG && OTHER_DEBUGS && console.log("tracesInitialDate", tracesInitialDate);
 
 	// HTML VARIABLES AND SETTINGS
 	var defaultDivHeight = "460px";
@@ -2731,7 +2789,7 @@ function makeChart(data, param){
 
 	var divHeightInStyle = divInfo.plotDivElement.style.height;
 	var divWidthInStyle = divInfo.plotDivElement.style.width;
-	//DEBUG && console.log("divHeightInStyle", divHeightInStyle);
+	//DEBUG && OTHER_DEBUGS && console.log("divHeightInStyle", divHeightInStyle);
 
 	divInfo.plotDivElement.style.width =  
 		divWidthInStyle === "" ? defaultDivWidth : divWidthInStyle;
@@ -2743,13 +2801,13 @@ function makeChart(data, param){
 	if(settings.allowCompare || settings.allowLogLinear || settings.allowDownload){
 		divInfo.footerDivElement.style.width = myPlot.style.width;
 		divInfo.footerDivElement.style.height = "23px";
-		//DEBUG && console.log("plotDivElement height",divInfo.plotDivElement.style.height);
+		//DEBUG && OTHER_DEBUGS && console.log("plotDivElement height",divInfo.plotDivElement.style.height);
 
 		myPlot.style.height =  ""+
 			(numberExPx(divInfo.plotDivElement.style.height) - 
 			numberExPx(divInfo.footerDivElement.style.height))+"px";
 
-		//DEBUG && console.log("myPlot height",myPlot.style.height);
+		//DEBUG && OTHER_DEBUGS && console.log("myPlot height",myPlot.style.height);
 	}
 	else{
 		myPlot.style.height = 
@@ -2757,7 +2815,7 @@ function makeChart(data, param){
 	}
 
 
-	//DEBUG && console.log("myPlot", myPlot);
+	//DEBUG && OTHER_DEBUGS && console.log("myPlot", myPlot);
 
 	var currentFrequency = settings.series.baseFrequency;
 	var currentAggregation = settings.series.baseAggregation;
@@ -2770,9 +2828,9 @@ function makeChart(data, param){
 			if (settings.changeFrequencyAggregationTo.frequency !== currentFrequency) {
 				// Original data already saved
 
-				//DEBUG && console.log('settings.changeFrequencyAggregationTo.frequency',
-				//						settings.changeFrequencyAggregationTo.frequency);
-				//DEBUG && console.log('currentFrequency',currentFrequency);
+				//DEBUG && OTHER_DEBUGS && console.log('settings.changeFrequencyAggregationTo.frequency',
+				// settings.changeFrequencyAggregationTo.frequency);
+				//DEBUG && OTHER_DEBUGS && console.log('currentFrequency',currentFrequency);
 				//PENDING
 				//PENDING
 				//PENDING
@@ -2791,12 +2849,14 @@ function makeChart(data, param){
 
 	// this section finds the x range for the traces (which is already trimmed by tracesInitialDate)
 	// range required in order to set the recession shapes.
+	DEBUG && DEBUG_TIMES && console.time("getDataXminXmaxAsString");
 	var minMaxDatesAsString = getDataXminXmaxAsString(data);
-	//DEBUG && console.log(minMaxDatesAsString);
-	minDateAsString = makeDateComplete(minMaxDatesAsString[0]);
-	maxDateAsString = makeDateComplete(minMaxDatesAsString[1]);
+	DEBUG && DEBUG_TIMES && console.timeEnd("getDataXminXmaxAsString");
+	//DEBUG && OTHER_DEBUGS && console.log(minMaxDatesAsString);
+	minDateAsString = minMaxDatesAsString.min;
+	maxDateAsString = minMaxDatesAsString.max;
 
-	//DEBUG && console.log("minMaxDates", minMaxDatesAsString);
+	//DEBUG && OTHER_DEBUGS && console.log("minMaxDates", minMaxDatesAsString);
 
 	// load recession shapes for the traces' x range
 	if (settings.displayRecessions) {
@@ -2806,7 +2866,7 @@ function makeChart(data, param){
 			maxDateAsString
 		);
 	}
-	//DEBUG && console.log("recessions loaded");
+	//DEBUG && OTHER_DEBUGS && console.log("recessions loaded");
 
 	// X AXIS RANGE SETTINGS
 	var xaxisRangeAsString = setDatesRangeAsString(
@@ -2814,9 +2874,9 @@ function makeChart(data, param){
 		maxDateAsString,
 		timeInfo
 	);
-	//DEBUG && console.log("xaxis range settings done");
+	//DEBUG && OTHER_DEBUGS && console.log("xaxis range settings done");
 
-	//DEBUG && console.log("xaxisRange", xaxisRangeAsString);
+	//DEBUG && OTHER_DEBUGS && console.log("xaxisRange", xaxisRangeAsString);
 
 	var initialDate = xaxisRangeAsString[0];
 	var endDate = xaxisRangeAsString[1];
@@ -2829,28 +2889,36 @@ function makeChart(data, param){
 
 	// set default left/right margins if not set
 	setLeftRightMarginDefault(layout, 15, 35);
-
+	
+	var canvas = document.createElement('canvas');
+	var textAndSpaceToTextRatio = settings.textAndSpaceToTextRatio;
+	var xaxisFontFamily=layout.xaxis.tickfont.family;
+	var xaxisFontSize=layout.xaxis.tickfont.size;
+	var layoutMarginL=layout.margin.l;
+	var layoutMarginR=layout.margin.r;
+	
+	DEBUG && DEBUG_TIMES && console.time("TIME: ticktextAndTickvals");
+ 
 	// get ticktext and tickvals based on width and parameters
 	var ticktextAndTickvals = aoPlotlyAddOn.getTicktextAndTickvals(
 		initialDate,
 		endDate,
-		settings.textAndSpaceToTextRatio,
+		textAndSpaceToTextRatio,
 		currentFrequency,
-		layout.xaxis.tickfont.family,
-		layout.xaxis.tickfont.size,
+		xaxisFontFamily,
+		xaxisFontSize,
 		divWidth,
-		layout.margin.l,
-		layout.margin.r
+		layoutMarginL,
+		layoutMarginR,
+		canvas
 	);
-	DEBUG && console.log("tick vals and text done");
+	DEBUG && DEBUG_TIMES && console.timeEnd("TIME: ticktextAndTickvals");
 
 	// set layout ticktext and tickvals
 	layout.xaxis.ticktext = ticktextAndTickvals.ticktext;
 	layout.xaxis.tickvals = ticktextAndTickvals.tickvals;
 
 	var baseIndexDate = initialDate; //If traces are to be converted to index=1 at at certain date
-
-
 
 	// variable will contain all updatemenus to be used,
 	var updateMenus = []; // variable to put all updateMenus.
@@ -2861,16 +2929,18 @@ function makeChart(data, param){
 
 		addToUpdateMenus(param.frequencyUpdateMenu, updateMenus, layout);
 		if (!frequenciesDataCreated) {
-			aoPlotlyAddOn.transformSeriesByFrequencies(
+			DEBUG && DEBUG_TIMES && console.time("TIME: transformSeriesByFrequencies");
+			transformSeriesByFrequenciesNew(
 				data,
 				settings.periodKeys,
 				settings.endOfWeek
 			);
-			//DEBUG && console.log("transformed by frequencies");
+			//DEBUG && DEBUG_TIMES && console.log("data", data);
+			DEBUG && DEBUG_TIMES && console.timeEnd("TIME: transformSeriesByFrequencies");
 			frequenciesDataCreated = true;
-			processFrequenciesDates(data, settings.periodKeys);	
-			//DEBUG && console.log("dates processed");
-			//DEBUG && console.log("data", data.day);
+			DEBUG && DEBUG_TIMES && console.time("TIME: processFrequenciesDates");
+			processFrequenciesDates(data, settings.periodKeys);
+			DEBUG && DEBUG_TIMES && console.timeEnd("TIME: processFrequenciesDates");
 		}
 	}
 
@@ -2878,9 +2948,7 @@ function makeChart(data, param){
 	// loads log, linear updateMenuButtons,
 	if (settings.allowLogLinear) {
 
-
 		// set functionality to log/linear button
-
 		divInfo.logLinearButtonElement.addEventListener('click', function() {
 
 			Plotly.relayout(divInfo.plotlyDivElement, 
@@ -2890,7 +2958,6 @@ function makeChart(data, param){
 
 		}, false);
 
-
 	}
 
 
@@ -2899,7 +2966,7 @@ function makeChart(data, param){
 	if (settings.allowRealNominal) {
 
 		divInfo.realNominalButtonElement.addEventListener('click', function() {
-			//DEBUG && console.log("transform To Real",transformToReal);
+			//DEBUG && OTHER_DEBUGS && console.log("transform To Real",transformToReal);
 			Plotly.relayout(
 				divInfo.plotlyDivElement,
 				{
@@ -2915,12 +2982,12 @@ function makeChart(data, param){
 	// map index to x's
 	var iDeflactor = getIDeflactor(otherDataProperties);
 	
-	//DEBUG && console.log("iDeflactor",iDeflactor);
+	//DEBUG && OTHER_DEBUGS && console.log("iDeflactor",iDeflactor);
 
 	deflactorValuesCreated = createIndexMap(data, deflactorDictionary, settings.periodKeys, iDeflactor);
 
-	//DEBUG && console.log("deflactor map created");
-	//DEBUG && console.log("deflactorDictionary",deflactorDictionary);
+	//DEBUG && OTHER_DEBUGS && console.log("deflactor map created");
+	//DEBUG && OTHER_DEBUGS && console.log("deflactorDictionary",deflactorDictionary);
 
 	if(typeof settings.initialRealNominal !== "undefined"){
 
@@ -2936,18 +3003,20 @@ function makeChart(data, param){
 	// transform yvalues to real for those to which applies
 	if (transformToReal) {
 
-		//DEBUG && console.log("PENDING - InitialprepareTransformToReal");
+		//DEBUG && OTHER_DEBUGS && console.log("PENDING - InitialprepareTransformToReal");
 
 		// determine base date
-		/* could be "end of range", "end of domain", "beggining of range", beggining of domain", or a date "yyyy-mm-dd hh:mm:ss.sss-04:00"*/
-		baseRealNominalDate = setBaseRealNominalDateAsString(settings.baseRealDate, 
-								 layout.xaxis.range[0],
-								 layout.xaxis.range[1],
-								 minDateAsString,
-								 maxDateAsString
-								);
+		/* could be "end of range", "end of domain", "beggining of range", beggining of domain",
+		or a date "yyyy-mm-dd hh:mm:ss.sss-04:00"*/
+		baseRealNominalDate = setBaseRealNominalDateAsString(
+							settings.baseRealDate, 
+							layout.xaxis.range[0],
+							layout.xaxis.range[1],
+							minDateAsString,
+							maxDateAsString
+							);
 
-		//DEBUG && console.log("baseRealNominalDate",baseRealNominalDate);
+		//DEBUG && OTHER_DEBUGS && console.log("baseRealNominalDate",baseRealNominalDate);
 
 		setDeflactorDictionaryAtDate(baseRealNominalDate, deflactorDictionary, data[iDeflactor], 0);
 
@@ -2963,8 +3032,8 @@ function makeChart(data, param){
 
 
 	}
-	DEBUG && console.log("data as real passed");
-	//DEBUG && console.log("data as real",data);
+	DEBUG && OTHER_DEBUGS && console.log("data as real passed");
+	//DEBUG && OTHER_DEBUGS && console.log("data as real",data);
 
 
 
@@ -2988,14 +3057,14 @@ function makeChart(data, param){
 			settings.series.baseAggregation
 		);
 
-		//DEBUG && console.log("compared");
+		//DEBUG && OTHER_DEBUGS && console.log("compared");
 	}
 
 	// add functionality to  compare button
 	if (settings.allowCompare) {
 
 		divInfo.compareButtonElement.addEventListener('click', function() {
-			//DEBUG && console.log("transformToBaseIndex",transformToBaseIndex);
+			//DEBUG && OTHER_DEBUGS && console.log("transformToBaseIndex",transformToBaseIndex);
 			Plotly.relayout(
 				divInfo.plotlyDivElement,
 				{
@@ -3007,15 +3076,19 @@ function makeChart(data, param){
 		//addToUpdateMenus(param.compareUpdateMenu, updateMenus, layout);
 	}
 
-	DEBUG && console.log("allow compare functionality added");
+	DEBUG && OTHER_DEBUGS && console.log("allow compare functionality added");
 
 
 	// set y axis range
-	setYAxisRange(layout, data, settings.numberOfIntervalsInYAxis, settings.possibleYTickMultiples, settings.rangeProportion);
-	//DEBUG && console.log("y axis range set");
+	setYAxisRange(layout,
+		      data, 
+		      settings.numberOfIntervalsInYAxis, 
+		      settings.possibleYTickMultiples, 
+		      settings.rangeProportion);
+	//DEBUG && OTHER_DEBUGS && console.log("y axis range set");
 
-	//DEBUG && console.log("baseIndexDate", baseIndexDate);
-	//DEBUG && console.log("initialDate", initialDate);
+	//DEBUG && OTHER_DEBUGS && console.log("baseIndexDate", baseIndexDate);
+	//DEBUG && OTHER_DEBUGS && console.log("initialDate", initialDate);
 
 	// set initial background to log, linear buttons
 
@@ -3043,31 +3116,31 @@ function makeChart(data, param){
 		layout.xaxis.rangeselector = param.selectorOptions;
 		setNewXToRangeSelector(divWidth, layout);
 	}
-	DEBUG && console.log("selector options loaded");
+	DEBUG && OTHER_DEBUGS && console.log("selector options loaded");
 
-	//DEBUG && console.log("myPlot", myPlot);
-	//DEBUG && console.log("layout", layout);
-	//DEBUG && console.log(param.displayOptions);
+	//DEBUG && OTHER_DEBUGS && console.log("myPlot", myPlot);
+	//DEBUG && OTHER_DEBUGS && console.log("layout", layout);
+	//DEBUG && OTHER_DEBUGS && console.log(param.displayOptions);
 
 	// make initial plot
+	DEBUG && DEBUG_TIMES && console.time("TIME: Execute Plotly.newPlot");
 	Plotly.newPlot(myPlot, data, layout, options).then(function() {
 		wholeDivShow(param.divInfo.wholeDivElement);
 		loaderHide(param.divInfo.loaderElement);
+		DEBUG && DEBUG_TIMES && console.timeEnd("TIME: Execute Plotly.newPlot");
 	});
-
-
 
 
 	//instruction resizes plot
 	window.addEventListener("resize", function() {
-		Plotly.Plots.resize(document.getElementById(divInfo.plotlyDivID));
+		Plotly.Plots.resize(myPlot);
 	});
 
 
 
 
 
-	DEBUG && console.log("start relayout handler");
+	DEBUG && OTHER_DEBUGS && console.log("start relayout handler");
 
 
 	// UPDATE PLOT UNDER RELAYOUT EVENTS
@@ -3077,13 +3150,15 @@ function makeChart(data, param){
 
 
 	myPlot.on("plotly_relayout", function(relayoutData) {
+		DEBUG && DEBUG_TIMES && console.time("TIME: relayout");
 		//myPlot.addEventListener('plotly_relayout', function(relayoutData) {
-		//DEBUG && console.log("relayout en myPlot.on", isUnderRelayout);
-		//DEBUG && console.log("relayoutData",relayoutData);
-		//DEBUG && console.log("layout",layout);
+		//DEBUG && OTHER_DEBUGS && console.log("relayout en myPlot.on", isUnderRelayout);
+		//DEBUG && OTHER_DEBUGS && console.log("relayoutData",relayoutData);
+		//DEBUG && OTHER_DEBUGS && console.log("layout",layout);
 
 
-		// CASE 1. case relayout is autosize, in which case, the updatemenu buttons for frequencies and the x axis labels have to be redefined
+		// CASE 1. case relayout is autosize, in which case, the updatemenu buttons for frequencies and
+		//the x axis labels have to be redefined
 		if (relayoutData.autosize === true) {
 			// adjust frequency updatemenu buttons
 			divWidth = jQuery(myPlot).width();
@@ -3102,18 +3177,19 @@ function makeChart(data, param){
 					relayoutUpdateArgs["updatemenus["+index+"].x"] = newX;
 
 
-					if(layout.updatemenus[findIndexOfMenu(layout.updatemenus,"aggregation")].visible === true){
+					if(layout.updatemenus[findIndexOfMenu(layout.updatemenus,"aggregation")].visible){
 						index = findIndexOfMenu(layout.updatemenus,"frequencies" );
 						relayoutUpdateArgs["updatemenus["+index+"].x"] = newX;
 
 						index = findIndexOfMenu(layout.updatemenus,"aggregation" );
-						relayoutUpdateArgs["updatemenus["+index+"].x"] = xOfRightItems(divWidth, layout);
+						relayoutUpdateArgs["updatemenus["+index+"].x"] = 
+							xOfRightItems(divWidth, layout);
 
 					}
 					else{
 						index = findIndexOfMenu(layout.updatemenus,"frequencies" );
-						relayoutUpdateArgs["updatemenus["+index+"].x"] = xOfRightItems(divWidth, layout);	
-
+						relayoutUpdateArgs["updatemenus["+index+"].x"] = 
+							xOfRightItems(divWidth, layout);
 					}
 
 				}
@@ -3123,26 +3199,27 @@ function makeChart(data, param){
 					relayoutUpdateArgs["xaxis.rangeselector.x"] = newX;
 				}
 
-				//DEBUG && console.log('relayoutUpdateArgs after new index', relayoutUpdateArgs);
+				//DEBUG && OTHER_DEBUGS && console.log('relayoutUpdateArgs after new index', relayoutUpdateArgs);
 
 				// get ticktext and tickvals based on width and parameters
 				ticktextAndTickvals = aoPlotlyAddOn.getTicktextAndTickvals(
 					initialDate,
 					endDate,
-					settings.textAndSpaceToTextRatio,
+					textAndSpaceToTextRatio,
 					currentFrequency,
-					layout.xaxis.tickfont.family,
-					layout.xaxis.tickfont.size,
+					xaxisFontFamily,
+					xaxisFontSize,
 					divWidth,
-					layout.margin.l,
-					layout.margin.r
+					layoutMarginL,
+					layoutMarginR,
+					canvas
 				);
 
 				// set layout ticktext and tickvals
 				relayoutUpdateArgs["xaxis.tickvals"] = ticktextAndTickvals.tickvals;
 				relayoutUpdateArgs["xaxis.ticktext"] = ticktextAndTickvals.ticktext;
 
-				//DEBUG && console.log('relayoutUpdateArgs in case 1, autosize', relayoutUpdateArgs);
+				//DEBUG && OTHER_DEBUGS && console.log('relayoutUpdateArgs in case 1, autosize', relayoutUpdateArgs);
 
 				Plotly.relayout(myPlot, relayoutUpdateArgs);
 				//.then(() => { isUnderRelayout = false })
@@ -3152,22 +3229,23 @@ function makeChart(data, param){
 
 
 
-		// CASE 2. EN ESTE ELSE SE INCLUYE EL CAMBIO DE FREQUENCY Y AJUSTAR EL DISPLAY DE TAGS DEL EJE X - FALTARÏA REVISAR Initial date end date	
+		// CASE 2. EN ESTE ELSE SE INCLUYE EL CAMBIO DE FREQUENCY Y AJUSTAR EL DISPLAY DE TAGS DEL EJE X - 
+		// FALTARÏA REVISAR Initial date end date	
 
 		else if (typeof relayoutData.myFrequency !== "undefined") {
 
 			flag = false;
-			//DEBUG && console.log("current Frequency",currentFrequency);
-			//DEBUG && console.log("base Frequency", settings.series.baseFrequency);
-			//DEBUG && console.log("current Aggregation", currentAggregation);
-			//DEBUG && console.log("base Aggregation", settings.series.baseAggregation);
-			//DEBUG && console.log("baseFrequencyType", settings.series.baseFrequencyType);
-			//DEBUG && console.log("baseAggregationType",settings.series.baseAggregationType);
-			//DEBUG && console.log("myFrequency", relayoutData.myFrequency);	
+			//DEBUG && OTHER_DEBUGS && console.log("current Frequency",currentFrequency);
+			//DEBUG && OTHER_DEBUGS && console.log("base Frequency", settings.series.baseFrequency);
+			//DEBUG && OTHER_DEBUGS && console.log("current Aggregation", currentAggregation);
+			//DEBUG && OTHER_DEBUGS && console.log("base Aggregation", settings.series.baseAggregation);
+			//DEBUG && OTHER_DEBUGS && console.log("baseFrequencyType", settings.series.baseFrequencyType);
+			//DEBUG && OTHER_DEBUGS && console.log("baseAggregationType",settings.series.baseAggregationType);
+			//DEBUG && OTHER_DEBUGS && console.log("myFrequency", relayoutData.myFrequency);	
 
 			if (relayoutData.myFrequency !== currentFrequency) {
 
-				//DEBUG && console.log("change in frequency started");
+				//DEBUG && OTHER_DEBUGS && console.log("change in frequency started");
 
 				// caso 1. cargar data, no cambiar aggregation. 
 				if(flag === false &&
@@ -3185,12 +3263,12 @@ function makeChart(data, param){
 
 						{
 
-					//	load data	
-					//DEBUG && console.log("case 1 to load from calculated freqs");
+					// load data
+					//DEBUG && OTHER_DEBUGS && console.log("case 1 to load from calculated freqs");
 
 					flag = true;
 
-					//DEBUG && console.log("frequenciesDataCreated",frequenciesDataCreated);
+					//DEBUG && OTHER_DEBUGS && console.log("frequenciesDataCreated",frequenciesDataCreated);
 
 					loadFrequencyAndAggregationIntoData(
 						data,
@@ -3208,11 +3286,11 @@ function makeChart(data, param){
 					currentAggregation === settings.series.baseAggregation &&
 					settings.series.baseAggregationType !== "normal"){
 
-					//DEBUG && console.log("set aggregation to close, load normal aggregation menu");
+					//DEBUG && OTHER_DEBUGS && console.log("set aggregation to close, load normal aggregation menu");
 
 					flag = true;
 
-					//DEBUG && console.log(frequenciesDataCreated);
+					//DEBUG && OTHER_DEBUGS && console.log(frequenciesDataCreated);
 
 					currentAggregation = "close";
 
@@ -3241,9 +3319,9 @@ function makeChart(data, param){
 					currentFrequency === settings.series.baseFrequency &&
 					settings.series.baseFrequencyType !== "normal" &&
 					relayoutData.myFrequency !== settings.series.baseFrequency &&
-					settings.series.baseAggregationType === "normal")	{
+					settings.series.baseAggregationType === "normal") {
 
-					//DEBUG && console.log("change frequency. case 3");
+					//DEBUG && OTHER_DEBUGS && console.log("change frequency. case 3");
 					flag = true;
 
 
@@ -3264,9 +3342,9 @@ function makeChart(data, param){
 								layout.updatemenus[index].buttons
 							);
 
-					layout.updatemenus[index].visible = true;	
-					layout.updatemenus[index].type = "dropdown";	
-					layout.updatemenus[index].showactive = true;	
+					layout.updatemenus[index].visible = true;
+					layout.updatemenus[index].type = "dropdown";
+					layout.updatemenus[index].showactive = true;
 				}				
 
 
@@ -3275,13 +3353,13 @@ function makeChart(data, param){
 					currentFrequency === settings.series.baseFrequency &&
 					settings.series.baseFrequencyType !== "normal" &&
 					relayoutData.myFrequency !== settings.series.baseFrequency &&
-					settings.series.baseAggregationType !== "normal")	{
+					settings.series.baseAggregationType !== "normal") {
 
-					//DEBUG && console.log("change frequency. case 4");
+					//DEBUG && OTHER_DEBUGS && console.log("change frequency. case 4");
 
 					flag = true;
 
-					currentAggregation = "close";					
+					currentAggregation = "close";
 
 					// set original aggregation menu
 					index = findIndexOfMenu(layout.updatemenus,"aggregation");
@@ -3306,9 +3384,9 @@ function makeChart(data, param){
 							layout,
 							settings.widthOfRightItemsFrequencyButtons
 							);
-						//DEBUG && console.log("new x freq", newX);
+						//DEBUG && OTHER_DEBUGS && console.log("new x freq", newX);
 						index = findIndexOfMenu(layout.updatemenus,"frequencies");
-						//DEBUG && console.log("index of freq menu", index);
+						//DEBUG && OTHER_DEBUGS && console.log("index of freq menu", index);
 						layout.updatemenus[index].x = newX;
 
 
@@ -3322,7 +3400,7 @@ function makeChart(data, param){
 						data,
 						settings.period[relayoutData.myFrequency],
 						currentAggregation
-					);				
+					);
 
 				}
 
@@ -3332,13 +3410,13 @@ function makeChart(data, param){
 					currentFrequency !== settings.series.baseFrequency &&
 					relayoutData.myFrequency === settings.series.baseFrequency &&
 					settings.series.baseFrequencyType !== "normal" &&
-					settings.series.baseAggregationType === "not available")	{
+					settings.series.baseAggregationType === "not available") {
 
-					//DEBUG && console.log("change frequency. case 5");
+					//DEBUG && OTHER_DEBUGS && console.log("change frequency. case 5");
 
 					flag = true;
 
-					currentAggregation = settings.series.baseAggregation;				
+					currentAggregation = settings.series.baseAggregation;
 
 					// hide aggregation menu
 					index = findIndexOfMenu(layout.updatemenus,"aggregation");
@@ -3357,16 +3435,19 @@ function makeChart(data, param){
 
 					// change compare to original
 					if(transformToBaseIndex !== settings.transformToBaseIndex){
-						//DEBUG && console.log("restore compare");
+						//DEBUG && OTHER_DEBUGS && console.log("restore compare");
 						transformToBaseIndex = settings.transformToBaseIndex;
 						if(settings.allowCompare){
-							toggleCompareButton(transformToBaseIndex, divInfo.compareButtonElement);
+							toggleCompareButton(transformToBaseIndex, 
+									    divInfo.compareButtonElement
+							);
 						}
 					}
 
 					layout.yaxis.hoverformat= originalLayout.yaxis.hoverformat;
 
-					if(typeof layout.yaxis.tickformat !== "undefined" && typeof originalLayout.yaxis.tickformat === "undefined"){
+					if(typeof layout.yaxis.tickformat !== "undefined" &&
+					   typeof originalLayout.yaxis.tickformat === "undefined"){
 						delete layout.yaxis.tickformat;
 					}
 					else if (typeof originalLayout.yaxis.tickformat !== "undefined"){
@@ -3381,61 +3462,64 @@ function makeChart(data, param){
 					currentFrequency !== settings.series.baseFrequency &&
 					relayoutData.myFrequency === settings.series.baseFrequency &&
 					settings.series.baseFrequencyType !== "normal" &&
-					settings.series.baseAggregationType !== "not available")	{
+					settings.series.baseAggregationType !== "not available") {
 
-					//DEBUG && console.log("change frequency. case 6");
+					//DEBUG && OTHER_DEBUGS && console.log("change frequency. case 6");
 
 					flag = true;	
 
 					currentAggregation = settings.series.baseAggregation;
-					//DEBUG && console.log("new currentAggregation", currentAggregation);
+					//DEBUG && OTHER_DEBUGS && console.log("new currentAggregation", currentAggregation);
 
 					// load one button aggregation menu
 					index = findIndexOfMenu(layout.updatemenus,"aggregation");
 
-					//DEBUG && console.log("index of agg menu",index);
+					//DEBUG && OTHER_DEBUGS && console.log("index of agg menu",index);
 
-					layout.updatemenus[index].buttons = settings.singleAggregationButton;		
+					layout.updatemenus[index].buttons = settings.singleAggregationButton;
 					layout.updatemenus[index].active = 0;
 					layout.updatemenus[index].visible = true;	
 					layout.updatemenus[index].type = "buttons";
 					layout.updatemenus[index].showactive = false;
 
-					//DEBUG && console.log("updatemenus",layout.updatemenus);
+					//DEBUG && OTHER_DEBUGS && console.log("updatemenus",layout.updatemenus);
 
 					// load original data
-					loadDataIntoXYFromPropertyXY(data, "xOriginal", "yOriginal");							
-
+					loadDataIntoXYFromPropertyXY(data, "xOriginal", "yOriginal");
+					
 					// change log linear to original
 					changeLogLinearToOriginal(layout, originalLayout, divInfo, settings);
-					//DEBUG && console.log("6 after change log lin");
+					//DEBUG && OTHER_DEBUGS && console.log("6 after change log lin");
 
 					// change compare to original
 					if(transformToBaseIndex !== settings.transformToBaseIndex){
-						//DEBUG && console.log("restore compare");
+						//DEBUG && OTHER_DEBUGS && console.log("restore compare");
 						transformToBaseIndex = settings.transformToBaseIndex;
 						if(settings.allowCompare){
-							toggleCompareButton(transformToBaseIndex, divInfo.compareButtonElement);
+							toggleCompareButton(transformToBaseIndex, 
+									    divInfo.compareButtonElement
+							);
 						}
-					}		
+					}
 
 					layout.yaxis.hoverformat= originalLayout.yaxis.hoverformat;
 
-					if(typeof layout.yaxis.tickformat !== "undefined" && typeof originalLayout.yaxis.tickformat === "undefined"){
+					if(typeof layout.yaxis.tickformat !== "undefined" &&
+					   typeof originalLayout.yaxis.tickformat === "undefined"){
 						delete layout.yaxis.tickformat;
 					}
 					else if (typeof originalLayout.yaxis.tickformat !== "undefined"){
 						layout.yaxis.tickformat = originalLayout.yaxis.tickformat;
 					}
 
-					//DEBUG && console.log("6 after change compare to original");
+					//DEBUG && OTHER_DEBUGS && console.log("6 after change compare to original");
 
-				}	
+				}
 
 
 
 				// case 7
-				//DEBUG && console.log("flag before 7", flag);
+				//DEBUG && OTHER_DEBUGS && console.log("flag before 7", flag);
 				if(
 					(	flag === false &&
 					currentFrequency !== settings.series.baseFrequency &&
@@ -3446,7 +3530,7 @@ function makeChart(data, param){
 				){
 
 					// load original data
-					//DEBUG && console.log("change frequency. case 7");
+					//DEBUG && OTHER_DEBUGS && console.log("change frequency. case 7");
 
 					flag = true;	
 
@@ -3457,7 +3541,7 @@ function makeChart(data, param){
 
 					// case 7.2 base AggregationType = ! normal
 					if(settings.series.baseAggregationType!== "normal"){
-						//DEBUG && console.log("case 7.2");
+						//DEBUG && OTHER_DEBUGS && console.log("case 7.2");
 
 						//make aggregation = base
 						currentAggregation = settings.series.baseAggregation;
@@ -3467,10 +3551,11 @@ function makeChart(data, param){
 
 						// change compare to original
 						if(transformToBaseIndex !== settings.transformToBaseIndex){
-							//DEBUG && console.log("restore compare");
+							//DEBUG && OTHER_DEBUGS && console.log("restore compare");
 							transformToBaseIndex = settings.transformToBaseIndex;
 							if(settings.allowCompare){
-								toggleCompareButton(transformToBaseIndex, divInfo.compareButtonElement);
+								toggleCompareButton(transformToBaseIndex, 
+										    divInfo.compareButtonElement);
 							}
 						}
 
@@ -3482,7 +3567,7 @@ function makeChart(data, param){
 
 						if(settings.series.baseAggregationType === "not available"){
 							// case 7.2.a
-							//DEBUG && console.log("case 7.2.a");
+							//DEBUG && OTHER_DEBUGS && console.log("case 7.2.a");
 
 							// remove aggregation button
 							index = findIndexOfMenu(layout.updatemenus,"aggregation");
@@ -3491,17 +3576,20 @@ function makeChart(data, param){
 
 							// change location of frequency menu
 							setNewXToFrequencyButton(
-								xOfRightItems(divWidth, layout), layout.updatemenus, "frequencies");																
+								xOfRightItems(divWidth, layout), 
+								layout.updatemenus, 
+								"frequencies"
+							);
 						}	
 
 						if(settings.series.baseAggregationType ==="custom"){
 							// case 7.2b
-							//DEBUG && console.log("case 7.2.b");
+							//DEBUG && OTHER_DEBUGS && console.log("case 7.2.b");
 
 							// load one button aggregation menu
 							index = findIndexOfMenu(layout.updatemenus,"aggregation");
 							layout.updatemenus[index].active =0;
-							layout.updatemenus[index].visible = true;				
+							layout.updatemenus[index].visible = true;
 							layout.updatemenus[index].buttons =settings.singleAggregationButton;
 							layout.updatemenus[index].type = "buttons";
 							layout.updatemenus[index].showactive = false;
@@ -3524,11 +3612,11 @@ function makeChart(data, param){
 
 				){
 
-					//DEBUG && console.log("change frequency. case 8");
+					//DEBUG && OTHER_DEBUGS && console.log("change frequency. case 8");
 
 					flag = true;	
 
-					//DEBUG && console.log("frequenciesDataCreated",frequenciesDataCreated);
+					//DEBUG && OTHER_DEBUGS && console.log("frequenciesDataCreated",frequenciesDataCreated);
 
 
 					loadFrequencyAndAggregationIntoData(
@@ -3540,10 +3628,11 @@ function makeChart(data, param){
 					// handle buttons
 					if(settings.series.baseAggregationType === "custom"){
 						// load full aggregation menu
-						//DEBUG && console.log("load full agg menu");
+						//DEBUG && OTHER_DEBUGS && console.log("load full agg menu");
 
 						index = findIndexOfMenu(layout.updatemenus,"aggregation");
-						//DEBUG && console.log("combinedAgg Bttons", settings.combinedAggregationButtons);
+						/*DEBUG && OTHER_DEBUGS && console.log("combinedAgg Bttons", 
+									settings.combinedAggregationButtons);*/
 						layout.updatemenus[index].buttons =settings.combinedAggregationButtons;
 						layout.updatemenus[index].showactive =true;
 
@@ -3559,7 +3648,7 @@ function makeChart(data, param){
 					// if base aggregation is not normal, display combined menu
 					if( settings.series.baseAggregationType !== "normal"){
 						// load base aggregation menu
-						//DEBUG && console.log("load combined agg menu");
+						//DEBUG && OTHER_DEBUGS && console.log("load combined agg menu");
 
 						index = findIndexOfMenu(layout.updatemenus,"aggregation");
 						layout.updatemenus[index].buttons =settings.combinedAggregationButtons;
@@ -3590,11 +3679,11 @@ function makeChart(data, param){
 						{
 
 					//	load data	
-					//DEBUG && console.log("case 9 to load from calculated freqs & baseAGGButtons");
+					//DEBUG && OTHER_DEBUGS && console.log("case 9 to load from calculated freqs && baseAGGButtons");
 
 					flag = true;
 
-					//DEBUG && console.log("frequenciesDataCreated",frequenciesDataCreated);
+					//DEBUG && OTHER_DEBUGS && console.log("frequenciesDataCreated",frequenciesDataCreated);
 
 					loadFrequencyAndAggregationIntoData(
 						data,
@@ -3604,7 +3693,7 @@ function makeChart(data, param){
 
 
 					// load base aggregation menu
-					//DEBUG && console.log("load base agg menu");
+					//DEBUG && OTHER_DEBUGS && console.log("load base agg menu");
 
 					index = findIndexOfMenu(layout.updatemenus,"aggregation");
 					layout.updatemenus[index].buttons =settings.baseAggregationButtons;
@@ -3632,15 +3721,19 @@ function makeChart(data, param){
 
 					// this section finds the x domain for the traces
 					minMaxDatesAsString = getDataXminXmaxAsString(data);
-					minDateAsString = makeDateComplete(minMaxDatesAsString[0]);
-					maxDateAsString = makeDateComplete(minMaxDatesAsString[1]);
+					minDateAsString = minMaxDatesAsString.min;
+					maxDateAsString = minMaxDatesAsString.max;
 
-					//DEBUG && console.log("minDateAsString", minDateAsString);
-					//DEBUG && console.log("maxDateAsString", maxDateAsString);
-					//DEBUG && console.log("initialDate", initialDate, "endDate", endDate);
-					//DEBUG && console.log("layout", layout);
+					//DEBUG && OTHER_DEBUGS && console.log("minDateAsString", minDateAsString);
+					//DEBUG && OTHER_DEBUGS && console.log("maxDateAsString", maxDateAsString);
+					//DEBUG && OTHER_DEBUGS && console.log("initialDate", initialDate, "endDate", endDate);
+					//DEBUG && OTHER_DEBUGS && console.log("layout", layout);
 
-					updateXAxisRange(initialDate, endDate, minDateAsString, maxDateAsString, layout.xaxis.range);
+					updateXAxisRange(initialDate, 
+							 endDate, 
+							 minDateAsString, 
+							 maxDateAsString, 
+							 layout.xaxis.range);
 
 					/*if(initialDate < minDateAsString){
 						initialDate = minDateAsString
@@ -3653,9 +3746,9 @@ function makeChart(data, param){
 
 					// get ticktext and tickvals based on width and parameters
 					ticktextAndTickvals = aoPlotlyAddOn.getTicktextAndTickvals(
-						initialDate, endDate, settings.textAndSpaceToTextRatio, currentFrequency, 
-						layout.xaxis.tickfont.family, layout.xaxis.tickfont.size, 
-						divWidth, layout.margin.l, layout.margin.r
+						initialDate, endDate, textAndSpaceToTextRatio, currentFrequency, 
+						xaxisFontFamily, xaxisFontSize, 
+						divWidth, layoutMarginL, layoutMarginR, canvas
 					);
 
 					// set layout ticktext and tickvals
@@ -3667,21 +3760,26 @@ function makeChart(data, param){
 
 					if(transformToReal){
 
-						newBaseRealNominalDate = setBaseRealNominalDateAsString(settings.baseRealDate, 
-																																 layout.xaxis.range[0],
-																																 layout.xaxis.range[1],
-																																 minDateAsString,
-																																 maxDateAsString
-																																);
+						newBaseRealNominalDate = setBaseRealNominalDateAsString(
+										settings.baseRealDate, 
+										layout.xaxis.range[0],
+										layout.xaxis.range[1],
+										minDateAsString,
+										maxDateAsString);
+						
 						if(newBaseRealNominalDate !== baseRealNominalDate){
 
 							baseRealNominalDate =newBaseRealNominalDate;
-							setDeflactorDictionaryAtDate(baseRealNominalDate, deflactorDictionary, data[iDeflactor], 0);					
+							setDeflactorDictionaryAtDate(baseRealNominalDate, 
+										     deflactorDictionary, 
+										     data[iDeflactor], 0);
 
 						}
 
 
-						transformDataToReal(data, deflactorDictionary, 	baseRealNominalDate, otherDataProperties);
+						transformDataToReal(data, deflactorDictionary, 	
+								    baseRealNominalDate, 
+								    otherDataProperties);
 					}
 
 					if (transformToBaseIndex) {
@@ -3701,9 +3799,11 @@ function makeChart(data, param){
 
 
 
-					//DEBUG && console.log("yaxis layout befor set",layout.yaxis);
-					setYAxisRange(layout, data, settings.numberOfIntervalsInYAxis, settings.possibleYTickMultiples, settings.rangeProportion);
-					//DEBUG && console.log("yaxis layout after set", layout.yaxis);
+					//DEBUG && OTHER_DEBUGS && console.log("yaxis layout befor set",layout.yaxis);
+					setYAxisRange(layout, data, settings.numberOfIntervalsInYAxis, 
+						      settings.possibleYTickMultiples, 
+						      settings.rangeProportion);
+					//DEBUG && OTHER_DEBUGS && console.log("yaxis layout after set", layout.yaxis);
 
 					settings.updatemenus = layout.updatemenus;
 					Plotly.relayout(myPlot, {"updatemenus": [{}]});
@@ -3718,18 +3818,19 @@ function makeChart(data, param){
 
 
 		else if (typeof relayoutData.myAggregation !== "undefined") {
-			// CASE 3. EN ESTE ELSE IF SE INCLUYE EL CAMBIO AGGREGATION - faltaría revisar fijación del xaxis range
+			// CASE 3. EN ESTE ELSE IF SE INCLUYE EL CAMBIO AGGREGATION - 
+			// faltaría revisar fijación del xaxis range
 
 			flag = false;
-			//DEBUG && console.log("current Frequency",currentFrequency);
-			//DEBUG && console.log("base Frequency", settings.series.baseFrequency);
-			//DEBUG && console.log("current Aggregation", currentAggregation);
-			//DEBUG && console.log("base Aggregation", settings.series.baseAggregation);
-			//DEBUG && console.log("baseFrequencyType", settings.series.baseFrequencyType);
-			//DEBUG && console.log("baseAggregationType",settings.series.baseAggregationType);
-			//DEBUG && console.log("myAggregation", relayoutData.myAggregation);
+			//DEBUG && OTHER_DEBUGS && console.log("current Frequency",currentFrequency);
+			//DEBUG && OTHER_DEBUGS && console.log("base Frequency", settings.series.baseFrequency);
+			//DEBUG && OTHER_DEBUGS && console.log("current Aggregation", currentAggregation);
+			//DEBUG && OTHER_DEBUGS && console.log("base Aggregation", settings.series.baseAggregation);
+			//DEBUG && OTHER_DEBUGS && console.log("baseFrequencyType", settings.series.baseFrequencyType);
+			//DEBUG && OTHER_DEBUGS && console.log("baseAggregationType",settings.series.baseAggregationType);
+			//DEBUG && OTHER_DEBUGS && console.log("myAggregation", relayoutData.myAggregation);
 			if (relayoutData.myAggregation !== currentAggregation) {
-				//DEBUG && console.log("change in aggregation started");
+				//DEBUG && OTHER_DEBUGS && console.log("change in aggregation started");
 
 				// Case 1. case to read from original data
 				if(
@@ -3737,7 +3838,7 @@ function makeChart(data, param){
 					settings.series.baseFrequencyType === "normal" &&
 					relayoutData.myAggregation === settings.series.baseAggregation ){
 
-					//DEBUG && console.log("case 1. to read from original data");
+					//DEBUG && OTHER_DEBUGS && console.log("case 1. to read from original data");
 
 					flag = true;
 
@@ -3746,7 +3847,7 @@ function makeChart(data, param){
 					// read from original data
 					loadDataIntoXYFromPropertyXY(data, "xOriginal", "yOriginal");
 
-					//DEBUG && console.log("data[0]", data[0]);
+					//DEBUG && OTHER_DEBUGS && console.log("data[0]", data[0]);
 
 					// change log linear to original
 
@@ -3770,14 +3871,14 @@ function makeChart(data, param){
 
 					){
 
-					//DEBUG && console.log("case 2. to load from calculated freqs");
+					//DEBUG && OTHER_DEBUGS && console.log("case 2. to load from calculated freqs");
 
 					flag = true;
 
-					//DEBUG && console.log(frequenciesDataCreated);
+					//DEBUG && OTHER_DEBUGS && console.log(frequenciesDataCreated);
 
 
-					//DEBUG && console.log("data[0]",   data[0]);
+					//DEBUG && OTHER_DEBUGS && console.log("data[0]",   data[0]);
 
 					//return;
 					// load frequency and aggregation into data
@@ -3787,8 +3888,8 @@ function makeChart(data, param){
 						relayoutData.myAggregation
 					);
 
-					//DEBUG && console.log("data[0].x",data[0].x);
-					//DEBUG && console.log("data[1].y",data[1].y);
+					//DEBUG && OTHER_DEBUGS && console.log("data[0].x",data[0].x);
+					//DEBUG && OTHER_DEBUGS && console.log("data[1].y",data[1].y);
 
 				}
 
@@ -3798,7 +3899,8 @@ function makeChart(data, param){
 					uncomparedSaved = false;
 					layout.yaxis.hoverformat = originalLayout.yaxis.hoverformat;
 
-					if(typeof layout.yaxis.tickformat !== "undefined" && typeof originalLayout.yaxis.tickformat === "undefined"){
+					if(typeof layout.yaxis.tickformat !== "undefined" &&
+					   typeof originalLayout.yaxis.tickformat === "undefined"){
 						delete layout.yaxis.tickformat;
 					}
 					else if (typeof originalLayout.yaxis.tickformat !== "undefined"){
@@ -3811,28 +3913,33 @@ function makeChart(data, param){
 					if(transformToReal){
 
 						newBaseRealNominalDate = setBaseRealNominalDateAsString(settings.baseRealDate, 
-																																 layout.xaxis.range[0],
-																																 layout.xaxis.range[1],
-																																 minDateAsString,
-																																 maxDateAsString
-																																);
+										layout.xaxis.range[0],
+										layout.xaxis.range[1],
+										minDateAsString,
+										maxDateAsString
+										);
 						if(newBaseRealNominalDate !== baseRealNominalDate){
 
 							baseRealNominalDate =newBaseRealNominalDate;
-							setDeflactorDictionaryAtDate(baseRealNominalDate, deflactorDictionary, data[iDeflactor], 0);					
+							setDeflactorDictionaryAtDate(baseRealNominalDate,
+										     deflactorDictionary, 
+										     data[iDeflactor], 0);
 
 						}
 
-						transformDataToReal(data, deflactorDictionary, 	baseRealNominalDate, otherDataProperties);
+						transformDataToReal(data, deflactorDictionary, 	baseRealNominalDate, 
+								    otherDataProperties);
 					}
 
 
 
 					// uncompare in case aggregatin is percChange or sqrPercChange
-					if(relayoutData.myAggregation === "percChange" || relayoutData.myAggregation === "sqrPercChange"){
+					if(relayoutData.myAggregation === "percChange" || 
+					   relayoutData.myAggregation === "sqrPercChange"){
 						transformToBaseIndex = false;
 						if(settings.allowCompare){
-							toggleCompareButton(transformToBaseIndex, divInfo.compareButtonElement);
+							toggleCompareButton(transformToBaseIndex, 
+									    divInfo.compareButtonElement);
 						}
 
 						layout.yaxis.tickformat = ".2p";
@@ -3854,10 +3961,11 @@ function makeChart(data, param){
 
 
 						if(transformToBaseIndex !== settings.transformToBaseIndex){
-							//DEBUG && console.log("restore compare");
+							//DEBUG && OTHER_DEBUGS && console.log("restore compare");
 							transformToBaseIndex = settings.transformToBaseIndex;
 							if(settings.allowCompare){
-								toggleCompareButton(transformToBaseIndex, divInfo.compareButtonElement);
+								toggleCompareButton(transformToBaseIndex,
+										    divInfo.compareButtonElement);
 							}
 						}				
 
@@ -3876,7 +3984,7 @@ function makeChart(data, param){
 
 							layout.yaxis.type = "linear";
 							if(settings.allowLogLinear){
-								toggleLogLinearButton(false, divInfo.logLinearButtonElement);					
+								toggleLogLinearButton(false, divInfo.logLinearButtonElement);
 							}
 
 						}
@@ -3907,12 +4015,12 @@ function makeChart(data, param){
 
 					// this section finds the x range for the traces
 					minMaxDatesAsString = getDataXminXmaxAsString(data);
-					minDateAsString = makeDateComplete(minMaxDatesAsString[0]);
-					maxDateAsString = makeDateComplete(minMaxDatesAsString[1]);
+					minDateAsString = minMaxDatesAsString.min;
+					maxDateAsString = minMaxDatesAsString.max;
 
-					//DEBUG && console.log("minDataAsString", minDateAsString);
-					//DEBUG && console.log("maxDataAsString", maxDateAsString);
-					//DEBUG && console.log("initialDate", initialDate, "endDate", endDate);
+					//DEBUG && OTHER_DEBUGS && console.log("minDataAsString", minDateAsString);
+					//DEBUG && OTHER_DEBUGS && console.log("maxDataAsString", maxDateAsString);
+					//DEBUG && OTHER_DEBUGS && console.log("initialDate", initialDate, "endDate", endDate);
 
 					/*if(initialDate < minDateAsString){
 						initialDate = minDateAsString
@@ -3923,21 +4031,23 @@ function makeChart(data, param){
 						layout.xaxis.range[1]=	endDate;
 					}*/
 
-					updateXAxisRange(initialDate, endDate, minDateAsString, maxDateAsString, layout.xaxis.range);
+					updateXAxisRange(initialDate, 
+							 endDate, 
+							 minDateAsString, 
+							 maxDateAsString, 
+							 layout.xaxis.range);
 
 
 					// get ticktext and tickvals based on width and parameters
 					ticktextAndTickvals = aoPlotlyAddOn.getTicktextAndTickvals(
-						initialDate, endDate, settings.textAndSpaceToTextRatio, currentFrequency, 
-						layout.xaxis.tickfont.family, layout.xaxis.tickfont.size, 
-						divWidth, layout.margin.l, layout.margin.r
+						initialDate, endDate, textAndSpaceToTextRatio, currentFrequency, 
+						xaxisFontFamily, xaxisFontSize, 
+						divWidth, layoutMarginL, layoutMarginR, canvas
 					);
 
 					// set layout ticktext and tickvals
 					layout.xaxis.tickvals = ticktextAndTickvals.tickvals;
-					layout.xaxis.ticktext = ticktextAndTickvals.ticktext;							
-
-
+					layout.xaxis.ticktext = ticktextAndTickvals.ticktext;
 
 
 					if (transformToBaseIndex) {
@@ -3954,9 +4064,10 @@ function makeChart(data, param){
 							currentAggregation
 						);
 					}
-					//DEBUG && console.log("yaxis layout befor set",layout.yaxis);
-					setYAxisRange(layout, data, settings.numberOfIntervalsInYAxis, settings.possibleYTickMultiples, settings.rangeProportion);
-					//DEBUG && console.log("yaxis layout after set", layout.yaxis);
+					//DEBUG && OTHER_DEBUGS && console.log("yaxis layout befor set",layout.yaxis);
+					setYAxisRange(layout, data, settings.numberOfIntervalsInYAxis, 
+						      settings.possibleYTickMultiples, settings.rangeProportion);
+					//DEBUG && OTHER_DEBUGS && console.log("yaxis layout after set", layout.yaxis);
 
 
 					settings.updatemenus = layout.updatemenus;
@@ -3971,18 +4082,19 @@ function makeChart(data, param){
 		// CASE 4. EN ESTE ELSE IF HAY QUE INCLUIR EL CAMBIO DE EJES LOG LINEAR - PENDIENTE. DE MOMENTO NO SE USA
 		else if (typeof relayoutData.changeYaxisTypeToLog !== "undefined") {
 
-			//DEBUG && console.log("change of y axis type requested");
+			//DEBUG && OTHER_DEBUGS && console.log("change of y axis type requested");
 
 			if (relayoutData.changeYaxisTypeToLog === false) {
 				divInfo.logLinearButtonElement.blur();
 				if (layout.yaxis.type === "log") {
 					if (!isUnderRelayout) {
 						layout.yaxis.type = "linear";
-						//DEBUG && console.log("change y axis to linear");
+						//DEBUG && OTHER_DEBUGS && console.log("change y axis to linear");
 						toggleLogLinearButton(false, divInfo.logLinearButtonElement);
 
 						layout.yaxis.type = "linear";
-						setYAxisRange(layout, data, settings.numberOfIntervalsInYAxis, settings.possibleYTickMultiples, settings.rangeProportion);
+						setYAxisRange(layout, data, settings.numberOfIntervalsInYAxis,
+							      settings.possibleYTickMultiples, settings.rangeProportion);
 						Plotly.redraw(myPlot).then(() => {
 							isUnderRelayout = false;
 						});
@@ -3993,9 +4105,9 @@ function makeChart(data, param){
 
 			if (relayoutData.changeYaxisTypeToLog === true) {
 				divInfo.logLinearButtonElement.blur();
-				//DEBUG && console.log("yaxistype", layout.yaxis.type);
-				//DEBUG && console.log("currentAggregation",currentAggregation);
-				//DEBUG && console.log("yaxis range",layout.yaxis.range);
+				//DEBUG && OTHER_DEBUGS && console.log("yaxistype", layout.yaxis.type);
+				//DEBUG && OTHER_DEBUGS && console.log("currentAggregation",currentAggregation);
+				//DEBUG && OTHER_DEBUGS && console.log("yaxis range",layout.yaxis.range);
 				if (layout.yaxis.type === "linear" &&
 					 (currentAggregation !== "percChange" &&
 						 currentAggregation !== "sqrPercChange" &&
@@ -4004,10 +4116,11 @@ function makeChart(data, param){
 						layout.yaxis.range[1]>0*/
 					 ) {
 					if (!isUnderRelayout) {
-						//DEBUG && console.log("change y axis to log");
+						//DEBUG && OTHER_DEBUGS && console.log("change y axis to log");
 						layout.yaxis.type = "log";
 						toggleLogLinearButton(true, divInfo.logLinearButtonElement);
-						setYAxisRange(layout, data, settings.numberOfIntervalsInYAxis, settings.possibleYTickMultiples, settings.rangeProportion);
+						setYAxisRange(layout, data, settings.numberOfIntervalsInYAxis, 
+							      settings.possibleYTickMultiples, settings.rangeProportion);
 						Plotly.redraw(myPlot).then(() => {
 							isUnderRelayout = false;
 						});
@@ -4021,15 +4134,15 @@ function makeChart(data, param){
 		// CASE 5. EN ESTE ELSE IF SE INCLUYE EL CAMBIO DE COMPARE UNCOMPARE
 		else if (typeof relayoutData.compare !== "undefined") {
 
-			//DEBUG && console.log("compare/uncompare button clicked");
-			//DEBUG && console.log("relayoutData.compare = ", relayoutData.compare);
-			//DEBUG && console.log("transformToBaseIndex =", transformToBaseIndex);
+			//DEBUG && OTHER_DEBUGS && console.log("compare/uncompare button clicked");
+			//DEBUG && OTHER_DEBUGS && console.log("relayoutData.compare = ", relayoutData.compare);
+			//DEBUG && OTHER_DEBUGS && console.log("transformToBaseIndex =", transformToBaseIndex);
 			divInfo.compareButtonElement.blur();
 			if (relayoutData.compare !== transformToBaseIndex &&
 					currentAggregation !== "percChange" &&
 					currentAggregation !== "sqrPercChange") {
 				if (!isUnderRelayout) {
-					//DEBUG && console.log("rutina compare/uncompare in");
+					//DEBUG && OTHER_DEBUGS && console.log("rutina compare/uncompare in");
 
 					//toggle transformToBaseIndes
 					transformToBaseIndex = !transformToBaseIndex;
@@ -4040,18 +4153,18 @@ function makeChart(data, param){
 
 					// transform data to base index
 					if (transformToBaseIndex) {
-						//DEBUG && console.log("uncomparedSaved", uncomparedSaved);
+						//DEBUG && OTHER_DEBUGS && console.log("uncomparedSaved", uncomparedSaved);
 
 						// save nominal data
 						if(!nominalSaved && !transformToReal){
 							saveDataXYIntoProperty(data, "nominal");
-							nominalSaved = true;									
+							nominalSaved = true;
 						}
 
 						// update baseIndex Date
-						//DEBUG && console.log('layout.xaxis.range[0]', layout.xaxis.range[0]);
+						//DEBUG && OTHER_DEBUGS && console.log('layout.xaxis.range[0]', layout.xaxis.range[0]);
 						baseIndexDate = makeDateComplete(layout.xaxis.range[0]);
-						//DEBUG && console.log('transformed to YMD as base Index date', baseIndexDate);
+						//DEBUG && OTHER_DEBUGS && console.log('transformed to YMD as base Index date', baseIndexDate);
 
 						// transform yvalues to index at specified date
 						uncomparedSaved = prepareTransformToBaseIndex(
@@ -4063,22 +4176,30 @@ function makeChart(data, param){
 							currentAggregation
 						);
 
-						//DEBUG && console.log('data transformed for comparison', data)
+						//DEBUG && OTHER_DEBUGS && console.log('data transformed for comparison', data)
 
 						if (!layout.yaxis.autorange) {
 							// find y range
-							setYAxisRange(layout, data, settings.numberOfIntervalsInYAxis, settings.possibleYTickMultiples, settings.rangeProportion);
+							setYAxisRange(layout, 
+								      data, 
+								      settings.numberOfIntervalsInYAxis, 
+								      settings.possibleYTickMultiples, 
+								      settings.rangeProportion);
 						}
 					} 
 
-					// uncompare, transform uncompared data (check frequencies);				
+					// uncompare, transform uncompared data (check frequencies);
 					else {
 
 						loadData(data, "uncompared");
-						//DEBUG && console.log("new data",data);
+						//DEBUG && OTHER_DEBUGS && console.log("new data",data);
 
 						if (!layout.yaxis.autorange) {
-							setYAxisRange(layout, data, settings.numberOfIntervalsInYAxis, settings.possibleYTickMultiples, settings.rangeProportion);
+							setYAxisRange(layout, 
+								      data, 
+								      settings.numberOfIntervalsInYAxis,
+								      settings.possibleYTickMultiples, 
+								      settings.rangeProportion);
 						}
 					}
 
@@ -4096,42 +4217,50 @@ function makeChart(data, param){
 		// CASE 6. EN ESTE ELSE IF SE INCLUYE EL CAMBIO DE NOMINAL REAL
 		else if (typeof relayoutData.transformToReal!== "undefined") {
 
-			//DEBUG && console.log("real/nominal button clicked");
-			//DEBUG && console.log("relayoutData.compare = ", relayoutData.compare);
-			//DEBUG && console.log("transformToBaseIndex =", transformToBaseIndex);
+			//DEBUG && OTHER_DEBUGS && console.log("real/nominal button clicked");
+			//DEBUG && OTHER_DEBUGS && console.log("relayoutData.compare = ", relayoutData.compare);
+			//DEBUG && OTHER_DEBUGS && console.log("transformToBaseIndex =", transformToBaseIndex);
 			divInfo.realNominalButtonElement.blur();
 
 			if (relayoutData.transformToReal !== transformToReal) {
 				if (!isUnderRelayout) {
-					//DEBUG && console.log("rutina real/nominal in");
+					//DEBUG && OTHER_DEBUGS && console.log("rutina real/nominal in");
 
 					//toggle transformRealNominal
 					transformToReal = !transformToReal;
 
 					// update menu settings
 					//toggleCompareMenu(!relayoutData.compare, layout.updatemenus);
-					toggleRealNominalButton(relayoutData.transformToReal, divInfo.realNominalButtonElement);
+					toggleRealNominalButton(relayoutData.transformToReal, 
+								divInfo.realNominalButtonElement);
 
 					// transform data to real
 					if (transformToReal) {
 
-						//DEBUG && console.log("transform To Real");
+						//DEBUG && OTHER_DEBUGS && console.log("transform To Real");
 
 
 						// determine base date
-						/* could be "end of range", "end of domain", "beggining of range", beggining of domain", or a date "yyyy-mm-dd hh:mm:ss.sss-04:00"*/
+						/* could be "end of range", "end of domain", "beggining of range", 
+						beggining of domain", 
+						or a date "yyyy-mm-dd hh:mm:ss.sss-04:00"*/
 
 						if(baseRealNominalDate!==""){
 
-							baseRealNominalDate = setBaseRealNominalDateAsString(settings.baseRealDate, 
-																																 layout.xaxis.range[0],
-																																 layout.xaxis.range[1],
-																																 minDateAsString,
-																																 maxDateAsString
-																																);
+							baseRealNominalDate = 
+								setBaseRealNominalDateAsString(	
+									settings.baseRealDate, 
+									layout.xaxis.range[0],
+									layout.xaxis.range[1],
+									minDateAsString,
+									maxDateAsString
+								);
 
-							//DEBUG && console.log("baseRealNominalDate",baseRealNominalDate);
-							setDeflactorDictionaryAtDate(baseRealNominalDate, deflactorDictionary, data[iDeflactor], 0);
+							//DEBUG && OTHER_DEBUGS && console.log("baseRealNominalDate",baseRealNominalDate);
+							setDeflactorDictionaryAtDate(baseRealNominalDate, 
+										     deflactorDictionary, 
+										     data[iDeflactor], 
+										     0);
 						}
 
 						// save nominal if not compared
@@ -4140,7 +4269,7 @@ function makeChart(data, param){
 							// save nominal  data
 							if(!nominalSaved){
 								saveDataXYIntoProperty(data, "nominal");
-								nominalSaved = true;									
+								nominalSaved = true;
 							}
 
 						}
@@ -4150,7 +4279,8 @@ function makeChart(data, param){
 						}
 
 						//recalculate data to real 
-						transformDataToReal(data, deflactorDictionary, 	baseRealNominalDate, otherDataProperties);
+						transformDataToReal(data, deflactorDictionary, 	baseRealNominalDate, 
+								    otherDataProperties);
 
 						if (transformToBaseIndex) {
 
@@ -4171,7 +4301,8 @@ function makeChart(data, param){
 
 						if (!layout.yaxis.autorange) {
 							// find y range
-							setYAxisRange(layout, data, settings.numberOfIntervalsInYAxis, settings.possibleYTickMultiples, settings.rangeProportion);
+							setYAxisRange(layout, data, settings.numberOfIntervalsInYAxis, 
+								      settings.possibleYTickMultiples, settings.rangeProportion);
 						}
 
 
@@ -4180,7 +4311,7 @@ function makeChart(data, param){
 
 					// transform to nominal				
 					else {
-						//DEBUG && console.log("transform to nominal");
+						//DEBUG && OTHER_DEBUGS && console.log("transform to nominal");
 
 						loadData(data, "nominal");
 
@@ -4204,7 +4335,8 @@ function makeChart(data, param){
 
 
 						if (!layout.yaxis.autorange) {
-							setYAxisRange(layout, data, settings.numberOfIntervalsInYAxis, settings.possibleYTickMultiples, settings.rangeProportion);
+							setYAxisRange(layout, data, settings.numberOfIntervalsInYAxis, 
+								      settings.possibleYTickMultiples, settings.rangeProportion);
 						}
 
 					}
@@ -4229,11 +4361,12 @@ function makeChart(data, param){
 		} 
 
 
-		// CASE 8. Este caso pide mostrar todo el eje x. EN ESTE CASO EL RELAYOUT HAY QUE AJUSTAR EL EJE X, INCLUIR TAMBIEM EL CAMBIO DE X AXIS LABELS.
+		// CASE 8. Este caso pide mostrar todo el eje x. EN ESTE CASO EL RELAYOUT HAY QUE AJUSTAR EL EJE X, 
+		// INCLUIR TAMBIEM EL CAMBIO DE X AXIS LABELS.
 		else if (relayoutData["xaxis.autorange"] === true) {
 
-			//DEBUG && console.log('xaxis.autorange=true');
-			//DEBUG && console.log('layout on all clicked',layout);
+			//DEBUG && OTHER_DEBUGS && console.log('xaxis.autorange=true');
+			//DEBUG && OTHER_DEBUGS && console.log('layout on all clicked',layout);
 			layout.xaxis.range[0] = makeDateComplete(layout.xaxis.range[0]);
 			layout.xaxis.range[1] = makeDateComplete(layout.xaxis.range[1]);
 
@@ -4245,19 +4378,20 @@ function makeChart(data, param){
 					//layout.xaxis.autorange=false;
 
 
-					//DEBUG && console.log("initial Date",initialDate);
-					//DEBUG && console.log("endDate", endDate);
+					//DEBUG && OTHER_DEBUGS && console.log("initial Date",initialDate);
+					//DEBUG && OTHER_DEBUGS && console.log("endDate", endDate);
 					// get ticktext and tickvals based on width and parameters
 					ticktextAndTickvals = aoPlotlyAddOn.getTicktextAndTickvals(
 						initialDate,
 						endDate,
-						settings.textAndSpaceToTextRatio,
+						textAndSpaceToTextRatio,
 						currentFrequency,
-						layout.xaxis.tickfont.family,
-						layout.xaxis.tickfont.size,
+						xaxisFontFamily,
+						xaxisFontSize,
 						divWidth,
-						layout.margin.l,
-						layout.margin.r
+						layoutMarginL,
+						layoutMarginR,
+						canvas
 					);
 
 
@@ -4266,21 +4400,25 @@ function makeChart(data, param){
 
 						loadData(data,"nominal");
 
-						newBaseRealNominalDate = setBaseRealNominalDateAsString(settings.baseRealDate, 
-																																		layout.xaxis.range[0],
-																																		layout.xaxis.range[1],
-																																		minDateAsString,
-																																		maxDateAsString
-																																	 );
-						//DEBUG && console.log("newBaseRealNominalDate",newBaseRealNominalDate);
-						//DEBUG && console.log("baseRealNominalDate",baseRealNominalDate);
+						newBaseRealNominalDate = setBaseRealNominalDateAsString(
+										settings.baseRealDate, 
+										layout.xaxis.range[0],
+										layout.xaxis.range[1],
+										minDateAsString,
+										maxDateAsString
+										);
+						//DEBUG && OTHER_DEBUGS && console.log("newBaseRealNominalDate",newBaseRealNominalDate);
+						//DEBUG && OTHER_DEBUGS && console.log("baseRealNominalDate",baseRealNominalDate);
 						if(newBaseRealNominalDate !== baseRealNominalDate){
 							baseRealNominalDate =newBaseRealNominalDate;
-							setDeflactorDictionaryAtDate(baseRealNominalDate, deflactorDictionary, data[iDeflactor], 0);					
+							setDeflactorDictionaryAtDate(baseRealNominalDate, 
+										     deflactorDictionary, 
+										     data[iDeflactor], 0);
 
 						}
-						//DEBUG && console.log("newBaseRealNominalDate",newBaseRealNominalDate);
-						transformDataToReal(data, deflactorDictionary, 	baseRealNominalDate, otherDataProperties);
+						//DEBUG && OTHER_DEBUGS && console.log("newBaseRealNominalDate",newBaseRealNominalDate);
+						transformDataToReal(data, deflactorDictionary, 	baseRealNominalDate, 
+								    otherDataProperties);
 
 						if(transformToBaseIndex){
 							flag = true;	
@@ -4299,21 +4437,20 @@ function makeChart(data, param){
 						) {
 
 
-						//DEBUG && console.log("baseIndexDate", baseIndexDate);
+						//DEBUG && OTHER_DEBUGS && console.log("baseIndexDate", baseIndexDate);
 						transformDataToBaseIndex(data, 
-																		 makeDateComplete(layout.xaxis.range[0]), 
-																		 currentAggregation);					
+									 makeDateComplete(layout.xaxis.range[0]),
+									 currentAggregation);
+					}
+					
+					baseIndexDate = makeDateComplete(layout.xaxis.range[0]);
 
-					} 					
 
-					baseIndexDate = makeDateComplete(layout.xaxis.range[0]);	
-
-
-					//DEBUG && console.log("layout before read x axis range",layout);
+					//DEBUG && OTHER_DEBUGS && console.log("layout before read x axis range",layout);
 
 					yMinMax = getYminYmax(makeDateComplete(layout.xaxis.range[0]), 
-																makeDateComplete(layout.xaxis.range[1]), 
-																data);
+								makeDateComplete(layout.xaxis.range[1]), 
+								data);
 					yMinValue = yMinMax[0];
 					yMaxValue = yMinMax[1];
 
@@ -4326,7 +4463,7 @@ function makeChart(data, param){
 							settings.numberOfIntervalsInYAxis,
 							settings.possibleYTickMultiples, 
 							settings.rangeProportion
-						);	
+						);
 					} else{
 
 
@@ -4340,10 +4477,10 @@ function makeChart(data, param){
 					layout.xaxis.ticktext = ticktextAndTickvals.ticktext;
 
 					activeRangeSelector("step","all",layout.xaxis.rangeselector.buttons);
-					//DEBUG && console.log("rangeselector", layout.xaxis.rangeselector);
+					//DEBUG && OTHER_DEBUGS && console.log("rangeselector", layout.xaxis.rangeselector);
 
 					Plotly.redraw(myPlot).then(() => {
-						//DEBUG && console.log("plot schema", Plotly.PlotSchema.get());
+						//DEBUG && OTHER_DEBUGS && console.log("plot schema", Plotly.PlotSchema.get());
 						isUnderRelayout = false;
 					});
 				}
@@ -4360,10 +4497,10 @@ function makeChart(data, param){
 				typeof relayoutData["xaxis.range[0]"] !== "undefined" ||
 				typeof relayoutData["xaxis.range[1]"] !== "undefined"
 			) {
-				//DEBUG && console.log(layout);
-				//DEBUG && console.log(layout.xaxis.range[1]);
-				//DEBUG && console.log(typeof relayoutData['xaxis.range[0]']);
-				//DEBUG && console.log(typeof relayoutData['xaxis.range[1]']);
+				//DEBUG && OTHER_DEBUGS && console.log(layout);
+				//DEBUG && OTHER_DEBUGS && console.log(layout.xaxis.range[1]);
+				//DEBUG && OTHER_DEBUGS && console.log(typeof relayoutData['xaxis.range[0]']);
+				//DEBUG && OTHER_DEBUGS && console.log(typeof relayoutData['xaxis.range[1]']);
 
 				if (typeof relayoutData["xaxis.range[0]"] !== "undefined") {
 					x0 = relayoutData["xaxis.range[0]"];
@@ -4377,11 +4514,11 @@ function makeChart(data, param){
 					x1 = layout.xaxis.range[1];
 				}
 
-				//DEBUG && console.log('x0:' + x0 + '-x1:' + x1);
+				//DEBUG && OTHER_DEBUGS && console.log('x0:' + x0 + '-x1:' + x1);
 				flag = true;
-				//DEBUG && console.log(11);
+				//DEBUG && OTHER_DEBUGS && console.log(11);
 			} else if (typeof relayoutData["xaxis.range"] !== "undefined") {
-				//DEBUG && console.log(12);
+				//DEBUG && OTHER_DEBUGS && console.log(12);
 				x0 = relayoutData["xaxis.range"][0];
 				x1 = relayoutData["xaxis.range"][1];
 				flag = true;
@@ -4390,16 +4527,16 @@ function makeChart(data, param){
 			//  Changes to the X axis Range. Change x axis range display.
 			if (flag === true) {
 				if (!isUnderRelayout) {
-					//DEBUG && console.log("x0 before process", x0);
-					//DEBUG && console.log("x1 before process", x1);
+					//DEBUG && OTHER_DEBUGS && console.log("x0 before process", x0);
+					//DEBUG && OTHER_DEBUGS && console.log("x1 before process", x1);
 
 					//x0 = makeDateComplete(x0);
 					//x1 = makeDateComplete(x1);
 					layout.xaxis.range[0]=x0;
 					layout.xaxis.range[1]=x1;
 
-					//DEBUG && console.log("x0 after complete date",x0);
-					//DEBUG && console.log("x1 after",x1);
+					//DEBUG && OTHER_DEBUGS && console.log("x0 after complete date",x0);
+					//DEBUG && OTHER_DEBUGS && console.log("x1 after",x1);
 
 
 					flag = false;
@@ -4407,19 +4544,25 @@ function makeChart(data, param){
 
 						loadData(data,"nominal");
 
-						newBaseRealNominalDate = setBaseRealNominalDateAsString(settings.baseRealDate, 
-																																		layout.xaxis.range[0],
-																																		layout.xaxis.range[1],
-																																		minDateAsString,
-																																		maxDateAsString
-																																	 );
+						newBaseRealNominalDate = setBaseRealNominalDateAsString(
+									settings.baseRealDate,
+									layout.xaxis.range[0],
+									layout.xaxis.range[1],
+									minDateAsString,
+									maxDateAsString  );
+						
 						if(newBaseRealNominalDate !== baseRealNominalDate){
 							baseRealNominalDate =newBaseRealNominalDate;
-							setDeflactorDictionaryAtDate(baseRealNominalDate, deflactorDictionary, data[iDeflactor], 0);					
+							setDeflactorDictionaryAtDate(baseRealNominalDate, 
+										     deflactorDictionary, 
+										     data[iDeflactor], 0);
 
 						}
-						//DEBUG && console.log("newBaseRealNominalDate",newBaseRealNominalDate);
-						transformDataToReal(data, deflactorDictionary, 	baseRealNominalDate, otherDataProperties);
+						//DEBUG && OTHER_DEBUGS && console.log("newBaseRealNominalDate",newBaseRealNominalDate);
+						transformDataToReal(data, 
+								    deflactorDictionary,
+								    baseRealNominalDate,
+								    otherDataProperties);
 
 						if(transformToBaseIndex){
 							flag = true;	
@@ -4448,16 +4591,17 @@ function makeChart(data, param){
 					ticktextAndTickvals = aoPlotlyAddOn.getTicktextAndTickvals(
 						initialDate,
 						endDate,
-						settings.textAndSpaceToTextRatio,
+						textAndSpaceToTextRatio,
 						currentFrequency,
-						layout.xaxis.tickfont.family,
-						layout.xaxis.tickfont.size,
+						xaxisFontFamily,
+						xaxisFontSize,
 						divWidth,
-						layout.margin.l,
-						layout.margin.r
+						layoutMarginL,
+						layoutMarginR,
+						canvas
 					);
 
-					//DEBUG && console.log('new y range',yMinValue, yMaxValue);
+					//DEBUG && OTHER_DEBUGS && console.log('new y range',yMinValue, yMaxValue);
 					if(!isNaN(yMinValue) && !isNaN(yMaxValue)){
 						layout.yaxis.autorange = false;
 						layout.yaxis.range = returnYaxisLayoutRange(
@@ -4476,9 +4620,9 @@ function makeChart(data, param){
 
 					layout.xaxis.tickvals = ticktextAndTickvals.tickvals;
 					layout.xaxis.ticktext = ticktextAndTickvals.ticktext;
-					//DEBUG && console.log('updated yaxis range',layout);
+					//DEBUG && OTHER_DEBUGS && console.log('updated yaxis range',layout);
 
-					//DEBUG && console.log(layout);
+					//DEBUG && OTHER_DEBUGS && console.log(layout);
 					Plotly.redraw(myPlot).then(() => {
 						isUnderRelayout = false;
 					});
@@ -4488,14 +4632,15 @@ function makeChart(data, param){
 			} // end of if flag is true
 		} // end of 'else' relayout cases, CASE 9
 
+	DEBUG && DEBUG_TIMES && console.timeEnd("TIME: relayout");
 	}); // end of handling of relayout event
 
 
 	//});
 	//});			
 
-
-
+	DEBUG && DEBUG_TIMES && console.timeEnd("TIME: makeChart");
+	DEBUG && DEBUG_TIMES && console.timeEnd("TIME: newTimeseriesPlot");
 
 
 
@@ -4522,8 +4667,8 @@ function makeChart(data, param){
 	    
 	    
 // measure length of displayed string  in pixels
-function stringLength(string, fontFamily, size) {
-  var canvas = document.createElement('canvas');
+function stringLength(string, fontFamily, size, canvas) {
+  //var canvas = document.createElement('canvas');
   var ctx = canvas.getContext('2d');
   
   ctx.font = ''+size+'px '+fontFamily;
@@ -4531,19 +4676,7 @@ function stringLength(string, fontFamily, size) {
   return ctx.measureText(string).width;
 }
 
-
-// strip date as 'yyyy-mm-dd' into object
-function stripDateIntoObject(dateString) {
-  var obj = {
-    string: dateString,
-    year: Number(dateString.substr(0, 4)),
-    month: Number(dateString.substr(5, 2)),
-    day: Number(dateString.substr(8, 2))
-  };
-  
-  return obj;
-  
-}
+ 
 
 // rounds number to next multiple
 function roundUp(numToRound, multiple) {
@@ -4568,22 +4701,26 @@ function padTo2(number) {
 
 aoPlotlyAddOn.padTo2 = padTo2;
         
-// determine the ticktext and tickvals that best fit, given a target frequency display (annual, monthly, etc), and a space between tick text
+// determine the ticktext and tickvals that best fit, given a target frequency display (annual, monthly, etc),
+ //and a space between tick text
 // the space between tick text (textAndSpaceToTextRatio) defined as
 // the ration of  (tick text length + space to next tick) to (tick text length)
 // from: initial date as string 'yyyy-mm-dd'
 // targetFrequency, a string, like  'annual', 'monthly', etc. see below in code for options.
-aoPlotlyAddOn.getTicktextAndTickvals = function (from, to, textAndSpaceToTextRatio, targetFrequency, fontFamily, fontSize, divWidth, leftMargin, rightMargin){
+aoPlotlyAddOn.getTicktextAndTickvals = function (from, to, textAndSpaceToTextRatio, targetFrequency, fontFamily,
+						  fontSize, divWidth, leftMargin, rightMargin, canvas){
   //var initialDate = new Date();  
   //var daysStep = 0, monthsStep =0;
 
   var strippedFrom = stripDateIntoObject(from);
   var strippedTo = stripDateIntoObject(to);
   
-  //DEBUG && console.log('parsed from to', strippedFrom, strippedTo);
+  //DEBUG && OTHER_DEBUGS && console.log('parsed from to', strippedFrom, strippedTo);
   
   //var fromAsDate = new Date(strippedFrom.year, strippedFrom.month-1, strippedFrom.day);
   var toAsDate = new Date(strippedTo.year, strippedTo.month-1, strippedTo.day);
+	
+
   
   
 var months = ['Jan', 'Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -4631,7 +4768,9 @@ var months = ['Jan', 'Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov'
     }, 
     {
       name: 'quarterly',
-      initialDate: (strippedFrom.month  <4 || strippedFrom.month >9)? new Date(strippedFrom.year, -1+3*Math.floor((strippedFrom.month)/3),31): new Date(strippedFrom.year, -1+3*Math.floor((strippedFrom.month)/3),30),
+      initialDate: (strippedFrom.month  < 4 || strippedFrom.month > 9) ?
+	    		new Date(strippedFrom.year, -1 + 3 * Math.floor((strippedFrom.month)/3),31):
+	    		new Date(strippedFrom.year, -1+3*Math.floor((strippedFrom.month)/3),30),
       monthsStep: 3,
       daysStep:0,
       string: (targetFrequency==='monthly')?'Nov 2000':((targetFrequency==='quarterly')?'Q4 2000':'2000-00'),
@@ -4776,46 +4915,49 @@ var months = ['Jan', 'Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov'
     }
     frequencyData[i].j=j;
     frequencyData[i].xSpace = 
-      j===0?0:(divWidth-leftMargin-rightMargin) /(j*stringLength(frequencyData[i].string,fontFamily,fontSize));    
+	    j === 0 ?
+	    	0 :
+    		(divWidth-leftMargin-rightMargin) /(j*stringLength(frequencyData[i].string,
+								   fontFamily,
+								   fontSize, 
+								   canvas));    
     if(frequencyData[i].xSpace >= textAndSpaceToTextRatio){
-      date = new Date(frequencyData[i].initialDate.getTime());
-      //DEBUG && console.log('solution found at', frequencyData[i]);
-      //DEBUG && console.log('initial Date',frequencyData[i].initialDate);
-      while(date <= toAsDate){
-        result.tickvals.push(''+date.getFullYear()+'-'+padTo2(date.getMonth()+1)+'-'+padTo2(date.getDate()));
-				
-				if(frequencyData[i].stringName === "date"){
-					result.ticktext.push(''+date.getFullYear()+'-'+padTo2(date.getMonth()+1)+'-'+padTo2(date.getDate()));
-				}
-				else if (frequencyData[i].stringName === "month"){
-					result.ticktext.push(months[date.getMonth()]+' '+date.getFullYear());
-				}
-				else if (frequencyData[i].stringName === "quarter"){
-					result.ticktext.push('Q' +Math.ceil((date.getMonth()+1)/3)+' '+date.getFullYear());
-				}
-				else if (frequencyData[i].stringName === "semester"){
-					result.ticktext.push('H'+Math.ceil((date.getMonth()+1)/6)+' '+date.getFullYear());
-				}
-				else if (frequencyData[i].stringName === "year"){
-					result.ticktext.push(''+date.getFullYear());
-				}
-				else if (frequencyData[i].stringName === "year-month"){
-	      	result.ticktext.push(''+date.getFullYear()+'-'+padTo2(date.getMonth()+1));				
-				}
-				
-        if (frequencyData[i].daysStep >0){
-          date.setDate(date.getDate()+frequencyData[i].daysStep);
-        }
-        if (frequencyData[i].monthsStep >0){
-          date= new Date(date.getFullYear(), date.getMonth()+frequencyData[i].monthsStep+1, 0);
-        }
-      }
-      i=frequencyData.length;
+	    date = new Date(frequencyData[i].initialDate.getTime());
+	    //DEBUG && OTHER_DEBUGS && console.log('solution found at', frequencyData[i]);
+	    //DEBUG && OTHER_DEBUGS && console.log('initial Date',frequencyData[i].initialDate);
+	    
+	    while(date <= toAsDate){
+		    result.tickvals.push(''+date.getFullYear()+'-'+padTo2(date.getMonth()+1)+'-'+padTo2(date.getDate()));
+		    if(frequencyData[i].stringName === "date"){
+			    result.ticktext.push(''+date.getFullYear()+
+						 '-' + padTo2(date.getMonth()+1) + 
+						 '-' + padTo2(date.getDate()));
+		    } else if (frequencyData[i].stringName === "month"){
+			    result.ticktext.push(months[date.getMonth()]+' '+date.getFullYear());
+		    } else if (frequencyData[i].stringName === "quarter"){
+			    result.ticktext.push('Q' +Math.ceil((date.getMonth()+1)/3)+' '+date.getFullYear());
+		    } else if (frequencyData[i].stringName === "semester"){
+			    result.ticktext.push('H'+Math.ceil((date.getMonth()+1)/6)+' '+date.getFullYear());
+		    } else if (frequencyData[i].stringName === "year"){
+			    result.ticktext.push(''+date.getFullYear());
+		    } else if (frequencyData[i].stringName === "year-month"){
+			    result.ticktext.push(''+date.getFullYear()+'-'+padTo2(date.getMonth()+1));
+		    }
+		    
+		    if (frequencyData[i].daysStep >0){
+			    date.setDate(date.getDate()+frequencyData[i].daysStep);
+		    }
+		    
+		    if (frequencyData[i].monthsStep >0){
+			    date= new Date(date.getFullYear(), date.getMonth()+frequencyData[i].monthsStep+1, 0);
+		    }
+	    }
+	    i=frequencyData.length;
     }
   }
-  //DEBUG && console.log(frequencyData.length);
-  //DEBUG && console.log('target Frequency',targetFrequency);
-  //DEBUG && console.log(frequencyData);
+  //DEBUG && OTHER_DEBUGS && console.log(frequencyData.length);
+  //DEBUG && OTHER_DEBUGS && console.log('target Frequency',targetFrequency);
+  //DEBUG && OTHER_DEBUGS && console.log(frequencyData);
   return result;
   
 };
@@ -4837,7 +4979,311 @@ function createDataOriginal(data){
 }
         
 aoPlotlyAddOn.createDataOriginal = createDataOriginal;
+	 
+/* 
+* Optimized transformSeriesByFrequenciesNew
+*
+* changes vs prior version:
+*  1.- dates at xOriginal already come as 'yyyy-mm-dd 00:00:00-00:00'
+*  2.- no prior calculation has been made, no need to test
+*
+* data object contains arrays x and y. x has dates as 'yyyy-mm-dd 00:00:00-00:00',
+* periodKeys is an object with applicable keys as true
+* it populates data object with frequencies keys (as per periodKeys) and x, close, change, etc. attributes
+* if an attribute is not calculated, it contains 'N/A', so as to be filtered when data.x, .y are updated.
+*/
 
+function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
+	var j=0, jLimit, k=0, iLimit = data.length; 
+	var   currentDate = {},
+	    currentDateString = "",
+	    currentY = 0.0,
+	    temp = 0.0,
+	    priorBankingDate = {},
+	    nextBankingDate = {},
+	    priorLimits = {},
+	    currentLimits = {},
+	    limitsLibrary = {},
+	    begin = true;
+	var key = "",
+	    aggKey = "",
+	    priorClose = [],
+	    priorCumulative = [],
+	    average = [],
+	    priorXString, nextXString,
+	    periodKeysArray = [],
+	    doCalculations = false;
+	var dataIXO, dataIYO, dataIK;
+	var averageK;
+	var currentLimitKeyBegins, currentLimitKeyEnds;
+	var itemsLength = [];
+	var itemsIndex = [];
+	var index = 0;
+	var minMaxDatesAsString = getDataXminXmaxAsString(data);
+	//var bankingDaysLibrary = getBankingDaysLibrary(minMaxDatesAsString.min, minMaxDatesAsString.max);
+	
+	/*
+	var startBankingDate = new Date();
+	var startDateLimit = new Date();
+	var elapsedBankingDate, elapsedDateLimit;
+	var startDataI = new Date();*/
+	
+	var localGetPriorNonUSBankingWorkingDay = getPriorNonUSBankingWorkingDay;
+	var localGetNextNonUSBankingWorkingDay =  getNextNonUSBankingWorkingDay;
+	var localGetPeriodLimitsAsYYYYMMDD = getPeriodLimitsAsYYYYMMDD;
+	
+	
+	// create periodKeysArray to iterate to required keys to be calculated
+	//test that series are not yet calculated for requested keys and update
+	for (key in originalPeriodKeys) {
+		if (originalPeriodKeys.hasOwnProperty(key)) {
+			if (originalPeriodKeys[key]) {
+				periodKeysArray.push(key);
+				doCalculations = true;
+			}
+		}
+	}
+	
+	var kLimit = periodKeysArray.length;
+	priorClose.length = kLimit;
+	priorCumulative.length = kLimit;
+	average.length = kLimit;
+	itemsLength.length = kLimit;
+	itemsIndex.length = kLimit;
+	
+	/*elapsedBankingDate = 0;
+	elapsedDateLimit = 0;*/
+	
+	for (var i = 0; i < iLimit; i++) {
+		// flags begin
+		begin = true;
+		
+		dataIXO = data[i].xOriginal;
+		dataIYO = data[i].yOriginal;
+		jLimit = dataIXO.length;
+		
+		//startDataI = new Date();
+		
+		if(doCalculations) {
+		
+			for(k=0; k < kLimit; k++){
+				key = periodKeysArray[k];
+				priorClose[k] = "undefined";
+				priorCumulative[k]=0.0;
+				itemsLength[k] = 0;
+				itemsIndex[k] = jLimit-1;
+			}
+			
+			// iterates over trace points
+
+			//DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.log("jLimit", jLimit);
+			DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.time("DataI");
+			
+			for (j = jLimit - 1; j > -1; j--) {
+				//DEBUG && OTHER_DEBUGS && console.log('j',j);
+				// get periods ranges and dates
+				currentDateString = dataIXO[j];
+				currentDate = stripDateIntoObject(currentDateString);
+				priorXString = begin ? "undefined" : dataIXO[j + 1];
+				nextXString = (j > 0) ? dataIXO[j - 1] : "undefined";
+				
+				currentY = Number(dataIYO[j]);
+				
+				//startBankingDate = new Date();
+				//DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.time("Time: GetBankingDays");
+				if(typeof priorBankingDate[currentDateString] === "undefined") {
+					priorBankingDate[currentDateString] = 
+						localGetPriorNonUSBankingWorkingDay(currentDate.year,
+									    currentDate.month,
+									    currentDate.day);
+				} 
+				
+				if(typeof nextBankingDate[currentDateString] === "undefined") {
+					nextBankingDate[currentDateString] =
+						localGetNextNonUSBankingWorkingDay(currentDate.year,
+									   currentDate.month,
+									   currentDate.day);
+				}
+				
+				//DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.timeEnd("Time: GetBankingDays");
+				//elapsedBankingDate += (new Date() - startBankingDate); 
+				
+				// checks and procedures for the first point in the trace
+				if (begin) {
+					
+					if(typeof limitsLibrary[currentDateString] === "undefined") {
+						limitsLibrary[currentDateString] = localGetPeriodLimitsAsYYYYMMDD(
+										currentDate.year,
+										currentDate.month,
+										currentDate.day,
+										endOfWeek);
+					}
+							
+					priorLimits = limitsLibrary[currentDateString];
+					
+					for(k=0; k < kLimit; k++){
+						average[k] = {
+							sum: 0.0,
+							n: 0,
+							calculate: false
+							};
+					}
+					begin = false;
+				}
+				
+				//startDateLimit = new Date();
+				//DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.time("Time: GetPeriodLimits");
+				if(typeof limitsLibrary[currentDateString] === "undefined") {
+					limitsLibrary[currentDateString] = localGetPeriodLimitsAsYYYYMMDD(
+										currentDate.year,
+										currentDate.month,
+										currentDate.day,
+										endOfWeek);
+				}
+				
+				
+				currentLimits = limitsLibrary[currentDateString];
+				
+				//elapsedDateLimit += (new Date() - startDateLimit); 
+				//DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.timeEnd("Time: GetPeriodLimits");
+				
+				for(k=0; k < kLimit; k++){
+					key = periodKeysArray[k];
+					averageK = average[k];
+					currentLimitKeyBegins = currentLimits.begins[key];
+					currentLimitKeyEnds = currentLimits.ends[key];
+					
+					
+					// case: Period begin found
+					if (priorXString < currentLimitKeyBegins ||
+					    priorBankingDate[currentDateString] < currentLimitKeyBegins){
+						// allow average calculation.
+						averageK.calculate= true;
+					}
+					
+					// add value to average
+					if(averageK.calculate){
+						averageK.sum = Number(averageK.sum)+currentY;
+						averageK.n = Number(averageK.n)+1;
+					}
+					
+					// case: period end found
+					if ((nextXString != 'undefined' && nextXString >= currentLimitKeyEnds) ||
+					    nextBankingDate[currentDateString] >= currentLimitKeyEnds) {
+						
+						// create data[i][key] object if not already created.
+						if (typeof data[i][key] === 'undefined') {
+							data[i][key] = {
+								x: [],
+								close: [],
+								average: [],
+								change: [],
+								percChange: [],
+								sqrPercChange: [],
+								cumulative: []
+							};
+							// set initial length to maximum
+							for (aggKey in data[i][key]) {
+								if (data[i][key].hasOwnProperty(aggKey)) {
+									data[i][key][aggKey].length = jLimit;
+								}
+							}
+							
+						}
+						
+						dataIK = data[i][key];
+						
+						// set index
+						index = itemsIndex[k];
+						
+						// add date to trace for this key
+						dataIK.x[index] = currentLimits.label[key];
+						
+						// add average if applicable
+						if (averageK.calculate) {
+							dataIK.average[index] = averageK.sum / averageK.n;
+							averageK.sum = 0.0;
+							averageK.n = 0;
+							averageK.calculate = false;
+						} else {
+							dataIK.average[index] = 'N/A';
+						}
+						
+						// add close
+						dataIK.close[index] = currentY;
+						
+						//add cumulative
+						dataIK.cumulative[index] = priorCumulative[k] + currentY;  
+						
+						// check if priorClose.key exists and update changes
+						if (priorClose[k] !== "undefined") {
+							temp = currentY - priorClose[k];
+							dataIK.change[index] = temp;
+							temp = (priorClose[k] !== 0) ?
+								temp / priorClose[k] :
+								'N/A';
+							dataIK.percChange[index] = temp;
+							dataIK.sqrPercChange[index] = temp != 'N/A' ? temp * temp : 'N/A';
+						} else {
+							dataIK.change[index] = 'N/A';
+							dataIK.percChange[index] = 'N/A';
+							dataIK.sqrPercChange[index] = 'N/A';
+						}
+						
+						// updated index and length
+						itemsIndex[k]--;
+						itemsLength[k]++;
+						
+						//update priorClose
+						priorClose[k] = currentY;
+						priorCumulative[k]=  priorCumulative[k] + currentY;
+					} // end of period end found
+					
+					else {
+						// case: within period
+						// do something if applicable
+					}
+				}  // end of periodKeysArray for
+				
+				priorLimits = currentLimits;
+			} // next j
+			
+			DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.timeEnd("DataI");
+			// after all j's splice the resulting arrays
+			
+			DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.time("spliceArrays");
+			for (k = 0; k < kLimit; k++) {
+				key = periodKeysArray[k];
+				for (aggKey in data[i][key]) {
+					if (data[i][key].hasOwnProperty(aggKey)) {
+						data[i][key][aggKey].splice(0, jLimit - itemsLength[k]);
+						/*DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.log("aggKey: ", 
+												       aggKey,
+												       " items length: ",
+												       itemsLength[k]);*/
+					}
+				}
+			}
+			DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.timeEnd("spliceArrays");
+
+			
+		} // end of doCalculations condition
+		//DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.info("Time:dataI: %f %dms",i, new Date() - startDataI);
+		
+	} // next i
+	
+	//DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.info("Time: elapsedBankingDate time: %dms", elapsedBankingDate);
+	//DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.info("Time: elapsedDateLimit time: %dms", elapsedDateLimit);
+	
+} // end of function
+ 	 
+	 
+	 
+	 
+	 
+	 
+	 
+// OLD FUNCTION 
 // data object contains arrays x and y. x has dates as 'yyyy-mm-dd', and may have a time and timezone suffix.
 // periodKeys is an object with applicable keys as true
 // it populates data object with frequencies keys (as per periodKeys) and x, close, change, etc. attributes
@@ -4867,7 +5313,7 @@ aoPlotlyAddOn.transformSeriesByFrequencies = function (data, originalPeriodKeys,
     //test that series are not yet calculated for requested keys and update
     for (key in originalPeriodKeys) {
       if (originalPeriodKeys.hasOwnProperty(key)) {
-        //DEBUG && console.log(key,periodKeys[key]);
+        //DEBUG && OTHER_DEBUGS && console.log(key,periodKeys[key]);
         if (originalPeriodKeys[key]) {
           if(typeof data[i][key] !== 'undefined') {
 						// if frequency data already exists, not to be calculated again.
@@ -4889,7 +5335,7 @@ aoPlotlyAddOn.transformSeriesByFrequencies = function (data, originalPeriodKeys,
       //sets priorClose to undefined, as no prior trace point available
       for (key in periodKeys) {
         if (periodKeys.hasOwnProperty(key)) {
-          //DEBUG && console.log(key,periodKeys[key]);
+          //DEBUG && OTHER_DEBUGS && console.log(key,periodKeys[key]);
           if (periodKeys[key]) {
             priorClose[key] = 'undefined';
             priorCumulative[key]=0.0;
@@ -4899,7 +5345,7 @@ aoPlotlyAddOn.transformSeriesByFrequencies = function (data, originalPeriodKeys,
 
       // iterates over trace points
       for (j = data[i].xOriginal.length - 1; j > -1; j--) {
-        //DEBUG && console.log('j',j);
+        //DEBUG && OTHER_DEBUGS && console.log('j',j);
         // get periods ranges and dates
         currentDate = stripDateIntoObject(data[i].xOriginal[j]);
         priorXString = begin ? "undefined" : data[i].xOriginal[j + 1];
@@ -4954,7 +5400,8 @@ aoPlotlyAddOn.transformSeriesByFrequencies = function (data, originalPeriodKeys,
             }
 
             // case: period end found
-            if ((nextXString != 'undefined' && nextXString >= currentLimits.ends[key]) || nextBankingDate.string >= currentLimits.ends[key]) {
+            if ((nextXString != 'undefined' && nextXString >= currentLimits.ends[key]) ||
+		nextBankingDate.string >= currentLimits.ends[key]) {
 
               // create data[i][key] object if not already created.
               if (typeof data[i][key] === 'undefined') {
@@ -5016,26 +5463,176 @@ aoPlotlyAddOn.transformSeriesByFrequencies = function (data, originalPeriodKeys,
  
 
 
-// calculates mode as excel does
-function myMod(n, d) {
-  return (n - d * Math.floor(n / d));
+// returns a dictionary with with the next and prior banking dates for a given date
+// the index are the number of milliseconds between 1 January 1970 00:00:00 UTC 
+//	 is the miliseconds since dates come and are handled in a complete form, that is "yyyy-mm-dd hh:mm:ss+hh:mm"
+//
+function getBankingDaysLibrary(minDateAsString, maxDateAsString) {
+	var localGetPriorBankingWorkingDayObject = getPriorBankingWorkingDayObject;
+	var localGetNextBankingWorkingDayObject = getNextBankingWorkingDayObject;
+	var localConvertMillisecondsIntoObject = convertMillisecondsIntoObject;
+	var dayInMilliseconds = 86400000;
+	
+	var bankingDaysLibrary = {};
+	
+	var currentDateAsString = minDateAsString;
+	var currentDateInMilliseconds = (new Date(currentDateAsString)).valueOf();
+	var currentDateObject = localConvertMillisecondsIntoObject(currentDateInMilliseconds);
 
+	var maxDateInMilliseconds = (new Date(maxDateAsString)).valueOf();
+	
+	var priorBankingDayObject =  localGetPriorBankingWorkingDayObject(
+							currentDateObject.year,
+							currentDateObject.month,
+							currentDateObject.day);
+	    
+	var nextBankingDayObject =  localGetNextBankingWorkingDayObject(
+							currentDateObject.year,
+							currentDateObject.month,
+							currentDateObject.day);
+	
+	
+	while(currentDateInMilliseconds <= maxDateInMilliseconds) {
+		
+		if(typeof bankingDaysLibrary[currentDateInMilliseconds] === "undefined"){
+			
+			if(currentDateInMilliseconds < nextBankingDayObject.milliseconds) {
+				
+				bankingDaysLibrary[currentDateInMilliseconds] = {
+					prior: priorBankingDayObject.string,
+					next:  nextBankingDayObject.string
+				};
+			} else {
+				
+				bankingDaysLibrary[currentDateInMilliseconds] = {
+					prior: priorBankingDayObject.string,
+				};
+				
+				priorBankingDayObject = nextBankingDayObject;
+				
+				nextBankingDayObject =  localGetNextBankingWorkingDayObject(
+								currentDateObject.year,
+								currentDateObject.month,
+								currentDateObject.day);
+				
+				bankingDaysLibrary[currentDateInMilliseconds].next = nextBankingDayObject.string;
+				
+			}
+		}
+		
+		// add new day to current
+		currentDateInMilliseconds += dayInMilliseconds;
+		currentDateObject = localConvertMillisecondsIntoObject(currentDateInMilliseconds);
+	} 
+	
+	return bankingDaysLibrary;
+
+} 	 
+
+
+// strip date as 'yyyy-mm-dd' into object
+function stripDateIntoObject(dateString) {
+  var obj = {
+    string: dateString,
+    year: Number(dateString.substr(0, 4)),
+    month: Number(dateString.substr(5, 2)),
+    day: Number(dateString.substr(8, 2))
+  };
+  
+  return obj;
+  
+}
+	 
+// strip date as miliseconds into object
+// milliseconds are the number of milliseconds between 1 January 1970 00:00:00 UTC and the given date.
+function convertMillisecondsIntoObject(milliseconds) {
+
+var date = new Date(milliseconds);
+	
+	
+  var obj = {
+    year: date.getFullYear(),
+    month: 1+date.getMonth(),
+    day: date.getDate()
+  };
+  
+  return obj;
+  
+}	 
+	
+
+	 
+// get next non holiday day for a given date as year, month, day
+// year, month 1-12, day 1-31
+function getNextNonUSBankingWorkingDay(year, month, day) {
+
+  var plainDate = new Date(year, month - 1, day);
+
+  do {
+    plainDate.setDate(plainDate.getDate() + 1);
+
+  } while (checkIsUSBankingHoliday(plainDate.getFullYear(), plainDate.getMonth() + 1, plainDate.getDate()) != 'undefined');
+
+  return plainDate.getFullYear() + '-' + ((plainDate.getMonth() + 1) < 10 ? '0' : '') +
+	  (plainDate.getMonth() + 1) + '-' + (plainDate.getDate() < 10 ? '0' : '') + plainDate.getDate();
 }
 
-// returns Good Friday date as 'yyyy-mm-dd'
-function goodFridayAsString(year) {
-  var daysInMiliseconds = 86400000;
+// get prior non holiday day for a given date as year, month, day
+// year, month 1-12, day 1-31
+function getPriorNonUSBankingWorkingDay(year, month, day) {
 
-  var excelBaseDate = new Date('1899-12-31T00:00:00Z');
-  var excelAprilFirst = (new Date(year.toString() + '-04-02T00:00:00Z') - excelBaseDate) / daysInMiliseconds;
-  var excelGoodFriday = Math.round((excelAprilFirst) / 7 + myMod(19 * myMod(year, 19) - 7, 30) * 0.14) * 7 - 8;
-  var goodFridayDate = new Date((excelGoodFriday - 1) * daysInMiliseconds + excelBaseDate.getTime());
+  var plainDate = new Date(year, month - 1, day);
 
-  var gFMonth = goodFridayDate.getUTCMonth() + 1,
-    gFDate = goodFridayDate.getUTCDate();
+  do {
+    plainDate.setDate(plainDate.getDate() - 1);
 
-  return goodFridayDate.getFullYear() + '-' + (gFMonth < 10 ? '0' : '') + gFMonth + '-' + (gFDate < 10 ? '0' : '') + gFDate;
+  } while (checkIsUSBankingHoliday(plainDate.getFullYear(), plainDate.getMonth() + 1, plainDate.getDate()) != 'undefined');
+
+  return plainDate.getFullYear() + '-' + ((plainDate.getMonth() + 1) < 10 ? '0' : '') +
+	  (plainDate.getMonth() + 1) + '-' + (plainDate.getDate() < 10 ? '0' : '') + plainDate.getDate();
 }
+
+	
+
+function getPriorBankingWorkingDayObject(year, month, day){
+	
+  var plainDate = new Date(year, month - 1, day);
+
+  do {
+    plainDate.setDate(plainDate.getDate() -1);
+
+  } while (checkIsUSBankingHoliday(plainDate.getFullYear(), plainDate.getMonth() + 1, plainDate.getDate()) != 'undefined');
+
+  return {
+	  string: plainDate.getFullYear() + '-' + ((plainDate.getMonth() + 1) < 10 ? '0' : '') +
+	  (plainDate.getMonth() + 1) + '-' + (plainDate.getDate() < 10 ? '0' : '') + plainDate.getDate(),
+	  
+	  milliseconds: plainDate.valueOf()
+  };
+}
+
+	 
+
+function getNextBankingWorkingDayObject(year, month, day){
+	
+  var plainDate = new Date(year, month - 1, day);
+
+  do {
+    plainDate.setDate(plainDate.getDate() + 1);
+
+  } while (checkIsUSBankingHoliday(plainDate.getFullYear(), plainDate.getMonth() + 1, plainDate.getDate()) != 'undefined');
+
+  return {
+	  string: plainDate.getFullYear() + '-' + ((plainDate.getMonth() + 1) < 10 ? '0' : '') +
+	  (plainDate.getMonth() + 1) + '-' + (plainDate.getDate() < 10 ? '0' : '') + plainDate.getDate(),
+	  
+	  milliseconds: plainDate.valueOf()
+  };
+		
+}
+
+	
+	
 
 // year yyyy, month 1-12, day 1-31
 function checkIsUSBankingHoliday(year, month, day) {
@@ -5107,34 +5704,31 @@ function checkIsUSBankingHoliday(year, month, day) {
     (dateYYYYMMDD == goodFridayAsString(year) ? 'Good Friday' : 'undefined')
   );
 }
+	
 
-// get next non holiday day for a given date as year, month, day
-// year, month 1-12, day 1-31
-function getNextNonUSBankingWorkingDay(year, month, day) {
 
-  var plainDate = new Date(year, month - 1, day);
+// returns Good Friday date as 'yyyy-mm-dd'
+function goodFridayAsString(year) {
+  var daysInMiliseconds = 86400000;
 
-  do {
-    plainDate.setDate(plainDate.getDate() + 1);
+  var excelBaseDate = new Date('1899-12-31T00:00:00Z');
+  var excelAprilFirst = (new Date(year.toString() + '-04-02T00:00:00Z') - excelBaseDate) / daysInMiliseconds;
+  var excelGoodFriday = Math.round((excelAprilFirst) / 7 + myMod(19 * myMod(year, 19) - 7, 30) * 0.14) * 7 - 8;
+  var goodFridayDate = new Date((excelGoodFriday - 1) * daysInMiliseconds + excelBaseDate.getTime());
 
-  } while (checkIsUSBankingHoliday(plainDate.getFullYear(), plainDate.getMonth() + 1, plainDate.getDate()) != 'undefined');
+  var gFMonth = goodFridayDate.getUTCMonth() + 1,
+    gFDate = goodFridayDate.getUTCDate();
 
-  return plainDate.getFullYear() + '-' + ((plainDate.getMonth() + 1) < 10 ? '0' : '') + (plainDate.getMonth() + 1) + '-' + (plainDate.getDate() < 10 ? '0' : '') + plainDate.getDate();
+  return goodFridayDate.getFullYear() + '-' + (gFMonth < 10 ? '0' : '') + gFMonth + '-' + (gFDate < 10 ? '0' : '') + gFDate;
 }
+	 
 
-// get prior non holiday day for a given date as year, month, day
-// year, month 1-12, day 1-31
-function getPriorNonUSBankingWorkingDay(year, month, day) {
+// calculates mode as excel does
+function myMod(n, d) {
+  return (n - d * Math.floor(n / d));
 
-  var plainDate = new Date(year, month - 1, day);
-
-  do {
-    plainDate.setDate(plainDate.getDate() - 1);
-
-  } while (checkIsUSBankingHoliday(plainDate.getFullYear(), plainDate.getMonth() + 1, plainDate.getDate()) != 'undefined');
-
-  return plainDate.getFullYear() + '-' + ((plainDate.getMonth() + 1) < 10 ? '0' : '') + (plainDate.getMonth() + 1) + '-' + (plainDate.getDate() < 10 ? '0' : '') + plainDate.getDate();
-}
+}	
+	
 
 // given a date as text, returns object with period limits as Date()
 // a data would be within the limits if 
@@ -5248,17 +5842,8 @@ function findSpliceInfo(newArray, xSeriesName, newArrayInitialIndex, newArrayEle
 	iLimit = newArrayInitialIndex + newArrayElements;
 	for (var i=newArrayInitialIndex; i < iLimit; i++){
 		
-		/*if(datesReady){*/
 		currentDate = new Date(newArray[i][xSeriesName]);
-		/*}*/
-		/*
-		else {
-			currentDate= localProcessDate("" +
-						 !yqlGoogleCSV ? newArray[i][xSeriesName] :  localGoogleMDYToYMD(newArray[i][xSeriesName])+
-						 xDateSuffix, timeOffsetText);
-			currentDate = new Date(transformToEndOfMonth ? localChangeDateToEndOfMonth(currentDate) : currentDate);				 
-		}
-		*/
+
 		// search for an entry point
 		if(spliceInfo.initialIndex===-1){
 			for(j=-1; j < jLimit; j++){
@@ -5270,17 +5855,8 @@ function findSpliceInfo(newArray, xSeriesName, newArrayInitialIndex, newArrayEle
 							j=jLimit;
 							// search number of items to include
 							for (i=spliceInfo.initialIndex; i<iLimit; i++){
-								/*if(datesReady){*/
 								currentDate = new Date(newArray[i][xSeriesName]);
-								/*}*/
-								/*
-								else {
-									currentDate= localProcessDate(
-										"" +
-										!yqlGoogleCSV ? newArray[i][xSeriesName] :  localGoogleMDYToYMD(newArray[i][xSeriesName])+
-										xDateSuffix, timeOffsetText);
-									currentDate = new Date(transformToEndOfMonth ? localChangeDateToEndOfMonth(currentDate) : currentDate);				 
-								}*/
+
 								if(currentDate <= cutDate ){
 									spliceInfo.traceLength = i-spliceInfo.initialIndex;
 									i=iLimit;
@@ -5308,16 +5884,9 @@ function findSpliceInfo(newArray, xSeriesName, newArrayInitialIndex, newArrayEle
 						j=jLimit;
 						// search number of items to include
 						for (i=spliceInfo.initialIndex; i < iLimit; i++){
-							/*if(datesReady){*/
+
 							currentDate = new Date(newArray[i][xSeriesName]);
-							/*}*/
-							/*else {
-								currentDate= localProcessDate(
-									"" +
-									!yqlGoogleCSV ? newArray[i][xSeriesName] :  localGoogleMDYToYMD(newArray[i][xSeriesName])+
-									xDateSuffix, timeOffsetText);
-								currentDate = new Date(transformToEndOfMonth ? localChangeDateToEndOfMonth(currentDate) : currentDate);				 
-							}*/							
+							
 							if(currentDate <= cutDate ){
 								spliceInfo.traceLength = i-spliceInfo.initialIndex;
 								i=iLimit;
@@ -5385,8 +5954,12 @@ function sortByGoogleDatesAsStrings(xSeriesName, delta){
 			return delta;			
 		}
 		else {
-				return 	new Date(b[xSeriesName]==="" || b[xSeriesName]===null ? "0001-01-01": localGoogleMDYToYMD(b[xSeriesName]))-
-					new Date(a[xSeriesName]==="" || a[xSeriesName]===null ? "0001-01-01": localGoogleMDYToYMD(a[xSeriesName]));
+				return 	new Date(b[xSeriesName]==="" || b[xSeriesName]===null ? 
+						 "0001-01-01": 
+						 localGoogleMDYToYMD(b[xSeriesName]))-
+					new Date(a[xSeriesName]==="" || a[xSeriesName]===null ?
+						 "0001-01-01":
+						 localGoogleMDYToYMD(a[xSeriesName]));
 
 		}
 
@@ -5468,7 +6041,7 @@ function transformAllRowsToEndOfMonth(allRows, xSeriesName, xDateSuffix, urlType
 		allRows[i][xSeriesName] = processedDate;	
 	}
 }*/
-	
+
 /*	 
 function processDatesToAllRows(allRows, xSeriesName, xDateSuffix, urlType){
 	var iLimit = allRows.lenght;
@@ -5485,7 +6058,7 @@ function processDatesToAllRows(allRows, xSeriesName, xDateSuffix, urlType){
 	// 
 	for (var i=0; i < iLimit; i++){
 		processedDate = !yqlGoogleCSV ? allRows[i][xSeriesName] :  localGoogleMDYToYMD(allRows[i][xSeriesName]);
-		processedDate = localProcessDate(""+processedDate + xDateSuffix, timeOffsetText);	
+		processedDate = localProcessDate(""+processedDate + xDateSuffix, timeOffsetText);
 		allRows[i][xSeriesName] = processedDate;
 	}
 }
@@ -5506,7 +6079,7 @@ function processYqlGoogleCSVTags(dataSources){
 		}
 	}
 
-	for (j=0; j< jLimit; j++){			
+	for (j=0; j< jLimit; j++){
 		for (key in tags){
 			if (tags.hasOwnProperty(key)) {
 				if(tags[key].toString().trim() === dataSources.traces[j].xSeriesName.toString()){
@@ -5553,16 +6126,19 @@ function applyDateProprocessing(allRows, tableParams, urlType) {
 				}
 				
 				transformToEndOfMonth = false;
-				if(typeof tableParams[key]["postProcessDate"] !== "undefined" && tableParams[key]["postProcessDate"] === "end of month"){ 
+				if(typeof tableParams[key]["postProcessDate"] !== "undefined" &&
+				   tableParams[key]["postProcessDate"] === "end of month"){ 
 					transformToEndOfMonth = true;
 				}
 				
 				if(yqlGoogleCSV){				   
 					for(i = 0; i < iLimit ; i++){
 						if(allRows[i][xSeriesName]!=="" && allRows[i][xSeriesName]!==null){
-							allRows[i][xSeriesName] = localProcessDate(""+
-											 localGoogleMDYToYMD(allRows[i][xSeriesName])+ 
-											xDateSuffix, timeOffsetText);
+							allRows[i][xSeriesName] =
+								localProcessDate(""+
+										 localGoogleMDYToYMD(allRows[i][xSeriesName])+
+										 xDateSuffix, 
+										 timeOffsetText);
 						}
 
 					}
@@ -5636,32 +6212,32 @@ function setTablesParametersSortPreprocessing(tableParams, dataSources){
 
 		// add sort info
 		if(typeof dataSources["sort"] !== "undefined"){
-			tableParams[xSeriesName]["sort"] =  dataSources["sort"];				
+			tableParams[xSeriesName]["sort"] =  dataSources["sort"];
 		} 
 
 		// add xDateSuffix info
 		if(typeof dataSources["xDateSuffix"] !== "undefined"){
-			tableParams[xSeriesName]["xDateSuffix"] =  dataSources["xDateSuffix"];				
+			tableParams[xSeriesName]["xDateSuffix"] =  dataSources["xDateSuffix"];	
 		} 
 
 		// add firstItemToRead info
 		if(typeof dataSources["firstItemToRead"] !== "undefined"){
-			tableParams[xSeriesName]["firstItemToRead"] =  dataSources["firstItemToRead"];				
+			tableParams[xSeriesName]["firstItemToRead"] =  dataSources["firstItemToRead"];
 		} 
 
 		// add processDate info
 		if(typeof dataSources["processDates"] !== "undefined"){
-			tableParams[xSeriesName]["processDates"] =  dataSources["processDates"];				
+			tableParams[xSeriesName]["processDates"] =  dataSources["processDates"];
 		}
 
 		// add postProcessDate info
 		if(typeof dataSources["postProcessDate"] !== "undefined"){
-			tableParams[xSeriesName]["postProcessDate"] =  dataSources["postProcessDate"];				
+			tableParams[xSeriesName]["postProcessDate"] =  dataSources["postProcessDate"];
 		} 
 		
 		// add onlyAddXDateSuffix info
 		if(typeof dataSources["onlyAddXDateSuffix"] !== "undefined"){
-			tableParams[xSeriesName]["onlyAddXDateSuffix"] =  dataSources["onlyAddXDateSuffix"];				
+			tableParams[xSeriesName]["onlyAddXDateSuffix"] =  dataSources["onlyAddXDateSuffix"];
 		} 
 
 
@@ -5669,7 +6245,7 @@ function setTablesParametersSortPreprocessing(tableParams, dataSources){
 
 		// add sort info, default false
 		if(typeof traces[j]["sort"] !== "undefined"){
-			tableParams[xSeriesName]["sort"] =  traces[j]["sort"];				
+			tableParams[xSeriesName]["sort"] =  traces[j]["sort"];
 		} else{
 			if(typeof tableParams[xSeriesName]["sort"] === "undefined")
 				tableParams[xSeriesName]["sort"] =  false;	
@@ -5677,7 +6253,7 @@ function setTablesParametersSortPreprocessing(tableParams, dataSources){
 
 		// add xDateSuffix info, default ""
 		if(typeof traces[j]["xDateSuffix"] !== "undefined"){
-			tableParams[xSeriesName]["xDateSuffix"] =  traces[j]["xDateSuffix"];				
+			tableParams[xSeriesName]["xDateSuffix"] =  traces[j]["xDateSuffix"];
 		} else{
 			if(typeof tableParams[xSeriesName]["xDateSuffix"] === "undefined")
 				tableParams[xSeriesName]["xDateSuffix"] =  "";	
@@ -5685,7 +6261,7 @@ function setTablesParametersSortPreprocessing(tableParams, dataSources){
 
 		// add firstItemToRead info, default first
 		if(typeof traces[j]["firstItemToRead"] !== "undefined"){
-			tableParams[xSeriesName]["firstItemToRead"] =  traces[j]["firstItemToRead"];				
+			tableParams[xSeriesName]["firstItemToRead"] =  traces[j]["firstItemToRead"];
 		} else{
 			if(typeof tableParams[xSeriesName]["firstItemToRead"] === "undefined")
 				tableParams[xSeriesName]["firstItemToRead"] =  "first";	
@@ -5693,7 +6269,7 @@ function setTablesParametersSortPreprocessing(tableParams, dataSources){
 
 		// add processDate info, default true
 		if(typeof traces[j]["processDates"] !== "undefined"){
-			tableParams[xSeriesName]["processDates"] =  traces[j]["processDates"];				
+			tableParams[xSeriesName]["processDates"] =  traces[j]["processDates"];
 		} else{
 			if(typeof tableParams[xSeriesName]["processDates"] === "undefined")
 				tableParams[xSeriesName]["processDates"] =  true;	
@@ -5701,12 +6277,12 @@ function setTablesParametersSortPreprocessing(tableParams, dataSources){
 
 		// add postProcessDate info, default undefined
 		if(typeof traces[j]["postProcessDate"] !== "undefined"){
-			tableParams[xSeriesName]["postProcessDate"] =  traces[j]["postProcessDate"];				
+			tableParams[xSeriesName]["postProcessDate"] =  traces[j]["postProcessDate"];
 		} 
 		
 		// add onlyAddXDateSuffix info, default undefined
 		if(typeof  traces[j]["onlyAddXDateSuffix"] !== "undefined"){
-			tableParams[xSeriesName]["onlyAddXDateSuffix"] =  traces[j]["onlyAddXDateSuffix"];				
+			tableParams[xSeriesName]["onlyAddXDateSuffix"] =  traces[j]["onlyAddXDateSuffix"];
 		} 
 
 			
@@ -5745,11 +6321,11 @@ function splitSubtablesAndTrim(allRows, tableParams, dataSources, initialDateAsD
 			jLimit = tableParams[key]["yNames"].length;
 			
 			yNamesArray = tableParams[key]["yNames"];
-			//DEBUG && console.log("yNamesArray: ", yNamesArray);
+			//DEBUG && OTHER_DEBUGS && console.log("yNamesArray: ", yNamesArray);
 			
-			//DEBUG && console.log("xSeriesName: ", xSeriesName);
-			//DEBUG && console.log("iLimit ", iLimit);
-			//DEBUG && console.log("allRows in split subtables", allRows);
+			//DEBUG && OTHER_DEBUGS && console.log("xSeriesName: ", xSeriesName);
+			//DEBUG && OTHER_DEBUGS && console.log("iLimit ", iLimit);
+			//DEBUG && OTHER_DEBUGS && console.log("allRows in split subtables", allRows);
 			// read data into ordered and subtables
 			for(i=0; i<iLimit; i++){
 				dateString = allRows[l][xSeriesName];
@@ -5762,13 +6338,13 @@ function splitSubtablesAndTrim(allRows, tableParams, dataSources, initialDateAsD
 							newArray[k][ySeriesName]=allRows[l][ySeriesName];
 						}
 						k++;
-						//DEBUG && console.log("l: ", l);
+						//DEBUG && OTHER_DEBUGS && console.log("l: ", l);
 					}	
 				}
 				l+=lStep;
 			}
-			//DEBUG && console.log("k elements",k);
-			//DEBUG && console.log("new array", newArray);
+			//DEBUG && OTHER_DEBUGS && console.log("k elements",k);
+			//DEBUG && OTHER_DEBUGS && console.log("new array", newArray);
 			// adjust array length to read items.
 			newArray.length=k;
 			tableParams[key]["allRows"] = newArray;
@@ -5903,7 +6479,7 @@ function getdayBeforeAsString(dateAsYYYYMMDDString){
 	
 	dateAsYYYYMMDDString +=" 00:00:00"+timeOffsetText;
 	
-	DEBUG && console.log(dateAsYYYYMMDDString.substr(0,4));
+	DEBUG && OTHER_DEBUGS && console.log(dateAsYYYYMMDDString.substr(0,4));
 	
 	var dayBefore = new Date(
 		Number(dateAsYYYYMMDDString.substr(0,4)),
@@ -5911,16 +6487,16 @@ function getdayBeforeAsString(dateAsYYYYMMDDString){
 		Number(dateAsYYYYMMDDString.substr(8,2))
 	);
 	
-	DEBUG && console.log(dayBefore);
+	DEBUG && OTHER_DEBUGS && console.log(dayBefore);
 	
 	
 	dayBefore = new Date(dayBefore.getTime() -24*60*60*1000);
 	
-	DEBUG && console.log(dayBefore);
+	DEBUG && OTHER_DEBUGS && console.log(dayBefore);
 
 	
-	DEBUG && console.log(dayBefore);
-	DEBUG && console.log(dayBefore.getFullYear());
+	DEBUG && OTHER_DEBUGS && console.log(dayBefore);
+	DEBUG && OTHER_DEBUGS && console.log(dayBefore.getFullYear());
 	
 	return dateAsDateToString(dayBefore);
 	
@@ -6004,27 +6580,35 @@ function changeDateToEndOfMonth(dateAsStringAndProcessed){
 }
 	 
 	 
-
+// this function adds a timezone string to dates 
+// that already come as "yyyy-mm-dd"
 function processFrequenciesDates(data, periodKeys){
-	var iLimit=0, j=0, jLimit =0;
+	var key = "";
+	var j=0, jLimit =0;
+	var dataIKX;
+	var iLimit = data.length;
 
 	var timeOffset  = (new Date()).getTimezoneOffset();
-	var timeOffsetText ="";
-	var key = "";
+	var timeOffsetText = (timeOffset > 0 ) ?
+	    			("-"+convertOffsetToHHMM(timeOffset)):
+				("+"+convertOffsetToHHMM(-timeOffset));
 
-	timeOffsetText = (timeOffset > 0 ) ? 	("-"+convertOffsetToHHMM(timeOffset)): ("+"+convertOffsetToHHMM(-timeOffset));
+	var timeTimeZoneSuffix = " 00:00:00"+timeOffsetText;
 
-	iLimit = data.length;
 
 	for (var i=0; i < iLimit ;i++){
 		for(key in periodKeys){
 			if (periodKeys.hasOwnProperty(key)) {
 				if(periodKeys[key]=== true){
-					//DEBUG && console.log("[key]",key);
-					//DEBUG && console.log("data[i][key]",data[i][key]);
-					jLimit = data[i][key].x.length;
-					for(j=0; j<jLimit;j++){	
-							data[i][key].x[j] = processDate(data[i][key].x[j], timeOffsetText);
+					dataIKX = data[i][key].x;
+					//DEBUG && console.log("processFrequenciesDates, [key]",key);
+					//DEBUG && console.log("processFrequenciesDates, data[i][key]",data[i][key]);
+					//DEBUG && OTHER_DEBUGS && console.log("processFrequenciesDates, [key]",key);
+					//DEBUG && OTHER_DEBUGS && console.log("processFrequenciesDates, data[i][key]",data[i][key]);
+					jLimit = dataIKX.length;
+					for(j=0; j < jLimit; j++){
+						dataIKX[j]+= timeTimeZoneSuffix;
+						//data[i][key].x[j] = processDate(data[i][key].x[j], timeOffsetText);
 					}	
 				}	
 			}
@@ -6049,7 +6633,7 @@ function preProcessDataDates(data){
 
 	offsetText = offset > 0 ? ("-"+convertOffsetToHHMM(offset)): ("+"+convertOffsetToHHMM(-offset));
 
-	//DEBUG && console.log(offsetText);
+	//DEBUG && OTHER_DEBUGS && console.log(offsetText);
 
 	iLimit = data.length;
 
@@ -6122,7 +6706,7 @@ function preProcessDataDates(data){
 function getTimeOffsetText(){
 		var offset  = (new Date()).getTimezoneOffset();
 
-		return ((offset > 0) ? ("-"+convertOffsetToHHMM(offset)): ("+"+convertOffsetToHHMM(-offset)));			
+		return ((offset > 0) ? ("-"+convertOffsetToHHMM(offset)): ("+"+convertOffsetToHHMM(-offset)));
 }
 
 
@@ -6131,8 +6715,8 @@ function makeDateComplete(dateString){
 
 	var offset  = (new Date()).getTimezoneOffset();
 
-	timeOffsetText = (offset > 0) ? ("-"+convertOffsetToHHMM(offset)): ("+"+convertOffsetToHHMM(-offset));			
-
+	timeOffsetText = (offset > 0) ? ("-"+convertOffsetToHHMM(offset)): ("+"+convertOffsetToHHMM(-offset));
+	
 	return processDate(dateString,timeOffsetText);
 
 
@@ -6284,13 +6868,13 @@ function addRecessionsTo(recessionsArray,usRecessions){
 	var key, j=0;
 	var lastRecessionInBaseEndedAsDate = new Date(usRecessions[last][x0]);
 	
-	DEBUG && console.log("recessionsArray: ", recessionsArray);
+	DEBUG && OTHER_DEBUGS && console.log("recessionsArray: ", recessionsArray);
 
-	DEBUG && console.log("lastRecessionInBaseEndedAsDate",lastRecessionInBaseEndedAsDate);
+	DEBUG && OTHER_DEBUGS && console.log("lastRecessionInBaseEndedAsDate",lastRecessionInBaseEndedAsDate);
 	
 	// get position of new recessions
 	for(var i=0; i < iLimit ; i++){
-		DEBUG && console.log("recessionsArray[i][x0]: ", recessionsArray[i][x0]);
+		DEBUG && OTHER_DEBUGS && console.log("recessionsArray[i][x0]: ", recessionsArray[i][x0]);
 		if(new Date(recessionsArray[i][x0]) >  lastRecessionInBaseEndedAsDate){
 			k=i;
 			i=iLimit;
@@ -6325,7 +6909,7 @@ function  textToArrayOfJsons(readTxt,lineSeparator, fieldSeparator)
 	// get all lines from readTxt string
 	var array = readTxt.split(lineSeparator);
 	
-	DEBUG && console.log(array);
+	DEBUG && OTHER_DEBUGS && console.log(array);
 	
 	// fieldNames from first row
 	var fieldNames = array[0].split(fieldSeparator);
@@ -6349,7 +6933,7 @@ function  textToArrayOfJsons(readTxt,lineSeparator, fieldSeparator)
 	}
 	
 	arrayOfJsons.length = k;
-	DEBUG && console.log(arrayOfJsons);
+	DEBUG && OTHER_DEBUGS && console.log(arrayOfJsons);
 	return arrayOfJsons;
 	
 }
@@ -6391,7 +6975,7 @@ function getRecessionsFromUSRecField(readUSRec){
 		recession[k][x1]= dateAsDateToString(new Date());
 	}
 	
-	DEBUG && console.log(recessions);
+	DEBUG && OTHER_DEBUGS && console.log(recessions);
 	return recessions;
 }	 
 	 
@@ -6404,7 +6988,7 @@ function getRecessionsFromUSRecField(readUSRec){
 	
 	xhttp.onreadystatechange = onreadyFunction(xhttp);
 	
-	DEBUG && console.log("XMLHttpRequest options: ", options);
+	DEBUG && OTHER_DEBUGS && console.log("XMLHttpRequest options: ", options);
 	
 	xhttp.open(
 		options.method,
@@ -6421,7 +7005,7 @@ function wrappedDirectXMLHttpRequest(options, onreadyFunction, callback) {
 	// use "arraybuffer" for zip files.
 	xhttp.responseType = options.responseType;
 	
-	DEBUG && console.log("XMLHttpRequest options: ", options);
+	DEBUG && OTHER_DEBUGS && console.log("XMLHttpRequest options: ", options);
 	
 	xhttp.open(
 		options.method,
@@ -6434,15 +7018,18 @@ function wrappedDirectXMLHttpRequest(options, onreadyFunction, callback) {
 	// once file is read, afterFileLoaded function is triggered
 	// this version checks readyState and status at this level
 	xhttp.onreadystatechange = function(){
-		DEBUG && console.log("readyState= ", xhttp.readyState);
-		DEBUG && console.log("status= ", xhttp.status);
+		DEBUG && OTHER_DEBUGS && console.log("readyState= ", xhttp.readyState);
+		DEBUG && OTHER_DEBUGS && console.log("status= ", xhttp.status);
 		
 		// xhttp.readyState == 4, the transfer has completed and the server closed the connection.
 		if (xhttp.readyState == 4) {
 			
 			if(xhttp.status == 200) {
 				// no error passed
-				DEBUG && console.log("calling function(http, callback) { afterFredZipFileLoaded((xhttp, usRecessions, callback))}");
+				DEBUG && OTHER_DEBUGS && console.log(
+					"calling function(http, callback)"+
+					"{ afterFredZipFileLoaded((xhttp, usRecessions, callback))}"
+				);
 				onreadyFunction(xhttp,callback);
 			} else {
 				// unsuccessful zip read, call back with no processing
@@ -6456,8 +7043,8 @@ function wrappedDirectXMLHttpRequest(options, onreadyFunction, callback) {
 	
 function afterFredZipFileLoaded(xhttp, usRecessions, callback) {
 	
-	DEBUG && console.log("afterFredZipFileLoaded started");
-	DEBUG && console.log("passed xhttp:", xhttp);
+	DEBUG && OTHER_DEBUGS && console.log("afterFredZipFileLoaded started");
+	DEBUG && OTHER_DEBUGS && console.log("passed xhttp:", xhttp);
 	
 	// create an instance of JSZip
 	var zip = new JSZip();
@@ -6468,11 +7055,11 @@ function afterFredZipFileLoaded(xhttp, usRecessions, callback) {
 			return zip.file("USRECP_1.txt").async("string");
 		}).then(
 		function (readTxt) {
-			DEBUG && console.log("readTxt",readTxt);
+			DEBUG && OTHER_DEBUGS && console.log("readTxt",readTxt);
 			var readJson = textToArrayOfJsons(readTxt,"\r\n","\t");
 			var fredRecessionsArray = getRecessionsFromUSRecField(readJson);
 			addRecessionsTo(fredRecessionsArray,usRecessions);
-			DEBUG && console.log("usRecessions: ",usRecessions);
+			DEBUG && OTHER_DEBUGS && console.log("usRecessions: ",usRecessions);
 			callback(null);
 		}
 	);
@@ -6552,19 +7139,34 @@ function setDatesRangeAsString(minDateAsString, maxDateAsString, timeInfo) {
 // sets data.x and data.y to the corresponding frequency and aggregation
 function loadFrequencyAndAggregationIntoData(data, frequency, aggregation) {
 	var iLimit = data.length;
-	var jLimit = 0, j = 0;
+	var jLimit = 0, j = 0, k=0;
+	var x, y, dataIX, dataIY;	
 
 	for (var i = 0; i < iLimit; i++) {
-		data[i].x = [];
-		data[i].y = [];
-		jLimit = data[i][frequency].x.length;
+		x = [];
+		y = [];
+		dataIX = data[i][frequency].x;
+		dataIY = data[i][frequency][aggregation];
+		jLimit = dataIX.length;
+		x.length = jLimit;
+		y.length = jLimit;
 
-		for (j = 0; j < jLimit; j++) {
-			if (!isNaN(data[i][frequency][aggregation][j])) {
-				data[i].x.push(data[i][frequency].x[j]);
-				data[i].y.push(data[i][frequency][aggregation][j]);
+		//jLimit = data[i][frequency].x.length;
+		
+		for (j = 0, k=0; j < jLimit; j++) {
+			//if (!isNaN(data[i][frequency][aggregation][j])) {
+			if (!isNaN(dataIY[j])) {				
+				x[j] = dataIX[j];
+				y[j] = dataIY[j];
+				k++;
+				//data[i].x.push(data[i][frequency].x[j]);
+				//data[i].y.push(data[i][frequency][aggregation][j]);
 			}
 		}
+		x.length = k;
+		y.length = k;
+		data[i].x = x;
+		data[i].y = y;
 	}
 }
 
@@ -6572,16 +7174,26 @@ function loadFrequencyAndAggregationIntoData(data, frequency, aggregation) {
 function loadData(data, key) {
 	var iLimit = data.length;
 	var j = 0, jLimit = 0;
+	var x, y, dataIX, dataIY;
 
 	for (var i = 0; i < iLimit; i++) {
-		jLimit = data[i][key].x.length;
-		data[i].x = [];
-		data[i].y = [];
+		x = [];
+		y = [];
+		dataIX = data[i][key].x;
+		dataIY = data[i][key].y;
+		jLimit = dataIX.length;
+		x.length = jLimit;
+		y.length = jLimit;
 
 		for (j = 0; j < jLimit; j++) {
-			data[i].x.push(data[i][key].x[j]);
-			data[i].y.push(data[i][key].y[j]);
+			x[j] = dataIX[j];
+			y[j] = dataIY[j];
+			//data[i].x.push(data[i][key].x[j]);
+			//data[i].y.push(data[i][key].y[j]);
 		}
+		
+		data[i].x = x;
+		data[i].y = y;
 	}
 }
 
@@ -6592,34 +7204,52 @@ function loadData(data, key) {
 function saveDataXYIntoPropertyXY(data, xProperty, yProperty) {
 	var iLimit = data.length;
 	var jLimit = 0, j = 0;
+	var x, y, dataIX, dataIY;
 
 	for (var i = 0; i < iLimit; i++) {
 		// duplicates data into base for future use
-		data[i][xProperty] = [];
-		data[i][yProperty] = [];
-		jLimit = data[i].x.length;
+		x = [];
+		y = [];
+		dataIX = data[i].x;
+		dataIY = data[i].y;
+		jLimit = dataIX.length;
+		x.length = jLimit;
+		y.length = jLimit;
 
 		for (j = 0; j < jLimit; j++) {
-			data[i][xProperty].push(data[i].x[j]);
-			data[i][yProperty].push(data[i].y[j]);
+			x[j] = dataIX[j];
+			y[j] = dataIY[j];
+			//data[i][xProperty].push(data[i].x[j]);
+			//data[i][yProperty].push(data[i].y[j]);
 		}
+		data[i][xProperty] = x;
+		data[i][yProperty] = y;	
 	}
 }
 
 function saveDataXYIntoProperty(data, property) {
 	var iLimit = data.length;
 	var jLimit = 0, j = 0;
+	var x, y, dataIX, dataIY;
 	
 	for (var i = 0; i < iLimit; i++) {
 		// duplicates data into base for future use
-		data[i][property] = {};
-		data[i][property].x =[];
-		data[i][property].y =[];
-		jLimit = data[i].x.length;
+		x = [];
+		y = [];
+		dataIX = data[i].x;
+		dataIY = data[i].y;
+		jLimit = dataIX.length;
+		x.length = jLimit;
+		y.length = jLimit;
 		for (j = 0; j < jLimit; j++) {
-			data[i][property].x.push(data[i].x[j]);
-			data[i][property].y.push(data[i].y[j]);
-		}			
+			x[j] = dataIX[j];
+			y[j] = dataIY[j];		
+			//data[i][property].x.push(data[i].x[j]);
+			//data[i][property].y.push(data[i].y[j]);
+		}
+		data[i][property] = {};
+		data[i][property].x = x;
+		data[i][property].y = y;
 	}
 }
 
@@ -6627,16 +7257,27 @@ function loadDataIntoXYFromPropertyXY(data, propertyForX, propertyForY) {
 	var iLimit = data.length;
 	var j = 0;
 	var jLimit = 0;
+	var x, y, dataIX, dataIY;
 	
 	for (var i = 0; i < iLimit; i++) {
-		data[i].x = [];
-		data[i].y = [];
-		jLimit = data[i][propertyForX].length;
-	
+		x = [];
+		y = [];
+		dataIX = data[i][propertyForX];
+		dataIY = data[i][propertyForY];
+		jLimit = dataIX.length;
+		x.length = jLimit;
+		y.length = jLimit;
+		//jLimit = data[i][propertyForX].length;
 		for (j = 0; j < jLimit; j++) {
-			data[i].x.push(data[i][propertyForX][j]);
-			data[i].y.push(data[i][propertyForY][j]);
+			x[j] = dataIX[j];
+			y[j] = dataIY[j];
+			
+			//data[i].x.push(data[i][propertyForX][j]);
+			//data[i].y.push(data[i][propertyForY][j]);
 		}
+		
+		data[i].x = x;
+		data[i].y = y;
 	}
 }
 
@@ -6700,16 +7341,16 @@ function getYminYmax(x0, x1, data) {
 	var minValue, maxValue;
 	var x0AsDate = new Date(x0);
 	var x1AsDate = new Date(x1);
-	//DEBUG && console.log(x0AsDate);
+	//DEBUG && OTHER_DEBUGS && console.log(x0AsDate);
 	for (var i = 0; i < data.length; i++) {
 		var aTrace = data[i];
-		//DEBUG && console.log(aTrace.x.length);
+		//DEBUG && OTHER_DEBUGS && console.log(aTrace.x.length);
 		for (var j = 0; j < aTrace.x.length; j++) {
 			var x = new Date(aTrace.x[j]);
-			//DEBUG && console.log(x);
+			//DEBUG && OTHER_DEBUGS && console.log(x);
 			if (x >= x0AsDate && x <= x1AsDate) {
 				var aValue = Number(aTrace.y[j]);
-				//DEBUG && console.log('aValue'+aValue+',min:'+minValue+',max:'+maxValue);
+				//DEBUG && OTHER_DEBUGS && console.log('aValue'+aValue+',min:'+minValue+',max:'+maxValue);
 				if (maxValue === undefined || aValue > maxValue) {
 					maxValue = aValue;
 				}
@@ -6746,29 +7387,34 @@ function getXminXmax(xArray) {
 
 // function to find x range over all data traces.
 // data array contains data[i].x
+// the data is ordered from oldest to newest, and the dates
+// are already complete
 // returns array with [minValue, maxValue]
 function getDataXminXmaxAsString(data) {
 	var minValue, maxValue, x = new Date();
 	var iLimit = data.length;
 	var jLimit = 0;
-	var minMax =["",""];
+	var minMax ={};
+	var dataIX;
 	
-
 	for (var i = 0; i < iLimit; i++) {
-		jLimit = data[i].x.length;
-		for (var j = 0; j < jLimit; j++) {
-			x = new Date(data[i].x[j]);
-			if (typeof maxValue === "undefined" || x > maxValue) {
-				maxValue = x;
-				minMax[1]= data[i].x[j];
-			}
-			if (typeof minValue === "undefined" || x < minValue) {
-				minValue = x;
-				minMax[0]= data[i].x[j];
-			}
+		dataIX = data[i].x;
+		jLimit = dataIX.length;
+		
+		x = new Date(dataIX[0]);
+		if (typeof maxValue === "undefined" || x > maxValue) {
+			maxValue = x;
+			minMax.max = dataIX[0];
 		}
-	}
+		
+		x = new Date(dataIX[jLimit - 1]);
+		if (typeof minValue === "undefined" || x < minValue) {
+			minValue = x;
+			minMax.min= dataIX[jLimit - 1];
+		}
 
+	}
+	
 	return minMax;
 }
 
@@ -6779,8 +7425,8 @@ function getDataXminXmaxAsString(data) {
 
 // add menus to updatemenus if specified
 function addToUpdateMenus(newUpdateMenu, updateMenus, layout) {
-	//DEBUG && console.log("newUpdateMenu", newUpdateMenu);
-	//DEBUG && console.log("updateMenus", updateMenus);
+	//DEBUG && OTHER_DEBUGS && console.log("newUpdateMenu", newUpdateMenu);
+	//DEBUG && OTHER_DEBUGS && console.log("updateMenus", updateMenus);
 
 	for (var i = 0; i < newUpdateMenu.length; i++) {
 		updateMenus.push(newUpdateMenu[i]);
@@ -7063,15 +7709,17 @@ function translateRange(initialDateAsString,endDateAsString, minDateAsString, ma
 
 
 // after determining y axis range, sets range in layout
-function setYaxisLayoutRange(yAxisType, minMaxInitialY, layout, numberOfIntervalsInYAxis, possibleYTickMultiples, rangeProportion) {
+function setYaxisLayoutRange(yAxisType, minMaxInitialY, layout, numberOfIntervalsInYAxis, 
+			      possibleYTickMultiples, rangeProportion) {
 	var yMinMax =[];
 	
-	yMinMax = getRoundedYAxisRange( minMaxInitialY[0], minMaxInitialY[1], yAxisType, numberOfIntervalsInYAxis, possibleYTickMultiples, rangeProportion);
+	yMinMax = getRoundedYAxisRange( minMaxInitialY[0], minMaxInitialY[1], 
+				       yAxisType, numberOfIntervalsInYAxis, possibleYTickMultiples, rangeProportion);
 	
 	minMaxInitialY[1] = yMinMax[1];
 	minMaxInitialY[0] = yMinMax[0];	
-	//DEBUG && console.log("endY0", minMaxInitialY[0]);
-	//DEBUG && console.log("endY1", minMaxInitialY[1]);
+	//DEBUG && OTHER_DEBUGS && console.log("endY0", minMaxInitialY[0]);
+	//DEBUG && OTHER_DEBUGS && console.log("endY1", minMaxInitialY[1]);
 	
 	if (yAxisType === "log") {
 		minMaxInitialY[0] =
@@ -7082,8 +7730,8 @@ function setYaxisLayoutRange(yAxisType, minMaxInitialY, layout, numberOfInterval
 			Math.log(10);
 	}
 	
-	//DEBUG && console.log("resulting y range - y0",minMaxInitialY[0],"y1", minMaxInitialY[0]);
-	//DEBUG && console.log("isNaN y0 y1",isNaN(minMaxInitialY[0]), isNaN(minMaxInitialY[0]));
+	//DEBUG && OTHER_DEBUGS && console.log("resulting y range - y0",minMaxInitialY[0],"y1", minMaxInitialY[0]);
+	//DEBUG && OTHER_DEBUGS && console.log("isNaN y0 y1",isNaN(minMaxInitialY[0]), isNaN(minMaxInitialY[0]));
 	
 
 	if(!isNaN(minMaxInitialY[0]) && !isNaN(minMaxInitialY[1] )){
@@ -7096,7 +7744,8 @@ function setYaxisLayoutRange(yAxisType, minMaxInitialY, layout, numberOfInterval
 
 }
 
-// sets the y axis range in the layout based on the y range for the available data array, y values ovr the xaxis range.
+// sets the y axis range in the layout based on the y range for the available data array, 
+//y values ovr the xaxis range.
 function setYAxisRange(layout, data, numberOfIntervalsInYAxis,possibleYTickMultiples, rangeProportion) {
 
 	// obtain y axis range for the displayed x range
@@ -7107,21 +7756,24 @@ function setYAxisRange(layout, data, numberOfIntervalsInYAxis,possibleYTickMulti
 	);
 
 	// set y axis layout range
-	setYaxisLayoutRange(layout.yaxis.type, minMaxInitialY, layout, numberOfIntervalsInYAxis,possibleYTickMultiples, rangeProportion);
+	setYaxisLayoutRange(layout.yaxis.type, minMaxInitialY, layout, 
+			    numberOfIntervalsInYAxis,possibleYTickMultiples, rangeProportion);
 }
 
 // returns y axois layout range as a two element array
-function returnYaxisLayoutRange(yAxisType, yMinValue, yMaxValue,numberOfIntervalsInYAxis, possibleYTickMultiples, rangeProportion) {
+function returnYaxisLayoutRange(yAxisType, yMinValue, yMaxValue,numberOfIntervalsInYAxis, 
+				 possibleYTickMultiples, rangeProportion) {
 	var yaxisRange = [];
 	var yMinMax =[];
 	
-	yMinMax = getRoundedYAxisRange(yMinValue, yMaxValue, yAxisType, numberOfIntervalsInYAxis, possibleYTickMultiples, rangeProportion);
+	yMinMax = getRoundedYAxisRange(yMinValue, yMaxValue, yAxisType, numberOfIntervalsInYAxis, 
+				       possibleYTickMultiples, rangeProportion);
 	
 
 	yMaxValue = yMinMax[1];
 	yMinValue = yMinMax[0];
-	//DEBUG && console.log("endY0", yMinValue);
-	//DEBUG && console.log("endY1", yMaxValue);
+	//DEBUG && OTHER_DEBUGS && console.log("endY0", yMinValue);
+	//DEBUG && OTHER_DEBUGS && console.log("endY1", yMaxValue);
 	
 	if (yAxisType === "log") {
 		yaxisRange.push(
@@ -7190,8 +7842,8 @@ function transformDataToBaseIndex(data, baseIndexDate, currentAggregation) {
 			divider = data[i].y[jBase];			
 		}
 
-		//DEBUG && console.log('baseIndexDate',baseIndexDate, 'found x date:',data[i].x[jBase]);
-		//DEBUG && console.log(divider);
+		//DEBUG && OTHER_DEBUGS && console.log('baseIndexDate',baseIndexDate, 'found x date:',data[i].x[jBase]);
+		//DEBUG && OTHER_DEBUGS && console.log(divider);
 		jLimit = data[i].y.length;
 		for (j = 0; j < jLimit; j++) {
 			data[i].y[j] = data[i].y[j] / divider;
@@ -7231,7 +7883,7 @@ function prepareTransformToBaseIndex(
 function getNextMultiple(number, multiple){
   if(number % multiple){
     if (number < 0){
-     //DEBUG && console.log(number % multiple);
+     //DEBUG && OTHER_DEBUGS && console.log(number % multiple);
      number = number - number % multiple;       
     }
     else{
@@ -7247,7 +7899,7 @@ function getNextMultiple(number, multiple){
 function getPriorMultiple(number, multiple){
   if(number % multiple){
     if (number < 0){
-     //DEBUG && console.log(number % multiple);
+     //DEBUG && OTHER_DEBUGS && console.log(number % multiple);
      number = number - (multiple + number % multiple);       
     }
     else{
@@ -7276,7 +7928,8 @@ function getTickStep(number, possibleYTickMultiples){
 }
 
 
-function getRoundedYAxisRange(yMin, yMax, yAxisType, numberOfIntervalsInYAxis, possibleYTickMultiples, rangeProportion){
+function getRoundedYAxisRange(yMin, yMax, yAxisType, numberOfIntervalsInYAxis, 
+			       possibleYTickMultiples, rangeProportion){
   var yMinMax = [];
   var yMaxLin = 0.0, yMinLin=0.0;
   var yMinLog = 0.0, yMaxLog =0.0;
@@ -7344,12 +7997,12 @@ function propertyInObject(property, object) {
 	 
 
 // return a string with at least lenght characters
-function fillStringUpTo(baseString, stringLengthInPixels, fontFamily, fontSize){
+function fillStringUpTo(baseString, stringLengthInPixels, fontFamily, fontSize, canvas){
 	var newString= baseString;
 	
-			// measure length of displayed string  in pixels
-		function stringLength(string, fontFamily, fontSize) {
-			var canvas = document.createElement('canvas');
+		// measure length of displayed string  in pixels
+		function stringLength(string, fontFamily, fontSize, canvas) {
+			//var canvas = document.createElement('canvas');
 			var ctx = canvas.getContext('2d');
 
 			ctx.font = ''+fontSize+'px '+fontFamily;
@@ -7360,7 +8013,7 @@ function fillStringUpTo(baseString, stringLengthInPixels, fontFamily, fontSize){
 	
 		for (var i=0; ; i++){
 			
-			if (stringLength(newString+" ", fontFamily, fontSize) > stringLengthInPixels){
+			if (stringLength(newString+" ", fontFamily, fontSize, canvas) > stringLengthInPixels){
 				return newString;
 			}
 			newString += " ";
@@ -7419,8 +8072,8 @@ function activeRangeSelector(property,propertyValue,rangeselectorButtons){
 //set style properties to element
 function setElementStyle(element,styling){
 	
-	//DEBUG && console.log(element);
-	//DEBUG && console.log(styling);
+	//DEBUG && OTHER_DEBUGS && console.log(element);
+	//DEBUG && OTHER_DEBUGS && console.log(styling);
 	
 	for(var key in styling){
 		
@@ -7463,14 +8116,14 @@ function createButtonHTML(buttonID, buttonLabel){
 function changeLogLinearToOriginal(layout, originalLayout, divInfo, settings){
 	
 	if(layout.yaxis.type !== originalLayout.yaxis.type){
-		//DEBUG && console.log("change y axis type to original");
-		//DEBUG && console.log("current yaxis type", layout.yaxis.type);
-		//DEBUG && console.log("original yaxis type", originalLayout.yaxis.type);
-		//DEBUG && console.log("settings.allowLogLinear", settings.allowLogLinear);
+		//DEBUG && OTHER_DEBUGS && console.log("change y axis type to original");
+		//DEBUG && OTHER_DEBUGS && console.log("current yaxis type", layout.yaxis.type);
+		//DEBUG && OTHER_DEBUGS && console.log("original yaxis type", originalLayout.yaxis.type);
+		//DEBUG && OTHER_DEBUGS && console.log("settings.allowLogLinear", settings.allowLogLinear);
 		layout.yaxis.type = originalLayout.yaxis.type;
 		
 		toggleLogLinearButton(layout.yaxis.type === "log" ? true : false, 
-													divInfo.logLinearButtonElement);
+					divInfo.logLinearButtonElement);
 
 
 	}
@@ -7705,7 +8358,8 @@ function createIndexMap(data, deflactorDictionary, periodKeys, iDeflactor){
 					for(j=0; j < jLimit;j++){	
 						date=data[i][key].x[j];
 						if(typeof deflactorDictionary[date] ==="undefined"){
-							k=setDeflactorDictionaryAtDate(date, deflactorDictionary, data[iDeflactor], k);
+							k=setDeflactorDictionaryAtDate(date, deflactorDictionary,
+										       data[iDeflactor], k);
 						}					
 					}	
 				}	
@@ -7788,19 +8442,21 @@ function calculateIndexAtDate(dateAsDate, dateX0AsDate, dateX1AsDate,  y0, y1){
 	
 
 	return Number(y0)*Math.pow((y1/y0), 
-										 (dateAsDate.getTime()-dateX0AsDate.getTime())/
-										 (dateX1AsDate.getTime() - dateX0AsDate.getTime())
-										);
+				(dateAsDate.getTime()-dateX0AsDate.getTime())/
+				(dateX1AsDate.getTime() - dateX0AsDate.getTime())
+				);
 }
 
 
 // determine base date
-/* base real date could be "end of range", "end of domain", "beggining of range", beggining of domain", or a date "yyyy-mm-dd hh:mm:ss.sss-04:00"*/
+/* base real date could be "end of range", "end of domain", "beggining of range", beggining of domain",
+or a date "yyyy-mm-dd hh:mm:ss.sss-04:00"*/
 function setBaseRealNominalDateAsString(baseRealDate,
-																				rangeX0AsString,
-																				rangeX1AsString,
-																				domainX0AsString,
-																				 domainX1AsString) {
+		rangeX0AsString,
+		rangeX1AsString,
+		domainX0AsString,
+		domainX1AsString) {
+	
 	if(baseRealDate === "end of range"){
 		 return rangeX1AsString;
 	}
@@ -7831,7 +8487,6 @@ function setBaseRealNominalDateAsString(baseRealDate,
 
 	
 }
-																							
 
 
 
@@ -7859,14 +8514,13 @@ function transformDataToReal(data, deflactorDictionary, baseRealNominalDate, oth
 	var j, iLimit, jLimit;
 	var base = Number(deflactorDictionary[baseRealNominalDate]);
 	
-	//DEBUG && console.log("base", base);
+	//DEBUG && OTHER_DEBUGS && console.log("base", base);
 	
 	iLimit = data.length;
 	for (var i = 0; i < iLimit; i++) {
 		if(otherDataProperties[i].toggleRealNominal){
 			jLimit = data[i].y.length;
 			for (j = 0; j < jLimit; j++) {
-
 				data[i].y[j] = base*data[i].y[j]/Number(deflactorDictionary[data[i].x[j]]);
 			}
 		}
@@ -7947,7 +8601,7 @@ aoPlotlyAddOn.processCsvData = processCsvData;
         window.aoPlotlyAddOn = defineLibrary();
     }
     else{
-        DEBUG && console.log("aoPlotlyAddOn Library already defined.");
+        DEBUG && OTHER_DEBUGS && console.log("aoPlotlyAddOn Library already defined.");
     }  
   
 })(window);
