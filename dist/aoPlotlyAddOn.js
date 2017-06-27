@@ -2849,8 +2849,8 @@ function makeChart(data, param){
 	var minMaxDatesAsString = getDataXminXmaxAsString(data);
 	DEBUG && DEBUG_TIMES && console.timeEnd("getDataXminXmaxAsString");
 	//DEBUG && OTHER_DEBUGS && console.log(minMaxDatesAsString);
-	minDateAsString = makeDateComplete(minMaxDatesAsString[0]);
-	maxDateAsString = makeDateComplete(minMaxDatesAsString[1]);
+	minDateAsString = minMaxDatesAsString.min;
+	maxDateAsString = minMaxDatesAsString.max;
 
 	//DEBUG && OTHER_DEBUGS && console.log("minMaxDates", minMaxDatesAsString);
 
@@ -3717,8 +3717,8 @@ function makeChart(data, param){
 
 					// this section finds the x domain for the traces
 					minMaxDatesAsString = getDataXminXmaxAsString(data);
-					minDateAsString = makeDateComplete(minMaxDatesAsString[0]);
-					maxDateAsString = makeDateComplete(minMaxDatesAsString[1]);
+					minDateAsString = minMaxDatesAsString.min;
+					maxDateAsString = minMaxDatesAsString.max;
 
 					//DEBUG && OTHER_DEBUGS && console.log("minDateAsString", minDateAsString);
 					//DEBUG && OTHER_DEBUGS && console.log("maxDateAsString", maxDateAsString);
@@ -4011,8 +4011,8 @@ function makeChart(data, param){
 
 					// this section finds the x range for the traces
 					minMaxDatesAsString = getDataXminXmaxAsString(data);
-					minDateAsString = makeDateComplete(minMaxDatesAsString[0]);
-					maxDateAsString = makeDateComplete(minMaxDatesAsString[1]);
+					minDateAsString = minMaxDatesAsString.min;
+					maxDateAsString = minMaxDatesAsString.max;
 
 					//DEBUG && OTHER_DEBUGS && console.log("minDataAsString", minDateAsString);
 					//DEBUG && OTHER_DEBUGS && console.log("maxDataAsString", maxDateAsString);
@@ -7248,13 +7248,14 @@ function getXminXmax(xArray) {
 
 // function to find x range over all data traces.
 // data array contains data[i].x
-// the data is ordered from oldest to newest
+// the data is ordered from oldest to newest, and the dates
+// are already complete
 // returns array with [minValue, maxValue]
 function getDataXminXmaxAsString(data) {
 	var minValue, maxValue, x = new Date();
 	var iLimit = data.length;
 	var jLimit = 0;
-	var minMax =["",""];
+	var minMax ={};
 	var dataIX;
 	
 	for (var i = 0; i < iLimit; i++) {
@@ -7264,13 +7265,13 @@ function getDataXminXmaxAsString(data) {
 		x = new Date(dataIX[0]);
 		if (typeof maxValue === "undefined" || x > maxValue) {
 			maxValue = x;
-			minMax[1]= dataIX[0];
+			minMax.max = dataIX[0];
 		}
 		
 		x = new Date(dataIX[jLimit - 1]);
 		if (typeof minValue === "undefined" || x < minValue) {
 			minValue = x;
-			minMax[0]= dataIX[jLimit - 1];
+			minMax.min= dataIX[jLimit - 1];
 		}
 
 	}
