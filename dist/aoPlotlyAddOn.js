@@ -8,7 +8,8 @@
 	 
 // set DEBUG && OTHER_DEBUGS option (for display of console.log messages)
 // console.log will also be removed with closure compiler	 
-var DEBUG = false;
+var DEBUG = true;
+var DEBUG_FB = true; // debug in frequency button
 var DEBUG_TIMES = false;
 var OTHER_DEBUGS = false;
 var DEBUG_TRANSFORM_BY_FREQUENCIES = false;
@@ -2756,6 +2757,8 @@ function makeChart(data, param){
 	var frequenciesDataCreated = false;
 	var uncomparedSaved = false;
 	var nominalSaved = false;
+	
+	var newXRight, indexFrequencies, indexAggregation;
 
 
 	settings = param.settings;
@@ -3178,23 +3181,29 @@ function makeChart(data, param){
 						layout,
 						settings.widthOfRightItemsFrequencyButtons
 					);
-					index = findIndexOfMenu(layout.updatemenus,"frequencies" );
-					relayoutUpdateArgs["updatemenus["+index+"].x"] = newX;
+					
+					newXRight = xOfRightItems(divWidth, layout);
+					
+					DEBUG && DEBUG_FB && console.log("divWidth: ", divWidth, "newX: ", newX, 
+									 "widthOfRighItemx", 
+									 settings.widthOfRightItemsFrequencyButtons,
+									 "newXRight",
+									newXRight);
+					
+					indexFrequencies = findIndexOfMenu(layout.updatemenus,"frequencies" );
+					indexAggregation = findIndexOfMenu(layout.updatemenus,"aggregation");
+					
+					DEBUG && DEBUG_FB && console.log("index of frequencyMenu", indexFrequencies);
+					DEBUG && DEBUG_FB && console.log("index of aggregationMenus", indexAggregation);
+					
 
-
-					if(layout.updatemenus[findIndexOfMenu(layout.updatemenus,"aggregation")].visible){
-						index = findIndexOfMenu(layout.updatemenus,"frequencies" );
-						relayoutUpdateArgs["updatemenus["+index+"].x"] = newX;
-
-						index = findIndexOfMenu(layout.updatemenus,"aggregation" );
-						relayoutUpdateArgs["updatemenus["+index+"].x"] = 
-							xOfRightItems(divWidth, layout);
+					if(layout.updatemenus[indexAggregation].visible){
+						relayoutUpdateArgs["updatemenus["+indexFrequencies+"].x"] = newX;
+						relayoutUpdateArgs["updatemenus["+indexAggregation+"].x"] = newXRight;
 
 					}
 					else{
-						index = findIndexOfMenu(layout.updatemenus,"frequencies" );
-						relayoutUpdateArgs["updatemenus["+index+"].x"] = 
-							xOfRightItems(divWidth, layout);
+						relayoutUpdateArgs["updatemenus["+indexFrequencies+"].x"] = newXRight;
 					}
 
 				}
