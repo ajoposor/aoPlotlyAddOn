@@ -2034,10 +2034,13 @@ function parallelReadData(data, i, param, callback) {
 	var yqlGoogleCSVUrl = "";
 	
 	if (urlType === "csv") {
+		DEBUG && DEBUG_TIMES && console.time("Time Read File "+i)
 		Plotly.d3.csv(url, function(err, readData) {
 			DEBUG && OTHER_DEBUGS && console.log("csv", i);
 			if(!err){
 				DEBUG && OTHER_DEBUGS && console.log("readData", readData);
+				DEBUG && DEBUG_TIMES && console.timeEnd("Time Read File "+i)
+				DEBUG && DEBUG_TIMES && console.time("Time ProcessCsvData "+i)
 				processCsvData(
 					readData, 
 					data,
@@ -2045,6 +2048,7 @@ function parallelReadData(data, i, param, callback) {
 					param.otherDataProperties,
 					param.dataSources[i]
 					);
+				DEBUG && DEBUG_TIMES && console.timeEnd("Time ProcessCsvData "+i)
 				DEBUG && OTHER_DEBUGS && console.log("processCsvData",i,"finished");
 			} else {
 				DEBUG && OTHER_DEBUGS && console.log("error reading CsvData",i);
