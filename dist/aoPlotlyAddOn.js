@@ -5,7 +5,7 @@
  function defineLibrary(){
  
  var aoPlotlyAddOn = {};    
-
+	 
 // set DEBUG && OTHER_DEBUGS option (for display of console.log messages)
 // console.log will also be removed with closure compiler	 
 var DEBUG = false;
@@ -271,7 +271,8 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		buttonsStyle:buttonsDefaultStyle,
 		buttonsHoverStyle:buttonsHoverDefaultStyle,
 		pressedButtonDefaultStyle: pressedButtonDefaultStyle,
-		pressedButtonHoverDefaultStyle: pressedButtonHoverDefaultStyle
+		pressedButtonHoverDefaultStyle: pressedButtonHoverDefaultStyle,
+		removeDoubleClickToZoomBackOut: true
 	};
 
 	var possibleFrequencies = {
@@ -381,6 +382,12 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		//divInfo.footerDivElement = document.getElementById(divInfo.footerDivID);
 		//DEBUG && OTHER_DEBUGS && console.log("footerDivElement",divInfo.footerDivElement);	
 		
+	}
+	
+	
+	// apply removeDoubleClickToZoomBackOut
+	if (settings.removeDoubleClickToZoomBackOut) {
+		removeDoubleClickToZoomBackOut();
 	}
 	
 	// SET BUTTONS
@@ -8076,12 +8083,23 @@ function setElementStyle(element,styling){
 	//DEBUG && OTHER_DEBUGS && console.log(styling);
 	
 	for(var key in styling){
-		
-		element.style[key]=styling[key];
-		
+		if(styling.hasOwnProperty(key)) {
+			element.style[key]=styling[key];
+		}
 	}
 	
 }
+	 
+	 
+// Remove Double-click to zoom back out message
+// this removes the message displayed after an area in the chart is selected.
+function removeDoubleClickToZoomBackOut {
+	var newStyle = document.createElement("style");
+	newStyle.type = "text/css";
+	newStyle.innerHTML = "div.plotly-notifier { visibility: hidden; }";
+	document.getElementsByTagName('head')[0].appendChild(newStyle);
+}
+
 
 // function for creating elements
 	function createElement(elementType, elementID, elementText, elementStyle){
