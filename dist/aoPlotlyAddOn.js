@@ -11,7 +11,7 @@
 var DEBUG = true;
 var DEBUG_TIMES = true;
 var OTHER_DEBUGS = false;
-var DEBUG_TRANSFORM_BY_FREQUENCIES = true;
+var DEBUG_TRANSFORM_BY_FREQUENCIES = false;
 	 
 
     
