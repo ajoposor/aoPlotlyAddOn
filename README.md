@@ -496,6 +496,8 @@ This is an object that controls the features added to your plot.
    * **allowLogLinear:** (boolean) If set to true, display button to toogle yaxis to log/linear type.
 
    * **textAndSpaceToTextRatio:** (number) Default 1.8. Sets spacing of text to void space in xaxis ticks.
+   
+   * **removeDoubleClickToZoomBackOut** (boolean) Default: true. Use to allow or remove message displayed when range in plot area is selected. This message says Double-click to zoom back out.
 
 
 ### timeInfo
