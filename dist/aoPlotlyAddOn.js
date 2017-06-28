@@ -8,9 +8,9 @@ var aoPlotlyAddOn = {};
 	 
 // set DEBUG && OTHER_DEBUGS option (for display of console.log messages)
 // console.log will also be removed with closure compiler 
-var DEBUG = false;
+var DEBUG = true;
 var OTHER_DEBUGS = false;
-var DEBUG_TIMES = false;
+var DEBUG_TIMES = true;
 var DEBUG_CSV = false;
 var DEBUG_TRANSFORM_BY_FREQUENCIES = false;
 var DEBUG_FB = false; // debug in frequency button
