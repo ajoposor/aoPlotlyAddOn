@@ -4676,7 +4676,7 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 									data[i][key][aggKey].length = jLimit;
 								}
 							}
-							data[i][key].x.length = jLimit;
+							// data[i][key].x.length = jLimit;
 							
 						}
 						
@@ -4745,8 +4745,8 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 			for (k = 0; k < kLimit; k++) {
 				key = periodKeysArray[k];
 				dataIK = data[i][key];
-				dataIK.x.splice(0, jLimit - itemsLength[k]);
-				for (aggKey in data[i][key]) {
+				//dataIK.x.splice(0, jLimit - itemsLength[k]);
+				for (aggKey in dataIK) {
 					if (dataIK.hasOwnProperty(aggKey)) {
 						dataIK[aggKey].splice(0, jLimit - itemsLength[k]);
 						/*DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.log("aggKey: ", 
