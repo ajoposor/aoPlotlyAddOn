@@ -184,7 +184,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		
 		
 	var fredRecessionsDefaultUrl = 
-	    "://www.kapitalvalue.com/plots_data/testing/fredRecessions-unlocked.php?observation_start=2015-12-01";
+	    "://kapitalvalue.com/plots_data/testing/fredRecessions-unlocked.php?observation_start=2015-12-01";
 	
 	if(connectionIsSecure()) {
 		DEBUG && OTHER_DEBUGS && console.log("HTTPS:");
