@@ -4743,9 +4743,9 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 			
 			DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.time("spliceArrays "+i);
 			for (k = 0; k < kLimit; k++) {
+				key = periodKeysArray[k];
 				dataIK = data[i][key];
 				dataIK.x.splice(0, jLimit - itemsLength[k]);
-				key = periodKeysArray[k];
 				for (aggKey in data[i][key]) {
 					if (dataIK.hasOwnProperty(aggKey)) {
 						dataIK[aggKey].splice(0, jLimit - itemsLength[k]);
