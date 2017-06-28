@@ -1,10 +1,10 @@
 (function(window){
     
 //I recommend this
- 'use strict';
- function defineLibrary(){
- 
- var aoPlotlyAddOn = {};    
+'use strict';
+function defineLibrary(){
+
+var aoPlotlyAddOn = {};    
 	 
 // set DEBUG && OTHER_DEBUGS option (for display of console.log messages)
 // console.log will also be removed with closure compiler	 
@@ -3141,6 +3141,7 @@ function makeChart(data, param){
 
 	//instruction resizes plot
 	window.addEventListener("resize", function() {
+		//DEBUG && DEBUG_FB && console.log("divWidth in resize", jQuery(myPlot).width());
 		Plotly.Plots.resize(myPlot);
 	});
 
@@ -3170,6 +3171,7 @@ function makeChart(data, param){
 		if (relayoutData.autosize === true) {
 			// adjust frequency updatemenu buttons
 			divWidth = jQuery(myPlot).width();
+			DEBUG && DEBUG_FB && console.log("divWidth: ", divWidth);
 
 			if (divWidth != currentWidth) {
 				// voids relayoutUpdateArgs;
