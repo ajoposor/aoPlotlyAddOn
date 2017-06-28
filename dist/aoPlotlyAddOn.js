@@ -358,12 +358,13 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	
 	// create children divs in plot
 
-	// create child to home the plot
+	// create child to home Plotly's plot
 	divInfo.plotlyDivID = divInfo.plotDivID+"_plotly";	
 	divInfo.plotlyDivElement = 
 		createElement("div", divInfo.plotlyDivID);	
 			
 	divInfo.plotDivElement.appendChild(divInfo.plotlyDivElement);
+	divInfo.plotlyDivElement.style["background-color"] = layout.paper_bgcolor;
 	//DEBUG && OTHER_DEBUGS && console.log("plotlyDivElement",divInfo.plotlyDivElement);
 		
 	
@@ -373,14 +374,10 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		divInfo.footerDivID = divInfo.plotDivID+"_plotlyFooter";
 		divInfo.footerDivElement = 
 			createElement("div", divInfo.footerDivID);			
-		//element = document.createElement("div");
-		//element.id = divInfo.footerDivID;
+
 		divInfo.plotDivElement.appendChild(divInfo.footerDivElement);
-		divInfo.footerDivElement.style["background-color"] = layout.paper_bgcolor;	
-		
-		//divInfo.footerDivElement = document.getElementById(divInfo.footerDivID);
-		//DEBUG && OTHER_DEBUGS && console.log("footerDivElement",divInfo.footerDivElement);	
-		
+		divInfo.footerDivElement.style["background-color"] = layout.paper_bgcolor;
+
 	}
 	
 	
