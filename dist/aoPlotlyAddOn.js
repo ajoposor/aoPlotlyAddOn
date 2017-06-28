@@ -1781,8 +1781,8 @@ function readDataAndMakeChart(data, iS, param, callback) {
 		DEBUG && OTHER_DEBUGS && console.log("data: ", data);
 		DEBUG && OTHER_DEBUGS && console.log("param: ", param);
 		
-		//makeChart(data, param);
-		//callback("all read and plotted");
+		makeChart(data, param);
+		callback("all read and plotted");
 	
 	} // end of else after all read section
 } //  end of readDataAndMakeChart    
@@ -1831,7 +1831,7 @@ function parallelReadDataAndMakeChart(data, param) {
 			DEBUG && OTHER_DEBUGS && console.log("data: ", data);
 			DEBUG && OTHER_DEBUGS && console.log("param: ", param);	
 			DEBUG && DEBUG_TIMES && console.timeEnd("TIME: parallelReadData");
-			makeChart(data, param);
+			//makeChart(data, param);
 			DEBUG && OTHER_DEBUGS && console.log("allread and ploted");
 			
 		}
