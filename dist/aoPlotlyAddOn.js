@@ -4750,7 +4750,7 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 					}
 				}
 			}
-			DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.timeEnd(""spliceArrays "+i");
+			DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.timeEnd("spliceArrays "+i);
 			
 			DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.log("data[i].2.x", data[i][periodKeysArray[2]].x);
 
