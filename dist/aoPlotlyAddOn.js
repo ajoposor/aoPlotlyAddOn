@@ -4559,7 +4559,7 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 			// iterates over trace points
 
 			//DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.log("jLimit", jLimit);
-			DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.time("DataI");
+			DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.time("Data "+i);
 			
 			for (j = jLimit - 1; j > -1; j--) {
 				// DEBUG && OTHER_DEBUGS && console.log('j',j);
@@ -4670,6 +4670,7 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 									data[i][key][aggKey].length = jLimit;
 								}
 							}
+							data[i][key].x.length = jLimit;
 							
 						}
 						
@@ -4725,20 +4726,23 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 						// case: within period
 						// do something if applicable
 					}
-				}  // end of periodKeysArray for
+				}  // next k, end of periodKeysArray for
 				
 				priorLimits = currentLimits;
 			} // next j
 			
-			DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.timeEnd("DataI");
+			DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.timeEnd(""Data "+i");
+			
 			// after all j's splice the resulting arrays
 			
-			DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.time("spliceArrays");
+			DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.time("spliceArrays "+i);
 			for (k = 0; k < kLimit; k++) {
+				dataIK = data[i][key];
+				dataIK.x.splice(0, jLimit - itemsLength[k]);
 				key = periodKeysArray[k];
 				for (aggKey in data[i][key]) {
-					if (data[i][key].hasOwnProperty(aggKey)) {
-						data[i][key][aggKey].splice(0, jLimit - itemsLength[k]);
+					if (dataIK.hasOwnProperty(aggKey)) {
+						dataIK[aggKey].splice(0, jLimit - itemsLength[k]);
 						/*DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.log("aggKey: ", 
 												       aggKey,
 												       " items length: ",
@@ -4746,9 +4750,9 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 					}
 				}
 			}
-			DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.timeEnd("spliceArrays");
+			DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.timeEnd(""spliceArrays "+i");
 			
-			DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.log("data:", data);
+			DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.log("data[i].2.x", data[i][periodKeysArray[2]].x);
 
 			
 		} // end of doCalculations condition
