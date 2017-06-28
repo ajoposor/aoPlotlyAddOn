@@ -9,9 +9,9 @@ var aoPlotlyAddOn = {};
 // set DEBUG && OTHER_DEBUGS option (for display of console.log messages)
 // console.log will also be removed with closure compiler 
 var DEBUG = true;
-var OTHER_DEBUGS = true;
-var DEBUG_TIMES = true;
-var DEBUG_TRANSFORM_BY_FREQUENCIES = true;
+var OTHER_DEBUGS = false;
+var DEBUG_TIMES = false;
+var DEBUG_TRANSFORM_BY_FREQUENCIES = false;
 var DEBUG_FB = false; // debug in frequency button
     
        
@@ -1041,10 +1041,10 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		},{
 		x0: "2001-03-01",
 		x1: "2001-10-31"
-		},{
+		}/*,{
 		x0: "2007-12-01",
 		x1: "2009-05-31"
-		}];
+		}*/];
 	
 	var usRecessions = createRecessionShapes(knownRecessionsDates, 
 						 settings.recessionsFillColor, 
