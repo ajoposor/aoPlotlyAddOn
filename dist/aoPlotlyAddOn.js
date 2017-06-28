@@ -4495,7 +4495,7 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 	var itemsLength = [];
 	var itemsIndex = [];
 	var index = 0;
-	var minMaxDatesAsString = getDataXminXmaxAsString(data);
+	// var minMaxDatesAsString = getDataXminXmaxAsString(data);
 	//var bankingDaysLibrary = getBankingDaysLibrary(minMaxDatesAsString.min, minMaxDatesAsString.max);
 	
 	/*
@@ -4536,6 +4536,10 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 		
 		dataIXO = data[i].xOriginal;
 		dataIYO = data[i].yOriginal;
+		
+		DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.time("i: ", i, "DataIXO: ", dataIXO);
+		DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.time("DataIYO: ", dataIYO);
+		
 		jLimit = dataIXO.length;
 		
 		//startDataI = new Date();
@@ -4556,7 +4560,7 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 			DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.time("DataI");
 			
 			for (j = jLimit - 1; j > -1; j--) {
-				//DEBUG && OTHER_DEBUGS && console.log('j',j);
+				// DEBUG && OTHER_DEBUGS && console.log('j',j);
 				// get periods ranges and dates
 				currentDateString = dataIXO[j];
 				currentDate = stripDateIntoObject(currentDateString);
@@ -4741,6 +4745,8 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 				}
 			}
 			DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.timeEnd("spliceArrays");
+			
+			DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.log("data:", data);
 
 			
 		} // end of doCalculations condition
