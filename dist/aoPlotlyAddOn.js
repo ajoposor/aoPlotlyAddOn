@@ -8,9 +8,10 @@ var aoPlotlyAddOn = {};
 	 
 // set DEBUG && OTHER_DEBUGS option (for display of console.log messages)
 // console.log will also be removed with closure compiler 
-var DEBUG = false;
+var DEBUG = true;
 var OTHER_DEBUGS = false;
 var DEBUG_TIMES = false;
+var DEBUG_CSV = true;
 var DEBUG_TRANSFORM_BY_FREQUENCIES = false;
 var DEBUG_FB = false; // debug in frequency button
     
@@ -1306,23 +1307,8 @@ function parallelReadDataAndMakeChart(data, param) {
 		}
 		
 	});
-	/*
-	// first all files are to be read, in a recursive way, with iS < series.length
 
-	if (iS.value < param.dataSources.length) {
-		readData(data, iS, param, callback);
-	} 
-	
-	else {
-		// once all files all read, i.e. iS === series.length, this section is executed
-		DEBUG && OTHER_DEBUGS && console.log("data: ", data);
-		DEBUG && OTHER_DEBUGS && console.log("param: ", param);
-		
-		makeChart(data, param);
-		callback("all read and plotted");
-	
-	} // end of else after all read section*/
-} //  end of readDataAndMakeChart    	 
+} //  end of parallelReadDataAndMakeChart    	 
 	 
 	
 function parallelUpdateRecessions(newRecessionsUrl, usRecessions, callback){
@@ -1494,7 +1480,7 @@ function parallelReadData(data, i, param, callback) {
 		Plotly.d3.csv(url, function(err, readData) {
 			DEBUG && OTHER_DEBUGS && console.log("csv", i);
 			if(!err){
-				DEBUG && OTHER_DEBUGS && console.log("readData", readData);
+				DEBUG && DEBUG_CSV && console.log("readData "+i+": ", readData);
 				DEBUG && DEBUG_TIMES && console.timeEnd("Time Read File "+i)
 				DEBUG && DEBUG_TIMES && console.time("Time ProcessCsvData "+i)
 				processCsvData(
