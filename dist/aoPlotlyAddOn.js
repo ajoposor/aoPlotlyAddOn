@@ -209,6 +209,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		newRecessionsUrl: fredRecessionsDefaultUrl,
 		knownRecessionsDates: knownRecessionsDates,
 		queueConcurrencyLimit: 10,
+		queueConcurrencyDelay: 5, //milliseconds
 		allowCompare: false,
 		transformToBaseIndex: false, //series would be transformed to common value of 1 at beginning
 		
@@ -1467,9 +1468,14 @@ function readData(data, iS, param, callback) {
 }
 
 */
-	 
-	 
+	
+// delay the call of data loading by a certain delay	
 function parallelReadData(data, i, param, callback) {
+	
+	setTimeout( delayedParallelReadData(data, i, param, callback), param.settings.queueConcurrencyDelay);
+}
+	 
+function delayedParallelReadData(data, i, param, callback) {
 	
 	var urlType = param.dataSources[i].urlType;
 	var url = param.dataSources[i].url;
