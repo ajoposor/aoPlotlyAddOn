@@ -3141,7 +3141,6 @@ function makeChart(data, param){
 
 	//instruction resizes plot
 	window.addEventListener("resize", function() {
-		//DEBUG && DEBUG_FB && console.log("divWidth in resize", jQuery(myPlot).width());
 		Plotly.Plots.resize(myPlot);
 	});
 
@@ -3174,6 +3173,9 @@ function makeChart(data, param){
 			DEBUG && DEBUG_FB && console.log("divWidth: ", divWidth);
 
 			if (divWidth != currentWidth) {
+				//update currentWidth
+				currentWidth = divWidth;
+				
 				// voids relayoutUpdateArgs;
 				relayoutUpdateArgs = {};
 
