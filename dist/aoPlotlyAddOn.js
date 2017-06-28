@@ -26,7 +26,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	layout = {},
 	options = {}
 ) {
-	
+
 
 	DEBUG && DEBUG_TIMES && console.time("TIME: newTimeseriesPlot");
 	DEBUG && DEBUG_TIMES && console.time("TIME: initialSettingsBeforeReadData");
