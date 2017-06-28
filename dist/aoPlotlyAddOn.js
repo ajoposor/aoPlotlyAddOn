@@ -1480,7 +1480,7 @@ function parallelReadData(data, i, param, callback) {
 		Plotly.d3.csv(url, function(err, readData) {
 			DEBUG && OTHER_DEBUGS && console.log("csv", i);
 			if(!err){
-				DEBUG && DEBUG_CSV && console.log("readData "+i.length": ", readData.length);
+				DEBUG && DEBUG_CSV && console.log("readData "+i+" readDate.length: ", readData.length);
 				DEBUG && DEBUG_TIMES && console.timeEnd("Time Read File "+i)
 				DEBUG && DEBUG_TIMES && console.time("Time ProcessCsvData "+i)
 				processCsvData(
