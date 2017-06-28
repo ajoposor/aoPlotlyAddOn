@@ -4508,6 +4508,8 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 	var localGetNextNonUSBankingWorkingDay =  getNextNonUSBankingWorkingDay;
 	var localGetPeriodLimitsAsYYYYMMDD = getPeriodLimitsAsYYYYMMDD;
 	
+	DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.log("originalPeriodKeys", originalPeriodKeys);
+	
 	
 	// create periodKeysArray to iterate to required keys to be calculated
 	//test that series are not yet calculated for requested keys and update
@@ -4537,8 +4539,8 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 		dataIXO = data[i].xOriginal;
 		dataIYO = data[i].yOriginal;
 		
-		DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.time("i: ", i, "DataIXO: ", dataIXO);
-		DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.time("DataIYO: ", dataIYO);
+		DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.log("i: ", i, "DataIXO: ", dataIXO);
+		DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.log("DataIYO: ", dataIYO);
 		
 		jLimit = dataIXO.length;
 		
