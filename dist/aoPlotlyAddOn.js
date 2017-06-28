@@ -9,10 +9,10 @@ var aoPlotlyAddOn = {};
 // set DEBUG && OTHER_DEBUGS option (for display of console.log messages)
 // console.log will also be removed with closure compiler 
 var DEBUG = false;
-var DEBUG_FB = false; // debug in frequency button
-var DEBUG_TIMES = false;
 var OTHER_DEBUGS = false;
+var DEBUG_TIMES = false;
 var DEBUG_TRANSFORM_BY_FREQUENCIES = false;
+var DEBUG_FB = false; // debug in frequency button
     
        
 // this functions adds items and functionallity, including, buttons, responsiveness, series resampling     
@@ -184,7 +184,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		
 		
 	var fredRecessionsDefaultUrl = 
-	    "://www.kapitalvalue.com/plots_data/testing/fredRecessions-unlocked.php?observation_start=2015-12-01";
+	    "://kapitalvalue.com/plots_data/testing/fredRecessions-unlocked.php?observation_start=2015-12-01";
 	
 	if(connectionIsSecure()) {
 		DEBUG && OTHER_DEBUGS && console.log("HTTPS:");
@@ -1041,545 +1041,14 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		},{
 		x0: "2001-03-01",
 		x1: "2001-10-31"
-		},{
+		}/*,{
 		x0: "2007-12-01",
 		x1: "2009-05-31"
-		}];
+		}*/];
 	
 	var usRecessions = createRecessionShapes(knownRecessionsDates, 
 						 settings.recessionsFillColor, 
 						 settings.recessionsOpacity);
-	
-	/*
-	var usRecessions = [
-		{
-			type: "rect",
-			// x-reference is assigned to the x-values
-			xref: "x",
-			// y-reference is assigned to the plot paper [0,1]
-			yref: "paper",
-			x0: "1857-06-01",
-			y0: 0,
-			x1: "1858-12-01",
-			y1: 1,
-			fillcolor: "#000000",
-			opacity: 0.15,
-			line: {
-				width: 0
-			}
-		},
-		{
-			type: "rect",
-			// x-reference is assigned to the x-values
-			xref: "x",
-			// y-reference is assigned to the plot paper [0,1]
-			yref: "paper",
-			x0: "1860-10-01",
-			y0: 0,
-			x1: "1861-06-01",
-			y1: 1,
-			fillcolor: "#000000",
-			opacity: 0.15,
-			line: {
-				width: 0
-			}
-		},
-		{
-			type: "rect",
-			// x-reference is assigned to the x-values
-			xref: "x",
-			// y-reference is assigned to the plot paper [0,1]
-			yref: "paper",
-			x0: "1865-04-01",
-			y0: 0,
-			x1: "1867-12-01",
-			y1: 1,
-			fillcolor: "#000000",
-			opacity: 0.15,
-			line: {
-				width: 0
-			}
-		},
-		{
-			type: "rect",
-			// x-reference is assigned to the x-values
-			xref: "x",
-			// y-reference is assigned to the plot paper [0,1]
-			yref: "paper",
-			x0: "1869-06-01",
-			y0: 0,
-			x1: "1870-12-01",
-			y1: 1,
-			fillcolor: "#000000",
-			opacity: 0.15,
-			line: {
-				width: 0
-			}
-		},
-		{
-			type: "rect",
-			// x-reference is assigned to the x-values
-			xref: "x",
-			// y-reference is assigned to the plot paper [0,1]
-			yref: "paper",
-			x0: "1873-10-01",
-			y0: 0,
-			x1: "1879-03-01",
-			y1: 1,
-			fillcolor: "#000000",
-			opacity: 0.15,
-			line: {
-				width: 0
-			}
-		},
-		{
-			type: "rect",
-			// x-reference is assigned to the x-values
-			xref: "x",
-			// y-reference is assigned to the plot paper [0,1]
-			yref: "paper",
-			x0: "1882-03-01",
-			y0: 0,
-			x1: "1885-05-01",
-			y1: 1,
-			fillcolor: "#000000",
-			opacity: 0.15,
-			line: {
-				width: 0
-			}
-		},
-		{
-			type: "rect",
-			// x-reference is assigned to the x-values
-			xref: "x",
-			// y-reference is assigned to the plot paper [0,1]
-			yref: "paper",
-			x0: "1887-03-01",
-			y0: 0,
-			x1: "1888-04-01",
-			y1: 1,
-			fillcolor: "#000000",
-			opacity: 0.15,
-			line: {
-				width: 0
-			}
-		},
-		{
-			type: "rect",
-			// x-reference is assigned to the x-values
-			xref: "x",
-			// y-reference is assigned to the plot paper [0,1]
-			yref: "paper",
-			x0: "1890-07-01",
-			y0: 0,
-			x1: "1891-05-01",
-			y1: 1,
-			fillcolor: "#000000",
-			opacity: 0.15,
-			line: {
-				width: 0
-			}
-		},
-		{
-			type: "rect",
-			// x-reference is assigned to the x-values
-			xref: "x",
-			// y-reference is assigned to the plot paper [0,1]
-			yref: "paper",
-			x0: "1893-01-01",
-			y0: 0,
-			x1: "1894-06-01",
-			y1: 1,
-			fillcolor: "#000000",
-			opacity: 0.15,
-			line: {
-				width: 0
-			}
-		},
-		{
-			type: "rect",
-			// x-reference is assigned to the x-values
-			xref: "x",
-			// y-reference is assigned to the plot paper [0,1]
-			yref: "paper",
-			x0: "1895-12-01",
-			y0: 0,
-			x1: "1897-06-01",
-			y1: 1,
-			fillcolor: "#000000",
-			opacity: 0.15,
-			line: {
-				width: 0
-			}
-		},
-		{
-			type: "rect",
-			// x-reference is assigned to the x-values
-			xref: "x",
-			// y-reference is assigned to the plot paper [0,1]
-			yref: "paper",
-			x0: "1899-06-01",
-			y0: 0,
-			x1: "1900-12-01",
-			y1: 1,
-			fillcolor: "#000000",
-			opacity: 0.15,
-			line: {
-				width: 0
-			}
-		},
-		{
-			type: "rect",
-			// x-reference is assigned to the x-values
-			xref: "x",
-			// y-reference is assigned to the plot paper [0,1]
-			yref: "paper",
-			x0: "1902-09-01",
-			y0: 0,
-			x1: "1904-08-01",
-			y1: 1,
-			fillcolor: "#000000",
-			opacity: 0.15,
-			line: {
-				width: 0
-			}
-		},
-		{
-			type: "rect",
-			// x-reference is assigned to the x-values
-			xref: "x",
-			// y-reference is assigned to the plot paper [0,1]
-			yref: "paper",
-			x0: "1907-05-01",
-			y0: 0,
-			x1: "1908-06-01",
-			y1: 1,
-			fillcolor: "#000000",
-			opacity: 0.15,
-			line: {
-				width: 0
-			}
-		},
-		// 2nd highlight during Feb 20 - Feb 23
-		{
-			type: "rect",
-			xref: "x",
-			yref: "paper",
-			x0: "1910-01-01",
-			y0: 0,
-			x1: "1912-01-01",
-			y1: 1,
-			fillcolor: "#000000",
-			opacity: 0.15,
-			line: {
-				width: 0
-			}
-		},
-		{
-			type: "rect",
-			// x-reference is assigned to the x-values
-			xref: "x",
-			// y-reference is assigned to the plot paper [0,1]
-			yref: "paper",
-			x0: "1913-01-01",
-			y0: 0,
-			x1: "1914-12-01",
-			y1: 1,
-			fillcolor: "#000000",
-			opacity: 0.15,
-			line: {
-				width: 0
-			}
-		},
-		{
-			type: "rect",
-			// x-reference is assigned to the x-values
-			xref: "x",
-			// y-reference is assigned to the plot paper [0,1]
-			yref: "paper",
-			x0: "1918-08-01",
-			y0: 0,
-			x1: "1919-03-01",
-			y1: 1,
-			fillcolor: "#000000",
-			opacity: 0.15,
-			line: {
-				width: 0
-			}
-		},
-		{
-			type: "rect",
-			// x-reference is assigned to the x-values
-			xref: "x",
-			// y-reference is assigned to the plot paper [0,1]
-			yref: "paper",
-			x0: "1920-01-01",
-			y0: 0,
-			x1: "1921-07-01",
-			y1: 1,
-			fillcolor: "#000000",
-			opacity: 0.15,
-			line: {
-				width: 0
-			}
-		},
-		{
-			type: "rect",
-			// x-reference is assigned to the x-values
-			xref: "x",
-			// y-reference is assigned to the plot paper [0,1]
-			yref: "paper",
-			x0: "1923-05-01",
-			y0: 0,
-			x1: "1924-07-01",
-			y1: 1,
-			fillcolor: "#000000",
-			opacity: 0.15,
-			line: {
-				width: 0
-			}
-		},
-		{
-			type: "rect",
-			// x-reference is assigned to the x-values
-			xref: "x",
-			// y-reference is assigned to the plot paper [0,1]
-			yref: "paper",
-			x0: "1926-10-01",
-			y0: 0,
-			x1: "1927-11-01",
-			y1: 1,
-			fillcolor: "#000000",
-			opacity: 0.15,
-			line: {
-				width: 0
-			}
-		},
-		{
-			type: "rect",
-			// x-reference is assigned to the x-values
-			xref: "x",
-			// y-reference is assigned to the plot paper [0,1]
-			yref: "paper",
-			x0: "1929-08-01",
-			y0: 0,
-			x1: "1933-03-01",
-			y1: 1,
-			fillcolor: "#000000",
-			opacity: 0.15,
-			line: {
-				width: 0
-			}
-		},
-		{
-			type: "rect",
-			// x-reference is assigned to the x-values
-			xref: "x",
-			// y-reference is assigned to the plot paper [0,1]
-			yref: "paper",
-			x0: "1937-05-01",
-			y0: 0,
-			x1: "1938-06-01",
-			y1: 1,
-			fillcolor: "#000000",
-			opacity: 0.15,
-			line: {
-				width: 0
-			}
-		},
-		{
-			type: "rect",
-			// x-reference is assigned to the x-values
-			xref: "x",
-			// y-reference is assigned to the plot paper [0,1]
-			yref: "paper",
-			x0: "1945-02-01",
-			y0: 0,
-			x1: "1945-10-01",
-			y1: 1,
-			fillcolor: "#000000",
-			opacity: 0.15,
-			line: {
-				width: 0
-			}
-		},
-		{
-			type: "rect",
-			// x-reference is assigned to the x-values
-			xref: "x",
-			// y-reference is assigned to the plot paper [0,1]
-			yref: "paper",
-			x0: "1948-11-01",
-			y0: 0,
-			x1: "1949-10-01",
-			y1: 1,
-			fillcolor: "#000000",
-			opacity: 0.15,
-			line: {
-				width: 0
-			}
-		},
-		{
-			type: "rect",
-			// x-reference is assigned to the x-values
-			xref: "x",
-			// y-reference is assigned to the plot paper [0,1]
-			yref: "paper",
-			x0: "1953-07-01",
-			y0: 0,
-			x1: "1954-05-01",
-			y1: 1,
-			fillcolor: "#000000",
-			opacity: 0.15,
-			line: {
-				width: 0
-			}
-		},
-		{
-			type: "rect",
-			// x-reference is assigned to the x-values
-			xref: "x",
-			// y-reference is assigned to the plot paper [0,1]
-			yref: "paper",
-			x0: "1957-08-01",
-			y0: 0,
-			x1: "1958-04-01",
-			y1: 1,
-			fillcolor: "#000000",
-			opacity: 0.15,
-			line: {
-				width: 0
-			}
-		},
-		{
-			type: "rect",
-			// x-reference is assigned to the x-values
-			xref: "x",
-			// y-reference is assigned to the plot paper [0,1]
-			yref: "paper",
-			x0: "1960-04-01",
-			y0: 0,
-			x1: "1961-02-01",
-			y1: 1,
-			fillcolor: "#000000",
-			opacity: 0.15,
-			line: {
-				width: 0
-			}
-		},
-		{
-			type: "rect",
-			// x-reference is assigned to the x-values
-			xref: "x",
-			// y-reference is assigned to the plot paper [0,1]
-			yref: "paper",
-			x0: "1969-12-01",
-			y0: 0,
-			x1: "1970-11-01",
-			y1: 1,
-			fillcolor: "#000000",
-			opacity: 0.15,
-			line: {
-				width: 0
-			}
-		},
-		{
-			type: "rect",
-			// x-reference is assigned to the x-values
-			xref: "x",
-			// y-reference is assigned to the plot paper [0,1]
-			yref: "paper",
-			x0: "1973-11-01",
-			y0: 0,
-			x1: "1975-03-01",
-			y1: 1,
-			fillcolor: "#000000",
-			opacity: 0.15,
-			line: {
-				width: 0
-			}
-		},
-		{
-			type: "rect",
-			// x-reference is assigned to the x-values
-			xref: "x",
-			// y-reference is assigned to the plot paper [0,1]
-			yref: "paper",
-			x0: "1980-01-01",
-			y0: 0,
-			x1: "1980-07-01",
-			y1: 1,
-			fillcolor: "#000000",
-			opacity: 0.15,
-			line: {
-				width: 0
-			}
-		},
-		{
-			type: "rect",
-			// x-reference is assigned to the x-values
-			xref: "x",
-			// y-reference is assigned to the plot paper [0,1]
-			yref: "paper",
-			x0: "1981-07-01",
-			y0: 0,
-			x1: "1982-11-01",
-			y1: 1,
-			fillcolor: "#000000",
-			opacity: 0.15,
-			line: {
-				width: 0
-			}
-		},
-		{
-			type: "rect",
-			// x-reference is assigned to the x-values
-			xref: "x",
-			// y-reference is assigned to the plot paper [0,1]
-			yref: "paper",
-			x0: "1990-07-01",
-			y0: 0,
-			x1: "1991-03-01",
-			y1: 1,
-			fillcolor: "#000000",
-			opacity: 0.15,
-			line: {
-				width: 0
-			}
-		},
-		{
-			type: "rect",
-			// x-reference is assigned to the x-values
-			xref: "x",
-			// y-reference is assigned to the plot paper [0,1]
-			yref: "paper",
-			x0: "2001-03-01",
-			y0: 0,
-			x1: "2001-11-01",
-			y1: 1,
-			fillcolor: "#000000",
-			opacity: 0.15,
-			line: {
-				width: 0
-			}
-		},
-		{
-			type: "rect",
-			// x-reference is assigned to the x-values
-			xref: "x",
-			// y-reference is assigned to the plot paper [0,1]
-			yref: "paper",
-			x0: "2007-12-01",
-			y0: 0,
-			x1: "2009-06-01",
-			y1: 1,
-			fillcolor: "#000000",
-			opacity: 0.15,
-			line: {
-				width: 0
-			}
-		}
-	];*/
 	
 
 	// TIME RANGE SELECTORS / a.k.a SELECTOR OPTIONS DEFINED
@@ -1764,7 +1233,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	 
 	 
 	 
-
+/*
 
 // FUNCTION TO READ DATA AND THEN MAKE CHART - LOADS IN SERIES
 function readDataAndMakeChart(data, iS, param, callback) {
@@ -1786,7 +1255,7 @@ function readDataAndMakeChart(data, iS, param, callback) {
 	
 	} // end of else after all read section
 } //  end of readDataAndMakeChart    
-	    
+*/	    
 
 	 
 	 
@@ -1924,7 +1393,7 @@ function updateRecessions(newRecessionsUrl, usRecessions){
 *
 */
 	 
-	 
+/*	 
 function readData(data, iS, param, callback) {
 	
 	var urlType = param.dataSources[iS.value].urlType;
@@ -1934,11 +1403,6 @@ function readData(data, iS, param, callback) {
 		Plotly.d3.csv(url, function(readData) {
 			DEBUG && OTHER_DEBUGS && console.log("csv", iS.value);
 			DEBUG && OTHER_DEBUGS && console.log("readData", readData);
-			/*if(iS.value ===0){
-				for(var y=0; y<readData.length; y++){
-					DEBUG && OTHER_DEBUGS && console.log(readData[y]);
-				}
-			}*/
 			processCsvData(
 				readData, 
 				data,
@@ -1967,8 +1431,8 @@ function readData(data, iS, param, callback) {
 	} 
 	else if (urlType === "yqlJson") {
 		$.getJSON(url, function(readData) {
-			/* Not required, it can be handled with the CSV function, 
-			set xSeriesName to date and ySeriesName to value*/	    
+			// Not required, it can be handled with the CSV function, 
+			//set xSeriesName to date and ySeriesName to value    
 			processCsvData(
 				readData.query.results.json.observations,
 				data,
@@ -2013,21 +1477,10 @@ function readData(data, iS, param, callback) {
 			readDataAndMakeChart(data, iS, param, callback);
 		});
 	} 
-	/*
-	else if (urlType === "direct") {
-		processDirectData(
-			data,
-			param.timeInfo.tracesInitialDate, 
-			param.otherDataProperties,
-			param.dataSources[iS.value]
-			);
-		iS.value++;
-		readDataAndMakeChart(data, iS, param, callback);
-	}
-	*/
+
 }
 
-
+*/
 	 
 	 
 function parallelReadData(data, i, param, callback) {
@@ -2791,7 +2244,6 @@ function makeChart(data, param){
 
 	var myPlot = document.getElementById(divInfo.plotlyDivID);
 
-
 	var divHeightInStyle = divInfo.plotDivElement.style.height;
 	var divWidthInStyle = divInfo.plotDivElement.style.width;
 	//DEBUG && OTHER_DEBUGS && console.log("divHeightInStyle", divHeightInStyle);
@@ -2850,14 +2302,14 @@ function makeChart(data, param){
 
 	// X RANGE DETERMINATIONS
 	var minDateAsString = "1000-01-01", maxDateAsString = "1000-01-01";
-	//var xDateValue = new Date();
 
 	// this section finds the x range for the traces (which is already trimmed by tracesInitialDate)
 	// range required in order to set the recession shapes.
 	DEBUG && DEBUG_TIMES && console.time("getDataXminXmaxAsString");
 	var minMaxDatesAsString = getDataXminXmaxAsString(data);
 	DEBUG && DEBUG_TIMES && console.timeEnd("getDataXminXmaxAsString");
-	//DEBUG && OTHER_DEBUGS && console.log(minMaxDatesAsString);
+	DEBUG && OTHER_DEBUGS && console.log(minMaxDatesAsString);
+	
 	minDateAsString = minMaxDatesAsString.min;
 	maxDateAsString = minMaxDatesAsString.max;
 
@@ -2871,7 +2323,7 @@ function makeChart(data, param){
 			maxDateAsString
 		);
 	}
-	//DEBUG && OTHER_DEBUGS && console.log("recessions loaded");
+	DEBUG && OTHER_DEBUGS && console.log("recessions loaded");
 
 	// X AXIS RANGE SETTINGS
 	var xaxisRangeAsString = setDatesRangeAsString(
@@ -2879,9 +2331,10 @@ function makeChart(data, param){
 		maxDateAsString,
 		timeInfo
 	);
+	
 	//DEBUG && OTHER_DEBUGS && console.log("xaxis range settings done");
 
-	//DEBUG && OTHER_DEBUGS && console.log("xaxisRange", xaxisRangeAsString);
+	DEBUG && OTHER_DEBUGS && console.log("xaxisRange", xaxisRangeAsString);
 
 	var initialDate = xaxisRangeAsString[0];
 	var endDate = xaxisRangeAsString[1];
@@ -2934,6 +2387,7 @@ function makeChart(data, param){
 
 		addToUpdateMenus(param.frequencyUpdateMenu, updateMenus, layout);
 		if (!frequenciesDataCreated) {
+			DEBUG && OTHER_DEBUGS && console.log("start TransformSeriesByFrequencies");
 			DEBUG && DEBUG_TIMES && console.time("TIME: transformSeriesByFrequencies");
 			transformSeriesByFrequenciesNew(
 				data,
@@ -2948,7 +2402,6 @@ function makeChart(data, param){
 			DEBUG && DEBUG_TIMES && console.timeEnd("TIME: processFrequenciesDates");
 		}
 	}
-
 
 	// loads log, linear updateMenuButtons,
 	if (settings.allowLogLinear) {
@@ -3006,6 +2459,8 @@ function makeChart(data, param){
 	var baseRealNominalDate ="";
 	var newBaseRealNominalDate ="";
 	// transform yvalues to real for those to which applies
+	
+	DEBUG && DEBUG_TIMES && console.time("TIME: transformToReal");
 	if (transformToReal) {
 
 		//DEBUG && OTHER_DEBUGS && console.log("PENDING - InitialprepareTransformToReal");
@@ -3037,6 +2492,9 @@ function makeChart(data, param){
 
 
 	}
+	DEBUG && DEBUG_TIMES && console.timeEnd("TIME: transformToReal");
+	
+	
 	DEBUG && OTHER_DEBUGS && console.log("data as real passed");
 	//DEBUG && OTHER_DEBUGS && console.log("data as real",data);
 
@@ -3047,7 +2505,7 @@ function makeChart(data, param){
 	//set true or false to scale traces to 1 on the initially displayed x0
 	transformToBaseIndex = settings.transformToBaseIndex;
 
-
+	DEBUG && DEBUG_TIMES && console.time("TIME: transformToBaseIndex");
 	// transform yvalues to index at specified date
 	if (transformToBaseIndex) {
 		// original data already saved
@@ -3064,6 +2522,7 @@ function makeChart(data, param){
 
 		//DEBUG && OTHER_DEBUGS && console.log("compared");
 	}
+	DEBUG && DEBUG_TIMES && console.timeEnd("TIME: transformToBaseIndex");
 
 	// add functionality to  compare button
 	if (settings.allowCompare) {
@@ -3115,6 +2574,8 @@ function makeChart(data, param){
 		}
 
 	}
+	
+	
 
 	// load selector options to display 1m, 3m, 6m, 1y, YTD, etc
 	if (settings.allowSelectorOptions) {
@@ -5034,7 +4495,7 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 	var itemsLength = [];
 	var itemsIndex = [];
 	var index = 0;
-	var minMaxDatesAsString = getDataXminXmaxAsString(data);
+	// var minMaxDatesAsString = getDataXminXmaxAsString(data);
 	//var bankingDaysLibrary = getBankingDaysLibrary(minMaxDatesAsString.min, minMaxDatesAsString.max);
 	
 	/*
@@ -5046,6 +4507,8 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 	var localGetPriorNonUSBankingWorkingDay = getPriorNonUSBankingWorkingDay;
 	var localGetNextNonUSBankingWorkingDay =  getNextNonUSBankingWorkingDay;
 	var localGetPeriodLimitsAsYYYYMMDD = getPeriodLimitsAsYYYYMMDD;
+	
+	DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.log("originalPeriodKeys", originalPeriodKeys);
 	
 	
 	// create periodKeysArray to iterate to required keys to be calculated
@@ -5075,6 +4538,10 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 		
 		dataIXO = data[i].xOriginal;
 		dataIYO = data[i].yOriginal;
+		
+		DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.log("i: ", i, "DataIXO: ", dataIXO);
+		DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.log("DataIYO: ", dataIYO);
+		
 		jLimit = dataIXO.length;
 		
 		//startDataI = new Date();
@@ -5092,10 +4559,10 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 			// iterates over trace points
 
 			//DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.log("jLimit", jLimit);
-			DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.time("DataI");
+			DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.time("Data "+i);
 			
 			for (j = jLimit - 1; j > -1; j--) {
-				//DEBUG && OTHER_DEBUGS && console.log('j',j);
+				// DEBUG && OTHER_DEBUGS && console.log('j',j);
 				// get periods ranges and dates
 				currentDateString = dataIXO[j];
 				currentDate = stripDateIntoObject(currentDateString);
@@ -5203,6 +4670,7 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 									data[i][key][aggKey].length = jLimit;
 								}
 							}
+							data[i][key].x.length = jLimit;
 							
 						}
 						
@@ -5258,20 +4726,23 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 						// case: within period
 						// do something if applicable
 					}
-				}  // end of periodKeysArray for
+				}  // next k, end of periodKeysArray for
 				
 				priorLimits = currentLimits;
 			} // next j
 			
-			DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.timeEnd("DataI");
+			DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.timeEnd("Data "+i);
+			
 			// after all j's splice the resulting arrays
 			
-			DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.time("spliceArrays");
+			DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.time("spliceArrays "+i);
 			for (k = 0; k < kLimit; k++) {
+				dataIK = data[i][key];
+				dataIK.x.splice(0, jLimit - itemsLength[k]);
 				key = periodKeysArray[k];
 				for (aggKey in data[i][key]) {
-					if (data[i][key].hasOwnProperty(aggKey)) {
-						data[i][key][aggKey].splice(0, jLimit - itemsLength[k]);
+					if (dataIK.hasOwnProperty(aggKey)) {
+						dataIK[aggKey].splice(0, jLimit - itemsLength[k]);
 						/*DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.log("aggKey: ", 
 												       aggKey,
 												       " items length: ",
@@ -5279,7 +4750,9 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 					}
 				}
 			}
-			DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.timeEnd("spliceArrays");
+			DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.timeEnd("spliceArrays "+i);
+			
+			DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.log("data[i].2.x", data[i][periodKeysArray[2]].x);
 
 			
 		} // end of doCalculations condition
