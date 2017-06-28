@@ -11,7 +11,7 @@ var aoPlotlyAddOn = {};
 var DEBUG = true;
 var OTHER_DEBUGS = true;
 var DEBUG_TIMES = true;
-var DEBUG_TRANSFORM_BY_FREQUENCIES = false;
+var DEBUG_TRANSFORM_BY_FREQUENCIES = true;
 var DEBUG_FB = false; // debug in frequency button
     
        
@@ -2387,6 +2387,7 @@ function makeChart(data, param){
 
 		addToUpdateMenus(param.frequencyUpdateMenu, updateMenus, layout);
 		if (!frequenciesDataCreated) {
+			DEBUG && OTHER_DEBUGS && console.log("start TransformSeriesByFrequencies");
 			DEBUG && DEBUG_TIMES && console.time("TIME: transformSeriesByFrequencies");
 			transformSeriesByFrequenciesNew(
 				data,
