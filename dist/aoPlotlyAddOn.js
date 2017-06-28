@@ -10,7 +10,7 @@ var aoPlotlyAddOn = {};
 // console.log will also be removed with closure compiler 
 var DEBUG = true;
 var OTHER_DEBUGS = true;
-var DEBUG_TIMES = false;
+var DEBUG_TIMES = true;
 var DEBUG_TRANSFORM_BY_FREQUENCIES = false;
 var DEBUG_FB = false; // debug in frequency button
     
@@ -1781,8 +1781,8 @@ function readDataAndMakeChart(data, iS, param, callback) {
 		DEBUG && OTHER_DEBUGS && console.log("data: ", data);
 		DEBUG && OTHER_DEBUGS && console.log("param: ", param);
 		
-		makeChart(data, param);
-		callback("all read and plotted");
+		//makeChart(data, param);
+		//callback("all read and plotted");
 	
 	} // end of else after all read section
 } //  end of readDataAndMakeChart    
