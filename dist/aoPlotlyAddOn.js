@@ -1524,7 +1524,7 @@ function delayedParallelReadData(data, i, param, callback) {
 		DEBUG && OTHER_DEBUGS && console.log("yqlJson", i);
 		Plotly.d3.json(url, function(err, readData) {
 			if(!err){
-				if(typeof readData.query !== "undefined &&
+				if(typeof readData.query !== "undefined" &&
 				   typeof readData.query.results !== "undefined" &&
 				   typeof readData.query.results.json !== "undefined" &&
 				    typeof readData.query.results.json.observations !== "undefined") {
@@ -1552,7 +1552,7 @@ function delayedParallelReadData(data, i, param, callback) {
 			"&format=json";
 		Plotly.d3.json(yqlGoogleCSVUrl, function(err, readData) {
 			if(!err){
-				if(typeof readData.query !== "undefined &&
+				if(typeof readData.query !== "undefined" &&
 				   typeof readData.query.results !== "undefined" &&
 				   typeof readData.query.results.row !== "undefined") {
 					processCsvData(
