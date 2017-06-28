@@ -4731,7 +4731,7 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 				priorLimits = currentLimits;
 			} // next j
 			
-			DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.timeEnd(""Data "+i");
+			DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.timeEnd("Data "+i);
 			
 			// after all j's splice the resulting arrays
 			
