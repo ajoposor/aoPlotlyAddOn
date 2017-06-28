@@ -31,7 +31,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	DEBUG && DEBUG_TIMES && console.time("TIME: newTimeseriesPlot");
 	DEBUG && DEBUG_TIMES && console.time("TIME: initialSettingsBeforeReadData");
 	
-	// test arguments are passed complete	
+	// test arguments are passed complete
 	if (arguments.length < 3) {
 		return "incomplete arguments";
 	}	
