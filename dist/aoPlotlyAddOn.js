@@ -1673,7 +1673,7 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 	if(urlType === "yqlGoogleCSV"){
 		yqlGoogleCSV = true;
 		if(allRows.lenght > 1) {
-			processYqlGoogleCSVTags(dataSources, tags);
+			if(!processYqlGoogleCSVTags(dataSources, tags)) return false;
 			allRows.shift();
 		} else {
 			return false;
@@ -5580,7 +5580,7 @@ function processDatesToAllRows(allRows, xSeriesName, xDateSuffix, urlType){
 	    
 function processYqlGoogleCSVTags(dataSources, tags){
 	var j, jLimit = dataSources.traces.length;
-	var key;
+	var key, tagsFound = 0;
 
 	if(typeof dataSources["xSeriesName"] !== "undefined"){
 		// set xSeriesName to tags in case yqlGoogleCSV
@@ -5597,13 +5597,21 @@ function processYqlGoogleCSVTags(dataSources, tags){
 		for (key in tags){
 			if (tags.hasOwnProperty(key)) {
 				if(tags[key].toString().trim() === dataSources.traces[j].xSeriesName.toString()){
+					tagsFound++;
 					dataSources.traces[j].xSeriesName = key;
 				}
 				if(tags[key].toString().trim() === dataSources.traces[j].ySeriesName.toString()){
+					tagsFound++;
 					dataSources.traces[j].ySeriesName = key;
 				}
 			}
 		}
+	}
+	
+	if(tagsFound === (jLimit + jLimit)){
+		return true;
+	} else {
+		return false;
 	}
 }	    
 	   
