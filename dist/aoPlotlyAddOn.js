@@ -1666,9 +1666,6 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 	var localGoogleMDYToYMD = GoogleMDYToYMD;
 
 	
-	// number of traces to be read on this data source
-	jLimit = dataSources.traces.length;
-	
 	// set flag for yqlGoogleCSV type and removes first row of array and translate names of columns to values
 	if(urlType === "yqlGoogleCSV"){
 		yqlGoogleCSV = true;
@@ -1693,8 +1690,6 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 	
 	DEBUG && OTHER_DEBUGS && console.log("initialDateAsDate", initialDateAsDate);
 	
-		
-	
 	
 	//DEBUG && OTHER_DEBUGS && console.log("allRows: ", allRows);
 	
@@ -1706,18 +1701,27 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 	// Preprocess options for all Rows
 	DEBUG && OTHER_DEBUGS && console.log("start preprocess");
 	
+	//
+	verifyAndCleanDataSources(allRows, dataSources);
+	
+	// break if no traces in dataSources were left
+	if(dataSources.traces.length < 1) return false;
+	
 	// get number of tables, sort and preprocessing of dates options
 	setTablesParametersSortPreprocessing(tableParams, dataSources);
 	DEBUG && OTHER_DEBUGS && console.log("table params set: ", tableParams);
+	
+	// number of traces to be read on this data source
+	jLimit = dataSources.traces.length;
 
 	// apply date preprocessing options
-	if(!applyDateProprocessing(allRows, tableParams, urlType)) return false;
+	applyDateProprocessing(allRows, tableParams, urlType);
 	
 	DEBUG && OTHER_DEBUGS && console.log("data processing options applied");
 	DEBUG && OTHER_DEBUGS && console.log("allRows",allRows);
 
 	// split subtables trim by InitialDateAsDate and reorder by firstItemToRead
-	if(!splitSubtablesAndTrim(allRows, tableParams, dataSources, initialDateAsDate)) return false;
+	splitSubtablesAndTrim(allRows, tableParams, dataSources, initialDateAsDate);
 	DEBUG && OTHER_DEBUGS && console.log("tables split, and reordered");
 	DEBUG && OTHER_DEBUGS && console.log("table Params", tableParams);
 	allRows = [];
@@ -1967,14 +1971,27 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 			processedColumnDates.push(xSeriesName);
 		}
 	}
-	
-	return true;
+
 }
 
-	    
-  
-	    
-	    
+
+function verifyAndCleanDataSources(allRows, dataSources) {
+
+	var traces = dataSources.traces;
+	var jLimit = traces.length;
+	var firstRow = allRows[0];
+	
+	for( var j = 0; j < jLimit; j++){
+		if(typeof firstRow[traces[j].xSeriesName] === "undefined" ||
+		   typeof firstRow[traces[j].ySeriesName] === "undefined") {
+			traces.splice(j,1);
+			jLimit--;
+		}
+	}
+}
+
+
+
 /* Not required, it can be handled with the CSV function, set xSeriesName to date and ySeriesName to value
 function processJsonData(jsonData, tracesInitialDate, serie) {
 	var x = [], y = [], trace = {}; //[];
@@ -5641,63 +5658,58 @@ function applyDateProprocessing(allRows, tableParams, urlType) {
 		if (tableParams.hasOwnProperty(key)){
 			if(tableParams[key]["processDates"]){
 				xSeriesName = key;
-				if(typeof allRows[0][xSeriesName] !== "undefined") {
-					xDateSuffix = tableParams[key]["xDateSuffix"];
-					if(typeof tableParams[key]["onlyAddXDateSuffix"] !== "undefined"){
-						onlyAddXDateSuffix = tableParams[key]["onlyAddXDateSuffix"];
-					} else{
-						onlyAddXDateSuffix = false;
+				xDateSuffix = tableParams[key]["xDateSuffix"];
+				if(typeof tableParams[key]["onlyAddXDateSuffix"] !== "undefined"){
+					onlyAddXDateSuffix = tableParams[key]["onlyAddXDateSuffix"];
+				} else{
+					onlyAddXDateSuffix = false;
+				}
+
+				transformToEndOfMonth = false;
+				if(typeof tableParams[key]["postProcessDate"] !== "undefined" &&
+				   tableParams[key]["postProcessDate"] === "end of month"){ 
+					transformToEndOfMonth = true;
+				}
+
+				if(yqlGoogleCSV){				   
+					for(i = 0; i < iLimit ; i++){
+						if(allRows[i][xSeriesName]!=="" && allRows[i][xSeriesName]!==null){
+							allRows[i][xSeriesName] =
+								localProcessDate(""+
+										 localGoogleMDYToYMD(allRows[i][xSeriesName])+
+										 xDateSuffix, 
+										 timeOffsetText);
+						}
+
 					}
-
-					transformToEndOfMonth = false;
-					if(typeof tableParams[key]["postProcessDate"] !== "undefined" &&
-					   tableParams[key]["postProcessDate"] === "end of month"){ 
-						transformToEndOfMonth = true;
+				} else if(transformToEndOfMonth){
+					for(i = 0; i < iLimit ; i++){
+						if(allRows[i][xSeriesName]!=="" && allRows[i][xSeriesName]!== null) {
+							processedDate = localProcessDate(""+
+								allRows[i][xSeriesName] + 
+								xDateSuffix, timeOffsetText);
+							processedDate = localChangeDateToEndOfMonth(processedDate);
+							allRows[i][xSeriesName]=processedDate;
+						}
 					}
-
-					if(yqlGoogleCSV){				   
-						for(i = 0; i < iLimit ; i++){
-							if(allRows[i][xSeriesName]!=="" && allRows[i][xSeriesName]!==null){
-								allRows[i][xSeriesName] =
-									localProcessDate(""+
-											 localGoogleMDYToYMD(allRows[i][xSeriesName])+
-											 xDateSuffix, 
-											 timeOffsetText);
-							}
-
-						}
-					} else if(transformToEndOfMonth){
-						for(i = 0; i < iLimit ; i++){
-							if(allRows[i][xSeriesName]!=="" && allRows[i][xSeriesName]!== null) {
-								processedDate = localProcessDate(""+
-									allRows[i][xSeriesName] + 
-									xDateSuffix, timeOffsetText);
-								processedDate = localChangeDateToEndOfMonth(processedDate);
-								allRows[i][xSeriesName]=processedDate;
-							}
-						}
-					} else if (onlyAddXDateSuffix) {
-						for(i = 0; i < iLimit ; i++){
-							if(allRows[i][xSeriesName]!=="" && allRows[i][xSeriesName]!==null) {
-								allRows[i][xSeriesName] += onlyAddXDateSuffix;
-							}	
-						}
-					} else {
-						for(i = 0; i < iLimit ; i++){
-							if(allRows[i][xSeriesName]!=="" && allRows[i][xSeriesName]!==null) {
-								allRows[i][xSeriesName] = localProcessDate(""+
-									allRows[i][xSeriesName] + 
-									xDateSuffix, timeOffsetText);
-							}	
-						}
+				} else if (onlyAddXDateSuffix) {
+					for(i = 0; i < iLimit ; i++){
+						if(allRows[i][xSeriesName]!=="" && allRows[i][xSeriesName]!==null) {
+							allRows[i][xSeriesName] += onlyAddXDateSuffix;
+						}	
 					}
 				} else {
-					return false;
+					for(i = 0; i < iLimit ; i++){
+						if(allRows[i][xSeriesName]!=="" && allRows[i][xSeriesName]!==null) {
+							allRows[i][xSeriesName] = localProcessDate(""+
+								allRows[i][xSeriesName] + 
+								xDateSuffix, timeOffsetText);
+						}	
+					}
 				}
 			}	
 		}
 	}
-	return true;
 }
 	    
 	    
@@ -5857,7 +5869,6 @@ function splitSubtablesAndTrim(allRows, tableParams, dataSources, initialDateAsD
 			//DEBUG && OTHER_DEBUGS && console.log("allRows in split subtables", allRows);
 			// read data into ordered and subtables
 			for(i=0; i<iLimit; i++){
-				if (typeof allRows[l][xSeriesName] === "undefined") return false;
 				dateString = allRows[l][xSeriesName];
 				if(dateString !== "" && dateString !== null){
 					if(new Date(dateString)>= initialDateAsDate){
@@ -5880,8 +5891,6 @@ function splitSubtablesAndTrim(allRows, tableParams, dataSources, initialDateAsD
 			tableParams[key]["allRows"] = newArray;
 		}
 	}
-	
-	return true;
 }	
 	    
 function sortSubTables(tableParams){
