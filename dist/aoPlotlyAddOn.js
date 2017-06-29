@@ -1353,7 +1353,7 @@ function showNoLoadedDataItem(divInfo) {
 	
 	// append child
 	var messageElement = document.createElement('div');
-	messageElement.id = "messageOnNoLoadedData;
+	messageElement.id = divInfo.noLoadedDataMessage;
 	messageContainerElement.appendChild(messageElement);
 	
 	messageElement.innerHTML = divInfo.noLoadedDataMessage;
