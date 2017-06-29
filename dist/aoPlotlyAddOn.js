@@ -77,6 +77,8 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 				divInfo.wholeDivElement.firstChild);
 	
 	if(typeof divInfo.noLoadedDataMessage === "undefined") {
+		
+		// this will vertical align the div in the middle of the parent div, and center the text horizontally
 		divInfo.noLoadedDataMessage = '<div style="position:relative; top:50%; transform:translateY(-50%);'+
 						'text-align:center;"><h3><font color="#1A5488"  >'+
 						'<b>Datos no recibidos</b></font></div>';
@@ -1355,16 +1357,11 @@ function showNoLoadedDataItem(divInfo) {
 	}	
 	
 	// append child
-	var messageElement = document.createElement('div');
-	messageContainerElement.appendChild(messageElement);
 	if(divInfo.onErrorHideWholeDiv){
 		messageContainerElement.style.height = ""+(numberExPx(divInfo.plotDivElement.style.height)+40)+"px";
-		messageElement.style.height = ""+(numberExPx(divInfo.plotDivElement.style.height)+40)+"px";
-	} else {
-		messageElement.style.height = divInfo.plotDivElement.style.height;
-	}
+	} 
 	
-	messageElement.innerHTML = divInfo.noLoadedDataMessage;
+	messageContainerElement.innerHTML = divInfo.noLoadedDataMessage;
 	
 	wholeDivShow(divInfo.wholeDivElement);
 	loaderHide(divInfo.loaderElement);
