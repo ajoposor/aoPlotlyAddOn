@@ -1359,6 +1359,9 @@ function showNoLoadedDataItem(divInfo) {
 	messageContainerElement.appendChild(messageElement);
 	if(divInfo.onErrorHideWholeDiv){
 		messageContainerElement.style.height = ""+(numberExPx(divInfo.plotDivElement.style.height)+40)+"px";
+		messageElement.style.height = ""+(numberExPx(divInfo.plotDivElement.style.height)+40)+"px";
+	} else {
+		messageElement.style.height = divInfo.plotDivElement.style.height;
 	}
 	
 	messageElement.innerHTML = divInfo.noLoadedDataMessage;
