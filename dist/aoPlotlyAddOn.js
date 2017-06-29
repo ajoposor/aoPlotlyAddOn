@@ -1343,18 +1343,30 @@ function cleanOutData(data) {
 
 function showNoLoadedDataItem(divInfo) {
 	
-	var plotDivElement = divInfo.plotDivElement;
+	// determine element where no data message will be displayed
+	var messageContainerElement  = divInfo.onErrorHideWholeDiv ? divInfo.wholeDivElement : divInfo.plotDivElement;
 	
-	while (plotDivElement.hasChildNodes()) {
-	    plotDivElement.removeChild(plotDivElement.lastChild);
-	}
-
-	plotDivElement.innerHtml = "No hubo conexión con la fuente de datos";
+	// remove all children from messageElement
+	while (messageContainerElement.hasChildNodes()) {
+	    messageContainerElement.removeChild(messageContainerElement.lastChild);
+	}	
+	
+	// append child
+	var messageElement = document.createElement('div');
+	messageElement.id = "messageOnNoLoadedData;
+	messageContainerElement.appendChild(messageElement);
+	
+	messageElement.innerHTML = divInfo.noLoadedDataMessage;
+	
 	wholeDivShow(divInfo.wholeDivElement);
 	loaderHide(divInfo.loaderElement);
 	
 }
 
+
+	
+	
+	
 
 function parallelUpdateRecessions(newRecessionsUrl, usRecessions, callback){
 
