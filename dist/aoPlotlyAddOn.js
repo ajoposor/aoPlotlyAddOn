@@ -1302,16 +1302,50 @@ function parallelReadDataAndMakeChart(data, param) {
 			DEBUG && OTHER_DEBUGS && console.log("data: ", data);
 			DEBUG && OTHER_DEBUGS && console.log("param: ", param);	
 			DEBUG && DEBUG_TIMES && console.timeEnd("TIME: parallelReadData");
-			makeChart(data, param);
-			DEBUG && OTHER_DEBUGS && console.log("allread and ploted");
 			
+			// test with void data
+			var data = [{x:[], y:[]}];
+			cleanOutData(data);
+			if(data.length < 1) {
+				showNoLoadedDataItem(param.divInfo);
+			} else {	
+
+				makeChart(data, param);
+				DEBUG && OTHER_DEBUGS && console.log("allread and ploted");
+			}	
 		}
 		
 	});
-
-} //  end of parallelReadDataAndMakeChart    	 
-	 
+} //  end of parallelReadDataAndMakeChart
 	
+
+function cleanOutData(data) {
+	var iLimit = data.length;
+	
+	for(var i=0; i < iLimit; i++){
+		if(typeof data[i].x === "undefined" ||
+		   typeof data[i].y === "undefined" ||
+		   data[i].x.length < 1 ||
+		   data[i].y.length < 1 ||
+		   data[i].x.length !== data[i].y.length){
+			data.splice(i,1);
+		}
+	}
+}
+
+function showNoLoadedDataItem(divInfo) {
+	
+	var plotDivElement = divInfo.plotDivElement;
+	
+	while (plotDivElement.hasChildNodes()) {
+	    plotDivElement.removeChild(plotDivElement.lastChild);
+	}
+
+	plotDivElement.innerHtml = "No hubo conexión con la fuente de datos";
+	
+}
+
+
 function parallelUpdateRecessions(newRecessionsUrl, usRecessions, callback){
 
 	// this function will get a zip file and update the usRecessions
@@ -2268,13 +2302,6 @@ function makeChart(data, param){
 	if(typeof layout.yaxis.tickformat !== "undefined"){
 		originalLayout.yaxis.tickformat = layout.yaxis.tickformat;
 	}
-
-	
-	//cleanOutData(data);
-	//if(data.length < 1) 
-		
-	// test with void data
-	var data = [{x:[], y:[]}];
 	
 	
 	// SAVE ORIGINAL DATA
