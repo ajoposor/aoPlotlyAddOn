@@ -1342,6 +1342,8 @@ function showNoLoadedDataItem(divInfo) {
 	}
 
 	plotDivElement.innerHtml = "No hubo conexión con la fuente de datos";
+	wholeDivShow(divInfo.wholeDivElement);
+	loaderHide(divInfo.loaderElement);
 	
 }
 
@@ -1735,7 +1737,8 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 	// Preprocess options for all Rows
 	DEBUG && OTHER_DEBUGS && console.log("start preprocess");
 	
-	//
+	//removes data sources for which the corresponding xSeriesName or ySeriesName
+	// doesn't exist in allRows
 	verifyAndCleanDataSources(allRows, dataSources);
 	
 	// break if no traces in dataSources were left
