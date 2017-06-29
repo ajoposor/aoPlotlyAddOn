@@ -74,7 +74,13 @@ The divInfo object contains the following properties:
 
    * **wholeDivID** (string) "your whole div id".  Whole div name, where you will have your plot, including other html items, like your titles and footnotes. Required to hide the div while the plot loads.
 
-   * **plotDivID** "(string) "your plotly Div id". Div where the plot will be included. It should be a div within wholeDiv.
+   * **plotDivID** "(string) "your plotly Div id". Div where the plot will be included. It should be a div within wholeDiv. Before plotDiv you would place the plot title and other header information, and after plotDiv you would add footnotes.
+
+   * **noLoadedDataMessage** "(string)  A message to be displayed in case there was no data to be plotted. .
+
+   * **onErrorHideWholeDiv** "(boolean) Default: false. Set to true if you want wholeDiv hidden in case there was no data to be plotted. The noLoadedDataMessage will be displayed. If set to false, the noLoadedDataMessage will be displayed in the plotDiv.
+         	
+	
    
 
 #### Example

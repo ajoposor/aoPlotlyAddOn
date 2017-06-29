@@ -11,6 +11,7 @@ var aoPlotlyAddOn = {};
 var DEBUG = false;
 var OTHER_DEBUGS = false;
 var DEBUG_TIMES = false;
+var DEBUG_CSV = false;
 var DEBUG_TRANSFORM_BY_FREQUENCIES = false;
 var DEBUG_FB = false; // debug in frequency button
     
@@ -26,7 +27,6 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	layout = {},
 	options = {}
 ) {
-
 
 	DEBUG && DEBUG_TIMES && console.time("TIME: newTimeseriesPlot");
 	DEBUG && DEBUG_TIMES && console.time("TIME: initialSettingsBeforeReadData");
@@ -70,10 +70,22 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	divInfo.wholeDivElement = document.getElementById(divInfo.wholeDivID);	
 	divInfo.loaderElement = document.createElement('div');
 	divInfo.loaderElement.id = divInfo.loaderID;
+	
 	divInfo.wholeDivElement.insertBefore(
-	divInfo.loaderElement, 
-	divInfo.wholeDivElement.firstChild);	
-
+				divInfo.loaderElement, 
+				divInfo.wholeDivElement.firstChild);
+	
+	if(typeof divInfo.noLoadedDataMessage === "undefined") {
+		
+		// this will vertical align the div in the middle of the parent div, and center the text horizontally
+		divInfo.noLoadedDataMessage = '<div style="position:relative; top:50%; transform:translateY(-50%);'+
+						'text-align:center;"><h3><font color="#1A5488"  >'+
+						'<b>Datos no recibidos</b></font></div>';
+	}
+	
+	if(typeof divInfo.onErrorHideWholeDiv === "undefined") {
+		divInfo.onErrorHideWholeDiv = false;
+	}	
 		
 	setElementStyle(divInfo.loaderElement, loaderInitialStyling);
 	
@@ -208,6 +220,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		newRecessionsUrl: fredRecessionsDefaultUrl,
 		knownRecessionsDates: knownRecessionsDates,
 		queueConcurrencyLimit: 10,
+		queueConcurrencyDelay: 5, //milliseconds
 		allowCompare: false,
 		transformToBaseIndex: false, //series would be transformed to common value of 1 at beginning
 		
@@ -1300,31 +1313,66 @@ function parallelReadDataAndMakeChart(data, param) {
 			DEBUG && OTHER_DEBUGS && console.log("data: ", data);
 			DEBUG && OTHER_DEBUGS && console.log("param: ", param);	
 			DEBUG && DEBUG_TIMES && console.timeEnd("TIME: parallelReadData");
-			makeChart(data, param);
-			DEBUG && OTHER_DEBUGS && console.log("allread and ploted");
 			
+			// test with void data
+			//var data = [{x:[], y:[]}];
+			
+			// this removes data[i], where data[i].x or y don't exist or have zero elements
+			cleanOutData(data);
+			if(data.length < 1) {
+				showNoLoadedDataItem(param.divInfo);
+			} else {	
+				makeChart(data, param);
+				DEBUG && OTHER_DEBUGS && console.log("allread and ploted");
+			}	
 		}
 		
 	});
-	/*
-	// first all files are to be read, in a recursive way, with iS < series.length
+} //  end of parallelReadDataAndMakeChart
+	
 
-	if (iS.value < param.dataSources.length) {
-		readData(data, iS, param, callback);
+function cleanOutData(data) {
+	var iLimit = data.length;
+	
+	for(var i=0; i < iLimit; i++){
+		if(typeof data[i].x === "undefined" ||
+		   typeof data[i].y === "undefined" ||
+		   data[i].x.length < 1 ||
+		   data[i].y.length < 1 ||
+		   data[i].x.length !== data[i].y.length){
+			data.splice(i,1);
+		}
+	}
+}
+
+function showNoLoadedDataItem(divInfo) {
+	
+	// determine element where no data message will be displayed
+	var messageContainerElement  = divInfo.onErrorHideWholeDiv ? divInfo.wholeDivElement : divInfo.plotDivElement;
+	
+	
+	// remove all children from messageElement
+	while (messageContainerElement.hasChildNodes()) {
+	    messageContainerElement.removeChild(messageContainerElement.lastChild);
+	}	
+	
+	// append child
+	if(divInfo.onErrorHideWholeDiv){
+		messageContainerElement.style.height = ""+(numberExPx(divInfo.plotDivElement.style.height)+40)+"px";
 	} 
 	
-	else {
-		// once all files all read, i.e. iS === series.length, this section is executed
-		DEBUG && OTHER_DEBUGS && console.log("data: ", data);
-		DEBUG && OTHER_DEBUGS && console.log("param: ", param);
-		
-		makeChart(data, param);
-		callback("all read and plotted");
+	messageContainerElement.innerHTML = divInfo.noLoadedDataMessage;
 	
-	} // end of else after all read section*/
-} //  end of readDataAndMakeChart    	 
-	 
+	wholeDivShow(divInfo.wholeDivElement);
+	loaderHide(divInfo.loaderElement);
 	
+}
+
+
+	
+	
+	
+
 function parallelUpdateRecessions(newRecessionsUrl, usRecessions, callback){
 
 	// this function will get a zip file and update the usRecessions
@@ -1481,9 +1529,14 @@ function readData(data, iS, param, callback) {
 }
 
 */
-	 
-	 
+	
+// delay the call of data loading by a certain delay	
 function parallelReadData(data, i, param, callback) {
+	
+	setTimeout( delayedParallelReadData(data, i, param, callback), param.settings.queueConcurrencyDelay);
+}
+	 
+function delayedParallelReadData(data, i, param, callback) {
 	
 	var urlType = param.dataSources[i].urlType;
 	var url = param.dataSources[i].url;
@@ -1494,18 +1547,21 @@ function parallelReadData(data, i, param, callback) {
 		Plotly.d3.csv(url, function(err, readData) {
 			DEBUG && OTHER_DEBUGS && console.log("csv", i);
 			if(!err){
-				DEBUG && OTHER_DEBUGS && console.log("readData", readData);
-				DEBUG && DEBUG_TIMES && console.timeEnd("Time Read File "+i)
-				DEBUG && DEBUG_TIMES && console.time("Time ProcessCsvData "+i)
-				processCsvData(
-					readData, 
-					data,
-					param.timeInfo.tracesInitialDate,
-					param.otherDataProperties,
-					param.dataSources[i]
-					);
-				DEBUG && DEBUG_TIMES && console.timeEnd("Time ProcessCsvData "+i)
-				DEBUG && OTHER_DEBUGS && console.log("processCsvData",i,"finished");
+				if(checkDataIsAnArrayNotVoid(readData)){
+					DEBUG && DEBUG_CSV && console.log("readData "+i+" readDate.length: ",
+									  readData.length);
+					DEBUG && DEBUG_TIMES && console.timeEnd("Time Read File "+i)
+					DEBUG && DEBUG_TIMES && console.time("Time ProcessCsvData "+i)
+					processCsvData(
+						readData, 
+						data,
+						param.timeInfo.tracesInitialDate,
+						param.otherDataProperties,
+						param.dataSources[i]
+						);
+					DEBUG && DEBUG_TIMES && console.timeEnd("Time ProcessCsvData "+i)
+					DEBUG && OTHER_DEBUGS && console.log("processCsvData",i,"finished");
+				}
 			} else {
 				DEBUG && OTHER_DEBUGS && console.log("error reading CsvData",i);
 			}		
@@ -1532,16 +1588,22 @@ function parallelReadData(data, i, param, callback) {
 		DEBUG && OTHER_DEBUGS && console.log("yqlJson", i);
 		Plotly.d3.json(url, function(err, readData) {
 			if(!err){
-				/* Not required, it can be handled with the CSV function, 
-				set xSeriesName to date and ySeriesName to value*/	    
-				processCsvData(
-					readData.query.results.json.observations,
-					data,
-					param.timeInfo.tracesInitialDate,
-					param.otherDataProperties,
-					param.dataSources[i]
-					);
-				DEBUG && OTHER_DEBUGS && console.log("process yqlJson",i,"finished");
+				if(typeof readData.query !== "undefined" &&
+				   typeof readData.query.results !== "undefined" &&
+				   typeof readData.query.results.json !== "undefined" &&
+				    typeof readData.query.results.json.observations !== "undefined") {
+					readData = readData.query.results.json.observations;
+					if(checkDataIsAnArrayNotVoid(readData)){
+						processCsvData(
+							readData.query.results.json.observations,
+							data,
+							param.timeInfo.tracesInitialDate,
+							param.otherDataProperties,
+							param.dataSources[i]
+							);
+						DEBUG && OTHER_DEBUGS && console.log("process yqlJson",i,"finished");
+					}
+				}
 			} else {
 				DEBUG && OTHER_DEBUGS && console.log("error reading yqlJson",i);
 			}
@@ -1556,15 +1618,22 @@ function parallelReadData(data, i, param, callback) {
 			encodeURIComponent("SELECT * from csv where url='"+url+"'")+
 			"&format=json";
 		Plotly.d3.json(yqlGoogleCSVUrl, function(err, readData) {
-			if(!err){			
-				processCsvData(
-					readData.query.results.row,
-					data,
-					param.timeInfo.tracesInitialDate,
-					param.otherDataProperties,
-					param.dataSources[i]
-				);
-				DEBUG && OTHER_DEBUGS && console.log("process yqlGoogleCSV",i,"finished");
+			if(!err){
+				if(typeof readData.query !== "undefined" &&
+				   typeof readData.query.results !== "undefined" &&
+				   typeof readData.query.results.row !== "undefined") {
+					readData = readData.query.results.row;
+					if(checkDataIsAnArrayNotVoid(readData)){
+						processCsvData(
+							readData.query.results.row,
+							data,
+							param.timeInfo.tracesInitialDate,
+							param.otherDataProperties,
+							param.dataSources[i]
+						);
+						DEBUG && OTHER_DEBUGS && console.log("process yqlGoogleCSV",i,"finished");
+					}
+				}			
 			} else {
 				DEBUG && OTHER_DEBUGS && console.log("error reading yqlJson",i);
 			}					
@@ -1576,15 +1645,17 @@ function parallelReadData(data, i, param, callback) {
 	else if (urlType === "pureJson") {
 		DEBUG && OTHER_DEBUGS && console.log("pureJson", i);
 		Plotly.d3.json(url, function(err, readData) {
-			if(!err){			
-				processCsvData(
-					readData, 
-					data,
-					param.timeInfo.tracesInitialDate, 
-					param.otherDataProperties,
-					param.dataSources[i]
-					);
-				DEBUG && OTHER_DEBUGS && console.log("process pureJson",i,"finished");
+			if(!err){
+				if(checkDataIsAnArrayNotVoid(readData)){
+					processCsvData(
+						readData, 
+						data,
+						param.timeInfo.tracesInitialDate, 
+						param.otherDataProperties,
+						param.dataSources[i]
+						);
+					DEBUG && OTHER_DEBUGS && console.log("process pureJson",i,"finished");
+				}
 			} else {
 				DEBUG && OTHER_DEBUGS && console.log("error reading yqlJson",i);
 			}				
@@ -1594,11 +1665,20 @@ function parallelReadData(data, i, param, callback) {
 		});
 	} 
 }
-	 
-	 
-	 
-	 
-	 
+
+
+function checkDataIsAnArrayNotVoid(readData){
+	
+	if(Array.isArray(readData) &&
+	   readData.length > 0) {
+		return true;
+	} else {
+		return false;
+	}
+
+}
+
+
 // 2. Process CSVData - support function, reads data and add it to data object, increases global iS variable
     
 	    
@@ -1627,7 +1707,7 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 	var delta =0.0;
 	var datesReady = false, transformToEndOfMonth = false;
 	var urlType = dataSources.urlType;
-	var tags=allRows[0];
+	var tags= typeof allRows[0] !== "undefined" ? allRows[0] : {};
 	var yqlGoogleCSV = false;
 	var tableParams = {};
 	var adjustFactor = 1.0, adjust="";
@@ -1647,14 +1727,15 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 	var localGoogleMDYToYMD = GoogleMDYToYMD;
 
 	
-	// number of traces to be read on this data source
-	jLimit = dataSources.traces.length;
-	
 	// set flag for yqlGoogleCSV type and removes first row of array and translate names of columns to values
 	if(urlType === "yqlGoogleCSV"){
 		yqlGoogleCSV = true;
-		processYqlGoogleCSVTags(dataSources);
-		allRows.shift();
+		if(allRows.lenght > 1) {
+			if(!processYqlGoogleCSVTags(dataSources, tags)) return false;
+			allRows.shift();
+		} else {
+			return false;
+		}
 	}
 	
 	xSeriesName = "";
@@ -1670,8 +1751,6 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 	
 	DEBUG && OTHER_DEBUGS && console.log("initialDateAsDate", initialDateAsDate);
 	
-		
-	
 	
 	//DEBUG && OTHER_DEBUGS && console.log("allRows: ", allRows);
 	
@@ -1683,12 +1762,23 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 	// Preprocess options for all Rows
 	DEBUG && OTHER_DEBUGS && console.log("start preprocess");
 	
+	//removes data sources for which the corresponding xSeriesName or ySeriesName
+	// doesn't exist in allRows
+	verifyAndCleanDataSources(allRows, dataSources);
+	
+	// break if no traces in dataSources were left
+	if(dataSources.traces.length < 1) return false;
+	
 	// get number of tables, sort and preprocessing of dates options
 	setTablesParametersSortPreprocessing(tableParams, dataSources);
 	DEBUG && OTHER_DEBUGS && console.log("table params set: ", tableParams);
+	
+	// number of traces to be read on this data source
+	jLimit = dataSources.traces.length;
 
 	// apply date preprocessing options
 	applyDateProprocessing(allRows, tableParams, urlType);
+	
 	DEBUG && OTHER_DEBUGS && console.log("data processing options applied");
 	DEBUG && OTHER_DEBUGS && console.log("allRows",allRows);
 
@@ -1943,12 +2033,27 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 			processedColumnDates.push(xSeriesName);
 		}
 	}
+
 }
 
-	    
-  
-	    
-	    
+
+function verifyAndCleanDataSources(allRows, dataSources) {
+
+	var traces = dataSources.traces;
+	var jLimit = traces.length;
+	var firstRow = allRows[0];
+	
+	for( var j = 0; j < jLimit; j++){
+		if(typeof firstRow[traces[j].xSeriesName] === "undefined" ||
+		   typeof firstRow[traces[j].ySeriesName] === "undefined") {
+			traces.splice(j,1);
+			jLimit--;
+		}
+	}
+}
+
+
+
 /* Not required, it can be handled with the CSV function, set xSeriesName to date and ySeriesName to value
 function processJsonData(jsonData, tracesInitialDate, serie) {
 	var x = [], y = [], trace = {}; //[];
@@ -2225,7 +2330,8 @@ function makeChart(data, param){
 	if(typeof layout.yaxis.tickformat !== "undefined"){
 		originalLayout.yaxis.tickformat = layout.yaxis.tickformat;
 	}
-
+	
+	
 	// SAVE ORIGINAL DATA
 	DEBUG && DEBUG_TIMES && console.time("TIME: Save Original Data");
 	saveDataXYIntoPropertyXY(data, "xOriginal", "yOriginal");
@@ -4670,7 +4776,7 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 									data[i][key][aggKey].length = jLimit;
 								}
 							}
-							data[i][key].x.length = jLimit;
+							// data[i][key].x.length = jLimit;
 							
 						}
 						
@@ -4737,10 +4843,10 @@ function transformSeriesByFrequenciesNew(data, originalPeriodKeys, endOfWeek) {
 			
 			DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.time("spliceArrays "+i);
 			for (k = 0; k < kLimit; k++) {
-				dataIK = data[i][key];
-				dataIK.x.splice(0, jLimit - itemsLength[k]);
 				key = periodKeysArray[k];
-				for (aggKey in data[i][key]) {
+				dataIK = data[i][key];
+				//dataIK.x.splice(0, jLimit - itemsLength[k]);
+				for (aggKey in dataIK) {
 					if (dataIK.hasOwnProperty(aggKey)) {
 						dataIK[aggKey].splice(0, jLimit - itemsLength[k]);
 						/*DEBUG && DEBUG_TRANSFORM_BY_FREQUENCIES && console.log("aggKey: ", 
@@ -5552,9 +5658,9 @@ function processDatesToAllRows(allRows, xSeriesName, xDateSuffix, urlType){
 }
 */
 	    
-function processYqlGoogleCSVTags(dataSources){
+function processYqlGoogleCSVTags(dataSources, tags){
 	var j, jLimit = dataSources.traces.length;
-	var key;
+	var key, tagsFound = 0;
 
 	if(typeof dataSources["xSeriesName"] !== "undefined"){
 		// set xSeriesName to tags in case yqlGoogleCSV
@@ -5571,16 +5677,25 @@ function processYqlGoogleCSVTags(dataSources){
 		for (key in tags){
 			if (tags.hasOwnProperty(key)) {
 				if(tags[key].toString().trim() === dataSources.traces[j].xSeriesName.toString()){
+					tagsFound++;
 					dataSources.traces[j].xSeriesName = key;
 				}
 				if(tags[key].toString().trim() === dataSources.traces[j].ySeriesName.toString()){
+					tagsFound++;
 					dataSources.traces[j].ySeriesName = key;
 				}
 			}
 		}
 	}
+	
+	if(tagsFound === (jLimit + jLimit)){
+		return true;
+	} else {
+		return false;
+	}
 }	    
 	   
+// return false on data error, true on success	
 function applyDateProprocessing(allRows, tableParams, urlType) {
 	var i, iLimit = allRows.length;
 	var processedDate = "";
@@ -5612,13 +5727,13 @@ function applyDateProprocessing(allRows, tableParams, urlType) {
 				} else{
 					onlyAddXDateSuffix = false;
 				}
-				
+
 				transformToEndOfMonth = false;
 				if(typeof tableParams[key]["postProcessDate"] !== "undefined" &&
 				   tableParams[key]["postProcessDate"] === "end of month"){ 
 					transformToEndOfMonth = true;
 				}
-				
+
 				if(yqlGoogleCSV){				   
 					for(i = 0; i < iLimit ; i++){
 						if(allRows[i][xSeriesName]!=="" && allRows[i][xSeriesName]!==null){
@@ -5789,6 +5904,7 @@ function splitSubtablesAndTrim(allRows, tableParams, dataSources, initialDateAsD
 	for (var key in tableParams) {
 		if (tableParams.hasOwnProperty(key)){
 			xSeriesName = key;
+			
 			newArray =[];
 			newArray.length= iLimit;
 			var yNamesArray;
