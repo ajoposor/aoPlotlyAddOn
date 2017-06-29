@@ -28,7 +28,6 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	options = {}
 ) {
 
-
 	DEBUG && DEBUG_TIMES && console.time("TIME: newTimeseriesPlot");
 	DEBUG && DEBUG_TIMES && console.time("TIME: initialSettingsBeforeReadData");
 	
@@ -1316,12 +1315,13 @@ function parallelReadDataAndMakeChart(data, param) {
 			DEBUG && DEBUG_TIMES && console.timeEnd("TIME: parallelReadData");
 			
 			// test with void data
-			var data = [{x:[], y:[]}];
+			//var data = [{x:[], y:[]}];
+			
+			// this removes data[i], where data[i].x or y don't exist or have zero elements
 			cleanOutData(data);
 			if(data.length < 1) {
 				showNoLoadedDataItem(param.divInfo);
 			} else {	
-
 				makeChart(data, param);
 				DEBUG && OTHER_DEBUGS && console.log("allread and ploted");
 			}	
