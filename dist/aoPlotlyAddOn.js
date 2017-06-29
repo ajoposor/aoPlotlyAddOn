@@ -71,10 +71,14 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	divInfo.wholeDivElement = document.getElementById(divInfo.wholeDivID);	
 	divInfo.loaderElement = document.createElement('div');
 	divInfo.loaderElement.id = divInfo.loaderID;
+	
 	divInfo.wholeDivElement.insertBefore(
-	divInfo.loaderElement, 
-	divInfo.wholeDivElement.firstChild);	
-
+				divInfo.loaderElement, 
+				divInfo.wholeDivElement.firstChild);
+	
+	if(typeof divInfo.noLoadedDataMessage === "undefined") {
+		divInfo.noLoadedDataMessage = "Conexión con datos incompleta";
+	}
 		
 	setElementStyle(divInfo.loaderElement, loaderInitialStyling);
 	
