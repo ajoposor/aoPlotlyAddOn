@@ -1486,18 +1486,21 @@ function delayedParallelReadData(data, i, param, callback) {
 		Plotly.d3.csv(url, function(err, readData) {
 			DEBUG && OTHER_DEBUGS && console.log("csv", i);
 			if(!err){
-				DEBUG && DEBUG_CSV && console.log("readData "+i+" readDate.length: ", readData.length);
-				DEBUG && DEBUG_TIMES && console.timeEnd("Time Read File "+i)
-				DEBUG && DEBUG_TIMES && console.time("Time ProcessCsvData "+i)
-				processCsvData(
-					readData, 
-					data,
-					param.timeInfo.tracesInitialDate,
-					param.otherDataProperties,
-					param.dataSources[i]
-					);
-				DEBUG && DEBUG_TIMES && console.timeEnd("Time ProcessCsvData "+i)
-				DEBUG && OTHER_DEBUGS && console.log("processCsvData",i,"finished");
+				if(checkDataIsAnArrayNotVoid(readData)){
+					DEBUG && DEBUG_CSV && console.log("readData "+i+" readDate.length: ",
+									  readData.length);
+					DEBUG && DEBUG_TIMES && console.timeEnd("Time Read File "+i)
+					DEBUG && DEBUG_TIMES && console.time("Time ProcessCsvData "+i)
+					processCsvData(
+						readData, 
+						data,
+						param.timeInfo.tracesInitialDate,
+						param.otherDataProperties,
+						param.dataSources[i]
+						);
+					DEBUG && DEBUG_TIMES && console.timeEnd("Time ProcessCsvData "+i)
+					DEBUG && OTHER_DEBUGS && console.log("processCsvData",i,"finished");
+				}
 			} else {
 				DEBUG && OTHER_DEBUGS && console.log("error reading CsvData",i);
 			}		
@@ -1528,14 +1531,17 @@ function delayedParallelReadData(data, i, param, callback) {
 				   typeof readData.query.results !== "undefined" &&
 				   typeof readData.query.results.json !== "undefined" &&
 				    typeof readData.query.results.json.observations !== "undefined") {
-					processCsvData(
-						readData.query.results.json.observations,
-						data,
-						param.timeInfo.tracesInitialDate,
-						param.otherDataProperties,
-						param.dataSources[i]
-						);
-					DEBUG && OTHER_DEBUGS && console.log("process yqlJson",i,"finished");
+					readData = readData.query.results.json.observations;
+					if(checkDataIsAnArrayNotVoid(readData)){
+						processCsvData(
+							readData.query.results.json.observations,
+							data,
+							param.timeInfo.tracesInitialDate,
+							param.otherDataProperties,
+							param.dataSources[i]
+							);
+						DEBUG && OTHER_DEBUGS && console.log("process yqlJson",i,"finished");
+					}
 				}
 			} else {
 				DEBUG && OTHER_DEBUGS && console.log("error reading yqlJson",i);
@@ -1555,14 +1561,17 @@ function delayedParallelReadData(data, i, param, callback) {
 				if(typeof readData.query !== "undefined" &&
 				   typeof readData.query.results !== "undefined" &&
 				   typeof readData.query.results.row !== "undefined") {
-					processCsvData(
-						readData.query.results.row,
-						data,
-						param.timeInfo.tracesInitialDate,
-						param.otherDataProperties,
-						param.dataSources[i]
-					);
-					DEBUG && OTHER_DEBUGS && console.log("process yqlGoogleCSV",i,"finished");
+					readData = readData.query.results.row;
+					if(checkDataIsAnArrayNotVoid(readData)){
+						processCsvData(
+							readData.query.results.row,
+							data,
+							param.timeInfo.tracesInitialDate,
+							param.otherDataProperties,
+							param.dataSources[i]
+						);
+						DEBUG && OTHER_DEBUGS && console.log("process yqlGoogleCSV",i,"finished");
+					}
 				}			
 			} else {
 				DEBUG && OTHER_DEBUGS && console.log("error reading yqlJson",i);
@@ -1575,15 +1584,17 @@ function delayedParallelReadData(data, i, param, callback) {
 	else if (urlType === "pureJson") {
 		DEBUG && OTHER_DEBUGS && console.log("pureJson", i);
 		Plotly.d3.json(url, function(err, readData) {
-			if(!err){			
-				processCsvData(
-					readData, 
-					data,
-					param.timeInfo.tracesInitialDate, 
-					param.otherDataProperties,
-					param.dataSources[i]
-					);
-				DEBUG && OTHER_DEBUGS && console.log("process pureJson",i,"finished");
+			if(!err){
+				if(checkDataIsAnArrayNotVoid(readData)){
+					processCsvData(
+						readData, 
+						data,
+						param.timeInfo.tracesInitialDate, 
+						param.otherDataProperties,
+						param.dataSources[i]
+						);
+					DEBUG && OTHER_DEBUGS && console.log("process pureJson",i,"finished");
+				}
 			} else {
 				DEBUG && OTHER_DEBUGS && console.log("error reading yqlJson",i);
 			}				
@@ -1593,11 +1604,20 @@ function delayedParallelReadData(data, i, param, callback) {
 		});
 	} 
 }
-	 
-	 
-	 
-	 
-	 
+
+
+function checkDataIsAnArrayNotVoid(readData){
+	
+	if(Array.isArray(readData) &&
+	   readData.length > 0) {
+		return true;
+	} else {
+		return false;
+	}
+
+}
+
+
 // 2. Process CSVData - support function, reads data and add it to data object, increases global iS variable
     
 	    
