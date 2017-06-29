@@ -2269,6 +2269,14 @@ function makeChart(data, param){
 		originalLayout.yaxis.tickformat = layout.yaxis.tickformat;
 	}
 
+	
+	//cleanOutData(data);
+	//if(data.length < 1) 
+		
+	// test with void data
+	var data = [{x:[], y:[]}];
+	
+	
 	// SAVE ORIGINAL DATA
 	DEBUG && DEBUG_TIMES && console.time("TIME: Save Original Data");
 	saveDataXYIntoPropertyXY(data, "xOriginal", "yOriginal");
