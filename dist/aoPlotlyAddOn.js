@@ -79,6 +79,10 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	if(typeof divInfo.noLoadedDataMessage === "undefined") {
 		divInfo.noLoadedDataMessage = "Conexión con datos incompleta";
 	}
+	
+	if(typeof divInfo.onErrorHideWholeDiv === "undefined") {
+		divInfo.onErrorHideWholeDiv = false;
+	}	
 		
 	setElementStyle(divInfo.loaderElement, loaderInitialStyling);
 	
