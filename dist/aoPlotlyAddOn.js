@@ -77,7 +77,9 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 				divInfo.wholeDivElement.firstChild);
 	
 	if(typeof divInfo.noLoadedDataMessage === "undefined") {
-		divInfo.noLoadedDataMessage = "Conexión con datos incompleta";
+		divInfo.noLoadedDataMessage = '<div style="position:relative; top:50%; transform:translateY(-50%);'+
+						'text-align:center;"><h3><font color="#1A5488"  >'+
+						'<b>Datos no recibidos</b></font></div>';
 	}
 	
 	if(typeof divInfo.onErrorHideWholeDiv === "undefined") {
@@ -1346,6 +1348,7 @@ function showNoLoadedDataItem(divInfo) {
 	// determine element where no data message will be displayed
 	var messageContainerElement  = divInfo.onErrorHideWholeDiv ? divInfo.wholeDivElement : divInfo.plotDivElement;
 	
+	
 	// remove all children from messageElement
 	while (messageContainerElement.hasChildNodes()) {
 	    messageContainerElement.removeChild(messageContainerElement.lastChild);
@@ -1354,6 +1357,9 @@ function showNoLoadedDataItem(divInfo) {
 	// append child
 	var messageElement = document.createElement('div');
 	messageContainerElement.appendChild(messageElement);
+	if(divInfo.onErrorHideWholeDiv){
+		messageContainerElement.style.height = ""+(numberExPx(divInfo.plotDivElement.style.height)+40)+"px";
+	}
 	
 	messageElement.innerHTML = divInfo.noLoadedDataMessage;
 	
