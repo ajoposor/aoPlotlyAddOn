@@ -42,7 +42,8 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		
 	var wholeDivInitialStyling = {
 		visibility:"hidden",
-		opacity: 1
+		opacity: 1,
+		position: "relative"
 	};
 	
 	var loaderInitialStylingUrl = 
@@ -51,13 +52,13 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	
 	var loaderInitialStyling = {
 		visibility: "visible",
-		position: "fixed",
-		left: "0px",
-		top: "0px",
-		width: "100%",
-		height: "100%",
+		position: "absolute",
+		top: "-1px",
+		right: "-1px",
+		bottom: "-1px",
+		left: "-1px",
 		background: loaderInitialStylingUrl,
-		opacity: 1	
+		opacity: 1
 	};
 	
 	loaderInitialStyling["z-index"] = "9999";
@@ -68,12 +69,17 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	divInfo.loaderID = "loader_"+divInfo.wholeDivID;
 	
 	divInfo.wholeDivElement = document.getElementById(divInfo.wholeDivID);	
+	
+	setElementStyle(divInfo.wholeDivElement, wholeDivInitialStyling);
+	
 	divInfo.loaderElement = document.createElement('div');
 	divInfo.loaderElement.id = divInfo.loaderID;
 	
-	divInfo.wholeDivElement.insertBefore(
+	/*divInfo.wholeDivElement.insertBefore(
 				divInfo.loaderElement, 
-				divInfo.wholeDivElement.firstChild);
+				divInfo.wholeDivElement.firstChild);*/
+	
+	divInfo.wholeDivElement.appendChild(divInfo.loaderElement);
 	
 	if(typeof divInfo.noLoadedDataMessage === "undefined") {
 		
@@ -88,8 +94,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	}	
 		
 	setElementStyle(divInfo.loaderElement, loaderInitialStyling);
-	
-		
+
 	
 	// frequency dropdown buttons to be added to updatemenus if option applies
 	var combinedAggregationButtons = [];
@@ -365,7 +370,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	// get div elements
 	divInfo.plotDivElement = document.getElementById(divInfo.plotDivID);
 		
-	setElementStyle(divInfo.wholeDivElement, wholeDivInitialStyling);
+
 	//DEBUG && OTHER_DEBUGS && console.log(divInfo.plotDivElement);
 		
 	
