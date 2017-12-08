@@ -1548,15 +1548,15 @@ function delayedParallelReadData(data, i, param, callback) {
 	var yqlGoogleCSVUrl = "";
 	
 	if (urlType === "csv") {
-		DEBUG && DEBUG_TIMES && console.time("Time Read File "+i)
+		DEBUG && DEBUG_TIMES && console.time("Time Read File "+i);
 		Plotly.d3.csv(url, function(err, readData) {
 			DEBUG && OTHER_DEBUGS && console.log("csv", i);
 			if(!err){
 				if(checkDataIsAnArrayNotVoid(readData)){
 					DEBUG && DEBUG_CSV && console.log("readData "+i+" readDate.length: ",
 									  readData.length);
-					DEBUG && DEBUG_TIMES && console.timeEnd("Time Read File "+i)
-					DEBUG && DEBUG_TIMES && console.time("Time ProcessCsvData "+i)
+					DEBUG && DEBUG_TIMES && console.timeEnd("Time Read File "+i);
+					DEBUG && DEBUG_TIMES && console.time("Time ProcessCsvData "+i);
 					processCsvData(
 						readData, 
 						data,
@@ -1564,7 +1564,7 @@ function delayedParallelReadData(data, i, param, callback) {
 						param.otherDataProperties,
 						param.dataSources[i]
 						);
-					DEBUG && DEBUG_TIMES && console.timeEnd("Time ProcessCsvData "+i)
+					DEBUG && DEBUG_TIMES && console.timeEnd("Time ProcessCsvData "+i);
 					DEBUG && OTHER_DEBUGS && console.log("processCsvData",i,"finished");
 				}
 			} else {
@@ -1744,8 +1744,8 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 	}
 	
 	xSeriesName = "";
-	if(typeof dataSources["xSeriesName"] !== "undefined"){
-		xSeriesName =  dataSources["xSeriesName"];
+	if(typeof dataSources.xSeriesName !== "undefined"){
+		xSeriesName =  dataSources.xSeriesName;
 	}
 	
 
@@ -1811,7 +1811,7 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 		traceID = dataSources.traces[j].traceID;
 		
 		// get data
-		allRows = tableParams[xSeriesName]["allRows"];
+		allRows = tableParams[xSeriesName].allRows;
 		DEBUG && OTHER_DEBUGS && console.log("tableParams", tableParams);
 		DEBUG && OTHER_DEBUGS && console.log("allRows from table params", allRows);
 
@@ -1849,9 +1849,9 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 		
 		adjust = "none";
 		adjustFactor = 1.0;
-		indexOfYSeriesName =tableParams[xSeriesName]["yNames"].indexOf(ySeriesName);
+		indexOfYSeriesName =tableParams[xSeriesName].yNames.indexOf(ySeriesName);
 		calculateAdjustedClose = 
-			tableParams[xSeriesName]["yCalculateAdjustedClose"][indexOfYSeriesName];
+			tableParams[xSeriesName].yCalculateAdjustedClose[indexOfYSeriesName];
 		
 		DEBUG && OTHER_DEBUGS && console.log("calculateAdjustedClose", calculateAdjustedClose);
 		
@@ -5667,12 +5667,12 @@ function processYqlGoogleCSVTags(dataSources, tags){
 	var j, jLimit = dataSources.traces.length;
 	var key, tagsFound = 0;
 
-	if(typeof dataSources["xSeriesName"] !== "undefined"){
+	if(typeof dataSources.xSeriesName !== "undefined"){
 		// set xSeriesName to tags in case yqlGoogleCSV
 		for (key in tags){
 			if (tags.hasOwnProperty(key)) {
-				if(tags[key].toString().trim() === dataSources["xSeriesName"].toString()){
-					dataSources["xSeriesName"] = key;
+				if(tags[key].toString().trim() === dataSources.xSeriesName.toString()){
+					dataSources.xSeriesName = key;
 				}
 			}
 		}
@@ -5724,18 +5724,18 @@ function applyDateProprocessing(allRows, tableParams, urlType) {
 	
 	for (var key in tableParams) {
 		if (tableParams.hasOwnProperty(key)){
-			if(tableParams[key]["processDates"]){
+			if(tableParams[key].processDates){
 				xSeriesName = key;
-				xDateSuffix = tableParams[key]["xDateSuffix"];
-				if(typeof tableParams[key]["onlyAddXDateSuffix"] !== "undefined"){
-					onlyAddXDateSuffix = tableParams[key]["onlyAddXDateSuffix"];
+				xDateSuffix = tableParams[key].xDateSuffix;
+				if(typeof tableParams[key].onlyAddXDateSuffix !== "undefined"){
+					onlyAddXDateSuffix = tableParams[key].onlyAddXDateSuffix;
 				} else{
 					onlyAddXDateSuffix = false;
 				}
 
 				transformToEndOfMonth = false;
-				if(typeof tableParams[key]["postProcessDate"] !== "undefined" &&
-				   tableParams[key]["postProcessDate"] === "end of month"){ 
+				if(typeof tableParams[key].postProcessDate !== "undefined" &&
+				   tableParams[key].postProcessDate === "end of month"){ 
 					transformToEndOfMonth = true;
 				}
 
@@ -5799,20 +5799,20 @@ function setTablesParametersSortPreprocessing(tableParams, dataSources){
 		// set xSeriesName in table of xSeriesNames
 		if(!tableParams.hasOwnProperty(xSeriesName)){
 			tableParams[xSeriesName] = {};
-			tableParams[xSeriesName]["yNames"] = [];
-			tableParams[xSeriesName]["yCalculateAdjustedClose"] = [];
+			tableParams[xSeriesName].yNames = [];
+			tableParams[xSeriesName].yCalculateAdjustedClose = [];
 		}
 
 
 		// add yName if not yet added
-		if(tableParams[xSeriesName]["yNames"].indexOf(ySeriesName) === -1){
-			tableParams[xSeriesName]["yNames"].push(ySeriesName);
-			if(typeof dataSources["calculateAdjustedClose"] !== "undefined"){
-				tableParams[xSeriesName]["yCalculateAdjustedClose"].push(dataSources["calculateAdjustedClose"]);
-			} else if(typeof traces[j]["calculateAdjustedClose"] !== "undefined"){
-				tableParams[xSeriesName]["yCalculateAdjustedClose"].push(traces[j]["calculateAdjustedClose"]);
+		if(tableParams[xSeriesName].yNames.indexOf(ySeriesName) === -1){
+			tableParams[xSeriesName].yNames.push(ySeriesName);
+			if(typeof dataSources.calculateAdjustedClose !== "undefined"){
+				tableParams[xSeriesName].yCalculateAdjustedClose.push(dataSources.calculateAdjustedClose);
+			} else if(typeof traces[j].calculateAdjustedClose !== "undefined"){
+				tableParams[xSeriesName].yCalculateAdjustedClose.push(traces[j].calculateAdjustedClose);
 			} else{
-				tableParams[xSeriesName]["yCalculateAdjustedClose"].push(false);
+				tableParams[xSeriesName].yCalculateAdjustedClose.push(false);
 			}	
 		}
 
@@ -5824,8 +5824,8 @@ function setTablesParametersSortPreprocessing(tableParams, dataSources){
 		} 
 
 		// add xDateSuffix info
-		if(typeof dataSources["xDateSuffix"] !== "undefined"){
-			tableParams[xSeriesName]["xDateSuffix"] =  dataSources["xDateSuffix"];	
+		if(typeof dataSources.xDateSuffix !== "undefined"){
+			tableParams[xSeriesName].xDateSuffix =  dataSources.xDateSuffix;	
 		} 
 
 		// add firstItemToRead info
@@ -5834,18 +5834,18 @@ function setTablesParametersSortPreprocessing(tableParams, dataSources){
 		} 
 
 		// add processDate info
-		if(typeof dataSources["processDates"] !== "undefined"){
-			tableParams[xSeriesName]["processDates"] =  dataSources["processDates"];
+		if(typeof dataSources.processDates !== "undefined"){
+			tableParams[xSeriesName].processDates =  dataSources.processDates;
 		}
 
 		// add postProcessDate info
-		if(typeof dataSources["postProcessDate"] !== "undefined"){
-			tableParams[xSeriesName]["postProcessDate"] =  dataSources["postProcessDate"];
+		if(typeof dataSources.postProcessDate !== "undefined"){
+			tableParams[xSeriesName].postProcessDate =  dataSources.postProcessDate;
 		} 
 		
 		// add onlyAddXDateSuffix info
-		if(typeof dataSources["onlyAddXDateSuffix"] !== "undefined"){
-			tableParams[xSeriesName]["onlyAddXDateSuffix"] =  dataSources["onlyAddXDateSuffix"];
+		if(typeof dataSources.onlyAddXDateSuffix !== "undefined"){
+			tableParams[xSeriesName].onlyAddXDateSuffix =  dataSources.onlyAddXDateSuffix;
 		} 
 
 
@@ -5860,11 +5860,11 @@ function setTablesParametersSortPreprocessing(tableParams, dataSources){
 		}
 
 		// add xDateSuffix info, default ""
-		if(typeof traces[j]["xDateSuffix"] !== "undefined"){
-			tableParams[xSeriesName]["xDateSuffix"] =  traces[j]["xDateSuffix"];
+		if(typeof traces[j].xDateSuffix !== "undefined"){
+			tableParams[xSeriesName].xDateSuffix =  traces[j].xDateSuffix;
 		} else{
-			if(typeof tableParams[xSeriesName]["xDateSuffix"] === "undefined")
-				tableParams[xSeriesName]["xDateSuffix"] =  "";	
+			if(typeof tableParams[xSeriesName].xDateSuffix === "undefined")
+				tableParams[xSeriesName].xDateSuffix =  "";	
 		}
 
 		// add firstItemToRead info, default first
@@ -5876,21 +5876,21 @@ function setTablesParametersSortPreprocessing(tableParams, dataSources){
 		}
 
 		// add processDate info, default true
-		if(typeof traces[j]["processDates"] !== "undefined"){
-			tableParams[xSeriesName]["processDates"] =  traces[j]["processDates"];
+		if(typeof traces[j].processDates !== "undefined"){
+			tableParams[xSeriesName].processDates =  traces[j].processDates;
 		} else{
-			if(typeof tableParams[xSeriesName]["processDates"] === "undefined")
-				tableParams[xSeriesName]["processDates"] =  true;	
+			if(typeof tableParams[xSeriesName].processDates === "undefined")
+				tableParams[xSeriesName].processDates =  true;	
 		}
 
 		// add postProcessDate info, default undefined
-		if(typeof traces[j]["postProcessDate"] !== "undefined"){
-			tableParams[xSeriesName]["postProcessDate"] =  traces[j]["postProcessDate"];
+		if(typeof traces[j].postProcessDate !== "undefined"){
+			tableParams[xSeriesName].postProcessDate =  traces[j].postProcessDate;
 		} 
 		
 		// add onlyAddXDateSuffix info, default undefined
-		if(typeof  traces[j]["onlyAddXDateSuffix"] !== "undefined"){
-			tableParams[xSeriesName]["onlyAddXDateSuffix"] =  traces[j]["onlyAddXDateSuffix"];
+		if(typeof  traces[j].onlyAddXDateSuffix !== "undefined"){
+			tableParams[xSeriesName].onlyAddXDateSuffix =  traces[j].onlyAddXDateSuffix;
 		} 
 
 			
@@ -5927,9 +5927,9 @@ function splitSubtablesAndTrim(allRows, tableParams, dataSources, initialDateAsD
 			// k: number of read items
 			k=0;
 			
-			jLimit = tableParams[key]["yNames"].length;
+			jLimit = tableParams[key].yNames.length;
 			
-			yNamesArray = tableParams[key]["yNames"];
+			yNamesArray = tableParams[key].yNames;
 			//DEBUG && OTHER_DEBUGS && console.log("yNamesArray: ", yNamesArray);
 			
 			//DEBUG && OTHER_DEBUGS && console.log("xSeriesName: ", xSeriesName);
@@ -5956,7 +5956,7 @@ function splitSubtablesAndTrim(allRows, tableParams, dataSources, initialDateAsD
 			//DEBUG && OTHER_DEBUGS && console.log("new array", newArray);
 			// adjust array length to read items.
 			newArray.length=k;
-			tableParams[key]["allRows"] = newArray;
+			tableParams[key].allRows = newArray;
 		}
 	}
 }	
@@ -5967,7 +5967,7 @@ function sortSubTables(tableParams){
 	for (var key in tableParams) {
 		if (tableParams.hasOwnProperty(key)){
 			if(tableParams[key]["sort"]){
-				tableParams[key]["allRows"].sort(sortByDatesAsStringsAllDatesExist(key));
+				tableParams[key].allRows.sort(sortByDatesAsStringsAllDatesExist(key));
 			}
 		}
 	}
