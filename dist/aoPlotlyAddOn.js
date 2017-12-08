@@ -5819,8 +5819,8 @@ function setTablesParametersSortPreprocessing(tableParams, dataSources){
 		// set parameters from general options
 
 		// add sort info
-		if(typeof dataSources["sort"] !== "undefined"){
-			tableParams[xSeriesName]["sort"] =  dataSources["sort"];
+		if(typeof dataSources.sort !== "undefined"){
+			tableParams[xSeriesName].sort =  dataSources.sort;
 		} 
 
 		// add xDateSuffix info
@@ -5829,8 +5829,8 @@ function setTablesParametersSortPreprocessing(tableParams, dataSources){
 		} 
 
 		// add firstItemToRead info
-		if(typeof dataSources["firstItemToRead"] !== "undefined"){
-			tableParams[xSeriesName]["firstItemToRead"] =  dataSources["firstItemToRead"];
+		if(typeof dataSources.firstItemToRead !== "undefined"){
+			tableParams[xSeriesName].firstItemToRead =  dataSources.firstItemToRead;
 		} 
 
 		// add processDate info
@@ -5852,11 +5852,11 @@ function setTablesParametersSortPreprocessing(tableParams, dataSources){
 		// set parameters from trace options
 
 		// add sort info, default false
-		if(typeof traces[j]["sort"] !== "undefined"){
-			tableParams[xSeriesName]["sort"] =  traces[j]["sort"];
+		if(typeof traces[j].sort !== "undefined"){
+			tableParams[xSeriesName].sort =  traces[j].sort;
 		} else{
-			if(typeof tableParams[xSeriesName]["sort"] === "undefined")
-				tableParams[xSeriesName]["sort"] =  false;	
+			if(typeof tableParams[xSeriesName].sort === "undefined")
+				tableParams[xSeriesName].sort =  false;	
 		}
 
 		// add xDateSuffix info, default ""
@@ -5868,11 +5868,11 @@ function setTablesParametersSortPreprocessing(tableParams, dataSources){
 		}
 
 		// add firstItemToRead info, default first
-		if(typeof traces[j]["firstItemToRead"] !== "undefined"){
-			tableParams[xSeriesName]["firstItemToRead"] =  traces[j]["firstItemToRead"];
+		if(typeof traces[j].firstItemToRead !== "undefined"){
+			tableParams[xSeriesName].firstItemToRead =  traces[j].firstItemToRead;
 		} else{
-			if(typeof tableParams[xSeriesName]["firstItemToRead"] === "undefined")
-				tableParams[xSeriesName]["firstItemToRead"] =  "first";	
+			if(typeof tableParams[xSeriesName].firstItemToRead === "undefined")
+				tableParams[xSeriesName].firstItemToRead =  "first";	
 		}
 
 		// add processDate info, default true
@@ -5916,7 +5916,7 @@ function splitSubtablesAndTrim(allRows, tableParams, dataSources, initialDateAsD
 
 			
 			// set reading parameter by reading order
-			if( tableParams[key]["firstItemToRead"] === "first"){
+			if( tableParams[key].firstItemToRead === "first"){
 				l = 0; 
 				lStep = 1;
 			} else{
@@ -5966,7 +5966,7 @@ function sortSubTables(tableParams){
 
 	for (var key in tableParams) {
 		if (tableParams.hasOwnProperty(key)){
-			if(tableParams[key]["sort"]){
+			if(tableParams[key].sort){
 				tableParams[key].allRows.sort(sortByDatesAsStringsAllDatesExist(key));
 			}
 		}
