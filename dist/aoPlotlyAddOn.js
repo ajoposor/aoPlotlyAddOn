@@ -6645,7 +6645,7 @@ function wrappedDirectXMLHttpRequest(options, onreadyFunction, callback) {
 				callback(null);
 			}
 		}
-	}
+	};
 	
 	
 }
