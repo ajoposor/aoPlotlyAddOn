@@ -1911,6 +1911,8 @@ function processEiaData(eiaArrayData, data, tracesInitialDate, otherDataProperti
 		seriesLimit = currentSeries.data.length;
 		if(currentSeries.f === "M"){
 			if (currentSeries.hasOwnProperty("lastHistoricalPeriod")) {
+				DEBUG && OTHER_DEBUGS && console.log(currentSeries.lastHistoricalPeriod+
+					 "01"+" 00:00:00.000"+timeOffsetText);
 				currentSeries.lastHistoricalPeriod = 
 					changeDateToEndOfMonth(currentSeries.lastHistoricalPeriod+
 					 "01"+" 00:00:00.000"+timeOffsetText);
@@ -6284,7 +6286,8 @@ function loadEiaArrayDataIntoTableParamsAndProcess(
 	var lastHistoricalPeriod ="";
 	var traceIndex;
 	
-	DEBUG && OTHER_DEBUGS && DEBUG_EIA_FUNCTION && console.log(tableParams);
+	DEBUG && OTHER_DEBUGS && DEBUG_EIA_FUNCTION && console.log("start LoadEiaArrayDataIntoTableParm...");
+	DEBUG && OTHER_DEBUGS && DEBUG_EIA_FUNCTION && console.log("tableParams",tableParams);
 	
 	for (var key in tableParams) {
 		
@@ -6292,6 +6295,8 @@ function loadEiaArrayDataIntoTableParamsAndProcess(
 			
 			xSeriesName = key;
 			traceIndex = parseInt(key.substr(1));
+			DEBUG && OTHER_DEBUGS && DEBUG_EIA_FUNCTION && console.log("xSeriesName:",key, "   traceIndex:", traceIndex);
+			
 
 			/* get trace object from traces array */
 			currentTrace = dataSources.traces[traceIndex];
@@ -6301,9 +6306,11 @@ function loadEiaArrayDataIntoTableParamsAndProcess(
 
 			/* the number of elements in eiaArrayData for correponding seriesIndex*/
 			iLimit = eiaArrayData[seriesIndex].data.length;
+			
 
 			newArray =[];
 			newArray.length= iLimit;
+			DEBUG && OTHER_DEBUGS && DEBUG_EIA_FUNCTION && console.log("elements in serie:", iLimit);
 
 			/**
 			* check for each type of traces (historical, forecast or none) and set marker
