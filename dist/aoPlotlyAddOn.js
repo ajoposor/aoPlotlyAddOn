@@ -6284,6 +6284,8 @@ function loadEiaArrayDataIntoTableParamsAndProcess(
 	var lastHistoricalPeriod ="";
 	var traceIndex;
 	
+	DEBUG && OTHER_DEBUGS && DEBUG_EIA_FUNCTION && console.log(tableParams);
+	
 	for (var key in tableParams) {
 		
 		if(tableParams.hasOwnProperty(key)) {
