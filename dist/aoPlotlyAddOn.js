@@ -1685,7 +1685,7 @@ function checkDataIsAnArrayNotVoid(readData){
 }
 
 
-// 2. Process CSVData - support function, reads data and add it to data object, increases global iS variable
+// 2. Process CSVData or processEiaData- support function, reads data and add it to data object, increases global iS variable
     
 	    
 	    
@@ -1790,6 +1790,116 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 	
 	
 }	
+	
+
+	
+function processEiaData(eiaArrayData, data, tracesInitialDate, otherDataProperties, dataSources) {
+	
+	var initialDateAsDate = new Date("0001-01-01");
+	var timeOffsetText = getTimeOffsetText();
+	var tableParams = {};
+	var adjustFactor = 1.0, adjust="";
+	var calculateAdjustedClose = false;
+	
+	
+	DEBUG && OTHER_DEBUGS && console.log(eiaArrayData);
+	
+	// update initialDateAsDate if tracesInitialDate provided
+	if (tracesInitialDate !== "") {
+		initialDateAsDate = new Date(localProcessDate(tracesInitialDate, timeOffsetText));
+	}
+	
+	// break if no traces in dataSources were left
+	if(dataSources.traces.length < 1) return false;
+	
+	/**
+	* set number of tables and options, tableParams will have
+	* one element for each trace in DataSources
+	* Names will be set as follows
+	* xSeriesName = "x" + j; /j is the trace index [0, number of traces in dataSources]
+	*	ySeriesName = "y" + j;
+	*
+	*/
+	setEiaTablesParameters(tableParams, dataSources);
+	
+	
+	// number of traces to be read on this data source
+	jLimit = dataSources.traces.length;
+	
+	
+	
+	/**
+	*
+	*  Adjust all dates in eia Array Data, in case they are month or year, to end of period and add a timeoffset
+	* transform from "yyyy" or "yyyymm" or "yyyymmdd" to whole date
+	*/
+	
+
+	
+	var kMax = eiaArrayData.length;
+	var currentSeries = {}, currentTrace = {};
+	var i, j, tracesLimit, seriesLimit;
+	
+	var timeOffsetText = getTimeOffsetText();
+	
+	var tracesInitialDateFullString = fprocessDate(tracesInitialDate, timeOffsetText);
+	
+	for (var k=0; k< kMax; k++ ){
+		currentSeries = eiaArrayData[k];
+		seriesLimit = currentSeries.data.length;
+		if(currentSeries.f === "M"){
+			if (currentSeries.hasOwnProperty("lastHistoricalPeriod")) {
+				currentSeries.lastHistoricalPeriod = 
+					changeDateToEndOfMonth(currentSeries.lastHistoricalPeriod+
+					 "01"+" 00:00:00.000"+timeOffsetText);
+			}
+			for (i=0; i < seriesLimit; i++) currentSeries.data[i].json[0] = 
+				changeDateToEndOfMonth(currentSeries.data[i].json[0]+
+					"01"+" 00:00:00.000"+timeOffsetText);
+		}
+		
+		if(currentSeries.f === "Y"){
+			if (currentSeries.hasOwnProperty("lastHistoricalPeriod")) {
+				currentSeries.lastHistoricalPeriod += "1231 00:00:00.000"+timeOffsetText;
+			}
+			for (i=0; i < seriesLimit; i++) currentSeries.data[i].json[0] += "1231 00:00:00.000"+timeOffsetText;
+		}
+		
+		if(currentSeries.f === "D"  || currentSeries.f === "W"){
+			if (currentSeries.hasOwnProperty("lastHistoricalPeriod")) {
+				currentSeries.lastHistoricalPeriod += " 00:00:00.000"+timeOffsetText;
+			}
+			for (i=0; i < seriesLimit; i++) currentSeries.data[i].json[0] += " 00:00:00.000"+timeOffsetText;
+		}
+		
+	}
+	
+	
+
+	/**
+	*
+	* loads data in eiaArrayData into tableParams
+	* takes care of historical or forecast data
+	* applies any option to read from last as set in firstItemToRead
+	* trims data by InitialDateAsDate
+	*/ 
+
+	loadEiaArrayDataIntoTableParamsAndProcess(
+		eiaArrayData, tableParams,
+		dataSources, initialDateAsDate
+	);
+	
+	
+	// void eiaArrayData, no longer required.
+	eiaArrayData = [];
+	
+	loadSubTablesIntoData(dataSources, tableParams, otherDataProperties, 
+			      data, initialDateAsDate, tracesInitialDate);
+	
+	
+}	
+	
+	
 	
 // FUNCTIONS TO ADD READ and Processed data into the data array
 function loadSubTablesIntoData(dataSources, tableParams, 
@@ -5932,7 +6042,98 @@ function setTablesParametersSortPreprocessing(tableParams, dataSources){
 	}	
 }
 
+	
+	
+/**
+*
+* Set eia table parameters
+*/
 
+
+function setEiaTablesParameters(tableParams, dataSources){
+	var traces = dataSources.traces;
+	var xSeriesName, ySeriesName;
+
+	// number of traces to be read on this data source
+	var jLimit = traces.length;
+
+	// determine number of xSeriesNames being used and fill y values for each, cycle through traces array
+	for (var j=0; j < jLimit; j++){
+
+		
+		
+		// set temporary variable
+		xSeriesName = "x"+j;
+		ySeriesName = "y"+j;
+		
+		// name traces xSeries and ySeries
+		traces[j].xSeriesName = xSeriesName;
+		traces[j].ySeriesName = ySeriesName;
+
+		// set xSeriesName in table of xSeriesNames
+		if(!tableParams.hasOwnProperty(xSeriesName)){
+			tableParams[xSeriesName] = {};
+			tableParams[xSeriesName].yNames = [];
+			tableParams[xSeriesName].yCalculateAdjustedClose = [];
+		}
+
+
+		// add yName if not yet added
+		if(tableParams[xSeriesName].yNames.indexOf(ySeriesName) === -1){
+			tableParams[xSeriesName].yNames.push(ySeriesName);
+			if(typeof dataSources.calculateAdjustedClose !== "undefined"){
+				tableParams[xSeriesName].yCalculateAdjustedClose.push(dataSources.calculateAdjustedClose);
+			} else if(typeof traces[j].calculateAdjustedClose !== "undefined"){
+				tableParams[xSeriesName].yCalculateAdjustedClose.push(traces[j].calculateAdjustedClose);
+			} else{
+				tableParams[xSeriesName].yCalculateAdjustedClose.push(false);
+			}	
+		}
+
+	
+		// set parameters from trace options
+
+		// add sort info, default false
+		if(typeof traces[j].sort !== "undefined"){
+			tableParams[xSeriesName].sort =  traces[j].sort;
+		} else{
+			if(typeof tableParams[xSeriesName].sort === "undefined")
+				tableParams[xSeriesName].sort =  false;	
+		}
+
+		// xDateSuffix set to "", disregarding any provided parameter
+		// because is not needed
+		tableParams[xSeriesName].xDateSuffix =  "";	
+
+
+		// add firstItemToRead info, default first
+		if(typeof traces[j].firstItemToRead !== "undefined"){
+			tableParams[xSeriesName].firstItemToRead =  traces[j].firstItemToRead;
+		} else{
+			if(typeof tableParams[xSeriesName].firstItemToRead === "undefined")
+				tableParams[xSeriesName].firstItemToRead =  "first";	
+		}
+
+		// processDate set to false, disregarding any provided parameter
+		// because is not needed		
+		tableParams[xSeriesName].processDates =  false;	
+
+
+		// no postProcessDate info added (not needed), will be maintained undefined
+
+		
+		// no onlyAddXDateSuffix info added (not needed), will be maintained undefined
+			
+	}	
+}
+	
+
+/**
+*
+*  split csv subtables and trim
+*
+*  loads csv read data into tableParams[x0...x1...x2].allRows 
+*/
 	
 function splitSubtablesAndTrim(allRows, tableParams, dataSources, initialDateAsDate){
 	var newArray=[];
@@ -5995,6 +6196,126 @@ function splitSubtablesAndTrim(allRows, tableParams, dataSources, initialDateAsD
 		}
 	}
 }	
+	
+	
+	
+
+/**
+*
+*  loads eiaArrayData into tableParams[x0...x1...x2].allRows 	
+*
+*/
+
+function loadEiaArrayDataIntoTableParamsAndProcess(
+	eiaArrayData, tableParams,
+		dataSources, initialDateAsDate) 
+{	
+	
+	var newArray=[];
+	var i=0, iLimit;
+	var j, jLimit,k, l, lStep;
+	var seriesIndex;
+	var xSeriesName, ySeriesName;
+	var dateString = "";
+	var yNamesArray, currentTrace={};
+	var traceType = "full";
+	var lastHistoricalPeriod ="";
+	var traceIndex;
+
+	tracesLimit = dataSources.traces.length;
+	
+	for (var key in tableParams) {
+		
+		if(tableParams.hasOwnProperty(key)) {
+			
+			xSeriesName = key;
+			traceIndex = parseInt(key);
+
+			/* get trace object from traces array */
+			currentTrace = dataSources.traces[traceIndex];
+
+			/* get index to series in the eiaArrayData */
+			seriesIndex = currentTrace.seriesIndex;
+
+			/* the number of elements in eiaArrayData for correponding seriesIndex*/
+			iLimit = eiaArrayData.[seriesIndex].data.length;
+
+			newArray =[];
+			newArray.length= iLimit;
+
+			/**
+			* check for each type of traces (historical, forecast or none) and set marker
+			*/
+
+			if(currentTrace.hasOwnProperty("traceType")) {
+				if(currentTrace.traceType === "historical"){
+					/* read the historical portion */
+					traceType = "historical";
+					lastHistoricalPeriod = eiaArrayData[seriesIndex].lastHistoricalPeriod;
+
+				}
+
+				if (currentTrace.traceType === "forecast"){
+					/* the the forecast portion */
+					traceType = "forecast";
+					lastHistoricalPeriod = eiaArrayData[seriesIndex].lastHistoricalPeriod;
+				}
+
+			}
+			else {
+				/* read the whole serie */
+				traceType = "full";
+			}
+
+
+			// set reading parameter by reading order
+			if( tableParams[key].firstItemToRead === "first"){
+				l = 0; 
+				lStep = 1;
+			} else{
+				l = iLimit -1;
+				lStep = -1;
+			} 
+
+			// k: number of read items
+			k=0;
+
+			jLimit = tableParams[key].yNames.length;
+
+			yNamesArray = tableParams[key].yNames;
+
+			// read data into ordered and subtables
+			for(i=0; i < iLimit; i++){
+				dateString = eiaArrayData[seriesIndex].data[l].json[0];
+				if(dateString !== "" && dateString !== null){
+					if(new Date(dateString) >= initialDateAsDate){
+						if( traceType === "full" ||
+							 (traceType === "historical" && dateString <= lastHistoricalPeriod) || 
+							 (traceType === "forecast" && dateString >= lastHistoricalPeriod) ) {
+							newArray[k]={};
+							newArray[k][xSeriesName] = dateString;
+							for(j=0; j < jLimit; j++){
+								ySeriesName = yNamesArray[j];
+								newArray[k][ySeriesName]=eiaArrayData[seriesIndex].data[l].json[1];
+							}
+							k++;
+						}
+						//DEBUG && OTHER_DEBUGS && console.log("l: ", l);
+					}	
+				}
+				l+=lStep;
+			}
+			//DEBUG && OTHER_DEBUGS && console.log("k elements",k);
+			//DEBUG && OTHER_DEBUGS && console.log("new array", newArray);
+			// adjust array length to read items.
+			newArray.length=k;
+			tableParams[key].allRows = newArray;
+		}
+	}
+}		
+	
+	
+	
 	    
 function sortSubTables(tableParams){
 	var delta = 0.0;
