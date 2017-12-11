@@ -1690,17 +1690,15 @@ function delayedParallelReadData(data, i, param, callback) {
 	} 
 	else if ( urlType === "EiaJson") {
 		DEBUG && OTHER_DEBUGS && console.log("EiaJson", i);
-		yqlGoogleJsonUrl = "https://query.yahooapis.com/v1/public/yql?q="+
+		/*yqlGoogleJsonUrl = "https://query.yahooapis.com/v1/public/yql?q="+
 			encodeURIComponent("SELECT * from csv where url='"+url+"'")+
-			"&format=json";
-		Plotly.d3.json(yqlGoogleJsonUrl, function(err, readData) {
+			"&format=json";*/
+		Plotly.d3.json(url, function(err, readData) {
 			if(!err){
 				DEBUG && OTHER_DEBUGS && DEBUG_EIA_FUNCTION && console.log("read EiaJson",readData);
 				if(typeof readData.query !== "undefined" &&
-				   typeof readData.query.results !== "undefined" &&
-				   typeof readData.query.results.json !== "undefined" &&
-				   typeof readData.query.results.json.series !== "undefined") {
-					readData = readData.query.results.json.series;
+				   typeof readData.series !== "undefined" ) {
+					readData = readData.series;
 					if(checkDataIsAnArrayNotVoid(readData)){
 						processEiaData(
 							readData,
