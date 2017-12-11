@@ -1922,7 +1922,7 @@ function processEiaData(eiaArrayData, data, tracesInitialDate, otherDataProperti
 					"01"+" 00:00:00.000"+timeOffsetText);
 		}
 		
-		if(currentSeries.f === "Y"){
+		if(currentSeries.f === "A"){
 			if (currentSeries.hasOwnProperty("lastHistoricalPeriod")) {
 				currentSeries.lastHistoricalPeriod += "1231 00:00:00.000"+timeOffsetText;
 			}
