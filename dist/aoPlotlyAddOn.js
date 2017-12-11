@@ -1851,6 +1851,7 @@ function processEiaData(eiaArrayData, data, tracesInitialDate, otherDataProperti
 	var tableParams = {};
 	var adjustFactor = 1.0, adjust="";
 	var calculateAdjustedClose = false;
+
 	
 	
 	DEBUG && OTHER_DEBUGS && console.log(eiaArrayData);
@@ -1872,10 +1873,6 @@ function processEiaData(eiaArrayData, data, tracesInitialDate, otherDataProperti
 	*
 	*/
 	setEiaTablesParameters(tableParams, dataSources);
-	
-	
-	// number of traces to be read on this data source
-	jLimit = dataSources.traces.length;
 	
 	
 	
