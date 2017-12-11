@@ -14,6 +14,7 @@ var DEBUG_TIMES = false;
 var DEBUG_CSV = false;
 var DEBUG_TRANSFORM_BY_FREQUENCIES = false;
 var DEBUG_FB = false; // debug in frequency button
+var DEBUG_SPLIT_CSV_FUNCTION = true;
     
        
 // this functions adds items and functionallity, including, buttons, responsiveness, series resampling     
@@ -1699,7 +1700,22 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 	var initialDateAsDate = new Date("0001-01-01");
 	var timeOffsetText = getTimeOffsetText();
 	var iLimit;
+	
+	/**
+	*
+	* The tableParams array has the following structure:
+	*   tableParams[xSeriesNames].allRows[i][xSeriesName] = Dates as Strings
+	*   tableParams[xSeriesNames].allRows[i][ySeriesName1] = y values for ySeriesName1,
+	*   tableParams[xSeriesNames].allRows[i][ySeriesName2] = y values for ySeriesName2,.. etc.
+	*
+	*   i is the row (data points) in the allRows array. The are iLimit (data points) in the allRows array.
+	*
+	*   tableParams[xSeriesNames] has other properties, including sor, xDateSuffix, etc,
+	*    all set in the setTablesParametersSortPreprocessing function
+	*/
+	
 	var tableParams = {};
+	
 	
 	// save function references
 	var localProcessDate = processDate;
@@ -1830,6 +1846,7 @@ function loadSubTablesIntoData(dataSources, tableParams,
 		
 		// get data
 		allRows = tableParams[xSeriesName].allRows;
+		iLimit = allRows.length;
 		DEBUG && OTHER_DEBUGS && console.log("tableParams", tableParams);
 		DEBUG && OTHER_DEBUGS && console.log("allRows from table params", allRows);
 
