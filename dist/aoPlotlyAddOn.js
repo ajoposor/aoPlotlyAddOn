@@ -1750,6 +1750,7 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 	var xSeriesName="";
 	var initialDateAsDate = new Date("0001-01-01");
 	var timeOffsetText = getTimeOffsetText();
+	var iLimit;
 	
 	/**
 	*
