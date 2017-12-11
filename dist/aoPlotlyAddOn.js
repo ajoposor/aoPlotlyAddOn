@@ -6291,7 +6291,7 @@ function loadEiaArrayDataIntoTableParamsAndProcess(
 		if(tableParams.hasOwnProperty(key)) {
 			
 			xSeriesName = key;
-			traceIndex = parseInt(key);
+			traceIndex = parseInt(key.substr(1));
 
 			/* get trace object from traces array */
 			currentTrace = dataSources.traces[traceIndex];
