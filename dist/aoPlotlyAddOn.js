@@ -1911,29 +1911,38 @@ function processEiaData(eiaArrayData, data, tracesInitialDate, otherDataProperti
 		seriesLimit = currentSeries.data.length;
 		if(currentSeries.f === "M"){
 			if (currentSeries.hasOwnProperty("lastHistoricalPeriod")) {
-				DEBUG && OTHER_DEBUGS && console.log(currentSeries.lastHistoricalPeriod+
-					 "01"+" 00:00:00.000"+timeOffsetText);
+				DEBUG && OTHER_DEBUGS && console.log(currentSeries.lastHistoricalPeriod.substr(0,4)+"-"+
+					currentSeries.lastHistoricalPeriod.substr(4,2)+			     
+					 "-01"+" 00:00:00.000"+timeOffsetText);
 				currentSeries.lastHistoricalPeriod = 
-					changeDateToEndOfMonth(currentSeries.lastHistoricalPeriod+
-					 "01"+" 00:00:00.000"+timeOffsetText);
+					changeDateToEndOfMonth(currentSeries.lastHistoricalPeriod.substr(0,4)+"-"+
+					currentSeries.lastHistoricalPeriod.substr(4,2)+			     
+					 "-01"+" 00:00:00.000"+timeOffsetText);
 			}
 			for (i=0; i < seriesLimit; i++) currentSeries.data[i][0] = 
-				changeDateToEndOfMonth(currentSeries.data[i][0]+
-					"01"+" 00:00:00.000"+timeOffsetText);
+				changeDateToEndOfMonth(currentSeries.data[i][0].substr(0,4)+"-"+
+					currentSeries.data[i][0].substr(4,2)+	       
+					"-01"+" 00:00:00.000"+timeOffsetText);
 		}
 		
 		if(currentSeries.f === "A"){
 			if (currentSeries.hasOwnProperty("lastHistoricalPeriod")) {
-				currentSeries.lastHistoricalPeriod += "1231 00:00:00.000"+timeOffsetText;
+				currentSeries.lastHistoricalPeriod += "-12-31 00:00:00.000"+timeOffsetText;
 			}
-			for (i=0; i < seriesLimit; i++) currentSeries.data[i][0] += "1231 00:00:00.000"+timeOffsetText;
+			for (i=0; i < seriesLimit; i++) currentSeries.data[i][0] += "-12-31 00:00:00.000"+timeOffsetText;
 		}
 		
 		if(currentSeries.f === "D"  || currentSeries.f === "W"){
 			if (currentSeries.hasOwnProperty("lastHistoricalPeriod")) {
-				currentSeries.lastHistoricalPeriod += " 00:00:00.000"+timeOffsetText;
+				currentSeries.lastHistoricalPeriod = currentSeries.lastHistoricalPeriod.substr(0,4)+"-"+
+					currentSeries.lastHistoricalPeriod.substr(4,2)+"-"+
+					currentSeries.lastHistoricalPeriod.substr(6,4)+
+					" 00:00:00.000"+timeOffsetText;
 			}
-			for (i=0; i < seriesLimit; i++) currentSeries.data[i][0] += " 00:00:00.000"+timeOffsetText;
+			for (i=0; i < seriesLimit; i++) currentSeries.data[i][0] = currentSeries.data[i][0].substr(0,4)+"-"+
+						currentSeries.data[i][0].substr(4,2)+"-"+
+						currentSeries.data[i][0].substr(4,2)+
+						" 00:00:00.000"+timeOffsetText;
 		}
 		
 	}
