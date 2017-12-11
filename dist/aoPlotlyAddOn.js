@@ -1244,6 +1244,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	});*/
 	
 	DEBUG && DEBUG_TIMES && console.timeEnd("TIME: initialSettingsBeforeReadData");
+	DEBUG && OTHER_DEBUGS && console.log("passedParemeters: ", passedParameters);
 	
 	parallelReadDataAndMakeChart(data, passedParameters);
 	
