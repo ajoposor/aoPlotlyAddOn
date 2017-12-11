@@ -8,13 +8,13 @@ var aoPlotlyAddOn = {};
 	 
 // set DEBUG && OTHER_DEBUGS option (for display of console.log messages)
 // console.log will also be removed with closure compiler 
-var DEBUG = false;
-var OTHER_DEBUGS = false;
+var DEBUG = true;
+var OTHER_DEBUGS = true;
 var DEBUG_TIMES = false;
 var DEBUG_CSV = false;
 var DEBUG_TRANSFORM_BY_FREQUENCIES = false;
 var DEBUG_FB = false; // debug in frequency button
-var DEBUG_SPLIT_CSV_FUNCTION = true;
+var DEBUG_EIA_FUNCTION = true;
     
        
 // this functions adds items and functionallity, including, buttons, responsiveness, series resampling     
@@ -1531,6 +1531,22 @@ function readData(data, iS, param, callback) {
 			readDataAndMakeChart(data, iS, param, callback);
 		});
 	} 
+	else if (urlType === "EiaJson") {
+		DEBUG && OTHER_DEBUGS && console.log("EiaJson", iS.value);
+		Plotly.d3.json(url, 				
+			function(readData) {
+				processCsvData(
+					readData.query.results.row,
+					data,
+					param.timeInfo.tracesInitialDate,
+					param.otherDataProperties,
+					param.dataSources[iS.value]
+				);
+			iS.value++;
+			readData="";
+			readDataAndMakeChart(data, iS, param, callback);
+		});
+	} 
 
 }
 
@@ -1546,7 +1562,7 @@ function delayedParallelReadData(data, i, param, callback) {
 	
 	var urlType = param.dataSources[i].urlType;
 	var url = param.dataSources[i].url;
-	var yqlGoogleCSVUrl = "";
+	var yqlGoogleCSVUrl = "", yqlGoogleJsonUrl;
 	
 	if (urlType === "csv") {
 		DEBUG && DEBUG_TIMES && console.time("Time Read File "+i);
@@ -1601,7 +1617,7 @@ function delayedParallelReadData(data, i, param, callback) {
 					readData = readData.query.results.json.observations;
 					if(checkDataIsAnArrayNotVoid(readData)){
 						processCsvData(
-							readData.query.results.json.observations,
+							readData,
 							data,
 							param.timeInfo.tracesInitialDate,
 							param.otherDataProperties,
@@ -1631,7 +1647,7 @@ function delayedParallelReadData(data, i, param, callback) {
 					readData = readData.query.results.row;
 					if(checkDataIsAnArrayNotVoid(readData)){
 						processCsvData(
-							readData.query.results.row,
+							readData,
 							data,
 							param.timeInfo.tracesInitialDate,
 							param.otherDataProperties,
@@ -1670,6 +1686,41 @@ function delayedParallelReadData(data, i, param, callback) {
 			//readDataAndMakeChart(data, iS, param, callback);
 		});
 	} 
+	else if ( urlType === "EiaJson") {
+		DEBUG && OTHER_DEBUGS && console.log("EiaJson", i);
+		yqlGoogleJsonUrl = "https://query.yahooapis.com/v1/public/yql?q="+
+			encodeURIComponent("SELECT * from csv where url='"+url+"'")+
+			"&format=json";
+		Plotly.d3.json(yqlGoogleJsonUrl, function(err, readData) {
+			if(!err){
+				if(typeof readData.query !== "undefined" &&
+				   typeof readData.query.results !== "undefined" &&
+				   typeof readData.query.results.json !== "undefined" &&
+				   typeof readData.query.results.json.series !== "undefined") {
+					readData = readData.query.results.json.series;
+					if(checkDataIsAnArrayNotVoid(readData)){
+						processEiaData(
+							readData,
+							data,
+							param.timeInfo.tracesInitialDate,
+							param.otherDataProperties,
+							param.dataSources[i]
+						);
+						DEBUG && OTHER_DEBUGS && console.log("process EiaData",i,"finished");
+					}
+				}			
+			} else {
+				DEBUG && OTHER_DEBUGS && console.log("error reading EiaData",i);
+			}					
+			readData="";
+			callback(null);
+			//readDataAndMakeChart(data, iS, param, callback);
+		});
+	} 
+	
+	
+	
+	
 }
 
 
