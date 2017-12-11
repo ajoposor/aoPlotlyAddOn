@@ -1340,6 +1340,8 @@ function parallelReadDataAndMakeChart(data, param) {
 function cleanOutData(data) {
 	var iLimit = data.length;
 	
+	DEBUG && OTHER_DEBUGS && DEBUG_EIA_FUNCTION && console.log("data entering clean out data");
+	
 	for(var i=0; i < iLimit; i++){
 		if(typeof data[i].x === "undefined" ||
 		   typeof data[i].y === "undefined" ||
@@ -1693,6 +1695,7 @@ function delayedParallelReadData(data, i, param, callback) {
 			"&format=json";
 		Plotly.d3.json(yqlGoogleJsonUrl, function(err, readData) {
 			if(!err){
+				DEBUG && OTHER_DEBUGS && DEBUG_EIA_FUNCTION && console.log("read EiaJson",readData);
 				if(typeof readData.query !== "undefined" &&
 				   typeof readData.query.results !== "undefined" &&
 				   typeof readData.query.results.json !== "undefined" &&
