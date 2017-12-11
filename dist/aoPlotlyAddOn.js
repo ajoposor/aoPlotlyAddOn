@@ -1696,8 +1696,7 @@ function delayedParallelReadData(data, i, param, callback) {
 		Plotly.d3.json(url, function(err, readData) {
 			if(!err){
 				DEBUG && OTHER_DEBUGS && DEBUG_EIA_FUNCTION && console.log("read EiaJson",readData);
-				if(typeof readData.query !== "undefined" &&
-				   typeof readData.series !== "undefined" ) {
+				if(typeof readData.series !== "undefined" ) {
 					readData = readData.series;
 					if(checkDataIsAnArrayNotVoid(readData)){
 						processEiaData(
