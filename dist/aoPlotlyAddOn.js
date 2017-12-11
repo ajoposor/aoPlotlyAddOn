@@ -1847,7 +1847,7 @@ function processEiaData(eiaArrayData, data, tracesInitialDate, otherDataProperti
 	
 	var kMax = eiaArrayData.length;
 	var currentSeries = {}, currentTrace = {};
-	var i, j, tracesLimit, seriesLimit;
+	var i, j, seriesLimit;
 	
 	var timeOffsetText = getTimeOffsetText();
 	
@@ -6283,8 +6283,6 @@ function loadEiaArrayDataIntoTableParamsAndProcess(
 	var traceType = "full";
 	var lastHistoricalPeriod ="";
 	var traceIndex;
-
-	tracesLimit = dataSources.traces.length;
 	
 	for (var key in tableParams) {
 		
