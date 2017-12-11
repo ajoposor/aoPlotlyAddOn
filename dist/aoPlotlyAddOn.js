@@ -224,7 +224,6 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		// set to "" in parameters passed
 		// to disable trying to get zip file with update values.
 		newRecessionsUrl: fredRecessionsDefaultUrl,
-		knownRecessionsDates: knownRecessionsDates,
 		queueConcurrencyLimit: 10,
 		queueConcurrencyDelay: 5, //milliseconds
 		allowCompare: false,
@@ -314,7 +313,9 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 
 	// set settings defaults
 	setJsonDefaults(settingsDefaults, settings);
-		
+	
+	
+	DEBUG && OTHER_DEBUGS && console.log("settings after settings default: ", settings);	
 		
 	
 	// LAYOUT SETTINGS
@@ -361,7 +362,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	// set layout defauls
 	setJsonDefaults(layoutDefaults, layout);	
 		
-		
+	
 		
 		
 		
