@@ -1691,45 +1691,19 @@ function checkDataIsAnArrayNotVoid(readData){
 // FUNCTIONS TO PARSE CVS, JSON OR DIRECT SERIES
 // main code, reads cvs files and creates traces and combine them in data
 function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, dataSources) {
-	var x = [], y = []; //[];
-	var initialDateAsDate = new Date("0001-01-01");
-	var processedDate ="";
-	var timeOffsetText = getTimeOffsetText();
-	var i = 0, j, ia, ib, iLimit, jLimit, iData;
-	var xSeriesName="", xDateSuffix ="", ySeriesName="", traceID = "";
-	var processedColumnDates = [];
-	var insertTrace = false;
-	var readTraceInitialDateAsDate, readTraceEndDateAsDate;
-	var existingInitialDateAsDate, existingEndDateAsDate;
-	var existingInitialValue, existingEndValue;
-	var insertPoint = -1;
-	var initialIndex=0;
-	var readTraceLength = 0, readTraceInitialIndex =0, traceLength, readTraceLimit =0;
-	var readTraceEndIndex =0;
-	var spliceInfo = {};
-	var k=0, kLimit =0, readItems;
-	var latestSorted = "";
-	var delta =0.0;
-	var datesReady = false, transformToEndOfMonth = false;
+	
 	var urlType = dataSources.urlType;
-	var tags= typeof allRows[0] !== "undefined" ? allRows[0] : {};
 	var yqlGoogleCSV = false;
+	var tags= typeof allRows[0] !== "undefined" ? allRows[0] : {};
+	var xSeriesName="";
+	var initialDateAsDate = new Date("0001-01-01");
+	var timeOffsetText = getTimeOffsetText();
+	var iLimit;
 	var tableParams = {};
-	var adjustFactor = 1.0, adjust="";
-	var calculateAdjustedClose = false;
-	var indexOfYSeriesName;
 	
 	// save function references
 	var localProcessDate = processDate;
-	var localChangeDateToEndOfMonth = changeDateToEndOfMonth;
-	var localNameIsOnArrayOfNames = nameIsOnArrayOfNames;
-	var localFindTraceIdIndex = findTraceIdIndex;
-	var localSortByDatesAsStrings = sortByDatesAsStrings;
-	var localSortByGoogleDatesAsStrings = sortByGoogleDatesAsStrings;
-	var localInsertArrayInto = insertArrayInto;
-	var localMyConcat = myConcat;
-	var localFindSpliceInfo = findSpliceInfo;
-	var localGoogleMDYToYMD = GoogleMDYToYMD;
+	
 
 	
 	// set flag for yqlGoogleCSV type and removes first row of array and translate names of columns to values
@@ -1778,9 +1752,7 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 	setTablesParametersSortPreprocessing(tableParams, dataSources);
 	DEBUG && OTHER_DEBUGS && console.log("table params set: ", tableParams);
 	
-	// number of traces to be read on this data source
-	jLimit = dataSources.traces.length;
-
+	
 	// apply date preprocessing options
 	applyDateProprocessing(allRows, tableParams, urlType);
 	
@@ -1798,6 +1770,52 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 	sortSubTables(tableParams);
 	DEBUG && OTHER_DEBUGS && console.log("SubTable sorted");
 	
+	loadSubTablesIntoData(dataSources, tableParams, otherDataProperties, data, initialDateAsDate, tracesInitialDate);
+	
+	
+}	
+	
+// FUNCTIONS TO ADD READ and Processed data into the data array
+function loadSubTablesIntoData(dataSources, tableParams, 
+				otherDataProperties, data, 
+				initialDateAsDate, tracesInitialDate) {
+	
+	var j, jLimit;
+	var xSeriesName = "", ySeriesName = "";
+	var xDateSuffix ="", traceID = "";
+	var allRows = [];
+	var iData;
+	var insertTrace = false;
+	var x = [], y = [];
+	var readTraceInitialIndex =0;
+	var readTraceEndIndex =0;	
+	var readTraceLength = 0, readTraceLimit =0;
+	var readTraceInitialDateAsDate, readTraceEndDateAsDate;
+	var existingInitialDateAsDate, existingEndDateAsDate;
+	var existingInitialValue, existingEndValue;
+	var adjustFactor = 1.0, adjust="";
+	var indexOfYSeriesName;
+	var calculateAdjustedClose = false;
+	var insertPoint = -1;
+	var initialIndex = 0;
+	var traceLength;
+	var i = 0, iLimit;
+	var spliceInfo = {};
+	var k=0, kLimit =0;
+	var readItems;
+	var processedDate ="";
+	var processedColumnDates = [];
+	
+	var localFindTraceIdIndex = findTraceIdIndex;
+	var localFindSpliceInfo = findSpliceInfo;
+	var localMyConcat = myConcat;
+	var localInsertArrayInto = insertArrayInto;
+
+
+	
+	// number of traces to be read on this data source
+	jLimit = dataSources.traces.length;
+
 	
 	// iterate through traces to be loaded
 	for(j=0; j < jLimit; j++){
