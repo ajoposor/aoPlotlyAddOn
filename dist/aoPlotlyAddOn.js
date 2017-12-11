@@ -1750,7 +1750,6 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 	var xSeriesName="";
 	var initialDateAsDate = new Date("0001-01-01");
 	var timeOffsetText = getTimeOffsetText();
-	var iLimit;
 	
 	/**
 	*
@@ -1846,12 +1845,35 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 	
 function processEiaData(eiaArrayData, data, tracesInitialDate, otherDataProperties, dataSources) {
 	
+	var kMax = eiaArrayData.length;
+	var currentSeries = {}, currentTrace = {};
+	var i, j, tracesLimit, seriesLimit;
+	
+	var timeOffsetText = getTimeOffsetText();
+	
+	var tracesInitialDateFullString;
+	
+	
 	var initialDateAsDate = new Date("0001-01-01");
 	var timeOffsetText = getTimeOffsetText();
+	
+	/**
+	*
+	* The tableParams array has the following structure:
+	*   tableParams[xSeriesNames].allRows[i][xSeriesName] = Dates as Strings
+	*   tableParams[xSeriesNames].allRows[i][ySeriesName1] = y values for ySeriesName1,
+	*   tableParams[xSeriesNames].allRows[i][ySeriesName2] = y values for ySeriesName2,.. etc.
+	*
+	*   i is the row (data points) in the allRows array. The are iLimit (data points) in the allRows array.
+	*
+	*   tableParams[xSeriesNames] has other properties, including sor, xDateSuffix, etc,
+	*    all set in the setTablesParametersSortPreprocessing function
+	*/
+	
 	var tableParams = {};
-	var adjustFactor = 1.0, adjust="";
-	var calculateAdjustedClose = false;
 
+	// save function references
+	var localProcessDate = processDate;
 	
 	
 	DEBUG && OTHER_DEBUGS && console.log(eiaArrayData);
@@ -1882,15 +1904,7 @@ function processEiaData(eiaArrayData, data, tracesInitialDate, otherDataProperti
 	* transform from "yyyy" or "yyyymm" or "yyyymmdd" to whole date
 	*/
 	
-
-	
-	var kMax = eiaArrayData.length;
-	var currentSeries = {}, currentTrace = {};
-	var i, j, tracesLimit, seriesLimit;
-	
-	var timeOffsetText = getTimeOffsetText();
-	
-	var tracesInitialDateFullString = fprocessDate(tracesInitialDate, timeOffsetText);
+	tracesInitialDateFullString = localProcessDate(tracesInitialDate, timeOffsetText);
 	
 	for (var k=0; k< kMax; k++ ){
 		currentSeries = eiaArrayData[k];
