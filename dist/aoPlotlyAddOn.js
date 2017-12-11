@@ -1915,8 +1915,8 @@ function processEiaData(eiaArrayData, data, tracesInitialDate, otherDataProperti
 					changeDateToEndOfMonth(currentSeries.lastHistoricalPeriod+
 					 "01"+" 00:00:00.000"+timeOffsetText);
 			}
-			for (i=0; i < seriesLimit; i++) currentSeries.data[i].json[0] = 
-				changeDateToEndOfMonth(currentSeries.data[i].json[0]+
+			for (i=0; i < seriesLimit; i++) currentSeries.data[i][0] = 
+				changeDateToEndOfMonth(currentSeries.data[i][0]+
 					"01"+" 00:00:00.000"+timeOffsetText);
 		}
 		
@@ -1924,14 +1924,14 @@ function processEiaData(eiaArrayData, data, tracesInitialDate, otherDataProperti
 			if (currentSeries.hasOwnProperty("lastHistoricalPeriod")) {
 				currentSeries.lastHistoricalPeriod += "1231 00:00:00.000"+timeOffsetText;
 			}
-			for (i=0; i < seriesLimit; i++) currentSeries.data[i].json[0] += "1231 00:00:00.000"+timeOffsetText;
+			for (i=0; i < seriesLimit; i++) currentSeries.data[i][0] += "1231 00:00:00.000"+timeOffsetText;
 		}
 		
 		if(currentSeries.f === "D"  || currentSeries.f === "W"){
 			if (currentSeries.hasOwnProperty("lastHistoricalPeriod")) {
 				currentSeries.lastHistoricalPeriod += " 00:00:00.000"+timeOffsetText;
 			}
-			for (i=0; i < seriesLimit; i++) currentSeries.data[i].json[0] += " 00:00:00.000"+timeOffsetText;
+			for (i=0; i < seriesLimit; i++) currentSeries.data[i][0] += " 00:00:00.000"+timeOffsetText;
 		}
 		
 	}
@@ -6348,7 +6348,7 @@ function loadEiaArrayDataIntoTableParamsAndProcess(
 
 			// read data into ordered and subtables
 			for(i=0; i < iLimit; i++){
-				dateString = eiaArrayData[seriesIndex].data[l].json[0];
+				dateString = eiaArrayData[seriesIndex].data[l][0];
 				if(dateString !== "" && dateString !== null){
 					if(new Date(dateString) >= initialDateAsDate){
 						if( traceType === "full" ||
@@ -6358,7 +6358,7 @@ function loadEiaArrayDataIntoTableParamsAndProcess(
 							newArray[k][xSeriesName] = dateString;
 							for(j=0; j < jLimit; j++){
 								ySeriesName = yNamesArray[j];
-								newArray[k][ySeriesName]=eiaArrayData[seriesIndex].data[l].json[1];
+								newArray[k][ySeriesName]=eiaArrayData[seriesIndex].data[l][1];
 							}
 							k++;
 						}
