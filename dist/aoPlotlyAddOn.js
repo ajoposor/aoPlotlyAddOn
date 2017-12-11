@@ -6238,7 +6238,7 @@ function loadEiaArrayDataIntoTableParamsAndProcess(
 			seriesIndex = currentTrace.seriesIndex;
 
 			/* the number of elements in eiaArrayData for correponding seriesIndex*/
-			iLimit = eiaArrayData.[seriesIndex].data.length;
+			iLimit = eiaArrayData[seriesIndex].data.length;
 
 			newArray =[];
 			newArray.length= iLimit;
