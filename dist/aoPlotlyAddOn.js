@@ -1578,7 +1578,7 @@ function delayedParallelReadData(data, i, param, callback) {
 						param.timeInfo.tracesInitialDate,
 						param.otherDataProperties,
 						param.dataSources[i],
-						LoadSubTablesIntoData
+						loadSubTablesIntoData
 						);
 					DEBUG && DEBUG_TIMES && console.timeEnd("Time ProcessCsvData "+i);
 					DEBUG && OTHER_DEBUGS && console.log("processCsvData",i,"finished");
@@ -1599,7 +1599,7 @@ function delayedParallelReadData(data, i, param, callback) {
 			param.timeInfo.tracesInitialDate,
 			param.otherDataProperties,
 			param.dataSources[i],
-			LoadSubTablesIntoData
+			loadSubTablesIntoData
 			);
 		DEBUG && OTHER_DEBUGS && console.log("process ArrayOfJsons",i,"finished");
 		param.dataSources[i].arrayOfJsons = [];
@@ -1622,7 +1622,7 @@ function delayedParallelReadData(data, i, param, callback) {
 							param.timeInfo.tracesInitialDate,
 							param.otherDataProperties,
 							param.dataSources[i],
-							LoadSubTablesIntoData
+							loadSubTablesIntoData
 							);
 						DEBUG && OTHER_DEBUGS && console.log("process yqlJson",i,"finished");
 					}
@@ -1653,7 +1653,7 @@ function delayedParallelReadData(data, i, param, callback) {
 							param.timeInfo.tracesInitialDate,
 							param.otherDataProperties,
 							param.dataSources[i],
-							LoadSubTablesIntoData
+							loadSubTablesIntoData
 						);
 						DEBUG && OTHER_DEBUGS && console.log("process yqlGoogleCSV",i,"finished");
 					}
@@ -1677,7 +1677,7 @@ function delayedParallelReadData(data, i, param, callback) {
 						param.timeInfo.tracesInitialDate, 
 						param.otherDataProperties,
 						param.dataSources[i],
-						LoadSubTablesIntoData
+						loadSubTablesIntoData
 						);
 					DEBUG && OTHER_DEBUGS && console.log("process pureJson",i,"finished");
 				}
@@ -1706,7 +1706,7 @@ function delayedParallelReadData(data, i, param, callback) {
 							param.timeInfo.tracesInitialDate,
 							param.otherDataProperties,
 							param.dataSources[i],
-							LoadSubTablesIntoData
+							loadSubTablesIntoData
 						);
 						DEBUG && OTHER_DEBUGS && console.log("process EiaData",i,"finished");
 					}
