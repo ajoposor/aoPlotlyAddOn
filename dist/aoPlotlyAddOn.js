@@ -2020,6 +2020,7 @@ function loadSubTablesIntoData(dataSources, tableParams,
 	
 	DEBUG && OTHER_DEBUGS && console.log("dataSources: ", dataSources);
 
+
 	
 	// iterate through traces to be loaded
 	for(j=0; j < jLimit; j++){
@@ -2030,6 +2031,8 @@ function loadSubTablesIntoData(dataSources, tableParams,
 		xSeriesName = dataSources.traces[j].xSeriesName;
 		ySeriesName = dataSources.traces[j].ySeriesName;
 		traceID = dataSources.traces[j].traceID;
+		DEBUG && OTHER_DEBUGS && console.log("xSeriesName: ", xSeriesName, "   ySeriesName: ", 
+						     ySeriesName, "  traceID:", traceID);
 		
 		// get data
 		allRows = tableParams[xSeriesName].allRows;
