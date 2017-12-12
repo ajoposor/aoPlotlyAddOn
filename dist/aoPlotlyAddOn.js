@@ -36,9 +36,6 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	if (arguments.length < 3) {
 		return "incomplete arguments";
 	}
-	
-	// create counter to wait for async functions to finish before continuing at end
-	var asyncCounter = { counter: 0 };
 		
  	// SET divInfo
 		
@@ -72,8 +69,8 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	
 	divInfo.wholeDivElement = document.getElementById(divInfo.wholeDivID);	
 	
-	asyncCounter.counter++;
-	setElementStyle(divInfo.wholeDivElement, wholeDivInitialStyling, asyncCounter);
+
+	setElementStyle(divInfo.wholeDivElement, wholeDivInitialStyling);
 	
 	divInfo.loaderElement = document.createElement('div');
 	divInfo.loaderElement.id = divInfo.loaderID;
@@ -91,8 +88,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		divInfo.onErrorHideWholeDiv = false;
 	}
 	
-	asyncCounter.counter++;	
-	setElementStyle(divInfo.loaderElement, loaderInitialStyling, asyncCounter);
+	setElementStyle(divInfo.loaderElement, loaderInitialStyling);
 
 	
 	// frequency dropdown buttons to be added to updatemenus if option applies
@@ -310,8 +306,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		
 
 	// set settings defaults
-	asyncCounter.counter++;
-	setJsonDefaults(settingsDefaults, settings, asyncCounter);
+	setJsonDefaults(settingsDefaults, settings);
 	
 	
 	DEBUG && OTHER_DEBUGS && console.log("settings after settings default: ", settings);	
@@ -359,8 +354,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	};
 
 	// set layout defauls
-	asyncCounter.counter++;
-	setJsonDefaults(layoutDefaults, layout, asyncCounter);	
+	setJsonDefaults(layoutDefaults, layout);	
 		
 	
 		
@@ -958,8 +952,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		// no defaults
 	};
 	
-	asyncCounter.counter++;
-	setJsonDefaults(timeInfoDefaults, timeInfo, asyncCounter);
+	setJsonDefaults(timeInfoDefaults, timeInfo);
 
 	//RECESSIONS DEFINED
 
@@ -1207,8 +1200,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		displayModeBar: false
 	};
 
-	asyncCounter.counter++;
-	setJsonDefaults(optionsDefaults, options, asyncCounter);
+	setJsonDefaults(optionsDefaults, options);
 
 	// After all settings ready, call function to read data, adjust ranges, set menus and make chart
 	// var data = []; //, dataOriginal = [];
@@ -7358,7 +7350,7 @@ function deepCopy(obj) {
 
 // add default properties to Json Object
 function setJsonDefaults(jsonDefaults, json) {
-	var i = 0;
+	var i;
 	var jsonDefaultsType = Object.prototype.toString.call(jsonDefaults);
 
 	if (jsonDefaultsType === "[object Array]") {
@@ -7373,8 +7365,15 @@ function setJsonDefaults(jsonDefaults, json) {
 			json = {};
 		}
 		for (i in jsonDefaults) {
-			//json[i] = arguments.callee(jsonDefaults[i], json[i]);
-			json[i] = setJsonDefaults(jsonDefaults[i], json[i]);
+			if (jsonDefaults.hasOwnProperty(i)) {
+				if (typeof json[i] === "undefined") {
+					DEBUG & OTHER_DEBUGS & console.log("jsonDefault applied: ", i);
+					json[i] = setJsonDefaults(jsonDefaults[i], json[i]);
+				} else {
+					DEBUG & OTHER_DEBUGS & console.log("jsonDefault not applied: ", i);
+				}
+					
+			}
 		}
 		return json;
 	}
