@@ -4031,7 +4031,7 @@ function makeChart(data, param){
 		// CASE 6. EN ESTE ELSE IF SE INCLUYE EL CAMBIO DE NOMINAL REAL
 		else if (typeof relayoutData.transformToReal!== "undefined") {
 
-			//DEBUG && OTHER_DEBUGS && console.log("real/nominal button clicked");
+			DEBUG && OTHER_DEBUGS && console.log("real/nominal button clicked");
 			//DEBUG && OTHER_DEBUGS && console.log("relayoutData.compare = ", relayoutData.compare);
 			//DEBUG && OTHER_DEBUGS && console.log("transformToBaseIndex =", transformToBaseIndex);
 			divInfo.realNominalButtonElement.blur();
@@ -4051,16 +4051,16 @@ function makeChart(data, param){
 					// transform data to real
 					if (transformToReal) {
 
-						//DEBUG && OTHER_DEBUGS && console.log("transform To Real");
+						DEBUG && OTHER_DEBUGS && console.log("transform To Real");
 
 
 						// determine base date
 						/* could be "end of range", "end of domain", "beggining of range", 
 						beggining of domain", 
 						or a date "yyyy-mm-dd hh:mm:ss.sss-04:00"*/
+						DEBUG && OTHER_DEBUGS && console.log("baseRealNominalDate",baseRealNominalDate);
 
-						if(baseRealNominalDate!==""){
-
+						if(baseRealNominalDate === ""){
 							baseRealNominalDate = 
 								setBaseRealNominalDateAsString(	
 									settings.baseRealDate, 
@@ -4070,7 +4070,7 @@ function makeChart(data, param){
 									maxDateAsString
 								);
 
-							//DEBUG && OTHER_DEBUGS && console.log("baseRealNominalDate",baseRealNominalDate);
+							DEBUG && OTHER_DEBUGS && console.log("baseRealNominalDate",baseRealNominalDate);
 							setDeflactorDictionaryAtDate(baseRealNominalDate, 
 										     deflactorDictionary, 
 										     data[iDeflactor], 
