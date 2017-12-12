@@ -1324,6 +1324,8 @@ function parallelReadDataAndMakeChart(data, param) {
 			} else {	
 				makeChart(data, param);
 				DEBUG && OTHER_DEBUGS && console.log("allread and ploted");
+				DEBUG && OTHER_DEBUGS && console.log("param.settings.newRecessionsUrl: ", param.settings.newRecessionsUrl);
+				
 			}	
 		}
 		
