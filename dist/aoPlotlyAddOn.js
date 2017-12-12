@@ -2814,7 +2814,7 @@ function makeChart(data, param){
 							maxDateAsString
 							);
 
-		//DEBUG && OTHER_DEBUGS && console.log("baseRealNominalDate",baseRealNominalDate);
+		DEBUG && OTHER_DEBUGS && console.log("baseRealNominalDate",baseRealNominalDate);
 
 		setDeflactorDictionaryAtDate(baseRealNominalDate, deflactorDictionary, data[iDeflactor], 0);
 
@@ -8582,7 +8582,7 @@ function prepareTransformToReal(
 function transformDataToReal(data, deflactorDictionary, baseRealNominalDate, otherDataProperties) {
 	var j, iLimit, jLimit;
 	
-	DEBUG && OTHER_DEBUGS && console.log("baseRealNominalDate:", baseRealNominalDate);
+	DEBUG && OTHER_DEBUGS && console.log("baseRealNominalDate: ", baseRealNominalDate);
 	
 	var base = Number(deflactorDictionary[baseRealNominalDate]);
 	
