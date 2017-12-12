@@ -2027,7 +2027,6 @@ function loadSubTablesIntoData(dataSources, tableParams,
 		// set temporary variable
 		xSeriesName = dataSources.traces[j].xSeriesName;
 		ySeriesName = dataSources.traces[j].ySeriesName;
-		xDateSuffix = dataSources.traces[j].xDateSuffix;
 		traceID = dataSources.traces[j].traceID;
 		
 		// get data
@@ -2148,8 +2147,7 @@ function loadSubTablesIntoData(dataSources, tableParams,
 			else {
 				spliceInfo = localFindSpliceInfo(
 					allRows,   xSeriesName, readTraceInitialIndex,
-					readTraceLength, data[iData].x/*,  datesReady,
-					transformToEndOfMonth, yqlGoogleCSV,xDateSuffix, timeOffsetText*/);
+					readTraceLength, data[iData].x);
 				initialIndex = spliceInfo.initialIndex;
 				traceLength = spliceInfo.traceLength;
 				insertPoint = spliceInfo.insertPoint;
