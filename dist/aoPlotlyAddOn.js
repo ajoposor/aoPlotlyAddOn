@@ -1939,12 +1939,12 @@ function processEiaData(eiaArrayData, data, tracesInitialDate, otherDataProperti
 			if (currentSeries.hasOwnProperty("lastHistoricalPeriod")) {
 				currentSeries.lastHistoricalPeriod = currentSeries.lastHistoricalPeriod.substr(0,4)+"-"+
 					currentSeries.lastHistoricalPeriod.substr(4,2)+"-"+
-					currentSeries.lastHistoricalPeriod.substr(6,4)+
+					currentSeries.lastHistoricalPeriod.substr(6,2)+
 					" 00:00:00.000"+timeOffsetText;
 			}
 			for (i=0; i < seriesLimit; i++) currentSeries.data[i][0] = currentSeries.data[i][0].substr(0,4)+"-"+
 						currentSeries.data[i][0].substr(4,2)+"-"+
-						currentSeries.data[i][0].substr(4,2)+
+						currentSeries.data[i][0].substr(6,2)+
 						" 00:00:00.000"+timeOffsetText;
 		}
 		
