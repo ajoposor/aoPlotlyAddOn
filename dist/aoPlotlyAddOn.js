@@ -35,9 +35,10 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	// test arguments are passed complete
 	if (arguments.length < 3) {
 		return "incomplete arguments";
-	}	
-		
-		
+	}
+	
+	// create counter to wait for async functions to finish before continuing at end
+	var asyncCounter = { counter: 0 };
 		
  	// SET divInfo
 		
@@ -71,15 +72,11 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	
 	divInfo.wholeDivElement = document.getElementById(divInfo.wholeDivID);	
 	
-	setElementStyle(divInfo.wholeDivElement, wholeDivInitialStyling);
+	asyncCounter.counter++;
+	setElementStyle(divInfo.wholeDivElement, wholeDivInitialStyling, asyncCounter);
 	
 	divInfo.loaderElement = document.createElement('div');
 	divInfo.loaderElement.id = divInfo.loaderID;
-	
-	/*divInfo.wholeDivElement.insertBefore(
-				divInfo.loaderElement, 
-				divInfo.wholeDivElement.firstChild);*/
-	
 	divInfo.wholeDivElement.appendChild(divInfo.loaderElement);
 	
 	if(typeof divInfo.noLoadedDataMessage === "undefined") {
@@ -92,9 +89,10 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	
 	if(typeof divInfo.onErrorHideWholeDiv === "undefined") {
 		divInfo.onErrorHideWholeDiv = false;
-	}	
-		
-	setElementStyle(divInfo.loaderElement, loaderInitialStyling);
+	}
+	
+	asyncCounter.counter++;	
+	setElementStyle(divInfo.loaderElement, loaderInitialStyling, asyncCounter);
 
 	
 	// frequency dropdown buttons to be added to updatemenus if option applies
@@ -312,7 +310,8 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		
 
 	// set settings defaults
-	setJsonDefaults(settingsDefaults, settings);
+	asyncCounter.counter++;
+	setJsonDefaults(settingsDefaults, settings, asyncCounter);
 	
 	
 	DEBUG && OTHER_DEBUGS && console.log("settings after settings default: ", settings);	
@@ -360,7 +359,8 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	};
 
 	// set layout defauls
-	setJsonDefaults(layoutDefaults, layout);	
+	asyncCounter.counter++;
+	setJsonDefaults(layoutDefaults, layout, asyncCounter);	
 		
 	
 		
@@ -957,8 +957,9 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	var timeInfoDefaults = {
 		// no defaults
 	};
-
-	setJsonDefaults(timeInfoDefaults, timeInfo);
+	
+	asyncCounter.counter++;
+	setJsonDefaults(timeInfoDefaults, timeInfo, asyncCounter);
 
 	//RECESSIONS DEFINED
 
@@ -1206,7 +1207,8 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		displayModeBar: false
 	};
 
-	setJsonDefaults(optionsDefaults, options);
+	asyncCounter.counter++;
+	setJsonDefaults(optionsDefaults, options, asyncCounter);
 
 	// After all settings ready, call function to read data, adjust ranges, set menus and make chart
 	// var data = []; //, dataOriginal = [];
@@ -1220,6 +1222,8 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		timeInfo.tracesInitialDate = "";
 	}
 
+	
+	
 	var passedParameters = {
 		otherDataProperties: otherDataProperties,
 		dataSources: dataSources,
@@ -1237,11 +1241,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		options: options
 	};
 
-	/*
-	//Call Read and Make Chart Function
-	readDataAndMakeChart(data, iS, passedParameters, function(message) {
-		DEBUG && OTHER_DEBUGS && console.log(message);
-	});*/
+
 	
 	DEBUG && DEBUG_TIMES && console.timeEnd("TIME: initialSettingsBeforeReadData");
 	DEBUG && OTHER_DEBUGS && console.log("passedParemeters: ", passedParameters);
