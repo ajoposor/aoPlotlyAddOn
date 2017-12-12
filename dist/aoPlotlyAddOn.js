@@ -1577,7 +1577,8 @@ function delayedParallelReadData(data, i, param, callback) {
 						data,
 						param.timeInfo.tracesInitialDate,
 						param.otherDataProperties,
-						param.dataSources[i]
+						param.dataSources[i],
+						LoadSubTablesIntoData
 						);
 					DEBUG && DEBUG_TIMES && console.timeEnd("Time ProcessCsvData "+i);
 					DEBUG && OTHER_DEBUGS && console.log("processCsvData",i,"finished");
@@ -1597,7 +1598,8 @@ function delayedParallelReadData(data, i, param, callback) {
 			data,
 			param.timeInfo.tracesInitialDate,
 			param.otherDataProperties,
-			param.dataSources[i]
+			param.dataSources[i],
+			LoadSubTablesIntoData
 			);
 		DEBUG && OTHER_DEBUGS && console.log("process ArrayOfJsons",i,"finished");
 		param.dataSources[i].arrayOfJsons = [];
@@ -1619,7 +1621,8 @@ function delayedParallelReadData(data, i, param, callback) {
 							data,
 							param.timeInfo.tracesInitialDate,
 							param.otherDataProperties,
-							param.dataSources[i]
+							param.dataSources[i],
+							LoadSubTablesIntoData
 							);
 						DEBUG && OTHER_DEBUGS && console.log("process yqlJson",i,"finished");
 					}
@@ -1649,7 +1652,8 @@ function delayedParallelReadData(data, i, param, callback) {
 							data,
 							param.timeInfo.tracesInitialDate,
 							param.otherDataProperties,
-							param.dataSources[i]
+							param.dataSources[i],
+							LoadSubTablesIntoData
 						);
 						DEBUG && OTHER_DEBUGS && console.log("process yqlGoogleCSV",i,"finished");
 					}
@@ -1672,7 +1676,8 @@ function delayedParallelReadData(data, i, param, callback) {
 						data,
 						param.timeInfo.tracesInitialDate, 
 						param.otherDataProperties,
-						param.dataSources[i]
+						param.dataSources[i],
+						LoadSubTablesIntoData
 						);
 					DEBUG && OTHER_DEBUGS && console.log("process pureJson",i,"finished");
 				}
@@ -1700,7 +1705,8 @@ function delayedParallelReadData(data, i, param, callback) {
 							data,
 							param.timeInfo.tracesInitialDate,
 							param.otherDataProperties,
-							param.dataSources[i]
+							param.dataSources[i],
+							LoadSubTablesIntoData
 						);
 						DEBUG && OTHER_DEBUGS && console.log("process EiaData",i,"finished");
 					}
@@ -1738,7 +1744,7 @@ function checkDataIsAnArrayNotVoid(readData){
 	    
 // FUNCTIONS TO PARSE CVS, JSON OR DIRECT SERIES
 // main code, reads cvs files and creates traces and combine them in data
-function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, dataSources) {
+function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, dataSources, callbackLoadSubTablesIntoData) {
 	
 	var urlType = dataSources.urlType;
 	var yqlGoogleCSV = false;
@@ -1833,14 +1839,14 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 	sortSubTables(tableParams);
 	DEBUG && OTHER_DEBUGS && console.log("SubTable sorted");
 	
-	loadSubTablesIntoData(dataSources, tableParams, otherDataProperties, data, initialDateAsDate, tracesInitialDate);
+	callbackLoadSubTablesIntoData(dataSources, tableParams, otherDataProperties, data, initialDateAsDate, tracesInitialDate);
 	
 	
 }	
 	
 
 	
-function processEiaData(eiaArrayData, data, tracesInitialDate, otherDataProperties, dataSources) {
+function processEiaData(eiaArrayData, data, tracesInitialDate, otherDataProperties, dataSources, callbackLoadSubTablesIntoData) {
 	
 	var kMax = eiaArrayData.length;
 	var currentSeries = {}, currentTrace = {};
@@ -1963,7 +1969,7 @@ function processEiaData(eiaArrayData, data, tracesInitialDate, otherDataProperti
 	// void eiaArrayData, no longer required.
 	eiaArrayData = [];
 	
-	loadSubTablesIntoData(dataSources, tableParams, otherDataProperties, 
+	callbackLoadSubTablesIntoData(dataSources, tableParams, otherDataProperties, 
 			      data, initialDateAsDate, tracesInitialDate);
 	
 	
