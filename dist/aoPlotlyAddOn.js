@@ -1321,8 +1321,10 @@ function parallelReadDataAndMakeChart(data, param) {
 			cleanOutData(data);
 			if(data.length < 1) {
 				showNoLoadedDataItem(param.divInfo);
-			} else {	
+			} else {
+				addCalculatedTraces(data, param, function() {
 				makeChart(data, param);
+				});
 				DEBUG && OTHER_DEBUGS && console.log("allread and ploted");
 				DEBUG && OTHER_DEBUGS && console.log("param.settings.newRecessionsUrl: ", param.settings.newRecessionsUrl);
 				
@@ -2491,11 +2493,59 @@ function processDirectData(tracesInitialDate, serie) {
 }*/
 
  
- 
+/**
+*
+*  This function will add calculated traces (traces calculated from others loaded and then call makeChart(data, param)
+*
+*/
+	
+	
+function  addCalculatedTraces(data, param, makeChart) {
+	
 
+	var otherParameters = param.otherParameters;
+	var iLimit = otherParameters.length;
+	var targetValue;
+	var targetDateAsString;
+	
+	// iterate through all traces
+	for (var i=0; i < iLimit; i++) {
+		// test weather a calculate option with real is added
+		if(typeof otherParameters[i].calculate !== "undefined" &&
+		  typeof otherParameters[i].calculate.type !== "undefined" &&
+		  otherParameters[i].calculate.type === "real") {
+			
+			// make a calculated trace as a real version from another trace
+			// first get the target date
+			targetDateAsString = getTargetDateAsStringForCalculatedTrace(
+				otherParameters[i].calculate, 
+				otherParameters, 
+				data);
+			// first get the target value (from factorInformation and the referredDateTraceId
+			
+			targetValue = getTargetValue(data, otherParameters);
+			targetValueSourceTrace 
+			
+
+		}
+	}
+	
+	
+	//call makeChart
+	makeChart(data, param);
+	
+}
 
  
- 
+// first get the target date
+function getTargetDateAsStringForCalculatedTrace(calculateObject, otherParameters, data) {
+	
+	/* first find the index of the referredDateTraceID
+}
+/* find the target value based on another series and a given date */	
+ function getTargetValue(data, otherParameters) {
+	 
+ }
  
 
  
