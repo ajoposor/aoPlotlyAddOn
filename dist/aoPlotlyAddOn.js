@@ -7366,13 +7366,8 @@ function setJsonDefaults(jsonDefaults, json) {
 		}
 		for (i in jsonDefaults) {
 			if (jsonDefaults.hasOwnProperty(i)) {
-				if (typeof json[i] === "undefined") {
-					DEBUG & OTHER_DEBUGS & console.log("jsonDefault applied: ", i);
-					json[i] = setJsonDefaults(jsonDefaults[i], json[i]);
-				} else {
-					DEBUG & OTHER_DEBUGS & console.log("jsonDefault not applied: ", i);
-				}
-					
+				json[i] = setJsonDefaults(jsonDefaults[i], json[i]);
+		
 			}
 		}
 		return json;
