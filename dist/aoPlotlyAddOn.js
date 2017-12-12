@@ -8544,8 +8544,8 @@ function setBaseRealNominalDateAsString(baseRealDate,
 		return domainX0AsString;
 	}
 	else if (Object.prototype.toString.call(new Date(baseRealDate)) === "[object Date]" ) {
-		// it is a date
-		if ( isNaN( baseRealDate.getTime() ) ) {  // d.valueOf() could also work
+		// it is a date ?
+		if ( isNaN( (new Date(baseRealDate)).getTime() ) ) {  // d.valueOf() could also work
 			// baseRealDate date is not valid, return default
 			return domainX1AsString;
 		}
