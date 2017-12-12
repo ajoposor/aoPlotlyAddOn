@@ -8583,7 +8583,9 @@ function transformDataToReal(data, deflactorDictionary, baseRealNominalDate, oth
 	var j, iLimit, jLimit;
 	var base = Number(deflactorDictionary[baseRealNominalDate]);
 	
-	//DEBUG && OTHER_DEBUGS && console.log("base", base);
+	DEBUG && OTHER_DEBUGS && console.log("in transformDataToReal");
+	DEBUG && OTHER_DEBUGS && console.log("base: ", base);
+	DEBUG && OTHER_DEBUGS && console.log("deflactorDictionary: ", deflactorDictionary);
 	
 	iLimit = data.length;
 	for (var i = 0; i < iLimit; i++) {
@@ -8594,6 +8596,8 @@ function transformDataToReal(data, deflactorDictionary, baseRealNominalDate, oth
 			}
 		}
 	}
+	DEBUG && OTHER_DEBUGS && console.log("data after transform to real: ", data);
+	
 }
 
 
