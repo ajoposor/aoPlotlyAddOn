@@ -2503,27 +2503,27 @@ function processDirectData(tracesInitialDate, serie) {
 function  addCalculatedTraces(data, param, makeChart) {
 	
 
-	var otherParameters = param.otherParameters;
-	var iLimit = otherParameters.length;
+	var otherDataProperties = param.otherDataProperties;
+	var iLimit = otherDataProperties.length;
 	var targetValue;
 	var targetDateAsString;
 	
 	// iterate through all traces
 	for (var i=0; i < iLimit; i++) {
 		// test weather a calculate option with real is added
-		if(typeof otherParameters[i].calculate !== "undefined" &&
-		  typeof otherParameters[i].calculate.type !== "undefined" &&
-		  otherParameters[i].calculate.type === "real") {
+		if(typeof otherDataProperties[i].calculate !== "undefined" &&
+		  typeof otherDataProperties[i].calculate.type !== "undefined" &&
+		  otherDataProperties[i].calculate.type === "real") {
 			
 			// make a calculated trace as a real version from another trace
 			// first get the target date
 			targetDateAsString = getTargetDateAsStringForCalculatedTrace(
-				otherParameters[i].calculate, 
-				otherParameters, 
+				otherDataProperties[i].calculate, 
+				otherDataProperties, 
 				data);
 			// first get the target value (from factorInformation and the referredDateTraceId
 			
-			targetValue = getTargetValue(data, otherParameters);
+			targetValue = getTargetValue(data, otherDataProperties);
 			targetValueSourceTrace 
 			
 
@@ -2537,13 +2537,61 @@ function  addCalculatedTraces(data, param, makeChart) {
 }
 
  
-// first get the target date
-function getTargetDateAsStringForCalculatedTrace(calculateObject, otherParameters, data) {
+// first get the target date in the referredDateTraceID
+function getTargetDateAsStringForCalculatedTrace(calculateObject, otherDataProperties, data) {
+	var indexOfreferredDateTraceID;
+	var referredDate;
 	
-	/* first find the index of the referredDateTraceID
+	
+	/* first find the index of the referredDateTraceID*/
+	indexOfreferredDateTraceID  =  findTraceIdIndex(calculateObject.factorInformation.referredDateTraceID, otherDataProperties);
+	
+	/* second, get the date */
+	referredDate = getReferredDate(calculateObject.factorInformation.date, indexOfreferredDateTraceID , data);
+	
+
+	
+
+	
 }
+	
+	
+function getReferredDate(dateCode, traceIndex , data){
+	
+if(baseRealDate === "end of range"){
+		 return rangeX1AsString;
+	}
+	else if(baseRealDate === "beggining of range"){
+		return rangeX0AsString;
+	}
+	else if(baseRealDate === "end of domain"){
+		return domainX1AsString;
+	}
+	else if(baseRealDate === "beggining of domain"){
+		return domainX0AsString;
+	}
+	else if (Object.prototype.toString.call(new Date(baseRealDate)) === "[object Date]" ) {
+		// it is a date ?
+		if ( isNaN( (new Date(baseRealDate)).getTime() ) ) {  // d.valueOf() could also work
+			// baseRealDate date is not valid, return default
+			return domainX1AsString;
+		}
+		else {
+			// baseReadDate date is valid
+			DEBUG & OTHER_DEBUGS && console.log("baseRealDate returned as valied");
+			return baseRealDate;
+		}
+	}
+	else {
+		// baseRealDate not a date, return default
+		return domainX1AsString;
+	}	
+	
+}	
+	
+	
 /* find the target value based on another series and a given date */	
- function getTargetValue(data, otherParameters) {
+ function getTargetValue(data, otherDataProperties) {
 	 
  }
  
