@@ -2220,6 +2220,7 @@ function loadSubTablesIntoData(dataSources, tableParams,
 			y.length = readItems;
 		}
 		DEBUG && OTHER_DEBUGS && console.log("excess points removed");
+		DEBUG && OTHER_DEBUGS && console.log("remaining points:", readItems);
 		
 		
 		// create x and y properties if not yet defined for current trace
@@ -2261,6 +2262,8 @@ function loadSubTablesIntoData(dataSources, tableParams,
 		if(processedColumnDates.indexOf(xSeriesName) === -1){
 			processedColumnDates.push(xSeriesName);
 		}
+		
+		DEBUG && OTHER_DEBUGS && console.log("data after trace loaded: ", data);
 	}
 
 }
@@ -6302,7 +6305,7 @@ function loadEiaArrayDataIntoTableParamsAndProcess(
 	var traceIndex;
 	
 	DEBUG && OTHER_DEBUGS && DEBUG_EIA_FUNCTION && console.log("start LoadEiaArrayDataIntoTableParm...");
-	DEBUG && OTHER_DEBUGS && DEBUG_EIA_FUNCTION && console.log("tableParams",tableParams);
+	DEBUG && OTHER_DEBUGS && DEBUG_EIA_FUNCTION && console.log("tableParams before loaded data",tableParams);
 	
 	for (var key in tableParams) {
 		
@@ -6397,6 +6400,7 @@ function loadEiaArrayDataIntoTableParamsAndProcess(
 			tableParams[key].allRows = newArray;
 		}
 	}
+	DEBUG && OTHER_DEBUGS && DEBUG_EIA_FUNCTION && console.log("tableParams after loaded data",tableParams);
 }		
 	
 	
