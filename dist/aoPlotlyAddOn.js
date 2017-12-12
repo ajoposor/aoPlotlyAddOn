@@ -2017,6 +2017,8 @@ function loadSubTablesIntoData(dataSources, tableParams,
 	
 	// number of traces to be read on this data source
 	jLimit = dataSources.traces.length;
+	
+	DEBUG && OTHER_DEBUGS && console.log("dataSources: ", dataSources);
 
 	
 	// iterate through traces to be loaded
