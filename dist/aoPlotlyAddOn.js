@@ -8526,6 +8526,11 @@ function setBaseRealNominalDateAsString(baseRealDate,
 		domainX0AsString,
 		domainX1AsString) {
 	
+	DEBUG & OTHER_DEBUGS && console.log("in set base real/nominal date");
+	DEBUG & OTHER_DEBUGS && console.log("baseRealDate:" , baseRealDate);
+	DEBUG & OTHER_DEBUGS && console.log("rangeX0:" , rangeX0AsString, "rangeX1" , rangeX1AsString);
+	DEBUG & OTHER_DEBUGS && console.log("domainX0:" , domainX0AsString, "domainX1" , domainX1AsString);
+	
 	if(baseRealDate === "end of range"){
 		 return rangeX1AsString;
 	}
@@ -8546,6 +8551,7 @@ function setBaseRealNominalDateAsString(baseRealDate,
 		}
 		else {
 			// baseReadDate date is valid
+			DEBUG & OTHER_DEBUGS && console.log("baseRealDate returned as valied");
 			return baseRealDate;
 		}
 	}
