@@ -8581,6 +8581,9 @@ function prepareTransformToReal(
 
 function transformDataToReal(data, deflactorDictionary, baseRealNominalDate, otherDataProperties) {
 	var j, iLimit, jLimit;
+	
+	DEBUG && OTHER_DEBUGS && console.log("baseRealNominalDate:", baseRealNominalDate);
+	
 	var base = Number(deflactorDictionary[baseRealNominalDate]);
 	
 	DEBUG && OTHER_DEBUGS && console.log("in transformDataToReal");
