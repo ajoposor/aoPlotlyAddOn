@@ -1406,7 +1406,7 @@ function delayedParallelReadData(data, i, param, callback) {
 	
 	var urlType = param.dataSources[i].urlType;
 	var url = param.dataSources[i].url;
-	var yqlGoogleCSVUrl = "", yqlGoogleJsonUrl;
+	var yqlGoogleCSVUrl = "";
 	
 	if (urlType === "csv") {
 		DEBUG && DEBUG_TIMES && console.time("Time Read File "+i);
@@ -1537,9 +1537,6 @@ function delayedParallelReadData(data, i, param, callback) {
 	} 
 	else if ( urlType === "EiaJson") {
 		DEBUG && OTHER_DEBUGS && console.log("EiaJson", i);
-		/*yqlGoogleJsonUrl = "https://query.yahooapis.com/v1/public/yql?q="+
-			encodeURIComponent("SELECT * from csv where url='"+url+"'")+
-			"&format=json";*/
 		Plotly.d3.json(url, function(err, readData) {
 			if(!err){
 				DEBUG && OTHER_DEBUGS && DEBUG_EIA_FUNCTION && console.log("read EiaJson",readData);
@@ -1695,16 +1692,12 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 function processEiaData(eiaArrayData, data, tracesInitialDate, otherDataProperties, dataSources, callbackLoadSubTablesIntoData) {
 	
 	var kMax = eiaArrayData.length;
-	var currentSeries = {}, currentTrace = {};
-	var i, j, seriesLimit;
+	var currentSeries = {};
+	var i, seriesLimit;
 	
 	var timeOffsetText = getTimeOffsetText();
-	
 	var tracesInitialDateFullString;
-	
-	
 	var initialDateAsDate = new Date("0001-01-01");
-	var timeOffsetText = getTimeOffsetText();
 	
 	/**
 	*
@@ -1830,7 +1823,7 @@ function loadSubTablesIntoData(dataSources, tableParams,
 	
 	var j, jLimit;
 	var xSeriesName = "", ySeriesName = "";
-	var xDateSuffix ="", traceID = "";
+	var traceID = "";
 	var allRows = [];
 	var iData;
 	var insertTrace = false;
@@ -2145,7 +2138,6 @@ function  addCalculatedTraces(data, param) {
 
 	var otherDataProperties = param.otherDataProperties;
 	var iLimit = otherDataProperties.length;
-	var targetValue;
 	var targetDateAsString;
 	var deflactorDictionary={};
 	var deflactorValuesCreated = false;
@@ -2167,14 +2159,13 @@ function  addCalculatedTraces(data, param) {
 			
 			// Following lines will create a calculated trace as a real version from another trace
 			
-			calculateObject = otherDataProperties[i].calculate, 
+			calculateObject = otherDataProperties[i].calculate; 
 			
 			/**
 			* find the index of the sourceTrace
 			*
 			*/
-			indexOfSourceTrace  =  
-					findTraceIdIndex(calculateObject.sourceTrace, otherDataProperties);
+			indexOfSourceTrace  =  findTraceIdIndex(calculateObject.sourceTrace, otherDataProperties);
 			
 			// save data into Original if not yet done
 			if(originalDataCreated === false){
@@ -2290,7 +2281,6 @@ function createDeflatorDictionary(deflactorDictionary, data, otherDataProperties
 	
 	
 	
-	
 /**
 *
 * Based on dateCode determines the date in a referredDateTraceID
@@ -2313,7 +2303,7 @@ function getReferredDate(dateCode, traceIndex , data){
 		}
 		else {
 			// baseReadDate date is valid
-			DEBUG & OTHER_DEBUGS && console.log("baseRealDate returned as valied");
+			DEBUG && OTHER_DEBUGS && console.log("baseRealDate returned as valied");
 			return dateCode;
 		}
 	}
@@ -2387,8 +2377,8 @@ function createRealTrace(data, deflactorDictionary, targetDateAsString, otherDat
 	
 	for (j = 0; j < jLimit; j++) {
 		calculatedX[j] = data[indexOfSourceTrace].x[j];
-		calculatedY[j] =
-			data[indexOfSourceTrace].y[j] * deflactorAtTargetDate / Number(deflactorDictionary[data[indexOfSourceTrace].x[j]])
+		calculatedY[j] = data[indexOfSourceTrace].y[j] * deflactorAtTargetDate / 
+			Number(deflactorDictionary[data[indexOfSourceTrace].x[j]]);
 	}
 	
 	data[indexOfCreatedTrace].x = calculatedX;
@@ -6332,8 +6322,6 @@ function loadEiaArrayDataIntoTableParamsAndProcess(
 	
 	    
 function sortSubTables(tableParams){
-	var delta = 0.0;
-
 	for (var key in tableParams) {
 		if (tableParams.hasOwnProperty(key)){
 			if(tableParams[key].sort){
@@ -7277,7 +7265,7 @@ function deepCopy(obj) {
 
 	if (Object.prototype.toString.call(obj) === "[object Array]") {
 		var len = obj.length;
-		for (; i < len; i++) {
+		for (  ; i < len; i++) {
 			//out[i] = arguments.callee(obj[i]);
 			out[i] = deepCopy(obj[i]);
 		}
@@ -7287,8 +7275,9 @@ function deepCopy(obj) {
 	if (typeof obj === "object") {
 		out = {};
 		for (i in obj) {
-			//out[i] = arguments.callee(obj[i]);
-			out[i] = deepCopy(obj[i]);
+			if (obj.hasOwnProperty(i)) {
+				out[i] = deepCopy(obj[i]);
+			}
 		}
 		return out;
 	}
@@ -8464,10 +8453,10 @@ function setBaseRealNominalDateAsString(baseRealDate,
 		domainX0AsString,
 		domainX1AsString) {
 	
-	DEBUG & OTHER_DEBUGS && console.log("in set base real/nominal date");
-	DEBUG & OTHER_DEBUGS && console.log("baseRealDate:" , baseRealDate);
-	DEBUG & OTHER_DEBUGS && console.log("rangeX0:" , rangeX0AsString, "rangeX1" , rangeX1AsString);
-	DEBUG & OTHER_DEBUGS && console.log("domainX0:" , domainX0AsString, "domainX1" , domainX1AsString);
+	DEBUG && OTHER_DEBUGS && console.log("in set base real/nominal date");
+	DEBUG && OTHER_DEBUGS && console.log("baseRealDate:" , baseRealDate);
+	DEBUG && OTHER_DEBUGS && console.log("rangeX0:" , rangeX0AsString, "rangeX1" , rangeX1AsString);
+	DEBUG && OTHER_DEBUGS && console.log("domainX0:" , domainX0AsString, "domainX1" , domainX1AsString);
 	
 	if(baseRealDate === "end of range"){
 		 return rangeX1AsString;
@@ -8489,7 +8478,7 @@ function setBaseRealNominalDateAsString(baseRealDate,
 		}
 		else {
 			// baseReadDate date is valid
-			DEBUG & OTHER_DEBUGS && console.log("baseRealDate returned as valied");
+			DEBUG && OTHER_DEBUGS && console.log("baseRealDate returned as valied");
 			return baseRealDate;
 		}
 	}
