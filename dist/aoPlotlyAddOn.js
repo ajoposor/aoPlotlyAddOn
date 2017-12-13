@@ -1243,32 +1243,6 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	
 }; // END OF newTimeseriesPlot FUNCTION
 
-	 
-	 
-	 
-/*
-
-// FUNCTION TO READ DATA AND THEN MAKE CHART - LOADS IN SERIES
-function readDataAndMakeChart(data, iS, param, callback) {
-	
-	
-	// first all files are to be read, in a recursive way, with iS < series.length
-
-	if (iS.value < param.dataSources.length) {
-		readData(data, iS, param, callback);
-	} 
-	
-	else {
-		// once all files all read, i.e. iS === series.length, this section is executed
-		DEBUG && OTHER_DEBUGS && console.log("data: ", data);
-		DEBUG && OTHER_DEBUGS && console.log("param: ", param);
-		
-		makeChart(data, param);
-		callback("all read and plotted");
-	
-	} // end of else after all read section
-} //  end of readDataAndMakeChart    
-*/	    
 
 	 
 	 
@@ -1322,9 +1296,10 @@ function parallelReadDataAndMakeChart(data, param) {
 			if(data.length < 1) {
 				showNoLoadedDataItem(param.divInfo);
 			} else {
-				addCalculatedTraces(data, param, function() {
-				trimNonExistingDataXY(data, param.otherDataProperties);
-				makeChart(data, param);
+				addCalculatedTraces(data, param).then(function(data, param) {
+					trimNonExistingDataXY(data, param.otherDataProperties);
+				}).then(function(data, param) {
+					makeChart(data, param);
 				});
 				DEBUG && OTHER_DEBUGS && console.log("allread and ploted");
 				DEBUG && OTHER_DEBUGS && console.log("param.settings.newRecessionsUrl: ", param.settings.newRecessionsUrl);
@@ -1420,8 +1395,6 @@ function parallelUpdateRecessions(newRecessionsUrl, usRecessions, callback){
 *
 *
 */
-	 
-
 	
 // delay the call of data loading by a certain delay	
 function parallelReadData(data, i, param, callback) {
@@ -2162,12 +2135,12 @@ function verifyAndCleanDataSources(allRows, dataSources) {
  
 /**
 *
-*  This function will add calculated traces (traces calculated from others loaded and then call makeChart(data, param)
+*  This function will add calculated traces (traces calculated from others loaded 
 *
 */
 	
 	
-function  addCalculatedTraces(data, param, makeChart) {
+function  addCalculatedTraces(data, param) {
 	
 
 	var otherDataProperties = param.otherDataProperties;
@@ -2234,10 +2207,6 @@ function  addCalculatedTraces(data, param, makeChart) {
 
 		}
 	}
-	
-	
-	//call makeChart
-	makeChart(data, param);
 	
 }
 
@@ -8616,21 +8585,6 @@ function connectionIsSecure(){
   return false; 
 			 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
