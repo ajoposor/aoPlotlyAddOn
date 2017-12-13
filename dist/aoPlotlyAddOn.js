@@ -2273,14 +2273,9 @@ function createDeflatorDictionary(deflactorDictionary, data, otherDataProperties
 	return deflactorValuesCreated;
 	
 }
-	
 
 
-}
-	
-	
-	
-	
+
 /**
 *
 * Based on dateCode determines the date in a referredDateTraceID
