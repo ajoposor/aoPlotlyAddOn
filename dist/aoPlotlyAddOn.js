@@ -1291,25 +1291,19 @@ function parallelReadDataAndMakeChart(data, param) {
 			// test with void data
 			//var data = [{x:[], y:[]}];
 			
-			addCalculatedTraces(data, param).then(function(data, param) {
-				trimNonExistingDataXY(data, param.otherDataProperties);
-			}).then(function(data) {
-				// this removes data[i], where data[i].x or y don't exist or have zero elements
-				cleanOutData(data);
-			}).then(function(data, param) {
-				if(data.length < 1) {
-					showNoLoadedDataItem(param.divInfo);
-				} else {
-					makeChart(data, param);
-					DEBUG && OTHER_DEBUGS && console.log("allread and ploted");
-					DEBUG && OTHER_DEBUGS && 
-						console.log("param.settings.newRecessionsUrl: ",
-							    param.settings.newRecessionsUrl);
+			addCalculatedTraces(data, param);
+			trimNonExistingDataXY(data, param.otherDataProperties);
+			// this removes data[i], where data[i].x or y don't exist or have zero elements
+			cleanOutData(data);
+			if(data.length < 1) {
+				showNoLoadedDataItem(param.divInfo);
+			} else {
+				makeChart(data, param);
+				DEBUG && OTHER_DEBUGS && console.log("allread and ploted");
+				DEBUG && OTHER_DEBUGS && console.log("param.settings.newRecessionsUrl: ",
+						    param.settings.newRecessionsUrl);
 
-				}
-			});
-				
-	
+			}
 		}
 		
 	});
