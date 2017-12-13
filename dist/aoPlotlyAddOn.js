@@ -2179,6 +2179,8 @@ function  addCalculatedTraces(data, param, makeChart) {
 	var originalDataCreated = false;
 	var useVoidPeriodKeys = {};
 	var iDeflactor = -1;
+	var indexOfSourceTrace;
+	var calculateObject;
 	
 	iDeflactor = getIDeflactor(otherDataProperties);
 	
@@ -2189,6 +2191,15 @@ function  addCalculatedTraces(data, param, makeChart) {
 		  typeof otherDataProperties[i].calculate.type !== "undefined" &&
 		  otherDataProperties[i].calculate.type === "real" &&
 		  iDeflactor !== -1) {
+			
+			calculateObject = otherDataProperties[i].calculate, 
+			
+			/**
+			* find the index of the sourceTrace
+			*
+			*/
+			indexOfSourceTrace  =  
+					findTraceIdIndex(calculateObject.sourceTrace, otherDataProperties);
 			
 			// save data into Original if not yet done
 			if(originalDataCreated === false){
@@ -2201,7 +2212,7 @@ function  addCalculatedTraces(data, param, makeChart) {
 			
 			// Get the target date
 			targetDateAsString = getTargetDateAsStringForCalculatedTrace(
-				otherDataProperties[i].calculate, 
+				calculateObject, 
 				otherDataProperties, 
 				data);
 			
@@ -2217,6 +2228,9 @@ function  addCalculatedTraces(data, param, makeChart) {
 			
 			// Set dictionary at targetDate
 			setDeflactorDictionaryAtDate(targetDateAsString, deflactorDictionary, data[iDeflactor], 0);
+			
+			// find index in SourceTrace that is closest to targetDate
+			jIndexInTarget = jIndexInTargetWithClosestDate(data, indexOfSourceTrace, targetDateAsString);
 			
 			// Get the target value (from factorInformation and the referredDateTraceId
 			
@@ -2347,6 +2361,42 @@ function getReferredDate(dateCode, traceIndex , data){
 	
 }	
 	
+/**
+*
+* finds the index in the source trace which has an x value closest to targetDateAsString
+*/
+	
+function jIndexInTargetWithClosestDate(data, indexOfSourceTrace, targetDateAsString){
+	var jIndex;
+	var jLimit = data[indexOfSourceTrace].length;
+	var distance = -1.0;
+	var newDistance = -1.0
+	
+	var targetDateAsDate = new Date(targetDateAsString);
+	
+	distance = Math.abs(new Date(data[indexOfSourceTrace].x[0]) - targetDateAsDate);
+	jIndex = 0;
+	
+	if(distance <> 0) {
+		for (var j = 0; j < jLimit; j++){
+			newDistance = Math.abs(new Date(data[indexOfSourceTrace].x[j]) - targetDateAsDate);
+			if(newDistance < distance){
+				distance = newDistance;
+				jIndex = j;
+				if(distance == 0) {
+					j = jLimit;
+				}
+
+			}
+
+
+		}
+	}
+	return jIndex;
+}
+	
+	
+	
 	
 /* find the target value based on another series and a given date */	
  function getTargetValue(data, otherDataProperties) {
@@ -2373,6 +2423,7 @@ function trimNonExistingDataXY(data, otherDataProperties){
 	}
 	
 }
+
 
  
 /**
