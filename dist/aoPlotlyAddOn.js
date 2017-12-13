@@ -2418,8 +2418,8 @@ function createRealTrace(data, deflactorDictionary, targetDateAsString, otherDat
 	
 	for (j = 0; j < jLimit; j++) {
 		calculatedX[j] = data[indexOfSourceTrace].x[j];
-		calculatedY[j] = data[indexOfSourceTrace].y[j] * deflactorAtTargetDate / 
-		data[i].y[j] = base*data[i].y[j]/Number(deflactorDictionary[data[i].x[j]]);
+		calculatedY[j] =
+			data[indexOfSourceTrace].y[j] * deflactorAtTargetDate / Number(deflactorDictionary[data[indexOfSourceTrace].x[j]])
 	}
 	
 	data[indexOfCreatedTrace].x = calculatedX;
