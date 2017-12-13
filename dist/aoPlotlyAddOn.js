@@ -1323,6 +1323,7 @@ function parallelReadDataAndMakeChart(data, param) {
 				showNoLoadedDataItem(param.divInfo);
 			} else {
 				addCalculatedTraces(data, param, function() {
+				trimNonExistingDataXY(data, param.otherDataProperties);
 				makeChart(data, param);
 				});
 				DEBUG && OTHER_DEBUGS && console.log("allread and ploted");
@@ -1411,34 +1412,7 @@ function parallelUpdateRecessions(newRecessionsUrl, usRecessions, callback){
 			
 }
 	
-/*	 
-function updateRecessions(newRecessionsUrl, usRecessions){
-
-	// this function will get a zip file and update the usRecessions
-	// in an async manner. This assumes the variable will be updated 
-	// before plotly is called
-	var fredZipXMLHttpRequestOptions = {
-		responseType: "arraybuffer",
-		method: "GET",
-		async: true,
-		url: settings.newRecessionsUrl,
-	};
-	
-	DEBUG && OTHER_DEBUGS && console.log("XMLHttpRequestOptions", fredZipXMLHttpRequestOptions);
-	
-	if(fredZipXMLHttpRequestOptions.url !== ""){
 		
-		function myCallBackFredZip(usRecessions){
-			return function (error, xhttp) {
-				afterFredZipFileLoaded(error, xhttp, usRecessions);
-			};
-		}
-
-		directXMLHttpRequest(fredZipXMLHttpRequestOptions, myCallBackFredZip(usRecessions)); 
-	}			
-			
-}			
-*/			
 	 
 /**
 *
@@ -1447,110 +1421,7 @@ function updateRecessions(newRecessionsUrl, usRecessions){
 *
 */
 	 
-/*	 
-function readData(data, iS, param, callback) {
-	
-	var urlType = param.dataSources[iS.value].urlType;
-	var url = param.dataSources[iS.value].url;
-	
-	if (urlType === "csv") {
-		Plotly.d3.csv(url, function(readData) {
-			DEBUG && OTHER_DEBUGS && console.log("csv", iS.value);
-			DEBUG && OTHER_DEBUGS && console.log("readData", readData);
-			processCsvData(
-				readData, 
-				data,
-				param.timeInfo.tracesInitialDate,
-				param.otherDataProperties,
-				param.dataSources[iS.value]
-				);
-			DEBUG && OTHER_DEBUGS && console.log("processCsvData finished");
-			iS.value++;
-			readData="";
-			readDataAndMakeChart(data, iS, param, callback);
-		});
-	} 
-	else if (urlType === "arrayOfJsons") {
-		DEBUG && OTHER_DEBUGS && console.log("arrayOfJsons", iS.value);
-		processCsvData(
-			param.dataSources[iS.value].arrayOfJsons, 
-			data,
-			param.timeInfo.tracesInitialDate,
-			param.otherDataProperties,
-			param.dataSources[iS.value]
-			);
-		param.dataSources[iS.value].arrayOfJsons = [];
-		iS.value++;
-		readDataAndMakeChart(data, iS, param, callback);
-	} 
-	else if (urlType === "yqlJson") {
-		$.getJSON(url, function(readData) {
-			// Not required, it can be handled with the CSV function, 
-			//set xSeriesName to date and ySeriesName to value    
-			processCsvData(
-				readData.query.results.json.observations,
-				data,
-				param.timeInfo.tracesInitialDate,
-				param.otherDataProperties,
-				param.dataSources[iS.value]
-				);
-			iS.value++;
-			readData="";
-			readDataAndMakeChart(data, iS, param, callback);
-		});
-	}   
-	else if ( urlType === "yqlGoogleCSV") {
-		DEBUG && OTHER_DEBUGS && console.log("Googlecsv", iS.value);
-		Plotly.d3.json("https://query.yahooapis.com/v1/public/yql?q="+
-			encodeURIComponent("SELECT * from csv where url='"+url+"'")+
-			"&format=json", 				
-			function(readData) {
-				processCsvData(
-					readData.query.results.row,
-					data,
-					param.timeInfo.tracesInitialDate,
-					param.otherDataProperties,
-					param.dataSources[iS.value]
-				);
-			iS.value++;
-			readData="";
-			readDataAndMakeChart(data, iS, param, callback);
-		});
-  	} 
-	else if (urlType === "pureJson") {
-		$.getJSON(url, function(readData) {
-			processCsvData(
-				readData, 
-				data,
-				param.timeInfo.tracesInitialDate, 
-				param.otherDataProperties,
-				param.dataSources[iS.value]
-				);
-			iS.value++;
-			readData="";
-			readDataAndMakeChart(data, iS, param, callback);
-		});
-	} 
-	else if (urlType === "EiaJson") {
-		DEBUG && OTHER_DEBUGS && console.log("EiaJson", iS.value);
-		Plotly.d3.json(url, 				
-			function(readData) {
-				processCsvData(
-					readData.query.results.row,
-					data,
-					param.timeInfo.tracesInitialDate,
-					param.otherDataProperties,
-					param.dataSources[iS.value]
-				);
-			iS.value++;
-			readData="";
-			readDataAndMakeChart(data, iS, param, callback);
-		});
-	} 
 
-}
-
-*/
 	
 // delay the call of data loading by a certain delay	
 function parallelReadData(data, i, param, callback) {
@@ -2288,210 +2159,6 @@ function verifyAndCleanDataSources(allRows, dataSources) {
 
 
 
-/* Not required, it can be handled with the CSV function, set xSeriesName to date and ySeriesName to value
-function processJsonData(jsonData, tracesInitialDate, serie) {
-	var x = [], y = [], trace = {}; //[];
-	var initialDateAsDate = new Date("0001-01-01");
-	var processedDate ="";
-	var timeOffsetText = getTimeOffsetText();
-	var readFlag = false;
-	var i = 0;
-
-	if (tracesInitialDate !== "") {
-		initialDateAsDate = new Date(processDate(tracesInitialDate,timeOffsetText));
-	}
-	
-	if(typeof serie.postProcessData !== "undefined"){
-		if(serie.postProcessData === "end of month"){
-			readFlag = true;
-
-			for (i = 0; i < jsonData.count; i++) {
-				processedDate = processDate(jsonData.observations[i].date+ serie.xDateSuffix,timeOffsetText);
-				processedDate = changeDateToEndOfMonth(processedDate);
-
-				if (
-					tracesInitialDate === "" ||
-					new Date(processedDate) >= initialDateAsDate
-				) {
-					x.push(processedDate);
-					y.push(jsonData.observations[i].value);
-				}
-			}
-		}	
-	}	
-	
-	if(!readFlag){
-		readFlag = true;
-		for (i = 0; i < jsonData.count; i++) {
-			processedDate = processDate(jsonData.observations[i].date+ serie.xDateSuffix,timeOffsetText);
-
-			if (
-				tracesInitialDate === "" ||
-				new Date(processedDate) >= initialDateAsDate
-			) {
-				x.push(processedDate);
-				y.push(jsonData.observations[i].value);
-			}
-		}	
-		
-	}
-			
-	trace = deepCopy(serie.traceAttributes);
-	trace.x = x;
-	trace.y = y;
-	return trace;
-}
-*/
-	
-/* merge into processCSVData 
-// // read data from google finance history csv files	    
-function processYqlGoogleCsvData(allRows, tracesInitialDate, serie) {
-	var x = [], y = [], trace = {}; //[];
-	var initialDateAsDate = new Date("0001-01-01");
-	var processedDate ="";
-	var timeOffsetText = getTimeOffsetText();
-	var readFlag = false;
-	var i = 0;
-	var row;
-	var xTag ="", yTag="";
-
-	var tags=allRows[0];
-	
-	
-	for (var key in tags){
-		if (tags.hasOwnProperty(key)) {
-			
-			if(tags[key].toString().trim() === serie.xSeriesName.toString()){
-				xTag = key;
-			}
-			
-			
-			if(tags[key].toString().trim() === serie.ySeriesName.toString()){
-				yTag = key;
-			}
-		}
-	}
-	
-	
-	if (tracesInitialDate !== "") {
-		initialDateAsDate = new Date(processDate(tracesInitialDate, timeOffsetText));
-	}
-
-	if(typeof serie.postProcessData !== "undefined"){
-		if(serie.postProcessData === "end of month"){
-			readFlag = true;
-			//DEBUG && OTHER_DEBUGS && console.log(allRows.length);
-			//DEBUG && OTHER_DEBUGS && console.log("allRows",allRows);
-			//DEBUG && OTHER_DEBUGS && console.log("initialDateAsDate",initialDateAsDate);
-			//DEBUG && OTHER_DEBUGS && console.log("tracesInitialDate",tracesInitialDate);
-			//DEBUG && OTHER_DEBUGS && console.log(serie);
-			
-			for (i = 1; i < allRows.length; i++) {
-				row = allRows[i];
-				processedDate = processDate(GoogleMDYToYMD(row[xTag]) + serie.xDateSuffix, timeOffsetText);
-				//DEBUG && OTHER_DEBUGS && console.log("processedDate",processedDate);
-				processedDate = changeDateToEndOfMonth(processedDate);
-				//DEBUG && OTHER_DEBUGS && console.log("processedDate",processedDate);
-				if (
-					tracesInitialDate === "" ||
-					new Date(processedDate) >= initialDateAsDate
-				) {
-					x.push(processedDate);
-					y.push(row[yTag]);
-				}
-			}
-		}
-	}
-	
-	
-	if(!readFlag) {
-		readFlag = true;
-		for (i = 1; i < allRows.length; i++) {
-			row = allRows[i];
-			//DEBUG && OTHER_DEBUGS && console.log("row",row);
-			processedDate = processDate(GoogleMDYToYMD(row[xTag]) + serie.xDateSuffix, timeOffsetText);
-			//DEBUG && OTHER_DEBUGS && console.log("processedDate",processedDate);
-
-			if (
-				tracesInitialDate === "" ||
-				new Date(processedDate) >= initialDateAsDate
-			) {
-				x.push(processedDate);
-				y.push(row[yTag]);
-			}
-		}
-	}	
-
-	trace = deepCopy(serie.traceAttributes);
-	trace.x = x;
-	trace.y = y;
-	return trace;
-}
-
-*/
-
- 
-	    
-/*
-// In case trace x and y are provided direct, and not to be read from a file.
-function processDirectData(tracesInitialDate, serie) {
-	var x = [], y = [], trace = {}; //[];
-	var initialDateAsDate = new Date("0001-01-01");
-	var processedDate ="";
-	var timeOffsetText = getTimeOffsetText();
-	var readFlag = false;
-	var i=0;
-	
-	if (tracesInitialDate !== "") {
-		initialDateAsDate = new Date(processDate(tracesInitialDate, timeOffsetText));
-	}
-	
-	if(typeof serie.postProcessData !== "undefined"){
-		if(serie.postProcessData === "end of month"){
-			readFlag = true;
-
-			for (i = 0; i < serie.traceAttributes.x.length; i++) {
-				processedDate = processDate("" + serie.traceAttributes.x[i] + serie.xDateSuffix, 
-						timeOffsetText);
-				processedDate = changeDateToEndOfMonth(processedDate);
-
-				if (
-					tracesInitialDate === "" ||
-					new Date(processedDate) >= 	initialDateAsDate
-				) {
-					x.push(processedDate);
-					y.push(serie.traceAttributes.y[i]);
-				}
-			}
-		}		
-	}		
-	
-	if(!readFlag){
-	
-			readFlag = true;
-
-			for (i = 0; i < serie.traceAttributes.x.length; i++) {
-			
-				processedDate = processDate(
-						"" + serie.traceAttributes.x[i] + serie.xDateSuffix, 
-						timeOffsetText);
-				if (
-					tracesInitialDate === "" ||
-					new Date(processedDate) >=  initialDateAsDate
-				) {
-					x.push(processedDate);
-					y.push(serie.traceAttributes.y[i]);
-				}
-			}		
-	}
-
-	
-	trace = deepCopy(serie.traceAttributes);
-	trace.x = x;
-	trace.y = y;
-	return trace;
-}*/
-
  
 /**
 *
@@ -2510,15 +2177,18 @@ function  addCalculatedTraces(data, param, makeChart) {
 	var deflactorDictionary={};
 	var deflactorValuesCreated = false;
 	var originalDataCreated = false;
+	var useVoidPeriodKeys = {};
+	var iDeflactor = -1;
 	
-	var iDeflactor = getIDeflactor(otherDataProperties);
+	iDeflactor = getIDeflactor(otherDataProperties);
 	
 	// iterate through all traces
 	for (var i=0; i < iLimit; i++) {
 		// test whether a calculate option with real is added
 		if(typeof otherDataProperties[i].calculate !== "undefined" &&
 		  typeof otherDataProperties[i].calculate.type !== "undefined" &&
-		  otherDataProperties[i].calculate.type === "real") {
+		  otherDataProperties[i].calculate.type === "real" &&
+		  iDeflactor !== -1) {
 			
 			// save data into Original if not yet done
 			if(originalDataCreated === false){
@@ -2536,12 +2206,13 @@ function  addCalculatedTraces(data, param, makeChart) {
 				data);
 			
 			// Create a dictionary with the deflactor values
+			// in this case the dictionary will not cover period keys because it will be an original trace being created
 			if( !deflactorValuesCreated ) {
-			deflactorValuesCreated = 
-				createDeflatorDictionary(deflactorDictionary, 
-							 data, otherDataProperties, 
-							 param.settings.periodKeys,
-							 iDeflactor);
+				deflactorValuesCreated = 
+					createDeflatorDictionary(deflactorDictionary, 
+								 data, otherDataProperties, 
+								 useVoidPeriodKeys,
+								 iDeflactor);
 			}
 			
 			// Set dictionary at targetDate
@@ -2681,7 +2352,27 @@ function getReferredDate(dateCode, traceIndex , data){
  function getTargetValue(data, otherDataProperties) {
 	 
  }
- 
+	
+	
+/**
+* clean data after calculated traces have been calculated and before making a chart
+* checks that data[i] has x an y arrays, otherwise, removes the corresponding element from 
+* data and otherDataProperties
+*/
+function trimNonExistingDataXY(data, otherDataProperties){
+	
+	var iLimit = data.length;
+	
+	for(var i = 0; i < iLimit; i++) {
+		if(typeof data[i].x === "undefined" ||
+		   typeof data[i].y === "undefined") {
+			// remove element
+			data.splice(i,1);
+			otherDataProperties.splice(i,1);
+		}
+	}
+	
+}
 
  
 /**
@@ -2750,8 +2441,8 @@ function makeChart(data, param){
 	
 	
 	// SAVE ORIGINAL DATA IF NOT YET DONE
-	// saveDataXYIntoPropertyXY tests that data[i].x and data[i].y exist and that data[i]xOriginal and 
-	//  data[i]yOriginal don't exist
+	// saveDataXYIntoPropertyXY tests that data[i].x and data[i].y exist and that data[i].xOriginal and 
+	//  data[i].yOriginal don't exist
 	DEBUG && DEBUG_TIMES && console.time("TIME: Save Original Data");
 	saveDataXYIntoPropertyXY(data, "xOriginal", "yOriginal");
 	DEBUG && DEBUG_TIMES && console.timeEnd("TIME: Save Original Data");
@@ -8602,14 +8293,20 @@ function createIndexMap(data, deflactorDictionary, periodKeys, iDeflactor){
 	}
 
 	k=0;
+	// loop over of data[i]
 	for(var i=0; i<iLimit; i++){
-		jLimit = data[i].xOriginal.length;
 		
-		// cycle through original traces
-		for(j=0; j < jLimit; j++){
-			date=data[i].xOriginal[j];
-			if(typeof deflactorDictionary[date] ==="undefined"){
-				k=setDeflactorDictionaryAtDate(date, deflactorDictionary, data[iDeflactor], k);
+		// check that xOriginal exists
+		if(typeof data[i].xOriginal !== "undefined"){
+			jLimit = data[i].xOriginal.length;
+
+			// cycle through each trace point
+			for(j=0; j < jLimit; j++){
+
+				date=data[i].xOriginal[j];
+				if(typeof deflactorDictionary[date] ==="undefined"){
+					k=setDeflactorDictionaryAtDate(date, deflactorDictionary, data[iDeflactor], k);
+				}
 			}
 		}
 		
