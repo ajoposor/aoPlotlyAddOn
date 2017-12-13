@@ -2192,6 +2192,8 @@ function  addCalculatedTraces(data, param, makeChart) {
 		  otherDataProperties[i].calculate.type === "real" &&
 		  iDeflactor !== -1) {
 			
+			// Following lines will create a calculated trace as a real version from another trace
+			
 			calculateObject = otherDataProperties[i].calculate, 
 			
 			/**
@@ -2207,15 +2209,6 @@ function  addCalculatedTraces(data, param, makeChart) {
 				originalDataCreated = true;
 			}
 			
-			
-			// make a calculated trace as a real version from another trace
-			
-			// Get the target date
-			targetDateAsString = getTargetDateAsStringForCalculatedTrace(
-				calculateObject, 
-				otherDataProperties, 
-				data);
-			
 			// Create a dictionary with the deflactor values
 			// in this case the dictionary will not cover period keys because it will be an original trace being created
 			if( !deflactorValuesCreated ) {
@@ -2226,17 +2219,18 @@ function  addCalculatedTraces(data, param, makeChart) {
 								 iDeflactor);
 			}
 			
+			// Get the target date (date that will be set to deflator = 1
+			targetDateAsString = getTargetDateAsStringForCalculatedTrace(
+				calculateObject, 
+				otherDataProperties, 
+				data);
+			
 			// Set dictionary at targetDate
 			setDeflactorDictionaryAtDate(targetDateAsString, deflactorDictionary, data[iDeflactor], 0);
-			
-			// find index in SourceTrace that is closest to targetDate
-			jIndexInTarget = jIndexInTargetWithClosestDate(data, indexOfSourceTrace, targetDateAsString);
-			
-			// Get the target value (from factorInformation and the referredDateTraceId
-			
-			targetValue = getTargetValue(data, otherDataProperties);
-			targetValueSourceTrace 
-			
+				
+			// create the requested real trace	
+			createRealTrace(data, deflactorDictionary, targetDateAsString, otherDataProperties, 
+					indexOfSourceTrace, i);
 
 		}
 	}
@@ -2360,12 +2354,14 @@ function getReferredDate(dateCode, traceIndex , data){
 	}	
 	
 }	
-	
+
+
+/* NOT NEEDED */	
 /**
 *
 * finds the index in the source trace which has an x value closest to targetDateAsString
 */
-	
+/*	
 function jIndexInTargetWithClosestDate(data, indexOfSourceTrace, targetDateAsString){
 	var jIndex;
 	var jLimit = data[indexOfSourceTrace].length;
@@ -2395,13 +2391,44 @@ function jIndexInTargetWithClosestDate(data, indexOfSourceTrace, targetDateAsStr
 	return jIndex;
 }
 	
+*/	
+
 	
+function createRealTrace(data, deflactorDictionary, targetDateAsString, otherDataProperties, 
+			  indexOfSourceTrace, indexOfCreatedTrace) {
+	var j, jLimit;
+	var deflactorAtTargetDate;
 	
+
+	// get deflactor value at targetDate
+	deflactorAtTargetDate = Number(deflactorDictionary[targetDateAsString]);
 	
-/* find the target value based on another series and a given date */	
- function getTargetValue(data, otherDataProperties) {
-	 
- }
+	DEBUG && OTHER_DEBUGS && console.log("in createRealTrace");
+	DEBUG && OTHER_DEBUGS && console.log("targetDateAsString: ", targetDateAsString);
+	DEBUG && OTHER_DEBUGS && console.log("deflactorAtTargetDate: ", deflactorAtTargetDate);
+	DEBUG && OTHER_DEBUGS && console.log("deflactorDictionary: ", deflactorDictionary);
+	
+
+	jLimit = data[indexOfSourceTrace].y.length;
+	var calculatedX = [];
+	var calculatedY = [];
+	
+	calculatedX.length = jLimit;
+	calculatedY.length = jLimit;
+	
+	for (j = 0; j < jLimit; j++) {
+		calculatedX[j] = data[indexOfSourceTrace].x[j];
+		calculatedY[j] = data[indexOfSourceTrace].y[j] * deflactorAtTargetDate / 
+		data[i].y[j] = base*data[i].y[j]/Number(deflactorDictionary[data[i].x[j]]);
+	}
+	
+	data[indexOfCreatedTrace].x = calculatedX;
+	data[indexOfCreatedTrace].y = calculatedY;
+
+	DEBUG && OTHER_DEBUGS && console.log("data after createRealTrace: ", data);
+		
+}
+	
 	
 	
 /**
