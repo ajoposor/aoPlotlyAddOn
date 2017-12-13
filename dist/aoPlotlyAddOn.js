@@ -2047,7 +2047,7 @@ function loadSubTablesIntoData(dataSources, tableParams,
 		iData = localFindTraceIdIndex(traceID,otherDataProperties);
 		DEBUG && OTHER_DEBUGS && console.log("iData", iData);
 		
-		// find weather trace will be added to existing trace
+		// find whether trace will be added to existing trace
 		insertTrace = false;
 		if(typeof data[iData].x !== "undefined"){
 			insertTrace = true;
@@ -2507,21 +2507,47 @@ function  addCalculatedTraces(data, param, makeChart) {
 	var iLimit = otherDataProperties.length;
 	var targetValue;
 	var targetDateAsString;
+	var deflactorDictionary={};
+	var deflactorValuesCreated = false;
+	var originalDataCreated = false;
+	
+	var iDeflactor = getIDeflactor(otherDataProperties);
 	
 	// iterate through all traces
 	for (var i=0; i < iLimit; i++) {
-		// test weather a calculate option with real is added
+		// test whether a calculate option with real is added
 		if(typeof otherDataProperties[i].calculate !== "undefined" &&
 		  typeof otherDataProperties[i].calculate.type !== "undefined" &&
 		  otherDataProperties[i].calculate.type === "real") {
 			
+			// save data into Original if not yet done
+			if(originalDataCreated === false){
+				saveDataXYIntoPropertyXY(data, "xOriginal", "yOriginal");
+				originalDataCreated = true;
+			}
+			
+			
 			// make a calculated trace as a real version from another trace
-			// first get the target date
+			
+			// Get the target date
 			targetDateAsString = getTargetDateAsStringForCalculatedTrace(
 				otherDataProperties[i].calculate, 
 				otherDataProperties, 
 				data);
-			// first get the target value (from factorInformation and the referredDateTraceId
+			
+			// Create a dictionary with the deflactor values
+			if( !deflactorValuesCreated ) {
+			deflactorValuesCreated = 
+				createDeflatorDictionary(deflactorDictionary, 
+							 data, otherDataProperties, 
+							 param.settings.periodKeys,
+							 iDeflactor);
+			}
+			
+			// Set dictionary at targetDate
+			setDeflactorDictionaryAtDate(targetDateAsString, deflactorDictionary, data[iDeflactor], 0);
+			
+			// Get the target value (from factorInformation and the referredDateTraceId
 			
 			targetValue = getTargetValue(data, otherDataProperties);
 			targetValueSourceTrace 
@@ -2540,51 +2566,112 @@ function  addCalculatedTraces(data, param, makeChart) {
 // first get the target date in the referredDateTraceID
 function getTargetDateAsStringForCalculatedTrace(calculateObject, otherDataProperties, data) {
 	var indexOfreferredDateTraceID;
+	var indexOfSourceTrace;
 	var referredDate;
 	
 	
-	/* first find the index of the referredDateTraceID*/
-	indexOfreferredDateTraceID  =  findTraceIdIndex(calculateObject.factorInformation.referredDateTraceID, otherDataProperties);
+	/**
+	*  calculateObject : {
+	*		type: "real",
+	*		sourceTrace: "Any traceID, this trace will be transformed to real"
+	*		factorInformation: {
+	*			date: could be "end of trace", "beginning of trace" or a date "yyyy-mm-dd  hh:mm:ss.sss-HH:MM",
+	*			referredDateTraceID: (optional), would be the traceID from which a date will be selected
+	*			}
+	*		}
+	*
+	*/
 	
-	/* second, get the date */
+	
+	/**
+	* find the index of the sourceTrace
+	*
+	*/
+	indexOfSourceTrace  =  
+			findTraceIdIndex(calculateObject.sourceTrace, otherDataProperties);
+	
+	
+	/** find the index of the referredDateTraceID
+	*   in case date is "end of trace" or "beginning of trace"
+	*/
+	if(calculateObject.factorInformation.date === "end of trace" ||
+	   calculateObject.factorInformation.date === "beginning of trace"){
+		indexOfreferredDateTraceID  =  
+			findTraceIdIndex(calculateObject.factorInformation.referredDateTraceID, otherDataProperties);
+	}
+	
+	/** second, get the date from the referredDateTrace or from an specified data 
+	*
+	*  in case the date provided contains an error, as default, the last date on the sourceTrace will be used
+	*
+	*/
 	referredDate = getReferredDate(calculateObject.factorInformation.date, indexOfreferredDateTraceID , data);
+	if(referredDate === "undefined"){
+		referredDate = data[indexOfSourceTrace].x[0];
+	}
+
+	return referredDate;
+
+
+}	
 	
 
-	
+/**
+*  Create CPI dictionary
+*
+*/
+function createDeflatorDictionary(deflactorDictionary, data, otherDataProperties, periodKeys, iDeflactor) {
+	var deflactorValuesCreated = false;
 
+	
+	// map index to x's
+
+	
+	//DEBUG && OTHER_DEBUGS && console.log("iDeflactor",iDeflactor);
+
+	deflactorValuesCreated = createIndexMap(data, deflactorDictionary, periodKeys, iDeflactor);
+	
+	return deflactorValuesCreated;
 	
 }
 	
+
+
+}
+	
+	
+	
+	
+	
+/**
+*
+* Based on dateCode determines the date in a referredDateTraceID
+*
+*/
 	
 function getReferredDate(dateCode, traceIndex , data){
-	
-if(baseRealDate === "end of range"){
-		 return rangeX1AsString;
+
+	if(dateCode === "end of trace"){
+		return data[traceIndex].x[0];
 	}
-	else if(baseRealDate === "beggining of range"){
-		return rangeX0AsString;
+	else if(dateCode === "beggining of trace"){
+		return data[traceIndex].x[data[traceIndex].x.length - 1];
 	}
-	else if(baseRealDate === "end of domain"){
-		return domainX1AsString;
-	}
-	else if(baseRealDate === "beggining of domain"){
-		return domainX0AsString;
-	}
-	else if (Object.prototype.toString.call(new Date(baseRealDate)) === "[object Date]" ) {
+	else if (Object.prototype.toString.call(new Date(dateCode)) === "[object Date]" ) {
 		// it is a date ?
-		if ( isNaN( (new Date(baseRealDate)).getTime() ) ) {  // d.valueOf() could also work
+		if ( isNaN( (new Date(dateCode)).getTime() ) ) {  // d.valueOf() could also work
 			// baseRealDate date is not valid, return default
-			return domainX1AsString;
+			return "undefined";
 		}
 		else {
 			// baseReadDate date is valid
 			DEBUG & OTHER_DEBUGS && console.log("baseRealDate returned as valied");
-			return baseRealDate;
+			return dateCode;
 		}
 	}
 	else {
 		// baseRealDate not a date, return default
-		return domainX1AsString;
+		return "undefined";
 	}	
 	
 }	
@@ -2662,7 +2749,9 @@ function makeChart(data, param){
 	}
 	
 	
-	// SAVE ORIGINAL DATA
+	// SAVE ORIGINAL DATA IF NOT YET DONE
+	// saveDataXYIntoPropertyXY tests that data[i].x and data[i].y exist and that data[i]xOriginal and 
+	//  data[i]yOriginal don't exist
 	DEBUG && DEBUG_TIMES && console.time("TIME: Save Original Data");
 	saveDataXYIntoPropertyXY(data, "xOriginal", "yOriginal");
 	DEBUG && DEBUG_TIMES && console.timeEnd("TIME: Save Original Data");
@@ -2715,7 +2804,7 @@ function makeChart(data, param){
 
 
 
-	// TEST WEATHER AN INITAL FREQUENCY TRANSFORMATION IS REQUIRED AND MAKE IT DOWN HERE
+	// TEST whether AN INITAL FREQUENCY TRANSFORMATION IS REQUIRED AND MAKE IT DOWN HERE
 	if (typeof settings.changeFrequencyAggregationTo !== "undefined"){
 		if (typeof settings.changeFrequencyAggregationTo.frequency !== "undefined") {
 			if (settings.changeFrequencyAggregationTo.frequency !== currentFrequency) {
@@ -7358,24 +7447,31 @@ function saveDataXYIntoPropertyXY(data, xProperty, yProperty) {
 	var jLimit = 0, j = 0;
 	var x, y, dataIX, dataIY;
 
+	// duplicates data into base for future use
 	for (var i = 0; i < iLimit; i++) {
-		// duplicates data into base for future use
-		x = [];
-		y = [];
-		dataIX = data[i].x;
-		dataIY = data[i].y;
-		jLimit = dataIX.length;
-		x.length = jLimit;
-		y.length = jLimit;
+		
+		// text whether data[i].x and data[i].y exist, otherwise skip
+		if(typeof data[i].x !== "undefined" &&
+		   typeof data[i].y !== "undefined" &&
+		   typeof data[i][xProperty] === "undefined" &&
+		   typeof data[i][yProperty] === "undefined") {
+			x = [];
+			y = [];
+			dataIX = data[i].x;
+			dataIY = data[i].y;
+			jLimit = dataIX.length;
+			x.length = jLimit;
+			y.length = jLimit;
 
-		for (j = 0; j < jLimit; j++) {
-			x[j] = dataIX[j];
-			y[j] = dataIY[j];
-			//data[i][xProperty].push(data[i].x[j]);
-			//data[i][yProperty].push(data[i].y[j]);
+			for (j = 0; j < jLimit; j++) {
+				x[j] = dataIX[j];
+				y[j] = dataIY[j];
+				//data[i][xProperty].push(data[i].x[j]);
+				//data[i][yProperty].push(data[i].y[j]);
+			}
+			data[i][xProperty] = x;
+			data[i][yProperty] = y;	
 		}
-		data[i][xProperty] = x;
-		data[i][yProperty] = y;	
 	}
 }
 
