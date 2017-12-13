@@ -7308,28 +7308,33 @@ function setJsonDefaults(jsonDefaults, json) {
 // function to find y range in specified x range for all data
 // x0 and x1 as , data object contains x and y arrays.
 // returns array with [minValue, maxValue]
+// reviewed to disregard traces with visible: false
 function getYminYmax(x0, x1, data) {
 	var minValue, maxValue;
 	var x0AsDate = new Date(x0);
 	var x1AsDate = new Date(x1);
 	//DEBUG && OTHER_DEBUGS && console.log(x0AsDate);
 	for (var i = 0; i < data.length; i++) {
-		var aTrace = data[i];
-		//DEBUG && OTHER_DEBUGS && console.log(aTrace.x.length);
-		for (var j = 0; j < aTrace.x.length; j++) {
-			var x = new Date(aTrace.x[j]);
-			//DEBUG && OTHER_DEBUGS && console.log(x);
-			if (x >= x0AsDate && x <= x1AsDate) {
-				var aValue = Number(aTrace.y[j]);
-				//DEBUG && OTHER_DEBUGS && console.log('aValue'+aValue+',min:'+minValue+',max:'+maxValue);
-				if (maxValue === undefined || aValue > maxValue) {
-					maxValue = aValue;
-				}
-				if (minValue === undefined || aValue < minValue) {
-					minValue = aValue;
+		if(typeof data[i].visible === "undefined" ||
+		   data[i].visible === true) {
+			var aTrace = data[i];
+			//DEBUG && OTHER_DEBUGS && console.log(aTrace.x.length);
+			for (var j = 0; j < aTrace.x.length; j++) {
+				var x = new Date(aTrace.x[j]);
+				//DEBUG && OTHER_DEBUGS && console.log(x);
+				if (x >= x0AsDate && x <= x1AsDate) {
+					var aValue = Number(aTrace.y[j]);
+					//DEBUG && OTHER_DEBUGS && console.log('aValue'+aValue+',min:'+minValue+',max:'+maxValue);
+					if (maxValue === undefined || aValue > maxValue) {
+						maxValue = aValue;
+					}
+					if (minValue === undefined || aValue < minValue) {
+						minValue = aValue;
+					}
 				}
 			}
 		}
+		
 	}
 	var minMax = [minValue, maxValue];
 	return minMax;
