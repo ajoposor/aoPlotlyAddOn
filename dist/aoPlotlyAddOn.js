@@ -6539,7 +6539,86 @@ function changeDateToEndOfMonth(dateAsStringAndProcessed){
 	
 	return dateAsStringAndProcessed;
 }
-	 
+	
+
+
+
+
+/**
+*
+*   currentDateAsDate should be a Date object.
+*
+*    requestCode could be any of "end of year" or "end of month" or "end of day"
+*
+*/
+
+
+function findDateFromTodayAsString(currentDateAsDate, requestCode, shiftNumber) {
+	
+	var dateString="";
+	
+	if(requestCode === "end of year"){
+		
+		return changeDateAsDateToShortStringEndOfNumberOfYears(currentDateAsDate, shiftNumber);
+		
+	} else if (requestCode === "end of month"){
+		
+		return changeDateAsDateToShortStringEndOfNumberOfMonths(currentDateAsDate, shiftNumber);
+	
+	} else if (requestCode === "end of day"){
+		return changeDateAsDateToShortStringEndOfNumberOfDays(currentDateAsDate, shiftNumber);
+		
+	} else {
+		// returns the original date in case no valid option passed
+		dateString = dateToStringYMD(currentDateAsDate);
+		return dateString;
+	}
+
+}
+
+
+
+/*
+* supporting functions
+*
+*/ 
+
+function changeDateAsDateToShortStringEndOfNumberOfMonths(dateAsDate, NMonths){
+	
+	var currentDate = dateAsDate;
+	var endOfMonthDate = new Date(currentDate.getFullYear(), 
+				      currentDate.getMonth()+1+NMonths,	
+				      0);
+
+	return dateToStringYMD(endOfMonthDate);
+}
+
+function changeDateAsDateToShortStringEndOfNumberOfDays(dateAsDate, NDays){
+	
+	var currentDate = dateAsDate;
+	var endOfNDays = new Date(currentDate.getFullYear(), 
+				currentDate.getMonth(),
+				currentDate.getDate()+NDays);
+
+	return dateToStringYMD(endOfNDays);
+}
+
+function changeDateAsDateToShortStringEndOfNumberOfYears(dateAsDate, NYears){
+	
+	var currentDate = dateAsDate;
+	var endOfNYears = new Date( currentDate.getFullYear()+NYears, 
+					11,
+					31);
+
+	return dateToStringYMD(endOfNYears);
+}
+	
+	
+	
+	
+	
+	
+	
 	 
 // this function adds a timezone string to dates 
 // that already come as "yyyy-mm-dd"
@@ -8578,10 +8657,10 @@ function connectionIsSecure(){
 
 
 
+	aoPlotlyAddOn.findDateFromTodayAsString = findDateFromTodayAsString;
+	//aoPlotlyAddOn.findSpliceInfo = findSpliceInfo;       
+	//aoPlotlyAddOn.processCsvData = processCsvData; 
 
-aoPlotlyAddOn.findSpliceInfo = findSpliceInfo;       
-aoPlotlyAddOn.processCsvData = processCsvData;	  
-	    
   
       
     // end section of library declaration  
