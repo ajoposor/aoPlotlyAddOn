@@ -1671,19 +1671,18 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 	DEBUG && OTHER_DEBUGS && console.log("allRows",allRows);
 
 	// split subtables trim by InitialDateAsDate and reorder by firstItemToRead
+	// including applying factor and shift
 	splitSubtablesAndTrim(allRows, tableParams, dataSources, initialDateAsDate);
 	DEBUG && OTHER_DEBUGS && console.log("tables split, and reordered");
 	DEBUG && OTHER_DEBUGS && console.log("table Params", tableParams);
+	
 	allRows = [];
 	
 	
 	// sort subtables
 	sortSubTables(tableParams);
 	DEBUG && OTHER_DEBUGS && console.log("SubTable sorted");
-	
-	
-	// apply factors and shifts to read data
-	factorAndShiftDataInTableParmas(tableParams);
+
 	
 	callbackLoadSubTablesIntoData(dataSources, tableParams, otherDataProperties, data, initialDateAsDate, tracesInitialDate);
 	
@@ -1800,6 +1799,7 @@ function processEiaData(eiaArrayData, data, tracesInitialDate, otherDataProperti
 	* takes care of historical or forecast data
 	* applies any option to read from last as set in firstItemToRead
 	* trims data by InitialDateAsDate
+	*  and 	applies factor and shift
 	*/ 
 
 	loadEiaArrayDataIntoTableParamsAndProcess(
@@ -1810,6 +1810,7 @@ function processEiaData(eiaArrayData, data, tracesInitialDate, otherDataProperti
 	
 	// void eiaArrayData, no longer required.
 	eiaArrayData = [];
+
 	
 	callbackLoadSubTablesIntoData(dataSources, tableParams, otherDataProperties, 
 			      data, initialDateAsDate, tracesInitialDate);
@@ -1817,6 +1818,10 @@ function processEiaData(eiaArrayData, data, tracesInitialDate, otherDataProperti
 	
 }	
 	
+	
+function factorAndShiftDataInTableParams(tableParams) {
+	
+}
 	
 	
 // FUNCTIONS TO ADD READ and Processed data into the data array
@@ -5946,16 +5951,38 @@ function setTablesParametersSortAndPreprocessing(tableParams, dataSources){
 
 
 		// add yName if not yet added
+		// including calculating adjusted close
+		// factor and shift
 		if(tableParams[xSeriesName].yNames.indexOf(ySeriesName) === -1){
 			tableParams[xSeriesName].yNames.push(ySeriesName);
+			
+			// add calculated adjusted close options
 			if(typeof dataSources.calculateAdjustedClose !== "undefined"){
 				tableParams[xSeriesName].yCalculateAdjustedClose.push(dataSources.calculateAdjustedClose);
 			} else if(typeof traces[j].calculateAdjustedClose !== "undefined"){
 				tableParams[xSeriesName].yCalculateAdjustedClose.push(traces[j].calculateAdjustedClose);
 			} else{
 				tableParams[xSeriesName].yCalculateAdjustedClose.push(false);
-			}	
+			}
+			
+			// add factor option
+			if(typeof traces[j].factor !== "undefined"){
+				tableParams[xSeriesName].factorArray.push(traces[j].factor);
+			} else{
+				tableParams[xSeriesName].factorArray.push(1.0);
+			}
+			
+			// add shift option
+			if(typeof traces[j].shift !== "undefined"){
+				tableParams[xSeriesName].shiftArray.push(traces[j].shift);
+			} else{
+				tableParams[xSeriesName].shiftArray.push(0.0);
+			}
+			
+
+			
 		}
+		
 
 		// set parameters from general options
 
@@ -6035,14 +6062,7 @@ function setTablesParametersSortAndPreprocessing(tableParams, dataSources){
 		} 
 		
 		
-		// add factor and shift
-		if(typeof  traces[j].factor !== "undefined"){
-			tableParams[xSeriesName].factor =  traces[j].factor;
-		} 
-			
-		if(typeof  traces[j].shift !== "undefined"){
-			tableParams[xSeriesName].shift =  traces[j].shift;
-		}
+
 
 			
 	}	
@@ -6085,6 +6105,8 @@ function setEiaTablesParameters(tableParams, dataSources){
 
 
 		// add yName if not yet added
+		// add calculate adjusted close option and 
+		// add factor and shift
 		if(tableParams[xSeriesName].yNames.indexOf(ySeriesName) === -1){
 			tableParams[xSeriesName].yNames.push(ySeriesName);
 			if(typeof dataSources.calculateAdjustedClose !== "undefined"){
@@ -6094,6 +6116,23 @@ function setEiaTablesParameters(tableParams, dataSources){
 			} else{
 				tableParams[xSeriesName].yCalculateAdjustedClose.push(false);
 			}	
+			
+			
+			// add factor option
+			if(typeof traces[j].factor !== "undefined"){
+				tableParams[xSeriesName].factorArray.push(traces[j].factor);
+			} else{
+				tableParams[xSeriesName].factorArray.push(1.0);
+			}
+			
+			// add shift option
+			if(typeof traces[j].shift !== "undefined"){
+				tableParams[xSeriesName].shiftArray.push(traces[j].shift);
+			} else{
+				tableParams[xSeriesName].shiftArray.push(0.0);
+			}
+
+			
 		}
 
 	
