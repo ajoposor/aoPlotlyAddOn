@@ -5947,6 +5947,8 @@ function setTablesParametersSortAndPreprocessing(tableParams, dataSources){
 			tableParams[xSeriesName] = {};
 			tableParams[xSeriesName].yNames = [];
 			tableParams[xSeriesName].yCalculateAdjustedClose = [];
+			tableParams[xSeriesName].factorArray = [];
+			tableParams[xSeriesName].shiftrArray = [];
 		}
 
 
@@ -6101,6 +6103,8 @@ function setEiaTablesParameters(tableParams, dataSources){
 			tableParams[xSeriesName] = {};
 			tableParams[xSeriesName].yNames = [];
 			tableParams[xSeriesName].yCalculateAdjustedClose = [];
+			tableParams[xSeriesName].factorArray = [];
+			tableParams[xSeriesName].shiftrArray = [];
 		}
 
 
@@ -6242,7 +6246,7 @@ function splitSubtablesAndTrim(allRows, tableParams, dataSources, initialDateAsD
 								console.log("j is not equalt to indexOfYSeriesName");
 							}
 							factor = tableParams[key].factorArray[j];
-							shift =  tableParams[key].factorArray[j];
+							shift =  tableParams[key].shiftArray[j];
 							newArray[k][ySeriesName] = allRows[l][ySeriesName] * factor + shift ;
 						}
 						k++;
@@ -6373,7 +6377,7 @@ function loadEiaArrayDataIntoTableParamsAndProcess(
 									console.log("j is not equalt to indexOfYSeriesName");
 								}
 								factor = tableParams[key].factorArray[j];
-								shift =  tableParams[key].factorArray[j];
+								shift =  tableParams[key].shiftArray[j];
 								newArray[k][ySeriesName]=eiaArrayData[seriesIndex].data[l][1] *
 									factor + shift;
 							}
