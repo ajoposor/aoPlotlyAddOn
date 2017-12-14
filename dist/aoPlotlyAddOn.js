@@ -6284,7 +6284,7 @@ function loadEiaArrayDataIntoTableParamsAndProcess(
 			for(i=0; i < iLimit; i++){
 				dateString = eiaArrayData[seriesIndex].data[l][0];
 				if(dateString !== "" && dateString !== null){
-					DEBUG && OTHER_DEBUGS && DEBUG_EIA_FUNCTION && console.log("dateString:", dateString);
+					// DEBUG && OTHER_DEBUGS && DEBUG_EIA_FUNCTION && console.log("dateString:", dateString);
 					if(new Date(dateString) >= initialDateAsDate){
 						if( traceType === "full" ||
 							 (traceType === "historical" && dateString <= lastHistoricalPeriod) || 
