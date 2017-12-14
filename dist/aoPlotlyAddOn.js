@@ -6195,6 +6195,9 @@ function splitSubtablesAndTrim(allRows, tableParams, dataSources, initialDateAsD
 	var j, jLimit,k, l, lStep;
 	var xSeriesName, ySeriesName;
 	var dateString = "";
+	var factor = 1.0;
+	var shift = 0.0;
+	var indexOfYSeriesName = 0;
 
 	for (var key in tableParams) {
 		if (tableParams.hasOwnProperty(key)){
@@ -6234,7 +6237,13 @@ function splitSubtablesAndTrim(allRows, tableParams, dataSources, initialDateAsD
 						newArray[k][xSeriesName] = dateString;
 						for(j=0; j < jLimit; j++){
 							ySeriesName = yNamesArray[j];
-							newArray[k][ySeriesName]=allRows[l][ySeriesName];
+							indexOfYSeriesName =tableParams[key].yNames.indexOf(ySeriesName);
+							if(indexOfYSeriesName != j) {
+								console.log("j is not equalt to indexOfYSeriesName");
+							}
+							factor = tableParams[key].factorArray[j];
+							shift =  tableParams[key].factorArray[j];
+							newArray[k][ySeriesName] = allRows[l][ySeriesName] * factor + shift ;
 						}
 						k++;
 						//DEBUG && OTHER_DEBUGS && console.log("l: ", l);
@@ -6275,6 +6284,9 @@ function loadEiaArrayDataIntoTableParamsAndProcess(
 	var traceType = "full";
 	var lastHistoricalPeriod ="";
 	var traceIndex;
+	var factor = 1.0;
+	var shift = 0.0;
+	var indexOfYSeriesName = 0;
 	
 	DEBUG && OTHER_DEBUGS && DEBUG_EIA_FUNCTION && console.log("start LoadEiaArrayDataIntoTableParm...");
 	DEBUG && OTHER_DEBUGS && DEBUG_EIA_FUNCTION && console.log("tableParams before loaded data",tableParams);
@@ -6356,7 +6368,14 @@ function loadEiaArrayDataIntoTableParamsAndProcess(
 							newArray[k][xSeriesName] = dateString;
 							for(j=0; j < jLimit; j++){
 								ySeriesName = yNamesArray[j];
-								newArray[k][ySeriesName]=eiaArrayData[seriesIndex].data[l][1];
+								indexOfYSeriesName =tableParams[key].yNames.indexOf(ySeriesName);
+								if(indexOfYSeriesName != j) {
+									console.log("j is not equalt to indexOfYSeriesName");
+								}
+								factor = tableParams[key].factorArray[j];
+								shift =  tableParams[key].factorArray[j];
+								newArray[k][ySeriesName]=eiaArrayData[seriesIndex].data[l][1] *
+									factor + shift;
 							}
 							k++;
 						}
