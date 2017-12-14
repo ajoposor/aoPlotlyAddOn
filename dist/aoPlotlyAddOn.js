@@ -1606,7 +1606,7 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 	*   i is the row (data points) in the allRows array. The are iLimit (data points) in the allRows array.
 	*
 	*   tableParams[xSeriesNames] has other properties, including sor, xDateSuffix, etc,
-	*    all set in the setTablesParametersSortPreprocessing function
+	*    all set in the setTablesParametersSortAndPreprocessing function
 	*/
 	
 	var tableParams = {};
@@ -1660,7 +1660,7 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 	if(dataSources.traces.length < 1) return false;
 	
 	// get number of tables, sort and preprocessing of dates options
-	setTablesParametersSortPreprocessing(tableParams, dataSources);
+	setTablesParametersSortAndPreprocessing(tableParams, dataSources);
 	DEBUG && OTHER_DEBUGS && console.log("table params set: ", tableParams);
 	
 	
@@ -1680,6 +1680,10 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 	// sort subtables
 	sortSubTables(tableParams);
 	DEBUG && OTHER_DEBUGS && console.log("SubTable sorted");
+	
+	
+	// apply factors and shifts to read data
+	factorAndShiftDataInTableParmas(tableParams);
 	
 	callbackLoadSubTablesIntoData(dataSources, tableParams, otherDataProperties, data, initialDateAsDate, tracesInitialDate);
 	
@@ -1708,7 +1712,7 @@ function processEiaData(eiaArrayData, data, tracesInitialDate, otherDataProperti
 	*   i is the row (data points) in the allRows array. The are iLimit (data points) in the allRows array.
 	*
 	*   tableParams[xSeriesNames] has other properties, including sor, xDateSuffix, etc,
-	*    all set in the setTablesParametersSortPreprocessing function
+	*    all set in the setEiaTablesParameters function
 	*/
 	
 	var tableParams = {};
@@ -5918,13 +5922,14 @@ function applyDateProprocessing(allRows, tableParams, urlType) {
 	    
 	    
 
-function setTablesParametersSortPreprocessing(tableParams, dataSources){
+function setTablesParametersSortAndPreprocessing(tableParams, dataSources){
 	var traces = dataSources.traces;
 	var xSeriesName, ySeriesName;
 
 	// number of traces to be read on this data source
 	var jLimit = traces.length;
 
+	// for a given data source
 	// determine number of xSeriesNames being used and fill y values for each, cycle through traces array
 	for (var j=0; j < jLimit; j++){
 
@@ -6028,6 +6033,16 @@ function setTablesParametersSortPreprocessing(tableParams, dataSources){
 		if(typeof  traces[j].onlyAddXDateSuffix !== "undefined"){
 			tableParams[xSeriesName].onlyAddXDateSuffix =  traces[j].onlyAddXDateSuffix;
 		} 
+		
+		
+		// add factor and shift
+		if(typeof  traces[j].factor !== "undefined"){
+			tableParams[xSeriesName].factor =  traces[j].factor;
+		} 
+			
+		if(typeof  traces[j].shift !== "undefined"){
+			tableParams[xSeriesName].shift =  traces[j].shift;
+		}
 
 			
 	}	
@@ -6114,6 +6129,15 @@ function setEiaTablesParameters(tableParams, dataSources){
 
 		
 		// no onlyAddXDateSuffix info added (not needed), will be maintained undefined
+		
+		// add factor and shift
+		if(typeof  traces[j].factor !== "undefined"){
+			tableParams[xSeriesName].factor =  traces[j].factor;
+		} 
+			
+		if(typeof  traces[j].shift !== "undefined"){
+			tableParams[xSeriesName].shift =  traces[j].shift;
+		}
 			
 	}	
 }
