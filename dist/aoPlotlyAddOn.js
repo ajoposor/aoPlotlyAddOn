@@ -5948,7 +5948,7 @@ function setTablesParametersSortAndPreprocessing(tableParams, dataSources){
 			tableParams[xSeriesName].yNames = [];
 			tableParams[xSeriesName].yCalculateAdjustedClose = [];
 			tableParams[xSeriesName].factorArray = [];
-			tableParams[xSeriesName].shiftrArray = [];
+			tableParams[xSeriesName].shiftArray = [];
 		}
 
 
@@ -6104,7 +6104,7 @@ function setEiaTablesParameters(tableParams, dataSources){
 			tableParams[xSeriesName].yNames = [];
 			tableParams[xSeriesName].yCalculateAdjustedClose = [];
 			tableParams[xSeriesName].factorArray = [];
-			tableParams[xSeriesName].shiftrArray = [];
+			tableParams[xSeriesName].shiftArray = [];
 		}
 
 
