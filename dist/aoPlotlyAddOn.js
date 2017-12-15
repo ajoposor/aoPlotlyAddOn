@@ -16,6 +16,7 @@ var DEBUG_TRANSFORM_BY_FREQUENCIES = false;
 var DEBUG_FB = false; // debug in frequency button
 var DEBUG_EIA_FUNCTION = false;
 var DEBUG_RECESSIONS = false; 
+var DEBUG_createIndexMap = true;
     
        
 // this functions adds items and functionallity, including, buttons, responsiveness, series resampling     
@@ -8494,7 +8495,7 @@ function createIndexMap(data, deflactorDictionary, periodKeys, iDeflactor){
 	}
 
 	k=0;
-	// loop over of data[i]
+	// loop over data[i]
 	for(var i=0; i<iLimit; i++){
 		
 		// check that xOriginal exists
@@ -8514,7 +8515,8 @@ function createIndexMap(data, deflactorDictionary, periodKeys, iDeflactor){
 		// cycle through frequencies
 		for(key in periodKeys){
 			if (periodKeys.hasOwnProperty(key)) {
-				if(periodKeys[key]=== true){
+				if(periodKeys[key]=== true &&
+				  typeof data[i][key] !== "undefined"){
 					jLimit = data[i][key].x.length;
 					for(j=0; j < jLimit;j++){	
 						date=data[i][key].x[j];
