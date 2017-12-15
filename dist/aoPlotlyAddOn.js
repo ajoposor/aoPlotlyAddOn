@@ -15,6 +15,7 @@ var DEBUG_CSV = false;
 var DEBUG_TRANSFORM_BY_FREQUENCIES = false;
 var DEBUG_FB = false; // debug in frequency button
 var DEBUG_EIA_FUNCTION = false;
+var DEBUG_RECESSIONS = false; 
     
        
 // this functions adds items and functionallity, including, buttons, responsiveness, series resampling     
@@ -199,11 +200,11 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	    "://kapitalvalue.com/plots_data/testing/fredRecessions-unlocked.php?observation_start=2015-12-01";
 	
 	if(connectionIsSecure()) {
-		DEBUG && OTHER_DEBUGS && console.log("HTTPS:");
+		DEBUG && OTHER_DEBUGS && DEBUG_RECESSIONS && console.log("HTTPS:");
 		fredRecessionsDefaultUrl = "https"+fredRecessionsDefaultUrl;
 		
 	} else {
-		DEBUG && OTHER_DEBUGS && console.log("HTTP:");
+		DEBUG && OTHER_DEBUGS && DEBUG_RECESSIONS &&  console.log("HTTP:");
 		fredRecessionsDefaultUrl = "http"+fredRecessionsDefaultUrl;
 	}
 
@@ -1055,10 +1056,10 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		},{
 		x0: "2001-03-01",
 		x1: "2001-10-31"
-		}/*,{
+		},{
 		x0: "2007-12-01",
 		x1: "2009-05-31"
-		}*/];
+		}];
 	
 	var usRecessions = createRecessionShapes(knownRecessionsDates, 
 						 settings.recessionsFillColor, 
@@ -1269,9 +1270,9 @@ function parallelReadDataAndMakeChart(data, param) {
 	
 	
 	// add call update recessions from external source to queue
-	DEBUG && OTHER_DEBUGS && console.log("adding update recessions to queue");
-	DEBUG && OTHER_DEBUGS && console.log("param.settings.newRecessionsUrl",param.settings.newRecessionsUrl);
-	DEBUG && OTHER_DEBUGS && console.log("param.usRecessions",param.usRecessions);
+	DEBUG && OTHER_DEBUGS && DEBUG_RECESSIONS &&  console.log("adding update recessions to queue");
+	DEBUG && OTHER_DEBUGS && DEBUG_RECESSIONS &&  console.log("param.settings.newRecessionsUrl",param.settings.newRecessionsUrl);
+	DEBUG && OTHER_DEBUGS && DEBUG_RECESSIONS &&  console.log("param.usRecessions",param.usRecessions);
 	
 	plotQueue.defer(parallelUpdateRecessions, param.settings.newRecessionsUrl, param.usRecessions);
 	
@@ -1281,7 +1282,7 @@ function parallelReadDataAndMakeChart(data, param) {
 			DEBUG && OTHER_DEBUGS && console.log("the error is", error);
 			//display blank plot
 		} else {
-			DEBUG && OTHER_DEBUGS && console.log("param.usRecessions.length before calling makeChart: ", 
+			DEBUG && OTHER_DEBUGS && DEBUG_RECESSIONS &&   console.log("param.usRecessions.length before calling makeChart: ", 
 					     param.usRecessions.length);
 			// once all files all read, i.e. iS === series.length, this section is executed
 			DEBUG && OTHER_DEBUGS && console.log("data: ", data);
@@ -1300,7 +1301,7 @@ function parallelReadDataAndMakeChart(data, param) {
 			} else {
 				makeChart(data, param);
 				DEBUG && OTHER_DEBUGS && console.log("allread and ploted");
-				DEBUG && OTHER_DEBUGS && console.log("param.settings.newRecessionsUrl: ",
+				DEBUG && OTHER_DEBUGS && DEBUG_RECESSIONS &&  console.log("param.settings.newRecessionsUrl: ",
 						    param.settings.newRecessionsUrl);
 
 			}
@@ -1366,7 +1367,7 @@ function parallelUpdateRecessions(newRecessionsUrl, usRecessions, callback){
 		url: newRecessionsUrl,
 	};
 	
-	DEBUG && OTHER_DEBUGS && console.log("XMLHttpRequestOptions", fredZipXMLHttpRequestOptions);
+	DEBUG && OTHER_DEBUGS && DEBUG_RECESSIONS &&  console.log("XMLHttpRequestOptions", fredZipXMLHttpRequestOptions);
 	
 	if(fredZipXMLHttpRequestOptions.url !== ""){
 		
@@ -1378,7 +1379,7 @@ function parallelUpdateRecessions(newRecessionsUrl, usRecessions, callback){
 		}
 		
 		
-		DEBUG && OTHER_DEBUGS && console.log("calling wrappedDirectXMLHttpRequest");
+		DEBUG && OTHER_DEBUGS && DEBUG_RECESSIONS &&  console.log("calling wrappedDirectXMLHttpRequest");
 		
 		wrappedDirectXMLHttpRequest(fredZipXMLHttpRequestOptions,  myCallBackFredZip(usRecessions), callback);
 		//}(fredZipXMLHttpRequestOptions, myCallBackFredZip(usRecessions)); 
@@ -2564,7 +2565,7 @@ function makeChart(data, param){
 	DEBUG && DEBUG_TIMES && console.time("getDataXminXmaxAsString");
 	var minMaxDatesAsString = getDataXminXmaxAsString(data);
 	DEBUG && DEBUG_TIMES && console.timeEnd("getDataXminXmaxAsString");
-	DEBUG && OTHER_DEBUGS && console.log(minMaxDatesAsString);
+	DEBUG && OTHER_DEBUGS &&  console.log(minMaxDatesAsString);
 	
 	minDateAsString = minMaxDatesAsString.min;
 	maxDateAsString = minMaxDatesAsString.max;
@@ -2579,7 +2580,7 @@ function makeChart(data, param){
 			maxDateAsString
 		);
 	}
-	DEBUG && OTHER_DEBUGS && console.log("recessions loaded");
+	DEBUG && OTHER_DEBUGS && DEBUG_RECESSIONS &&  console.log("recessions loaded");
 
 	// X AXIS RANGE SETTINGS
 	var xaxisRangeAsString = setDatesRangeAsString(
@@ -6994,13 +6995,13 @@ function addRecessionsTo(recessionsArray,usRecessions){
 	var key, j=0;
 	var lastRecessionInBaseEndedAsDate = new Date(usRecessions[last][x0]);
 	
-	DEBUG && OTHER_DEBUGS && console.log("recessionsArray: ", recessionsArray);
+	DEBUG && OTHER_DEBUGS && DEBUG_RECESSIONS &&  console.log("recessionsArray: ", recessionsArray);
 
-	DEBUG && OTHER_DEBUGS && console.log("lastRecessionInBaseEndedAsDate",lastRecessionInBaseEndedAsDate);
+	DEBUG && OTHER_DEBUGS && DEBUG_RECESSIONS &&  console.log("lastRecessionInBaseEndedAsDate",lastRecessionInBaseEndedAsDate);
 	
 	// get position of new recessions
 	for(var i=0; i < iLimit ; i++){
-		DEBUG && OTHER_DEBUGS && console.log("recessionsArray[i][x0]: ", recessionsArray[i][x0]);
+		DEBUG && OTHER_DEBUGS && DEBUG_RECESSIONS &&  console.log("recessionsArray[i][x0]: ", recessionsArray[i][x0]);
 		if(new Date(recessionsArray[i][x0]) >  lastRecessionInBaseEndedAsDate){
 			k=i;
 			i=iLimit;
@@ -7152,7 +7153,7 @@ function wrappedDirectXMLHttpRequest(options, onreadyFunction, callback) {
 			
 			if(xhttp.status == 200) {
 				// no error passed
-				DEBUG && OTHER_DEBUGS && console.log(
+				DEBUG && OTHER_DEBUGS  && DEBUG_RECESSIONS &&  console.log(
 					"calling function(http, callback)"+
 					"{ afterFredZipFileLoaded((xhttp, usRecessions, callback))}"
 				);
@@ -7169,8 +7170,8 @@ function wrappedDirectXMLHttpRequest(options, onreadyFunction, callback) {
 	
 function afterFredZipFileLoaded(xhttp, usRecessions, callback) {
 	
-	DEBUG && OTHER_DEBUGS && console.log("afterFredZipFileLoaded started");
-	DEBUG && OTHER_DEBUGS && console.log("passed xhttp:", xhttp);
+	DEBUG && OTHER_DEBUGS && DEBUG_RECESSIONS &&  console.log("afterFredZipFileLoaded started");
+	DEBUG && OTHER_DEBUGS && DEBUG_RECESSIONS &&  console.log("passed xhttp:", xhttp);
 	
 	// create an instance of JSZip
 	var zip = new JSZip();
@@ -7181,11 +7182,11 @@ function afterFredZipFileLoaded(xhttp, usRecessions, callback) {
 			return zip.file("USRECP_1.txt").async("string");
 		}).then(
 		function (readTxt) {
-			DEBUG && OTHER_DEBUGS && console.log("readTxt",readTxt);
+			DEBUG && OTHER_DEBUGS && DEBUG_RECESSIONS &&  console.log("readTxt",readTxt);
 			var readJson = textToArrayOfJsons(readTxt,"\r\n","\t");
 			var fredRecessionsArray = getRecessionsFromUSRecField(readJson);
 			addRecessionsTo(fredRecessionsArray,usRecessions);
-			DEBUG && OTHER_DEBUGS && console.log("usRecessions: ",usRecessions);
+			DEBUG && OTHER_DEBUGS && DEBUG_RECESSIONS &&  console.log("usRecessions: ",usRecessions);
 			callback(null);
 		}
 	);
