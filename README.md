@@ -286,7 +286,8 @@ Each object in the dataSouces will get a chunk of data, process it and feed as m
 	 		"TOTAL.PAPSPOC.M;TOTAL.PAPSPUS.M;TOTAL.PAPSPEU.M;TOTAL.PAPSPJA.M" + 
 			"&api_key="+eiaKey+eiaSuffix;
          
-         In this examples, the series should be referred to as seriesIndex: 0, seriesIndex: 1, ... etc in the traces array
+         In this examples, the series should be referred to as seriesIndex: 0, seriesIndex: 1,
+	 ... etc in the traces array
          
          ```      
      
