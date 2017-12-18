@@ -2153,8 +2153,13 @@ function verifyAndCleanDataSources(allRows, dataSources) {
 *		polyFormualtion : {
 *			argumentsIDs : [ traceID1, traceID2, ... } tracesIDs as defined in otherDataProperties
 *                       traces should be already calculated, you may order traces to make calculations from calculations
+*
 *			formula: function (a, b, c, d... ) {   return result; }
 *			(the formula will be passed values from traces traceID1, ... an so forth )
+*                       (there should be at least on argument, so that x values are taken for that trace),
+*
+*			daysThreshold: number of days that would be valid to considered as a same date in the x axis
+*
 *
 *   }
 *
@@ -2175,6 +2180,7 @@ function addCalculatedTracesWithFunctions(data, param) {
 	var numberOfArguments = 0;
 	var error = false;
 	var foundIndex = -1;
+	var daysThreshold;
 	
 	// iterate through all traces in otherDataProperties
 	for (var i=0; i < iLimit; i++) {
@@ -2194,9 +2200,17 @@ function addCalculatedTracesWithFunctions(data, param) {
 				if(typeof polyFormulation.argumentsIDs !== "undefined"){
 					numberOfArguments = polyFormulation.argumentsIDs.length;
 				} else {
-					numberOfArguments = 0;
+					error = true;
+					console.log("should pass at least one trace argument to addCalculatedTracesWithFunctions");
 				}
 
+				
+				/* get the daysThreshold - default = 0 */
+				if(typeof polyFormulation.daysThreshold !== "undefined"){
+					daysThreshold = polyFormulation.daysThreshold;
+				} else {
+					daysThreshold = 0;
+				}
 
 				/**
 				* find the indexes of the arguments ID's
@@ -2227,7 +2241,7 @@ function addCalculatedTracesWithFunctions(data, param) {
 				
 					// create the requested  trace	
 					createTraceWithFunction(data, otherDataProperties, 
-					argumentsIndexes, polyFormulation.formula, i);
+					argumentsIndexes, polyFormulation.formula, i, daysThreshold);
 
 				}
 			}
@@ -2236,13 +2250,13 @@ function addCalculatedTracesWithFunctions(data, param) {
 }
 		
 function createTraceWithFunction(data, otherDataProperties, 
-					argumentsIndexes, theFormula, indexOfCreatedTrace){
+					argumentsIndexes, theFormula, indexOfCreatedTrace, daysThreshold){
 	
 	
 
 	DEBUG && OTHER_DEBUGS && console.log("in createTraceWithFunction");
 	
-	
+	for
 
 	jLimit = data[indexOfSourceTrace].y.length;
 	var calculatedX = [];
