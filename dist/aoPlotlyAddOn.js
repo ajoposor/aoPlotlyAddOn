@@ -2141,6 +2141,144 @@ function verifyAndCleanDataSources(allRows, dataSources) {
  
 /**
 *
+*  addCalculatedTracesWithFunctions
+*
+*  This function will add calculated  traces (traces calculated from others loaded) using a generic function
+*
+*  Parameters are passed through the otherDataProperties array
+*  
+*  Properties relevant in the OtherDataProperties object are:
+*	calculate: {
+*		type: "poly",
+*		polyFormualtion : {
+*			argumentsIDs : [ traceID1, traceID2, ... } tracesIDs as defined in otherDataProperties
+*                       traces should be already calculated, you may order traces to make calculations from calculations
+*			formula: function (a, b, c, d... ) {   return result; }
+*			(the formula will be passed values from traces traceID1, ... an so forth )
+*
+*   }
+*
+*  There should be also a deflactor trace already loaded
+*
+*/
+	
+	
+function addCalculatedTracesWithFunctions(data, param) {
+	
+
+	var otherDataProperties = param.otherDataProperties;
+	var j, iLimit = otherDataProperties.length;
+	var originalDataCreated = false;
+	var useVoidPeriodKeys = {};
+	var argumentsIndexes;
+	var polyFormulation;
+	var numberOfArguments = 0;
+	var error = false;
+	var foundIndex = -1;
+	
+	// iterate through all traces in otherDataProperties
+	for (var i=0; i < iLimit; i++) {
+		// test whether a calculate option with poly is added
+		if(typeof otherDataProperties[i].calculate !== "undefined" &&
+		  typeof otherDataProperties[i].calculate.type !== "undefined" &&
+		  otherDataProperties[i].calculate.type === "poly") {
+			
+			// Following lines will create a calculated trace as a function of other traces
+			
+			if(typeof otherDataProperties[i].calculate.polyFormulation !== "undefined") {
+				
+				polyFormulation = otherDataProperties[i].calculate.polyFormulation;
+				
+				
+				/* get the number of arguments to be passed */
+				if(typeof polyFormulation.argumentsIDs !== "undefined"){
+					numberOfArguments = polyFormulation.argumentsIDs.length;
+				} else {
+					numberOfArguments = 0;
+				}
+
+
+				/**
+				* find the indexes of the arguments ID's
+				*
+				*/
+				error = false;
+				if(numberOfArguments > 0) {
+					argumentsIndexes = [];
+					for (j = 0; j < numberOfArguments; j++){
+						foundIndex = findTraceIdIndex(polyFormulation.argumentsIDs[j],
+										    otherDataProperties);
+						if(foundIndex === -1) {
+							error = true;
+							console.log("traceId not found:", polyFormulation.argumentsIDs[j]);
+						}
+					  argumentsIndexes.push =  foundIndex	
+					}
+				}
+				
+				if(!error) {
+
+					// save data into Original if not yet done
+					if(originalDataCreated === false){
+						saveDataXYIntoPropertyXY(data, "xOriginal", "yOriginal");
+						originalDataCreated = true;
+					}
+			
+				
+					// create the requested  trace	
+					createTraceWithFunction(data, otherDataProperties, 
+					argumentsIndexes, polyFormulation.formula, i);
+
+				}
+			}
+		}
+	}
+}
+		
+function createTraceWithFunction(data, otherDataProperties, 
+					argumentsIndexes, theFormula, indexOfCreatedTrace){
+	
+	
+
+	DEBUG && OTHER_DEBUGS && console.log("in createTraceWithFunction");
+	
+	
+
+	jLimit = data[indexOfSourceTrace].y.length;
+	var calculatedX = [];
+	var calculatedY = [];
+	
+	calculatedX.length = jLimit;
+	calculatedY.length = jLimit;
+	
+	for (j = 0; j < jLimit; j++) {
+		calculatedX[j] = data[indexOfSourceTrace].x[j];
+		calculatedY[j] = data[indexOfSourceTrace].y[j] * deflactorAtTargetDate / 
+			Number(deflactorDictionary[data[indexOfSourceTrace].x[j]]);
+	}
+	
+	data[indexOfCreatedTrace].x = calculatedX;
+	data[indexOfCreatedTrace].y = calculatedY;
+
+	DEBUG && OTHER_DEBUGS && console.log("data after createRealTrace: ", data);
+
+
+
+}	
+	
+
+		
+	
+	
+	
+	
+
+
+ 
+/**
+*
+*  addCalculatedRealTraces
+*
 *  This function will add calculated real traces (traces calculated from others loaded) 
 *
 *  Parameters for the real transformation are passed through the otherDataProperties array
@@ -7354,7 +7492,7 @@ function saveDataXYIntoPropertyXY(data, xProperty, yProperty) {
 	// duplicates data into base for future use
 	for (var i = 0; i < iLimit; i++) {
 		
-		// text whether data[i].x and data[i].y exist, otherwise skip
+		// text whether data[i].x and data[i].y exist, and that xProperty and y Property not yet exist otherwise skip
 		if(typeof data[i].x !== "undefined" &&
 		   typeof data[i].y !== "undefined" &&
 		   typeof data[i][xProperty] === "undefined" &&
