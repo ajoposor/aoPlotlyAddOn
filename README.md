@@ -51,6 +51,7 @@ It helps you in two stages: **data sourcing** and **plot funtionality**.
       * **order of reading**: in case where files are to be read from bottom up (dates are to be loaded from latest to oldest).
       * **adjust values**: when combining mutilple sources into one trace, you may need to adjust the values to a common base. Share prices for instance are to be adjusted when the price changes due to splits or share dividends. The function will use a common date to calculate the adjusting factor and apply it to the older data, maintining the values for the most recent dates.
       * **Trim** You may provide a starting date, so that all data is trimmed for previous dates. It is useful when you have varoius date ranges for your read data and you want a clean plot, with all traces having a common dates range.
+      * **scale** You may apply a factor and/or a shift to the read trace. Useful to make changes in the units.     
    * **Flexible sourcing**  
       * **many to one**: get data for one trace from many sources or,
       * **one to many** use one source to feed multiple traces
@@ -348,7 +349,8 @@ Each object in the dataSouces will get a chunk of data, process it and feed as m
       * **calculateAdjustedClose**: (boolean) Optional. If set to true, traces that come from more than one source will be normalized using the overlapping date. Older values will be changed. You need to provide at least one overlapping date in order for this option to be applied.
       * **sort**: (boolean) Optional. If set to true, all values as ySeriesNames in use with this xSeriesName and this xSeriesName will be sorted. This function works with dates ordered from latest to oldest.
       * **seriesIndex**: (integer, index from 0 onwards, required only if urlType: "EiaJson") links a trace with the read serie from the EIA api, in the order in which the series were placed in the url for the api call. 
-
+      * **factor**: (optional, default = 1.0) Use to scale the read data before being added to a data trace.
+      * **shift**: (optional, default = 0.0) Use to shift (add a constant) to the read data before being added to a data trace.      
 
 #### Examples:
 
@@ -898,6 +900,7 @@ Added:
    * **reading of data from Energy Information Agency api**
    * **calculate traces** with generic formula applied to loaded traces
    * **calculate real/deflated traces** from loaded traces
+   * **add factor and/or shift to read data** applicable to specific source/trace combination.   
 
 
 ## License
