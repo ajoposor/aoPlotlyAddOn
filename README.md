@@ -287,10 +287,10 @@ Each object in the dataSouces will get a chunk of data, process it and feed as m
 			"&api_key="+eiaKey+eiaSuffix;
          
          /*
-	 * In this examples, the series should be referred to as seriesIndex: 0, seriesIndex: 1,... etc.
+         * In this examples, the series should be referred to as seriesIndex: 0, seriesIndex: 1,... etc.
          * in the traces array in the same order in which the traces are set in the url
-	 *
-	 */
+         *
+         */
          
          ```      
      
