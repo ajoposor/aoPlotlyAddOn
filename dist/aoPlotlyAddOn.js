@@ -2319,7 +2319,7 @@ function createTraceWithFunction(data, argumentsIndexes, theFormula, indexOfCrea
 			for(j = 1; j < numberOfArguments; j++){
 				/* test with current position */
 				currentDistance = Math.abs(anchorDateAsDate - 
-							   newDate(data[argumentsIndexes[j]].x[positionInArgument[j]]));
+							   new Date(data[argumentsIndexes[j]].x[positionInArgument[j]]));
 				if(currentDistance <= millisecondsThreshold) {
 					pointFound[j] = true;
 				}
@@ -2329,7 +2329,7 @@ function createTraceWithFunction(data, argumentsIndexes, theFormula, indexOfCrea
 					kLimit = limitOfArgument[j];
 					for( k = positionInArgument[j]; k < kLimit; k++) {
 						newDistance = Math.abs(anchorDateAsDate - 
-								       newDate(data[argumentsIndexes[j]].x[positionInArgument[j]]));
+								       new Date(data[argumentsIndexes[j]].x[positionInArgument[j]]));
 						if(newDistance < currentDistance) {
 							if (newDistance <= millisecondsThreshold){
 								pointFound[j] = true;
