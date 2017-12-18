@@ -2216,6 +2216,8 @@ function addCalculatedTracesWithFunctions(data, param) {
 				} else {
 					daysThreshold = 0;
 				}
+				
+				DEBUG && DEBUG_createTraceWithFunction && console.log("daysThreshold: ", daysThreshold);
 
 				/**
 				* find the indexes of the arguments ID's
@@ -2273,6 +2275,8 @@ function createTraceWithFunction(data, argumentsIndexes, theFormula, indexOfCrea
 	
 	DEBUG && DEBUG_createTraceWithFunction && console.log("in createTraceWithFunction");
 	DEBUG && DEBUG_createTraceWithFunction && console.log("argumentsIndexes: ", argumentsIndexes);
+	DEBUG && DEBUG_createTraceWithFunction && console.log("millisecondsThreshold: ", millisecondsThreshold);
+
 	
 	/* get number of arguments */
 	numberOfArguments = argumentsIndexes.length;
@@ -2331,7 +2335,7 @@ function createTraceWithFunction(data, argumentsIndexes, theFormula, indexOfCrea
 					kLimit = limitOfArgument[j];
 					for( k = positionInArgument[j]; k < kLimit; k++) {
 						newDistance = Math.abs(anchorDateAsDate - 
-								       new Date(data[argumentsIndexes[j]].x[positionInArgument[j]]));
+								       new Date(data[argumentsIndexes[j]].x[k]));
 						
 						DEBUG && DEBUG_createTraceWithFunction && console.log("arg:", j," k: ", k, " newDistance: ", newDistance);		
 						
