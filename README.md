@@ -216,10 +216,10 @@ Each object within the otherDataProperties array has the the following propertie
          * **polyFormulation**: (object): 
             * **argumentsIDs**: (array) with the tracesIDs that will be used as arguments. At least one traceID is required (in order to get the dates): ["tradeID1", traceID2, ...]
             * **formula**: a function with the arguments in the order provided in argumentsIDs. 
-	       for instance:
-	          *   formula: function(x) {return 2*x;}
-		  *   formula: function(x, y, z) { return x+y+z;}
-		  *   formula: function(x) { return 1; }
+               for instance:
+                  *   formula: function(x) {return 2*x;}
+                  *   formula: function(x, y, z) { return x+y+z;}
+                  *   formula: function(x) { return 1; }
 		  
 
 
