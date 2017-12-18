@@ -2231,7 +2231,7 @@ function addCalculatedTracesWithFunctions(data, param) {
 							error = true;
 							console.log("traceId not found:", polyFormulation.argumentsIDs[j]);
 						}
-					  argumentsIndexes.push =  foundIndex;
+					  argumentsIndexes.push(foundIndex);
 					}
 				}
 				
@@ -2363,8 +2363,8 @@ function createTraceWithFunction(data, argumentsIndexes, theFormula, indexOfCrea
 				
 				/* add calculated value and date to array */		
 				if(!isNaN(calculatedValue)) {
-					calculatedX = data[argumentsIndexes[0]].y[positionInArgument[0]];
-					calculatedY.push = calculatedValue;
+					calculatedX.push(data[argumentsIndexes[0]].y[positionInArgument[0]]);
+					calculatedY.push(calculatedValue);
 				}
 			}
 
@@ -2382,8 +2382,8 @@ function createTraceWithFunction(data, argumentsIndexes, theFormula, indexOfCrea
 			
 			/* add calculated value and date to array */		
 			if(!isNaN(calculatedValue)) {
-				calculatedX = data[argumentsIndexes[0]].y[positionInArgument[0]];
-				calculatedY.push = calculatedValue;
+				calculatedX.push(data[argumentsIndexes[0]].y[positionInArgument[0]]);
+				calculatedY.push(calculatedValue);
 			}
 		}
 
