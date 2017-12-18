@@ -2196,6 +2196,7 @@ function addCalculatedTracesWithFunctions(data, param) {
 			if(typeof otherDataProperties[i].calculate.polyFormulation !== "undefined") {
 				
 				polyFormulation = otherDataProperties[i].calculate.polyFormulation;
+				DEBUG && DEBUG_createTraceWithFunction && console.log("polyFormulation", polyFormulation);
 				
 				
 				/* get the number of arguments to be passed */
@@ -2205,6 +2206,8 @@ function addCalculatedTracesWithFunctions(data, param) {
 					error = true;
 					console.log("should pass at least one trace argument to addCalculatedTracesWithFunctions");
 				}
+				
+				DEBUG && DEBUG_createTraceWithFunction && console.log("numberOfArguments", numberOfArguments);
 
 				
 				/* get the daysThreshold - default = 0 */
@@ -2228,7 +2231,7 @@ function addCalculatedTracesWithFunctions(data, param) {
 							error = true;
 							console.log("traceId not found:", polyFormulation.argumentsIDs[j]);
 						}
-					  argumentsIndexes.push =  foundIndex	
+					  argumentsIndexes.push =  foundIndex;
 					}
 				}
 				
@@ -2241,18 +2244,16 @@ function addCalculatedTracesWithFunctions(data, param) {
 					}
 			
 				
-					// create the requested  trace	
-					createTraceWithFunction(data, otherDataProperties, 
-					argumentsIndexes, polyFormulation.formula, i, daysThreshold);
-
-				}
+					// create the requested  trace
+					createTraceWithFunction(data, argumentsIndexes, polyFormulation.formula, i, daysThreshold);			}
 			}
 		}
 	}
 }
+	
+	
 		
-function createTraceWithFunction(data, otherDataProperties, 
-					argumentsIndexes, theFormula, indexOfCreatedTrace, daysThreshold){
+function createTraceWithFunction(data, argumentsIndexes, theFormula, indexOfCreatedTrace, daysThreshold){
 	
 	var indexOfAnchorTrace;
 	var limitOfArgument = [];
@@ -2271,6 +2272,7 @@ function createTraceWithFunction(data, otherDataProperties,
 	var calculatedValue;
 	
 	DEBUG && DEBUG_createTraceWithFunction && console.log("in createTraceWithFunction");
+	DEBUG && DEBUG_createTraceWithFunction && console.log("argumentsIndexes: ", argumentsIndexes);
 	
 	/* get number of arguments */
 	numberOfArguments = argumentsIndexes.length;
