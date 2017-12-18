@@ -1293,7 +1293,7 @@ function parallelReadDataAndMakeChart(data, param) {
 			// test with void data
 			//var data = [{x:[], y:[]}];
 			
-			addCalculatedTraces(data, param);
+			addCalculatedRealTraces(data, param);
 			trimNonExistingDataXY(data, param.otherDataProperties);
 			// this removes data[i], where data[i].x or y don't exist or have zero elements
 			cleanOutData(data);
@@ -2132,18 +2132,35 @@ function verifyAndCleanDataSources(allRows, dataSources) {
 		}
 	}
 }
+	
+	
+
 
 
 
  
 /**
 *
-*  This function will add calculated traces (traces calculated from others loaded 
+*  This function will add calculated real traces (traces calculated from others loaded) 
+*
+*  Parameters for the real transformation are passed through the otherDataProperties array
+*  
+*  Properties relevant in the OtherDataProperties object are:
+*   calculate: {
+*   type: "real",
+*   sourceTrace: traceID,  (trace that will be transformed into real)
+*   factorInformation: {
+*        date: "end of trace" or "beginning of trace" or a date "yyyy-mm-dd  hh:mm:ss.sss-HH:MM"
+*        referredDateTraceId: trace from which "end of trace" or "beginning of trace" will be taken
+*    }
+*   }
+*
+*  There should be also a deflactor trace already loaded
 *
 */
 	
 	
-function  addCalculatedTraces(data, param) {
+function addCalculatedRealTraces(data, param) {
 	
 
 	var otherDataProperties = param.otherDataProperties;
