@@ -17,6 +17,7 @@ var DEBUG_FB = false; // debug in frequency button
 var DEBUG_EIA_FUNCTION = false;
 var DEBUG_RECESSIONS = false; 
 var DEBUG_createIndexMap = true;
+var DEBUG_createTraceWithFunction = true;
     
        
 // this functions adds items and functionallity, including, buttons, responsiveness, series resampling     
@@ -2269,16 +2270,20 @@ function createTraceWithFunction(data, otherDataProperties,
 	var commonPointFound;
 	var calculatedValue;
 	
-	DEBUG && OTHER_DEBUGS && console.log("in createTraceWithFunction");
+	DEBUG && DEBUG_createTraceWithFunction && console.log("in createTraceWithFunction");
 	
 	/* get number of arguments */
 	numberOfArguments = argumentsIndexes.length;
+	DEBUG && DEBUG_createTraceWithFunction && console.log("numberOfArguments: ", numberOfArguments);
 	
 	/* assign limit of elements of argument and current position in Argument */
 	limitOfArgument.length = numberOfArguments;
 	positionInArgument.length = numberOfArguments;
 	pointFound.length = numberOfArguments;
 	functionArguments.length = numberOfArguments;
+							      
+	DEBUG && DEBUG_createTraceWithFunction && console.log("limitOfArgument array: ", limitOfArgument);						      
+							      
 	
 	for(j = 0; j < numberOfArguments; j++) {
 		limitOfArgument[j] = data[argumentsIndexes[j]].x.length;
@@ -2288,9 +2293,11 @@ function createTraceWithFunction(data, otherDataProperties,
 	
 	/* get first trace argument as anchor trace */
 	indexOfAnchorTrace = argumentsIndexes[0];
+	DEBUG && DEBUG_createTraceWithFunction && console.log("indexOfAnchorTrace: ", indexOfAnchorTrace);
 	
 	/* get limit of anchor trace */
 	iLimit = data[indexOfAnchorTrace].x.length;
+	DEBUG && DEBUG_createTraceWithFunction && console.log("limit of anchor trace: ", iLimit);						      
 	
 	/* cycle throght anchor trace points */ 
 	for(var i = 0; i < iLimit ; i++) {
