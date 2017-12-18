@@ -2252,15 +2252,57 @@ function addCalculatedTracesWithFunctions(data, param) {
 function createTraceWithFunction(data, otherDataProperties, 
 					argumentsIndexes, theFormula, indexOfCreatedTrace, daysThreshold){
 	
+	var indexOfAnchorTrace;
+	var limitOfArgument = [];
+	var positionInArgument = [];
+	var i, iLimit, j;
+	var calculatedX = [];
+	var calculatedY = [];
+	var numberOfArguments;
 	
-
 	DEBUG && OTHER_DEBUGS && console.log("in createTraceWithFunction");
+	
+	/* get number of arguments */
+	numberOfArguments = argumentsIndexes.length;
+	
+	/* assign limit of elements of argument and current position in Argument */
+	limitOfArgument.length = numberOfArguments;
+	positionInArgument.length = numberOfArguments;
+	
+	for(j = 0; j < numberOfArguments; j++) {
+		limitOfArgument[j] = data[argumentsIndexes[j]].x.length;
+		positionInArgument[j] = 0;	
+	}
+	
+	/* get first trace argument as anchor trace */
+	indexOfAnchorTrace = argumentsIndexes[0];
+	
+	/* get limit of anchor trace */
+	iLimit = data[indexOfAnchorTrace].x.length;
+	
+	/* cycle throght anchor trace points */ 
+	for(var i = 0; i < iLimit ; i++) {
+		/* if there are more than one argument */
+		if(numberOfArguments > 1) {
+			
+		
+		} 
+		
+				
+		/* if there is only one argument */
+		else {
+			
+			
+		}
+
+	}
+
+
 	
 	for
 
 	jLimit = data[indexOfSourceTrace].y.length;
-	var calculatedX = [];
-	var calculatedY = [];
+
 	
 	calculatedX.length = jLimit;
 	calculatedY.length = jLimit;
