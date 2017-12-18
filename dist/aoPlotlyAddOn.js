@@ -2158,9 +2158,10 @@ function verifyAndCleanDataSources(allRows, dataSources) {
 *
 *			formula: function (a, b, c, d... ) {   return result; }
 *			(the formula will be passed values from traces traceID1, ... an so forth )
-*                       (there should be at least on argument, so that x values are taken for that trace),
+*                       (there should be at least on argument, so that x values are taken for that trace)
+*		},
 *
-*			daysThreshold: number of days that would be valid to considered as a same date in the x axis
+*		daysThreshold: number of days that would be valid to considered as a same date in the x axis
 *
 *
 *   }
@@ -2211,8 +2212,8 @@ function addCalculatedTracesWithFunctions(data, param) {
 
 				
 				/* get the daysThreshold - default = 0 */
-				if(typeof polyFormulation.daysThreshold !== "undefined"){
-					daysThreshold = polyFormulation.daysThreshold;
+				if(typeof otherDataProperties[i].calculate.daysThreshold !== "undefined"){
+					daysThreshold = otherDataProperties[i].calculate.daysThreshold;
 				} else {
 					daysThreshold = 0;
 				}
