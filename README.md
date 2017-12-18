@@ -282,7 +282,9 @@ Each object in the dataSouces will get a chunk of data, process it and feed as m
          var eiaKey = "your EIA key";
          var rootEIA = "https://api.eia.gov/series/?series_id=";
          var eiaSuffix = "&out=js=json";
-         var url = rootEIA + "TOTAL.PAPSPOC.M;TOTAL.PAPSPUS.M;TOTAL.PAPSPEU.M;TOTAL.PAPSPJA.M" + "&api_key="+eiaKey+eiaSuffix;
+         var url = rootEIA + 
+	 		"TOTAL.PAPSPOC.M;TOTAL.PAPSPUS.M;TOTAL.PAPSPEU.M;TOTAL.PAPSPJA.M" + 
+			"&api_key="+eiaKey+eiaSuffix;
          
          In this examples, the series should be referred to as seriesIndex: 0, seriesIndex: 1, ... etc in the traces array
          
