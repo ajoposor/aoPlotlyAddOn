@@ -563,7 +563,7 @@ Use this object to instruct handling of dates range
 
    * **tracesInitialDate:** (date string formatted as "yyyy-mm-dd") Optional. Traces will be trimmed for dates earlier than provided value. Data before tracesInitialDate will not be included in the data.
 
-   * **InitialDateForInitialDisplay:** (date string formatted as "yyyy-mm-dd") Optional. Date at which initial display will begin.
+   * **initialDateForInitialDisplay:** (date string formatted as "yyyy-mm-dd") Optional. Date at which initial display will begin.
 
    * **endDateForInitialDisplay:** (date string formatted as "yyyy-mm-dd") Optional. Date at which initial display of traces will end.
 
