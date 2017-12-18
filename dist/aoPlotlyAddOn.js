@@ -1293,6 +1293,7 @@ function parallelReadDataAndMakeChart(data, param) {
 			// test with void data
 			//var data = [{x:[], y:[]}];
 			
+			addCalculatedTracesWithFunctions(data, param);
 			addCalculatedRealTraces(data, param);
 			trimNonExistingDataXY(data, param.otherDataProperties);
 			// this removes data[i], where data[i].x or y don't exist or have zero elements
