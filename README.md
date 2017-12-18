@@ -55,7 +55,7 @@ It helps you in two stages: **data sourcing** and **plot funtionality**.
       * **many to one**: get data for one trace from many sources or,
       * **one to many** use one source to feed multiple traces
       * **non-standard csv**: allows a file with many date fields, with different frequencies (for instance: one daily, another monthly) to be split and handled independently.
-   * **Calculate tracesg**  
+   * **Calculate traces**  
       * **use custom functions**: specify a formula to calculate a trace from already loaded traces, or,
       * **calculate deflacted traces** using a deflactor and a source trace, create a new trace with deflated values.
 
@@ -203,19 +203,19 @@ Each object within the otherDataProperties array has the the following propertie
    * **deflactor**: (boolean, optional) Set to true in the trace which shall be considered a deflactor for calculation of real values. The trace in which the deflactor is set to true must have the toggleRealNominal property set to false.
    * **calculate**: (object, optional) include this object to set calculaiton options for this trace. Instead of loading data, the trace dates and value will be calculated base on other traces and parameters. There are two options for the calculate object:
    
-      * **Calculating a real trace (deflated values)
-         * **type:** "real",
-	 * **sourceTrace:** traceID (enter the traceID of a trace that will be converted into real values (deflated)
+      * **Calculating a real trace (deflated values)**
+         * **type**: "real",
+	 * **sourceTrace**: traceID (enter the traceID of a trace that will be converted into real values (deflated)
 	 * **factorInformation:** (object): 
-	    * **date:** "end of trace" or "beginning of trace" or a full date string as "yyyy-mm-dd hh:mm:ss.sss+00:00"
-	    * **referredDateTraceID** (only required if date set to "end of trace" or "beginning of trace") This will search for the  date in the referredTraceID and set it as base value for the deflactor
+	    * **date**: "end of trace" or "beginning of trace" or a full date string as "yyyy-mm-dd hh:mm:ss.sss+00:00"
+	    * **referredDateTraceID**: (only required if date set to "end of trace" or "beginning of trace") This will search for the  date in the referredTraceID and set it as base value for the deflactor
 	    
-      * **Calculating a trace using a custom function
-         * **type:** "poly",
-	 * **daysThreshold:** (optional, default = 0) use this parameter to set a threshold that will consider dates being equal and therefore will apply the formula to such set of points. For instance, one trace argument could have a date december 31, while another trace argument could be december 30 and your traces are yearly. You may use the threshold to consider these two dates as equal. The first trace in the arguments will provided the selected date, in this case december 31.
-	 * **polyFormulation:** (object): 
-	    * **argumentsIDs:** (array) with the tracesIDs that will be used as arguments. At least one traceID is required (in order to get the dates): ["tradeID1", traceID2, ...]
-	    * **formula:** a function with the arguments in the order provided in argumentsIDs. 
+      * **Calculating a trace using a custom function**
+         * **type**: "poly",
+	 * **daysThreshold**: (optional, default = 0) use this parameter to set a threshold that will consider dates being equal and therefore will apply the formula to such set of points. For instance, one trace argument could have a date december 31, while another trace argument could be december 30 and your traces are yearly. You may use the threshold to consider these two dates as equal. The first trace in the arguments will provided the selected date, in this case december 31.
+	 * **polyFormulation**: (object): 
+	    * **argumentsIDs**: (array) with the tracesIDs that will be used as arguments. At least one traceID is required (in order to get the dates): ["tradeID1", traceID2, ...]
+	    * **formula**: a function with the arguments in the order provided in argumentsIDs. 
 	       for instance:
 	          *   formula: function(x) {return 2*x;}
 		  *   formula: function(x, y, z) { return x+y+z;}
@@ -281,11 +281,11 @@ Each object in the dataSouces will get a chunk of data, process it and feed as m
          ```javascript
          var eiaKey = "your EIA key";
          var rootEIA = "https://api.eia.gov/series/?series_id=";
-	 var eiaSuffix = "&out=js=json";
+         var eiaSuffix = "&out=js=json";
          var url = rootEIA + "TOTAL.PAPSPOC.M;TOTAL.PAPSPUS.M;TOTAL.PAPSPEU.M;TOTAL.PAPSPJA.M" + "&api_key="+eiaKey+eiaSuffix;
-	 
-	 In this examples, the series should be referred to as seriesIndex: 0, seriesIndex: 1, ... etc in the traces array
-	 
+         
+         In this examples, the series should be referred to as seriesIndex: 0, seriesIndex: 1, ... etc in the traces array
+         
          ```      
      
       * **yqlGoogleCSV**: In this case, the url to be provided is a google url that returns a csv file. The yql portion will be added by the function as `"https://query.yahooapis.com/v1/public/yql?q="+encodeURIComponent("SELECT * from csv where url='"+url+"'")+"&format=json"`. From readJson returned by `$.getJSON` (or `Plotly.d3.json`), json object would be `readJson.query.results.row`.
