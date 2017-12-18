@@ -2292,7 +2292,7 @@ function createTraceWithFunction(data, otherDataProperties,
 	iLimit = data[indexOfAnchorTrace].x.length;
 	
 	/* cycle throght anchor trace points */ 
-	for(var i = 0; i < iLimit ; i++) 
+	for(var i = 0; i < iLimit ; i++) {
 		
 		/* update position of anchor trace point */
 		positionInArgument[0] = i;
@@ -2364,47 +2364,32 @@ function createTraceWithFunction(data, otherDataProperties,
 				
 		/* if there is only one argument */
 		else {
+			/* set arguments */
+			functionArguments[0] = data[argumentsIndexes[0]].y[positionInArgument[0]];
+				
+			/* calculate function */
+			calculatedValue = theFormula.apply(this, functionArguments);
 			
-			
-			
-			
+			/* add calculated value and date to array */		
+			if(!isNaN(calculatedValue)) {
+				calculatedX = data[argumentsIndexes[0]].y[positionInArgument[0]];
+				calculatedY.push = calculatedValue;
+			}
 		}
 
-	}
-
-
-	
-	for
-
-	jLimit = data[indexOfSourceTrace].y.length;
-
-	
-	calculatedX.length = jLimit;
-	calculatedY.length = jLimit;
-	
-	for (j = 0; j < jLimit; j++) {
-		calculatedX[j] = data[indexOfSourceTrace].x[j];
-		calculatedY[j] = data[indexOfSourceTrace].y[j] * deflactorAtTargetDate / 
-			Number(deflactorDictionary[data[indexOfSourceTrace].x[j]]);
 	}
 	
 	data[indexOfCreatedTrace].x = calculatedX;
 	data[indexOfCreatedTrace].y = calculatedY;
 
-	DEBUG && OTHER_DEBUGS && console.log("data after createRealTrace: ", data);
-
-
+	DEBUG && OTHER_DEBUGS && console.log("data after createTraceWithFunction: ", data);
 
 }	
 	
 
-		
 	
 	
 	
-	
-
-
  
 /**
 *
