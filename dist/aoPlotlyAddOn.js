@@ -9,7 +9,7 @@ var aoPlotlyAddOn = {};
 // set DEBUG && OTHER_DEBUGS option (for display of console.log messages)
 // console.log will also be removed with closure compiler 
 var DEBUG = true;
-var OTHER_DEBUGS = true;
+var OTHER_DEBUGS = false;
 var DEBUG_TIMES = false;
 var DEBUG_CSV = false;
 var DEBUG_TRANSFORM_BY_FREQUENCIES = false;
@@ -2320,6 +2320,8 @@ function createTraceWithFunction(data, argumentsIndexes, theFormula, indexOfCrea
 				/* test with current position */
 				currentDistance = Math.abs(anchorDateAsDate - 
 							   new Date(data[argumentsIndexes[j]].x[positionInArgument[j]]));
+				
+				
 				if(currentDistance <= millisecondsThreshold) {
 					pointFound[j] = true;
 				}
@@ -2330,6 +2332,9 @@ function createTraceWithFunction(data, argumentsIndexes, theFormula, indexOfCrea
 					for( k = positionInArgument[j]; k < kLimit; k++) {
 						newDistance = Math.abs(anchorDateAsDate - 
 								       new Date(data[argumentsIndexes[j]].x[positionInArgument[j]]));
+						
+						DEBUG && DEBUG_createTraceWithFunction && console.log("arg:", j," k: ", k, " newDistance: ", newDistance);		
+						
 						if(newDistance < currentDistance) {
 							if (newDistance <= millisecondsThreshold){
 								pointFound[j] = true;
@@ -2339,6 +2344,10 @@ function createTraceWithFunction(data, argumentsIndexes, theFormula, indexOfCrea
 						}
 						
 						if(newDistance === 0.0){
+							k = kLimit;
+						}
+						
+						if(newDistance > currentDistance) {
 							k = kLimit;
 						}
 					}
