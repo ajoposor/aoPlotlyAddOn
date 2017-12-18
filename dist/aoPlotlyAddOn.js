@@ -2255,10 +2255,14 @@ function createTraceWithFunction(data, otherDataProperties,
 	var indexOfAnchorTrace;
 	var limitOfArgument = [];
 	var positionInArgument = [];
-	var i, iLimit, j;
+	var i, iLimit, j, k, kLimit;
 	var calculatedX = [];
 	var calculatedY = [];
 	var numberOfArguments;
+	var anchorDateAsDate;
+	var millisecondsThreshold = daysThreshold*24*60*60*1000;
+	var currentDistance;
+	var newDistance;
 	
 	DEBUG && OTHER_DEBUGS && console.log("in createTraceWithFunction");
 	
@@ -2281,9 +2285,25 @@ function createTraceWithFunction(data, otherDataProperties,
 	iLimit = data[indexOfAnchorTrace].x.length;
 	
 	/* cycle throght anchor trace points */ 
-	for(var i = 0; i < iLimit ; i++) {
+	for(var i = 0; i < iLimit ; i++) 
 		/* if there are more than one argument */
 		if(numberOfArguments > 1) {
+			anchorDateAsDate = new Date(data[indexOfAnchorTrace].x[i]);
+			
+			/* find positions to lower or equal to anchorDate and threshold */
+			for(j = 1; j < numberOfArguments; j++){
+				/* test with current position */
+				currentDistance = Math.abs(anchorDateAsDate - newDate(data[argumentsIndexes[j]].x[positionInArgument[j]]));
+				if(currentDistance < millisecondsThreshold) {
+					pointFound[j] = true;
+				}
+				/* find closest point */
+				kLimit = limitOfArgument[j];
+				for( k = j; k < kLimit; k++) {
+				}
+				
+			
+			}
 			
 		
 		} 
