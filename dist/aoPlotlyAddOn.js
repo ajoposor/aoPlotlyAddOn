@@ -2255,6 +2255,8 @@ function createTraceWithFunction(data, otherDataProperties,
 	var indexOfAnchorTrace;
 	var limitOfArgument = [];
 	var positionInArgument = [];
+	var pointFound = [];
+	var functionArguments = [];
 	var i, iLimit, j, k, kLimit;
 	var calculatedX = [];
 	var calculatedY = [];
@@ -2263,6 +2265,8 @@ function createTraceWithFunction(data, otherDataProperties,
 	var millisecondsThreshold = daysThreshold*24*60*60*1000;
 	var currentDistance;
 	var newDistance;
+	var commonPointFound;
+	var calculatedValue;
 	
 	DEBUG && OTHER_DEBUGS && console.log("in createTraceWithFunction");
 	
@@ -2272,10 +2276,13 @@ function createTraceWithFunction(data, otherDataProperties,
 	/* assign limit of elements of argument and current position in Argument */
 	limitOfArgument.length = numberOfArguments;
 	positionInArgument.length = numberOfArguments;
+	pointFound.length = numberOfArguments;
+	functionArguments.length = numberOfArguments;
 	
 	for(j = 0; j < numberOfArguments; j++) {
 		limitOfArgument[j] = data[argumentsIndexes[j]].x.length;
-		positionInArgument[j] = 0;	
+		positionInArgument[j] = 0;
+		pointFound[j] = false;
 	}
 	
 	/* get first trace argument as anchor trace */
@@ -2286,31 +2293,79 @@ function createTraceWithFunction(data, otherDataProperties,
 	
 	/* cycle throght anchor trace points */ 
 	for(var i = 0; i < iLimit ; i++) 
+		
+		/* update position of anchor trace point */
+		positionInArgument[0] = i;
+		
 		/* if there are more than one argument */
 		if(numberOfArguments > 1) {
 			anchorDateAsDate = new Date(data[indexOfAnchorTrace].x[i]);
+			/* set pointFound to false */
+			for(j = 1; j < numberOfArguments; j++){
+				pointFound[j] = false;
+			}
 			
 			/* find positions to lower or equal to anchorDate and threshold */
 			for(j = 1; j < numberOfArguments; j++){
 				/* test with current position */
-				currentDistance = Math.abs(anchorDateAsDate - newDate(data[argumentsIndexes[j]].x[positionInArgument[j]]));
-				if(currentDistance < millisecondsThreshold) {
+				currentDistance = Math.abs(anchorDateAsDate - 
+							   newDate(data[argumentsIndexes[j]].x[positionInArgument[j]]));
+				if(currentDistance <= millisecondsThreshold) {
 					pointFound[j] = true;
 				}
-				/* find closest point */
-				kLimit = limitOfArgument[j];
-				for( k = j; k < kLimit; k++) {
-				}
 				
-			
+				if(currentDistance > 0) {
+					/* find closest point */
+					kLimit = limitOfArgument[j];
+					for( k = positionInArgument[j]; k < kLimit; k++) {
+						newDistance = Math.abs(anchorDateAsDate - 
+								       newDate(data[argumentsIndexes[j]].x[positionInArgument[j]]));
+						if(newDistance < currentDistance) {
+							if (newDistance <= millisecondsThreshold){
+								pointFound[j] = true;
+							}
+							currentDistance = newDistance;
+							positionInArgument[j] = k;
+						}
+						
+						if(newDistance === 0.0){
+							k = kLimit;
+						}
+					}
+				}
 			}
 			
+			/* test whether a common point was found and execute function and add point */
+			commonPointFound = true;
+			for (j = 1;  j < numberOfArguments; j++){
+				if(pointFound[j] === false) commonPointFound = false;
+			}
+			
+			/* make calculation and add point if commonPointFound */
+			if(commonPointFound) {
+				/* set arguments */
+				for (j = 0;  j < numberOfArguments; j++){
+					functionArguments[j] = data[argumentsIndexes[j]].y[positionInArgument[j]];
+				}
+				
+				/* calculate function */
+				calculatedValue = theFormula.apply(this, functionArguments);
+				
+				/* add calculated value and date to array */		
+				if(!isNaN(calculatedValue)) {
+					calculatedX = data[argumentsIndexes[0]].y[positionInArgument[0]];
+					calculatedY.push = calculatedValue;
+				}
+			}
+
 		
 		} 
 		
 				
 		/* if there is only one argument */
 		else {
+			
+			
 			
 			
 		}
