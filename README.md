@@ -207,15 +207,15 @@ Each object within the otherDataProperties array has the the following propertie
          * **type**: "real",
          * **sourceTrace**: traceID (enter the traceID of a trace that will be converted into real values (deflated)
          * **factorInformation:** (object): 
-	    * **date**: "end of trace" or "beginning of trace" or a full date string as "yyyy-mm-dd hh:mm:ss.sss+00:00"
-	    * **referredDateTraceID**: (only required if date set to "end of trace" or "beginning of trace") This will search for the  date in the referredTraceID and set it as base value for the deflactor
+            * **date**: "end of trace" or "beginning of trace" or a full date string as "yyyy-mm-dd hh:mm:ss.sss+00:00"
+            * **referredDateTraceID**: (only required if date set to "end of trace" or "beginning of trace") This will search for the  date in the referredTraceID and set it as base value for the deflactor
 	    
       * **Calculating a trace using a custom function**
          * **type**: "poly",
          * **daysThreshold**: (optional, default = 0) use this parameter to set a threshold that will consider dates being equal and therefore will apply the formula to such set of points. For instance, one trace argument could have a date december 31, while another trace argument could be december 30 and your traces are yearly. You may use the threshold to consider these two dates as equal. The first trace in the arguments will provided the selected date, in this case december 31.
          * **polyFormulation**: (object): 
-	    * **argumentsIDs**: (array) with the tracesIDs that will be used as arguments. At least one traceID is required (in order to get the dates): ["tradeID1", traceID2, ...]
-	    * **formula**: a function with the arguments in the order provided in argumentsIDs. 
+            * **argumentsIDs**: (array) with the tracesIDs that will be used as arguments. At least one traceID is required (in order to get the dates): ["tradeID1", traceID2, ...]
+            * **formula**: a function with the arguments in the order provided in argumentsIDs. 
 	       for instance:
 	          *   formula: function(x) {return 2*x;}
 		  *   formula: function(x, y, z) { return x+y+z;}
