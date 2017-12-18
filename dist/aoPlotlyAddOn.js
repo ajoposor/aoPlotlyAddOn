@@ -2175,7 +2175,7 @@ function addCalculatedTracesWithFunctions(data, param) {
 	
 
 	var otherDataProperties = param.otherDataProperties;
-	var j, iLimit = otherDataProperties.length;
+	var j, iLimit;
 	var originalDataCreated = false;
 	var useVoidPeriodKeys = {};
 	var argumentsIndexes;
@@ -2186,6 +2186,8 @@ function addCalculatedTracesWithFunctions(data, param) {
 	var daysThreshold;
 	
 	// iterate through all traces in otherDataProperties
+	iLimit = otherDataProperties.length;
+	
 	for (var i=0; i < iLimit; i++) {
 		// test whether a calculate option with poly is added
 		if(typeof otherDataProperties[i].calculate !== "undefined" &&
@@ -2377,7 +2379,7 @@ function createTraceWithFunction(data, argumentsIndexes, theFormula, indexOfCrea
 				
 				/* add calculated value and date to array */		
 				if(!isNaN(calculatedValue)) {
-					calculatedX.push(data[argumentsIndexes[0]].y[positionInArgument[0]]);
+					calculatedX.push(data[argumentsIndexes[0]].x[positionInArgument[0]]);
 					calculatedY.push(calculatedValue);
 				}
 			}
@@ -2396,7 +2398,7 @@ function createTraceWithFunction(data, argumentsIndexes, theFormula, indexOfCrea
 			
 			/* add calculated value and date to array */		
 			if(!isNaN(calculatedValue)) {
-				calculatedX.push(data[argumentsIndexes[0]].y[positionInArgument[0]]);
+				calculatedX.push(data[argumentsIndexes[0]].x[positionInArgument[0]]);
 				calculatedY.push(calculatedValue);
 			}
 		}
