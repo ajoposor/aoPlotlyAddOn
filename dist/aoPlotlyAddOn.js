@@ -8,7 +8,7 @@ var aoPlotlyAddOn = {};
 	 
 // set DEBUG && OTHER_DEBUGS option (for display of console.log messages)
 // console.log will also be removed with closure compiler 
-var DEBUG = true;
+var DEBUG = false;
 var OTHER_DEBUGS = false;
 var DEBUG_TIMES = false;
 var DEBUG_CSV = false;
@@ -16,8 +16,8 @@ var DEBUG_TRANSFORM_BY_FREQUENCIES = false;
 var DEBUG_FB = false; // debug in frequency button
 var DEBUG_EIA_FUNCTION = false;
 var DEBUG_RECESSIONS = false; 
-var DEBUG_createIndexMap = true;
-var DEBUG_createTraceWithFunction = true;
+var DEBUG_createIndexMap = false;
+var DEBUG_createTraceWithFunction = false;
     
        
 // this functions adds items and functionallity, including, buttons, responsiveness, series resampling     
