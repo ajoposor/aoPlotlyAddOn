@@ -2152,11 +2152,13 @@ function verifyAndCleanDataSources(allRows, dataSources) {
 *  Properties relevant in the OtherDataProperties object are:
 *	calculate: {
 *		type: "poly",
-*		polyFormualtion : {
+*		polyFormulation : {
 *			argumentsIDs : [ traceID1, traceID2, ... } tracesIDs as defined in otherDataProperties
-*                       traces should be already calculated, you may order traces to make calculations from calculations
+*                       traces should be already calculated, you may order traces to make calculations from calculations,
 *
-*			formula: function (a, b, c, d... ) {   return result; }
+*			passDate: true or false, will include the date as the first argument,
+*
+*			formula: function ((date), a, b, c, d... ) {   return result; }
 *			(the formula will be passed values from traces traceID1, ... an so forth )
 *                       (there should be at least on argument, so that x values are taken for that trace)
 *		},
@@ -2184,6 +2186,7 @@ function addCalculatedTracesWithFunctions(data, param) {
 	var error = false;
 	var foundIndex = -1;
 	var daysThreshold;
+	var passDate = false;
 	
 	// iterate through all traces in otherDataProperties
 	iLimit = otherDataProperties.length;
@@ -2220,6 +2223,13 @@ function addCalculatedTracesWithFunctions(data, param) {
 					daysThreshold = 0;
 				}
 				
+				/* get the passDate parameters - default = false */
+				if(typeof polyFormulation.passDate !== "undefined"){
+					passDate = polyFormulation.passDate;
+				} else {
+					passDate = false;
+				}
+				
 				DEBUG && DEBUG_createTraceWithFunction && console.log("daysThreshold: ", daysThreshold);
 
 				/**
@@ -2250,7 +2260,8 @@ function addCalculatedTracesWithFunctions(data, param) {
 			
 				
 					// create the requested  trace
-					createTraceWithFunction(data, argumentsIndexes, polyFormulation.formula, i, daysThreshold);			}
+					createTraceWithFunction(data, argumentsIndexes, polyFormulation.formula, i, daysThreshold,
+							       passDate);			}
 			}
 		}
 	}
@@ -2258,14 +2269,14 @@ function addCalculatedTracesWithFunctions(data, param) {
 	
 	
 		
-function createTraceWithFunction(data, argumentsIndexes, theFormula, indexOfCreatedTrace, daysThreshold){
+function createTraceWithFunction(data, argumentsIndexes, theFormula, indexOfCreatedTrace, daysThreshold, passDate){
 	
 	var indexOfAnchorTrace;
 	var limitOfArgument = [];
 	var positionInArgument = [];
 	var pointFound = [];
 	var functionArguments = [];
-	var i, iLimit, j, k, kLimit;
+	var i, iLimit, j, jLimit, k, kLimit;
 	var calculatedX = [];
 	var calculatedY = [];
 	var numberOfArguments;
@@ -2289,7 +2300,11 @@ function createTraceWithFunction(data, argumentsIndexes, theFormula, indexOfCrea
 	limitOfArgument.length = numberOfArguments;
 	positionInArgument.length = numberOfArguments;
 	pointFound.length = numberOfArguments;
-	functionArguments.length = numberOfArguments;
+	if(passDate) {
+		functionArguments.length = numberOfArguments+1;
+	} else {
+		functionArguments.length = numberOfArguments;
+	}
 							      
 	DEBUG && DEBUG_createTraceWithFunction && console.log("limitOfArgument array: ", limitOfArgument);						      
 							      
@@ -2370,8 +2385,18 @@ function createTraceWithFunction(data, argumentsIndexes, theFormula, indexOfCrea
 			/* make calculation and add point if commonPointFound */
 			if(commonPointFound) {
 				/* set arguments */
-				for (j = 0;  j < numberOfArguments; j++){
-					functionArguments[j] = data[argumentsIndexes[j]].y[positionInArgument[j]];
+				
+				/* add add date if required */
+				if(passDate) {
+					functionArguments[0] = anchorDateAsDate;
+					jLimit = numberOfArguments+1;
+					for (j = 1;  j < numberOfArguments; j++){
+						functionArguments[j] = data[argumentsIndexes[j]].y[positionInArgument[j]];
+					}
+				} else {
+					for (j = 0;  j < numberOfArguments; j++){
+						functionArguments[j] = data[argumentsIndexes[j]].y[positionInArgument[j]];
+					}
 				}
 				
 				/* calculate function */
