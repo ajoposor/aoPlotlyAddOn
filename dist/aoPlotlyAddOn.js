@@ -2279,7 +2279,7 @@ function createTraceWithFunction(data, argumentsIndexes, theFormula, indexOfCrea
 	var positionInArgument = [];
 	var pointFound = [];
 	var functionArguments = [];
-	var i, iLimit, j, jLimit, k, kLimit;
+	var i, iLimit, j, k, kLimit;
 	var calculatedX = [];
 	var calculatedY = [];
 	var numberOfArguments;
@@ -2392,9 +2392,8 @@ function createTraceWithFunction(data, argumentsIndexes, theFormula, indexOfCrea
 				/* add add date if required */
 				if(passDate) {
 					functionArguments[0] = anchorDateAsDate;
-					jLimit = numberOfArguments+1;
-					for (j = 1;  j < jLimit; j++){
-						functionArguments[j] = data[argumentsIndexes[j]].y[positionInArgument[j]];
+					for (j = 0;  j < numberOfArguments; j++){
+						functionArguments[j+1] = data[argumentsIndexes[j]].y[positionInArgument[j]];
 					}
 				} else {
 					for (j = 0;  j < numberOfArguments; j++){
