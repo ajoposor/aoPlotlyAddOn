@@ -2393,7 +2393,7 @@ function createTraceWithFunction(data, argumentsIndexes, theFormula, indexOfCrea
 				if(passDate) {
 					functionArguments[0] = anchorDateAsDate;
 					jLimit = numberOfArguments+1;
-					for (j = 1;  j < numberOfArguments; j++){
+					for (j = 1;  j < jLimit; j++){
 						functionArguments[j] = data[argumentsIndexes[j]].y[positionInArgument[j]];
 					}
 				} else {
