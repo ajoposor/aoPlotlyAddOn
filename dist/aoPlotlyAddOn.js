@@ -16,8 +16,9 @@ var DEBUG_TRANSFORM_BY_FREQUENCIES = false;
 var DEBUG_FB = false; // debug in frequency button
 var DEBUG_EIA_FUNCTION = true;
 var DEBUG_RECESSIONS = false; 
-var DEBUG_createIndexMap = false;
-var DEBUG_createTraceWithFunction = false;
+var DEBUG_CREATE_INDEX_MAP = false;
+var DEBUG_CREATE_TRACE_WITH_FUNCTION = false;
+var DEBUG_ADD_DATE_TO_FORMULA = true;
     
        
 // this functions adds items and functionallity, including, buttons, responsiveness, series resampling     
@@ -2202,7 +2203,7 @@ function addCalculatedTracesWithFunctions(data, param) {
 			if(typeof otherDataProperties[i].calculate.polyFormulation !== "undefined") {
 				
 				polyFormulation = otherDataProperties[i].calculate.polyFormulation;
-				DEBUG && DEBUG_createTraceWithFunction && console.log("polyFormulation", polyFormulation);
+				DEBUG && DEBUG_CREATE_TRACE_WITH_FUNCTION && console.log("polyFormulation", polyFormulation);
 				
 				
 				/* get the number of arguments to be passed */
@@ -2213,7 +2214,7 @@ function addCalculatedTracesWithFunctions(data, param) {
 					console.log("should pass at least one trace argument to addCalculatedTracesWithFunctions");
 				}
 				
-				DEBUG && DEBUG_createTraceWithFunction && console.log("numberOfArguments", numberOfArguments);
+				DEBUG && DEBUG_CREATE_TRACE_WITH_FUNCTION && console.log("numberOfArguments", numberOfArguments);
 
 				
 				/* get the daysThreshold - default = 0 */
@@ -2230,7 +2231,9 @@ function addCalculatedTracesWithFunctions(data, param) {
 					passDate = false;
 				}
 				
-				DEBUG && DEBUG_createTraceWithFunction && console.log("daysThreshold: ", daysThreshold);
+				DEBUG && DEBUG_ADD_DATE_TO_FORMULA && console.log("passDate: ", passDate);
+				
+				DEBUG && DEBUG_CREATE_TRACE_WITH_FUNCTION && console.log("daysThreshold: ", daysThreshold);
 
 				/**
 				* find the indexes of the arguments ID's
@@ -2258,7 +2261,7 @@ function addCalculatedTracesWithFunctions(data, param) {
 						originalDataCreated = true;
 					}
 			
-				
+					
 					// create the requested  trace
 					createTraceWithFunction(data, argumentsIndexes, polyFormulation.formula, i, daysThreshold,
 							       passDate);			}
@@ -2287,14 +2290,14 @@ function createTraceWithFunction(data, argumentsIndexes, theFormula, indexOfCrea
 	var commonPointFound;
 	var calculatedValue;
 	
-	DEBUG && DEBUG_createTraceWithFunction && console.log("in createTraceWithFunction");
-	DEBUG && DEBUG_createTraceWithFunction && console.log("argumentsIndexes: ", argumentsIndexes);
-	DEBUG && DEBUG_createTraceWithFunction && console.log("millisecondsThreshold: ", millisecondsThreshold);
+	DEBUG && DEBUG_CREATE_TRACE_WITH_FUNCTION && console.log("in createTraceWithFunction");
+	DEBUG && DEBUG_CREATE_TRACE_WITH_FUNCTION && console.log("argumentsIndexes: ", argumentsIndexes);
+	DEBUG && DEBUG_CREATE_TRACE_WITH_FUNCTION && console.log("millisecondsThreshold: ", millisecondsThreshold);
 
 	
 	/* get number of arguments */
 	numberOfArguments = argumentsIndexes.length;
-	DEBUG && DEBUG_createTraceWithFunction && console.log("numberOfArguments: ", numberOfArguments);
+	DEBUG && DEBUG_CREATE_TRACE_WITH_FUNCTION && console.log("numberOfArguments: ", numberOfArguments);
 	
 	/* assign limit of elements of argument and current position in Argument */
 	limitOfArgument.length = numberOfArguments;
@@ -2306,7 +2309,7 @@ function createTraceWithFunction(data, argumentsIndexes, theFormula, indexOfCrea
 		functionArguments.length = numberOfArguments;
 	}
 							      
-	DEBUG && DEBUG_createTraceWithFunction && console.log("limitOfArgument array: ", limitOfArgument);						      
+	DEBUG && DEBUG_CREATE_TRACE_WITH_FUNCTION && console.log("limitOfArgument array: ", limitOfArgument);						      
 							      
 	
 	for(j = 0; j < numberOfArguments; j++) {
@@ -2317,11 +2320,11 @@ function createTraceWithFunction(data, argumentsIndexes, theFormula, indexOfCrea
 	
 	/* get first trace argument as anchor trace */
 	indexOfAnchorTrace = argumentsIndexes[0];
-	DEBUG && DEBUG_createTraceWithFunction && console.log("indexOfAnchorTrace: ", indexOfAnchorTrace);
+	DEBUG && DEBUG_CREATE_TRACE_WITH_FUNCTION && console.log("indexOfAnchorTrace: ", indexOfAnchorTrace);
 	
 	/* get limit of anchor trace */
 	iLimit = data[indexOfAnchorTrace].x.length;
-	DEBUG && DEBUG_createTraceWithFunction && console.log("limit of anchor trace: ", iLimit);						      
+	DEBUG && DEBUG_CREATE_TRACE_WITH_FUNCTION && console.log("limit of anchor trace: ", iLimit);						      
 	
 	/* cycle throght anchor trace points */ 
 	for(var i = 0; i < iLimit ; i++) {
@@ -2355,7 +2358,7 @@ function createTraceWithFunction(data, argumentsIndexes, theFormula, indexOfCrea
 						newDistance = Math.abs(anchorDateAsDate - 
 								       new Date(data[argumentsIndexes[j]].x[k]));
 						
-						DEBUG && DEBUG_createTraceWithFunction && console.log("arg:", j," k: ", k, " newDistance: ", newDistance);		
+						DEBUG && DEBUG_CREATE_TRACE_WITH_FUNCTION && console.log("arg:", j," k: ", k, " newDistance: ", newDistance);		
 						
 						if(newDistance < currentDistance) {
 							if (newDistance <= millisecondsThreshold){
@@ -2404,8 +2407,12 @@ function createTraceWithFunction(data, argumentsIndexes, theFormula, indexOfCrea
 				
 				/* add calculated value and date to array */		
 				if(!isNaN(calculatedValue)) {
+					DEBUG && DEBUG_ADD_DATE_TO_FORMULA && console.log("calculatedValue: ", calculatedValue);
 					calculatedX.push(data[argumentsIndexes[0]].x[positionInArgument[0]]);
 					calculatedY.push(calculatedValue);
+				} else {
+					DEBUG && DEBUG_ADD_DATE_TO_FORMULA && console.log("NaN in date: ",
+								data[argumentsIndexes[0]].x[positionInArgument[0]]);
 				}
 			}
 
