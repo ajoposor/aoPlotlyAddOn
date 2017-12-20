@@ -1924,6 +1924,9 @@ function loadSubTablesIntoData(dataSources, tableParams,
 		readTraceEndDateAsDate = new Date(allRows[readTraceInitialIndex][xSeriesName]);
 		readTraceInitialDateAsDate = new Date(allRows[readTraceEndIndex][xSeriesName]);
 		
+		DEBUG && OTHER_DEBUGS && console.log("readTraceInitialDateAsDate: ", readTraceInitialDateAsDate);
+		DEBUG && OTHER_DEBUGS && console.log("readTraceEndDateAsDate: ",readTraceEndDateAsDate);
+		
 		adjust = "none";
 		adjustFactor = 1.0;
 		indexOfYSeriesName =tableParams[xSeriesName].yNames.indexOf(ySeriesName);
@@ -2002,12 +2005,17 @@ function loadSubTablesIntoData(dataSources, tableParams,
 
 			// case total overlap, find space available
 			else {
+				DEBUG && OTHER_DEBUGS && console.log("total overlap");
 				spliceInfo = localFindSpliceInfo(
 					allRows,   xSeriesName, readTraceInitialIndex,
 					readTraceLength, data[iData].x);
 				initialIndex = spliceInfo.initialIndex;
 				traceLength = spliceInfo.traceLength;
 				insertPoint = spliceInfo.insertPoint;
+				
+				DEBUG && OTHER_DEBUGS && console.log("initialIndex: ", initialIndex);
+				DEBUG && OTHER_DEBUGS && console.log("traceLength: ", traceLength);
+				DEBUG && OTHER_DEBUGS && console.log("insertPoint: ", insertPoint);
 		
 				if(calculateAdjustedClose){
 					adjust = "new"; // "new", "existing" or "none"
