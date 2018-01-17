@@ -1575,6 +1575,8 @@ function delayedParallelReadData(data, i, param, callback) {
 
 function checkDataIsAnArrayNotVoid(readData){
 	
+	DEBUG && OTHER_DEBUGS && console.log("readData entering checkDataIsAnArrayNotVoid",readData);
+	
 	if(Array.isArray(readData) &&
 	   readData.length > 0) {
 		return true;
@@ -1615,6 +1617,8 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 	*/
 	
 	var tableParams = {};
+	
+	DEBUG && OTHER_DEBUGS && console.log("allRows entering processing csv: ",allRows);
 	
 	
 	// save function references
