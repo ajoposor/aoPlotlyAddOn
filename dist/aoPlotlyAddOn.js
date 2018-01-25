@@ -1728,10 +1728,9 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 	
 	
 	
-function adjustEiaJsonDates(eiaArrayData, tracesInitialDate) {
+function adjustEiaJsonDates(eiaArrayData) {
 		
 	var timeOffsetText = getTimeOffsetText();
-	var tracesInitialDateFullString = localProcessDate(tracesInitialDate, timeOffsetText);
 	var currentSeries = {};
 	var kMax = eiaArrayData.length;
 	var seriesLimit;
@@ -1836,7 +1835,7 @@ function processEiaData(eiaArrayData, data, tracesInitialDate, otherDataProperti
 	* transform from "yyyy" or "yyyymm" or "yyyymmdd" to whole date
 	*/
 	
-	adjustEiaJsonDates(eiaArrayData, tracesInitialDate);
+	adjustEiaJsonDates(eiaArrayData);
 	
 	
 
@@ -1874,10 +1873,9 @@ function factorAndShiftDataInTableParams(tableParams) {
 
 	
 
-function adjustWBJsonDates(wbArrayData, tracesInitialDate) {
+function adjustWBJsonDates(wbArrayData) {
 		
 	var timeOffsetText = getTimeOffsetText();
-	var tracesInitialDateFullString = localProcessDate(tracesInitialDate, timeOffsetText);
 	var currentSeries = {};
 	var kMax = wbArrayData.length;
 	var seriesLimit;
@@ -1885,9 +1883,18 @@ function adjustWBJsonDates(wbArrayData, tracesInitialDate) {
 	for (var k=0; k< kMax; k++ ){
 		currentSeries = wbArrayData[k];
 		seriesLimit = currentSeries.data.length;
+		
+		for (i=0; i < seriesLimit; i++) {
+			if(currentSeries[i].date.length === 4) {
+				DEBUG && OTHER_DEBUGS && DEBUG_WB_FUNCTION && console.log("year date");
+				currentSeries[i].date += "-12-31 00:00:00.000"+timeOffsetText;
+				
+			}	
+		}
+		
 		if(currentSeries.f === "M"){
 			if (currentSeries.hasOwnProperty("lastHistoricalPeriod")) {
-				DEBUG && OTHER_DEBUGS && DEBUG_EIA_FUNCTION && console.log(currentSeries.lastHistoricalPeriod.substr(0,4)+"-"+
+				DEBUG && OTHER_DEBUGS && DEBUG_WB_FUNCTION && console.log(currentSeries.lastHistoricalPeriod.substr(0,4)+"-"+
 					currentSeries.lastHistoricalPeriod.substr(4,2)+			     
 					 "-01"+" 00:00:00.000"+timeOffsetText);
 				currentSeries.lastHistoricalPeriod = 
@@ -1983,7 +1990,7 @@ function processWBData(wbArrayData, data, tracesInitialDate, otherDataProperties
 	* transform from "yyyy" or "yyyyMmm" or "yyyyf" or "yyyyMmmf" to  a whole date
 	*/
 	
-	adjustWBJsonDates(wbArrayData, tracesInitialDate);
+	adjustWBJsonDates(wbArrayData);
 	
 
 	/**
