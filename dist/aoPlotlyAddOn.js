@@ -14,11 +14,12 @@ var DEBUG_TIMES = false;
 var DEBUG_CSV = false;
 var DEBUG_TRANSFORM_BY_FREQUENCIES = false;
 var DEBUG_FB = false; // debug in frequency button
-var DEBUG_EIA_FUNCTION = true;
+var DEBUG_EIA_FUNCTION = false;
 var DEBUG_RECESSIONS = false; 
 var DEBUG_CREATE_INDEX_MAP = false;
 var DEBUG_CREATE_TRACE_WITH_FUNCTION = false;
 var DEBUG_ADD_DATE_TO_FORMULA = true;
+var DEBUG_WB_FUNCTION = true;
     
        
 // this functions adds items and functionallity, including, buttons, responsiveness, series resampling     
@@ -1536,7 +1537,6 @@ function delayedParallelReadData(data, i, param, callback) {
 			}				
 			readData="";
 			callback(null);
-			//readDataAndMakeChart(data, iS, param, callback);
 		});
 	} 
 	else if ( urlType === "EiaJson") {
@@ -1559,16 +1559,44 @@ function delayedParallelReadData(data, i, param, callback) {
 					}
 				}			
 			} else {
-				DEBUG && OTHER_DEBUGS && console.log("error reading EiaData",i);
+				DEBUG && OTHER_DEBUGS && console.log("Plotly.d3.json returned error reading EiaData",i);
 			}					
 			readData="";
 			callback(null);
-			//readDataAndMakeChart(data, iS, param, callback);
 		});
 	} 
-	
-	
-	
+	else if ( urlType === "WBJson") {
+		DEBUG && OTHER_DEBUGS && console.log("WBJson", i);
+		Plotly.d3.json(url, function(err, readData) {
+			if(!err){
+				DEBUG && OTHER_DEBUGS && DEBUG_WB_FUNCTION && console.log("read WBJson",readData);
+				
+				/* check that no error message was returned within json */
+				
+				if(typeof readData[0].message === "undefined" ) {
+					readData = readData[1];
+					if(checkDataIsAnArrayNotVoid(readData)){
+						processWBData(
+							readData,
+							data,
+							param.timeInfo.tracesInitialDate,
+							param.otherDataProperties,
+							param.dataSources[i],
+							loadSubTablesIntoData
+						);
+						DEBUG && OTHER_DEBUGS && console.log("process WBData",i,"finished");
+					}
+				} else {
+					console.log("World Bank data not read properly on WBJson:",i);
+				}
+			} else {
+				console.log("Plotly.d3.json returned error reading WBData",i);
+			}					
+			readData="";
+			callback(null);
+		});
+	} 
+
 	
 }
 
@@ -1831,6 +1859,139 @@ function processEiaData(eiaArrayData, data, tracesInitialDate, otherDataProperti
 function factorAndShiftDataInTableParams(tableParams) {
 	
 }
+	
+	
+
+	
+function processWBData(WBArrayData, data, tracesInitialDate, otherDataProperties, dataSources, callbackLoadSubTablesIntoData) {
+	
+	var kMax = WBArrayData.length;
+	var currentSeries = {};
+	var i, seriesLimit;
+	
+	var timeOffsetText = getTimeOffsetText();
+	var tracesInitialDateFullString;
+	var initialDateAsDate = new Date("0001-01-01");
+	
+	/**
+	*
+	* The tableParams array has the following structure:
+	*   tableParams[xSeriesNames].allRows[i][xSeriesName] = Dates as Strings
+	*   tableParams[xSeriesNames].allRows[i][ySeriesName1] = y values for ySeriesName1,
+	*   tableParams[xSeriesNames].allRows[i][ySeriesName2] = y values for ySeriesName2,.. etc.
+	*
+	*   i is the row (data points) in the allRows array. The are iLimit (data points) in the allRows array.
+	*
+	*   tableParams[xSeriesNames] has other properties, including sor, xDateSuffix, etc,
+	*    all set in the setEiaTablesParameters function
+	*/
+	
+	var tableParams = {};
+
+	// save function references
+	var localProcessDate = processDate;
+	
+	
+	DEBUG && OTHER_DEBUGS && DEBUG_WB_FUNCTION && console.log(WBArrayData);
+	
+	// update initialDateAsDate if tracesInitialDate provided
+	if (tracesInitialDate !== "") {
+		initialDateAsDate = new Date(localProcessDate(tracesInitialDate, timeOffsetText));
+	}
+	
+	// break if no traces in dataSources were left
+	if(dataSources.traces.length < 1) return false;
+	
+	/**
+	* set number of tables and options, tableParams will have
+	* one element for each trace in DataSources
+	* Names will be set as follows
+	* xSeriesName = "x" + j; /j is the trace index [0, number of traces in dataSources]
+	*	ySeriesName = "y" + j;
+	*
+	*/
+	setWBTablesParameters(tableParams, dataSources);
+	
+	
+	
+	/**
+	*
+	*  Adjust all dates in eia Array Data, in case they are month or year, to end of period and add a timeoffset
+	* transform from "yyyy" or "yyyymm" or "yyyymmdd" to whole date
+	*/
+	
+	tracesInitialDateFullString = localProcessDate(tracesInitialDate, timeOffsetText);
+	
+	for (var k=0; k< kMax; k++ ){
+		currentSeries = WBArrayData[k];
+		seriesLimit = currentSeries.data.length;
+		if(currentSeries.f === "M"){
+			if (currentSeries.hasOwnProperty("lastHistoricalPeriod")) {
+				DEBUG && OTHER_DEBUGS && DEBUG_WB_FUNCTION && console.log(currentSeries.lastHistoricalPeriod.substr(0,4)+"-"+
+					currentSeries.lastHistoricalPeriod.substr(4,2)+			     
+					 "-01"+" 00:00:00.000"+timeOffsetText);
+				currentSeries.lastHistoricalPeriod = 
+					changeDateToEndOfMonth(currentSeries.lastHistoricalPeriod.substr(0,4)+"-"+
+					currentSeries.lastHistoricalPeriod.substr(4,2)+			     
+					 "-01"+" 00:00:00.000"+timeOffsetText);
+			}
+			for (i=0; i < seriesLimit; i++) currentSeries.data[i][0] = 
+				changeDateToEndOfMonth(currentSeries.data[i][0].substr(0,4)+"-"+
+					currentSeries.data[i][0].substr(4,2)+	       
+					"-01"+" 00:00:00.000"+timeOffsetText);
+		}
+		
+		if(currentSeries.f === "A"){
+			if (currentSeries.hasOwnProperty("lastHistoricalPeriod")) {
+				currentSeries.lastHistoricalPeriod += "-12-31 00:00:00.000"+timeOffsetText;
+			}
+			for (i=0; i < seriesLimit; i++) currentSeries.data[i][0] += "-12-31 00:00:00.000"+timeOffsetText;
+		}
+		
+		if(currentSeries.f === "D"  || currentSeries.f === "W"){
+			if (currentSeries.hasOwnProperty("lastHistoricalPeriod")) {
+				currentSeries.lastHistoricalPeriod = currentSeries.lastHistoricalPeriod.substr(0,4)+"-"+
+					currentSeries.lastHistoricalPeriod.substr(4,2)+"-"+
+					currentSeries.lastHistoricalPeriod.substr(6,2)+
+					" 00:00:00.000"+timeOffsetText;
+			}
+			for (i=0; i < seriesLimit; i++) currentSeries.data[i][0] = currentSeries.data[i][0].substr(0,4)+"-"+
+						currentSeries.data[i][0].substr(4,2)+"-"+
+						currentSeries.data[i][0].substr(6,2)+
+						" 00:00:00.000"+timeOffsetText;
+		}
+		
+	}
+	
+	
+
+	/**
+	*
+	* loads data in eiaArrayData into tableParams
+	* takes care of historical or forecast data
+	* applies any option to read from last as set in firstItemToRead
+	* trims data by InitialDateAsDate
+	*  and 	applies factor and shift
+	*/ 
+
+	loadWBArrayDataIntoTableParamsAndProcess(
+		WBArrayData, tableParams,
+		dataSources, initialDateAsDate
+	);
+	
+	
+	// void eiaArrayData, no longer required.
+	WBArrayData = [];
+
+	
+	callbackLoadSubTablesIntoData(dataSources, tableParams, otherDataProperties, 
+			      data, initialDateAsDate, tracesInitialDate);
+	
+	
+}	
+	
+	
+	
 	
 	
 // FUNCTIONS TO ADD READ and Processed data into the data array
