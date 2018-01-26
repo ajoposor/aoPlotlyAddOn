@@ -1840,7 +1840,7 @@ function processEiaData(eiaArrayData, data, tracesInitialDate, otherDataProperti
 	*   i is the row (data points) in the allRows array. The are iLimit (data points) in the allRows array.
 	*
 	*   tableParams[xSeriesNames] has other properties, including sor, xDateSuffix, etc,
-	*    all set in the setEiaTablesParameters function
+	*    all set in the setEiaOrWBTablesParameters function
 	*/
 	
 	var tableParams = {};
@@ -1867,7 +1867,7 @@ function processEiaData(eiaArrayData, data, tracesInitialDate, otherDataProperti
 	*	ySeriesName = "y" + j;
 	*
 	*/
-	setEiaTablesParameters(tableParams, dataSources);
+	setEiaOrWBTablesParameters(tableParams, dataSources);
 	
 	
 	
@@ -2009,7 +2009,7 @@ function processWBData(wbArrayData, data, tracesInitialDate, otherDataProperties
 	*   i is the row (data points) in the allRows array. The are iLimit (data points) in the allRows array.
 	*
 	*   tableParams[xSeriesNames] has other properties, including sor, xDateSuffix, etc,
-	*    all set in the setEiaTablesParameters function
+	*    all set in the setEiaOrWBTablesParameters function
 	*/
 	
 	var tableParams = {};
@@ -2018,7 +2018,7 @@ function processWBData(wbArrayData, data, tracesInitialDate, otherDataProperties
 	var localProcessDate = processDate;
 	
 	
-	DEBUG && OTHER_DEBUGS && DEBUG_WB_FUNCTION && console.log(WBArrayData);
+	DEBUG && OTHER_DEBUGS && DEBUG_WB_FUNCTION && console.log(wbArrayData);
 	
 	// update initialDateAsDate if tracesInitialDate provided
 	if (tracesInitialDate !== "") {
@@ -2036,7 +2036,7 @@ function processWBData(wbArrayData, data, tracesInitialDate, otherDataProperties
 	*	ySeriesName = "y" + j;
 	*
 	*/
-	setWBTablesParameters(tableParams, dataSources);
+	setEiaOrWBTablesParameters(tableParams, dataSources);
 	
 	
 	
@@ -2059,13 +2059,13 @@ function processWBData(wbArrayData, data, tracesInitialDate, otherDataProperties
 	*/ 
 
 	loadWBArrayDataIntoTableParamsAndProcess(
-		WBArrayData, tableParams,
+		wbArrayData, tableParams,
 		dataSources, initialDateAsDate
 	);
 	
 	
 	// void eiaArrayData, no longer required.
-	WBArrayData = [];
+	wbArrayData = [];
 
 	
 	callbackLoadSubTablesIntoData(dataSources, tableParams, otherDataProperties, 
@@ -6665,17 +6665,17 @@ function setTablesParametersSortAndPreprocessing(tableParams, dataSources){
 */
 
 
-function setEiaTablesParameters(tableParams, dataSources){
+function setEiaOrWBTablesParameters(tableParams, dataSources){
 	var traces = dataSources.traces;
 	var xSeriesName, ySeriesName;
 
 	// number of traces to be read on this data source
 	var jLimit = traces.length;
 
+	// cycle through all traces to be read from this dataSource
 	// determine number of xSeriesNames being used and fill y values for each, cycle through traces array
 	for (var j=0; j < jLimit; j++){
 
-		
 		
 		// set temporary variable
 		xSeriesName = "x"+j;
