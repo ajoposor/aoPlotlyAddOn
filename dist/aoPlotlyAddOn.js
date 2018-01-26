@@ -1974,7 +1974,7 @@ function adjustWBJsonDates(wbArrayData) {
 		
 		/* find last historical period and set it*/
 		for (i=0; i < seriesLimit; i++) {
-			currentDate = currentSeries[i].date;
+			currentDate = currentSeries.data[i].date;
 			if(!isWBForecastDate(currentDate)) {
 				currentSeries.lastHistoricalPeriod = getTransformedWBDate(currentDate);
 				i = seriesLimit;	
@@ -1983,7 +1983,7 @@ function adjustWBJsonDates(wbArrayData) {
 		
 		/* adjust dates formats */
 		for (i=0; i < seriesLimit; i++) {
-			currentSeries[i].date =  getTransformedWBDate(currentSeries[i].date, timeOffsetText)
+			currentSeries.data[i].date =  getTransformedWBDate(currentSeries.data[i].date, timeOffsetText)
 		}
 
 	}
@@ -2018,7 +2018,7 @@ function processWBData(wbArrayData, data, tracesInitialDate, otherDataProperties
 	var localProcessDate = processDate;
 	
 	
-	DEBUG && OTHER_DEBUGS && DEBUG_WB_FUNCTION && console.log(wbArrayData);
+	DEBUG && OTHER_DEBUGS && DEBUG_WB_FUNCTION && console.log("wbArrayData entering processWBData: ", wbArrayData);
 	
 	// update initialDateAsDate if tracesInitialDate provided
 	if (tracesInitialDate !== "") {
