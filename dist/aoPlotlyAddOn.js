@@ -1219,6 +1219,11 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		timeInfo.tracesInitialDate = "";
 	}
 
+	// handles tracesEndlDate default info
+	if (typeof timeInfo.tracesEndDate === "undefined") {
+		timeInfo.tracesEndDate = "";
+	}
+
 	
 	
 	var passedParameters = {
@@ -1461,6 +1466,7 @@ function delayedParallelReadData(data, i, param, callback) {
 						readData, 
 						data,
 						param.timeInfo.tracesInitialDate,
+						param.timeInfo.tracesEndDate,
 						param.otherDataProperties,
 						param.dataSources[i],
 						loadSubTablesIntoData
@@ -1482,6 +1488,7 @@ function delayedParallelReadData(data, i, param, callback) {
 			param.dataSources[i].arrayOfJsons, 
 			data,
 			param.timeInfo.tracesInitialDate,
+			param.timeInfo.tracesEndDate,
 			param.otherDataProperties,
 			param.dataSources[i],
 			loadSubTablesIntoData
@@ -1505,6 +1512,7 @@ function delayedParallelReadData(data, i, param, callback) {
 							readData,
 							data,
 							param.timeInfo.tracesInitialDate,
+							param.timeInfo.tracesEndDate,
 							param.otherDataProperties,
 							param.dataSources[i],
 							loadSubTablesIntoData
@@ -1536,6 +1544,7 @@ function delayedParallelReadData(data, i, param, callback) {
 							readData,
 							data,
 							param.timeInfo.tracesInitialDate,
+							param.timeInfo.tracesEndDate,
 							param.otherDataProperties,
 							param.dataSources[i],
 							loadSubTablesIntoData
@@ -1560,6 +1569,7 @@ function delayedParallelReadData(data, i, param, callback) {
 						readData, 
 						data,
 						param.timeInfo.tracesInitialDate, 
+						param.timeInfo.tracesEndDate,
 						param.otherDataProperties,
 						param.dataSources[i],
 						loadSubTablesIntoData
@@ -1585,6 +1595,7 @@ function delayedParallelReadData(data, i, param, callback) {
 							readData,
 							data,
 							param.timeInfo.tracesInitialDate,
+							param.timeInfo.tracesEndDate,
 							param.otherDataProperties,
 							param.dataSources[i],
 							loadSubTablesIntoData
@@ -1622,6 +1633,7 @@ function delayedParallelReadData(data, i, param, callback) {
 							readData,
 							data,
 							param.timeInfo.tracesInitialDate,
+							param.timeInfo.tracesEndDate,
 							param.otherDataProperties,
 							param.dataSources[i],
 							loadSubTablesIntoData
@@ -1663,13 +1675,15 @@ function checkDataIsAnArrayNotVoid(readData){
 	    
 // FUNCTIONS TO PARSE CVS, JSON OR DIRECT SERIES
 // main code, reads cvs files and creates traces and combine them in data
-function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, dataSources, callbackLoadSubTablesIntoData) {
+function processCsvData(allRows, data, tracesInitialDate, tracesEndDate,
+			 otherDataProperties, dataSources, callbackLoadSubTablesIntoData) {
 	
 	var urlType = dataSources.urlType;
 	var yqlGoogleCSV = false;
 	var tags= typeof allRows[0] !== "undefined" ? allRows[0] : {};
 	var xSeriesName="";
 	var initialDateAsDate = new Date("0001-01-01");
+	var endDateAsDate = new Date("9998-01-01");
 	var timeOffsetText = getTimeOffsetText();
 	var iLimit;
 	
@@ -1718,6 +1732,11 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 		initialDateAsDate = new Date(localProcessDate(tracesInitialDate, timeOffsetText));
 	}
 	
+	// update endDateAsDate if tracesEndDate provided
+	if (tracesEndDate !== "") {
+		endDateAsDate = new Date(localProcessDate(tracesEndDate, timeOffsetText));
+	}
+	
 	DEBUG && OTHER_DEBUGS && console.log("initialDateAsDate", initialDateAsDate);
 	
 	
@@ -1763,9 +1782,10 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 	DEBUG && OTHER_DEBUGS && console.log("SubTable sorted");
 
 	
-	callbackLoadSubTablesIntoData(dataSources, tableParams, otherDataProperties, data, initialDateAsDate, tracesInitialDate);
-	
-	
+	callbackLoadSubTablesIntoData(dataSources, tableParams, otherDataProperties, data, 
+				      initialDateAsDate, tracesInitialDate,
+				      endDateAsDate, tracesEndDate
+				     );
 }	
 	
 	
@@ -1824,10 +1844,12 @@ function adjustEiaJsonDates(eiaArrayData) {
 	
 
 	
-function processEiaData(eiaArrayData, data, tracesInitialDate, otherDataProperties, dataSources, callbackLoadSubTablesIntoData) {
+function processEiaData(eiaArrayData, data, tracesInitialDate, tracesEndDate,
+			 otherDataProperties, dataSources, callbackLoadSubTablesIntoData) {
 	
 	var timeOffsetText = getTimeOffsetText();
 	var initialDateAsDate = new Date("0001-01-01");
+	var endDateAsDate = new Date("9998-01-01");
 	
 	/**
 	*
@@ -1853,6 +1875,11 @@ function processEiaData(eiaArrayData, data, tracesInitialDate, otherDataProperti
 	// update initialDateAsDate if tracesInitialDate provided
 	if (tracesInitialDate !== "") {
 		initialDateAsDate = new Date(localProcessDate(tracesInitialDate, timeOffsetText));
+	}
+	
+	// update endDateAsDate if tracesEndDate provided
+	if (tracesEndDate !== "") {
+		endDateAsDate = new Date(localProcessDate(tracesEndDate, timeOffsetText));
 	}
 	
 	// break if no traces in dataSources were left
@@ -1900,7 +1927,8 @@ function processEiaData(eiaArrayData, data, tracesInitialDate, otherDataProperti
 
 	
 	callbackLoadSubTablesIntoData(dataSources, tableParams, otherDataProperties, 
-			      data, initialDateAsDate, tracesInitialDate);
+			      data, initialDateAsDate, tracesInitialDate,
+				    endDateAsDate, tracesEndDate );
 	
 	
 }	
@@ -1995,10 +2023,12 @@ function adjustWBJsonDates(wbArrayData) {
 	
 
 	
-function processWBData(wbArrayData, data, tracesInitialDate, otherDataProperties, dataSources, callbackLoadSubTablesIntoData) {
+function processWBData(wbArrayData, data, tracesInitialDate, tracesEndDate, 
+			otherDataProperties, dataSources, callbackLoadSubTablesIntoData) {
 	
 	var timeOffsetText = getTimeOffsetText();
 	var initialDateAsDate = new Date("0001-01-01");
+	var endDateAsDate = new Date("9998-01-01");
 	
 	/**
 	*
@@ -2024,6 +2054,11 @@ function processWBData(wbArrayData, data, tracesInitialDate, otherDataProperties
 	// update initialDateAsDate if tracesInitialDate provided
 	if (tracesInitialDate !== "") {
 		initialDateAsDate = new Date(localProcessDate(tracesInitialDate, timeOffsetText));
+	}
+	
+	// update endlDateAsDate if tracesEndDate provided
+	if (tracesEndDate !== "") {
+		endDateAsDate = new Date(localProcessDate(tracesEndDate, timeOffsetText));
 	}
 	
 	// break if no traces in dataSources were left
@@ -2071,7 +2106,8 @@ function processWBData(wbArrayData, data, tracesInitialDate, otherDataProperties
 
 	
 	callbackLoadSubTablesIntoData(dataSources, tableParams, otherDataProperties, 
-			      data, initialDateAsDate, tracesInitialDate);
+			      data, initialDateAsDate, tracesInitialDate,
+				     endDateAsDate, tracesEndDate);
 	
 	
 }	
@@ -2083,7 +2119,8 @@ function processWBData(wbArrayData, data, tracesInitialDate, otherDataProperties
 // FUNCTIONS TO ADD READ and Processed data into the data array
 function loadSubTablesIntoData(dataSources, tableParams, 
 				otherDataProperties, data, 
-				initialDateAsDate, tracesInitialDate) {
+				initialDateAsDate, tracesInitialDate,
+			        endDateAsDate, tracesEndDate) {
 	
 	var j, jLimit;
 	var xSeriesName = "", ySeriesName = "";
@@ -2312,8 +2349,12 @@ function loadSubTablesIntoData(dataSources, tableParams,
 		for(k=0, i=initialIndex; k < kLimit ; i++, k++){ 
 			processedDate = allRows[i][xSeriesName];
 			if (
-				tracesInitialDate === "" ||
-				new Date(processedDate) >= initialDateAsDate
+				(tracesInitialDate === "" ||
+				new Date(processedDate) >= initialDateAsDate) &&
+				
+				(tracesEndDate === "" ||
+				new Date(processedDate) <= endDateAsDate)				
+				
 			) {
 				x[k]=processedDate;
 				y[k]=allRows[i][ySeriesName];
@@ -3078,6 +3119,7 @@ function makeChart(data, param){
 	//DEBUG && OTHER_DEBUGS && console.log("original data saved");
 
 	//DEBUG && OTHER_DEBUGS && console.log("tracesInitialDate", tracesInitialDate);
+	//DEBUG && OTHER_DEBUGS && console.log("tracesEndDate", tracesEndDate);
 
 	// HTML VARIABLES AND SETTINGS
 	var defaultDivHeight = "460px";
@@ -3148,7 +3190,7 @@ function makeChart(data, param){
 	// X RANGE DETERMINATIONS
 	var minDateAsString = "1000-01-01", maxDateAsString = "1000-01-01";
 
-	// this section finds the x range for the traces (which is already trimmed by tracesInitialDate)
+	// this section finds the x range for the traces (which is already trimmed by tracesInitialDate and tracesEndDate)
 	// range required in order to set the recession shapes.
 	DEBUG && DEBUG_TIMES && console.time("getDataXminXmaxAsString");
 	var minMaxDatesAsString = getDataXminXmaxAsString(data);
