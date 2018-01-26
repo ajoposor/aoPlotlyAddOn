@@ -1977,6 +1977,7 @@ function adjustWBJsonDates(wbArrayData) {
 			currentDate = currentSeries.data[i].date;
 			if(!isWBForecastDate(currentDate)) {
 				currentSeries.lastHistoricalPeriod = getTransformedWBDate(currentDate);
+				DEBUG && OTHER_DEBUGS && DEBUG_WB_FUNCTION && console.log("wBLastHistoricalDate= ", currentSeries.lastHistoricalPeriod );
 				i = seriesLimit;	
 			} 	
 		}
@@ -2047,6 +2048,7 @@ function processWBData(wbArrayData, data, tracesInitialDate, otherDataProperties
 	*/
 	
 	adjustWBJsonDates(wbArrayData);
+	
 	
 
 	/**
