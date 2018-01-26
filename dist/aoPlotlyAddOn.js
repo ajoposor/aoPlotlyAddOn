@@ -7966,7 +7966,7 @@ function setDatesRangeAsString(minDateAsString, maxDateAsString, timeInfo) {
 	}
 	
 	/* 2 */
-	if (typeof timeInfo.yearsyearsToPlotBackFromCurrentToPlot !== "undefined") {
+	if (typeof timeInfo.yearsToPlotBackFromCurrent !== "undefined") {
 		if (timeInfo.yearsToPlotBackFromCurrent > 0) {
 			yearsToPlot = timeInfo.yearsToPlotBackFromCurrent; // years to be displayed, if provided
 			currentTime = new Date();
