@@ -1738,7 +1738,7 @@ function processCsvData(allRows, data, tracesInitialDate, tracesEndDate,
 	}
 	
 	DEBUG && OTHER_DEBUGS && console.log("initialDateAsDate", initialDateAsDate);
-	
+	DEBUG && OTHER_DEBUGS && console.log("endDateAsDate", endDateAsDate);
 	
 	//DEBUG && OTHER_DEBUGS && console.log("allRows: ", allRows);
 	
@@ -1770,7 +1770,7 @@ function processCsvData(allRows, data, tracesInitialDate, tracesEndDate,
 
 	// split subtables trim by InitialDateAsDate and reorder by firstItemToRead
 	// including applying factor and shift
-	splitSubtablesAndTrim(allRows, tableParams, dataSources, initialDateAsDate);
+	splitSubtablesAndTrim(allRows, tableParams, dataSources, initialDateAsDate, endDateAsDate);
 	DEBUG && OTHER_DEBUGS && console.log("tables split, and reordered");
 	DEBUG && OTHER_DEBUGS && console.log("table Params", tableParams);
 	
@@ -1918,7 +1918,7 @@ function processEiaData(eiaArrayData, data, tracesInitialDate, tracesEndDate,
 
 	loadEiaArrayDataIntoTableParamsAndProcess(
 		eiaArrayData, tableParams,
-		dataSources, initialDateAsDate
+		dataSources, initialDateAsDate, endDateAsDate
 	);
 	
 	
@@ -2097,7 +2097,7 @@ function processWBData(wbArrayData, data, tracesInitialDate, tracesEndDate,
 
 	loadWBArrayDataIntoTableParamsAndProcess(
 		wbArrayData, tableParams,
-		dataSources, initialDateAsDate
+		dataSources, initialDateAsDate, endDateAsDate
 	);
 	
 	
@@ -2350,15 +2350,19 @@ function loadSubTablesIntoData(dataSources, tableParams,
 			processedDate = allRows[i][xSeriesName];
 			if (
 				(tracesInitialDate === "" ||
-				new Date(processedDate) >= initialDateAsDate) &&
-				
-				(tracesEndDate === "" ||
-				new Date(processedDate) <= endDateAsDate)				
+				new Date(processedDate) >= initialDateAsDate) 
+						
 				
 			) {
-				x[k]=processedDate;
-				y[k]=allRows[i][ySeriesName];
-				readItems++;
+				if (
+					(tracesEndDate === "" ||
+					 new Date(processedDate) <= endDateAsDate)	) {
+					
+					x[k]=processedDate;
+					y[k]=allRows[i][ySeriesName];
+					readItems++;
+				}
+
 			}
 			else {
 				// stop reading when initialDateAsDate has been reached.
@@ -6824,7 +6828,7 @@ function setEiaOrWBTablesParameters(tableParams, dataSources){
 *  loads csv read data into tableParams[x0...x1...x2].allRows 
 */
 	
-function splitSubtablesAndTrim(allRows, tableParams, dataSources, initialDateAsDate){
+function splitSubtablesAndTrim(allRows, tableParams, dataSources, initialDateAsDate, endDateAsDate){
 	var newArray=[];
 	var i=0, iLimit = allRows.length;
 	var j, jLimit,k, l, lStep;
@@ -6867,7 +6871,8 @@ function splitSubtablesAndTrim(allRows, tableParams, dataSources, initialDateAsD
 			for(i=0; i<iLimit; i++){
 				dateString = allRows[l][xSeriesName];
 				if(dateString !== "" && dateString !== null){
-					if(new Date(dateString)>= initialDateAsDate){
+					if((new Date(dateString)>= initialDateAsDate) && 
+					    (new Date(dateString)<= endDateAsDate) ){
 						newArray[k]={};
 						newArray[k][xSeriesName] = dateString;
 						for(j=0; j < jLimit; j++){
@@ -6906,7 +6911,7 @@ function splitSubtablesAndTrim(allRows, tableParams, dataSources, initialDateAsD
 
 function loadEiaArrayDataIntoTableParamsAndProcess(
 	eiaArrayData, tableParams,
-		dataSources, initialDateAsDate) 
+		dataSources, initialDateAsDate, endDateAsDate) 
 {	
 	
 	var newArray=[];
@@ -6995,7 +7000,8 @@ function loadEiaArrayDataIntoTableParamsAndProcess(
 				dateString = eiaArrayData[seriesIndex].data[l][0];
 				if(dateString !== "" && dateString !== null){
 					// DEBUG && OTHER_DEBUGS && DEBUG_EIA_FUNCTION && console.log("dateString:", dateString);
-					if(new Date(dateString) >= initialDateAsDate){
+					if((new Date(dateString) >= initialDateAsDate) &&
+					    (new Date(dateString) <= endDateAsDate) ){
 						if( traceType === "full" ||
 							 (traceType === "historical" && dateString <= lastHistoricalPeriod) || 
 							 (traceType === "forecast" && dateString >= lastHistoricalPeriod) ) {
@@ -7041,7 +7047,7 @@ function loadEiaArrayDataIntoTableParamsAndProcess(
 
 function loadWBArrayDataIntoTableParamsAndProcess(
 	wbArrayData, tableParams,
-		dataSources, initialDateAsDate) 
+		dataSources, initialDateAsDate, endDateAsDate) 
 {	
 	
 	var newArray=[];
@@ -7130,7 +7136,8 @@ function loadWBArrayDataIntoTableParamsAndProcess(
 				dateString = wbArrayData[seriesIndex].data[l].date;
 				if(dateString !== "" && dateString !== null){
 					// DEBUG && OTHER_DEBUGS && DEBUG_WB_FUNCTION && console.log("dateString:", dateString);
-					if(new Date(dateString) >= initialDateAsDate){
+					if((new Date(dateString) >= initialDateAsDate) &&
+					   (new Date(dateString) <= endDateAsDate)  ){
 						if( traceType === "full" ||
 							 (traceType === "historical" && dateString <= lastHistoricalPeriod) || 
 							 (traceType === "forecast" && dateString >= lastHistoricalPeriod) ) {
