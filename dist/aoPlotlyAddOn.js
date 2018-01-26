@@ -7937,16 +7937,40 @@ function loaderHide(loaderElement) {
 	 
 	 
 	 
-// 6.-  SET X AXIS RANGE - setsxaxisRange array based of timeInfo parameters and Min Max dates from series.
+// 6.-  SET X AXIS RANGE - sets xaxisRange array based of timeInfo parameters and Min Max dates from series.
 function setDatesRangeAsString(minDateAsString, maxDateAsString, timeInfo) {
 	var initialDate, endDate, xaxisRange = [];
-
-	if (typeof timeInfo.yearsToPlot !== "undefined") {
-		if (timeInfo.yearsToPlot > 0) {
-			var yearsToPlot = timeInfo.yearsToPlot; // years to be displayed, if provided
-			var currentTime = new Date(maxDateAsString);
-			endDate = maxDateAsString;
-			initialDate = dateToString(
+	var currentTime = new Date();
+	var yearsToPlot = 0;
+	
+	/* start by setting default values */
+	
+	
+	
+	/**
+	*
+	*  set initialDate in the following order:
+	*  0. set default value = minDateAsString
+	*  1. override if an InitialDate was provided
+	*  2. override if yearsToPlotBackFromCurrent was provided
+	*  3. override if yearsToPlotBackFromMaximum was provided
+	*
+	*/ 
+	
+	/* 0 */
+	initialDate = minDateAsString;
+	
+	/* 1 */
+	if (typeof timeInfo.initialDateForInitialDisplay !== "undefined") {
+		initialDate = makeDateComplete(timeInfo.initialDateForInitialDisplay);
+	}
+	
+	/* 2 */
+	if (typeof timeInfo.yearsyearsToPlotBackFromCurrentToPlot !== "undefined") {
+		if (timeInfo.yearsToPlotBackFromCurrent > 0) {
+			yearsToPlot = timeInfo.yearsToPlotBackFromCurrent; // years to be displayed, if provided
+			currentTime = new Date();
+			initialDate = makeDateComplete(dateToString(
 				new Date(
 					currentTime.getFullYear() -
 						yearsToPlot +
@@ -7955,24 +7979,67 @@ function setDatesRangeAsString(minDateAsString, maxDateAsString, timeInfo) {
 						"-" +
 						currentTime.getDate()
 				)
-			);
-		} else {
-			initialDate = minDateAsString;
-			endDate = maxDateAsString;
-		}
-	} else {
-		if (typeof timeInfo.initialDateForInitialDisplay !== "undefined") {
-			initialDate = makeDateComplete(timeInfo.initialDateForInitialDisplay);
-		} else {
-			initialDate = minDateAsString;
-		}
+			));
+		} 
+	} 
+	
+	/* 3 */
+	if (typeof timeInfo.yearsToPlotBackFromMaximum !== "undefined") {
+		if (timeInfo.yearsToPlotBackFromMaximum > 0) {
+			yearsToPlot = timeInfo.yearsToPlotBackFromMaximum; // years to be displayed, if provided
+			currentTime = new Date(maxDateAsString);
+			initialDate = makeDateComplete(dateToString(
+				new Date(
+					currentTime.getFullYear() -
+						yearsToPlot +
+						"-" +
+						(currentTime.getMonth() + 1) +
+						"-" +
+						currentTime.getDate()
+				)
+			));
+		} 
+	} 
+	
+	
+	/**
+	*
+	*  set endDate in the following order:
+	*  0. set default value = maxDateAsString
+	*  1. override to current date if yearsToPlotBackFromCurrent to plot was provided
+	*  2. override if an endDate was provided
+	*  3. override if forecastMonthsFromCurrentDate was provided
+	*
+	*/ 
+	
+	/* 0 */
+	endDate = maxDateAsString;
+	
+	/* 1 */
+	if (typeof timeInfo.yearsyearsToPlotBackFromCurrentToPlot !== "undefined") {
+		currentTime = newDate();
+		endDate = makeDateComplete(dateToString(currentTime));
 
-		if (typeof timeInfo.endDateForInitialDisplay !== "undefined") {
-			endDate = dateToString(new Date(timeInfo.endDateForInitialDisplay));
-		} else {
-			endDate = maxDateAsString;
-		}
-	}
+	} 
+	
+	
+	/* 2 */
+	if (typeof timeInfo.endDateForInitialDisplay !== "undefined") {
+		endDate = makeDateComplete(timeInfo.endDateForInitialDisplay);
+	}	
+	
+
+	/* 3 */
+	if (typeof timeInfo.forecastMonthsFromCurrentDate !== "undefined") {
+		if (timeInfo.forecastMonthsFromCurrentDate > 0) {
+			currentTime = new Date();
+			currentTime = currentTime.setMonth(currentTime.getMonth +timeInfo.forecastMonthsFromCurrentDate);
+			endDate = makeDateComplete(dateToString(currentTime));
+
+		} 
+	} 
+
+
 
 	xaxisRange.push(initialDate);
 	xaxisRange.push(endDate);
