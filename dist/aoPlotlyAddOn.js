@@ -1923,7 +1923,7 @@ function quarterStringToMonthString(quarterString) {
 function getTransformedWBDate(dateString, timeOffsetText) {
 	
 	/* remove f */
-	dateString.replace(/f/i, "");
+	dateString = dateString.replace(/f/i, "");
 	
 	if(dateString.search(/m/i) !== -1) {
 		
