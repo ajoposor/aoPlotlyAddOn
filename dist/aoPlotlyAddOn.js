@@ -1392,6 +1392,30 @@ function parallelUpdateRecessions(newRecessionsUrl, usRecessions, callback){
 			
 }
 	
+	
+/* test for possible errors in json read from World Bank Api */
+function wbReadDataHasErrors(readJson) {
+	
+	/* test data read  is an array and has more than one element */
+	   if(Array.isArray(readJson) && 
+		readJson.length > 1) {
+		   
+		   /* test that there is no error message returned */
+		   if(typeof readJson[0].message === "undefined") {
+			   
+			   /* test that there is at least one returned value */
+			   if(readJson[1].page !== 0) {
+				 return false;
+			   }
+		   }
+	   }
+	
+	/* in all other cases, api returned to usable value */
+	return true;
+}
+	
+	
+	
 		
 	 
 /**
@@ -1573,7 +1597,7 @@ function delayedParallelReadData(data, i, param, callback) {
 				
 				/* check that no error message was returned within json */
 				
-				if(typeof readData[0].message === "undefined" ) {
+				if(!wbReadDataHasErrors(readData)){
 					readData = readData[1];
 					if(checkDataIsAnArrayNotVoid(readData)){
 						processWBData(
