@@ -7083,7 +7083,7 @@ function loadWBArrayDataIntoTableParamsAndProcess(
 
 			// read data into ordered and subtables
 			for(i=0; i < iLimit; i++){
-				dateString = wbArrayData[seriesIndex].data[l][0];
+				dateString = wbArrayData[seriesIndex].data[l].date;
 				if(dateString !== "" && dateString !== null){
 					// DEBUG && OTHER_DEBUGS && DEBUG_WB_FUNCTION && console.log("dateString:", dateString);
 					if(new Date(dateString) >= initialDateAsDate){
@@ -7096,11 +7096,11 @@ function loadWBArrayDataIntoTableParamsAndProcess(
 								ySeriesName = yNamesArray[j];
 								indexOfYSeriesName =tableParams[key].yNames.indexOf(ySeriesName);
 								if(indexOfYSeriesName != j) {
-									console.log("j is not equalt to indexOfYSeriesName");
+									console.log("j is not equal to indexOfYSeriesName");
 								}
 								factor = tableParams[key].factorArray[j];
 								shift =  tableParams[key].shiftArray[j];
-								newArray[k][ySeriesName]=wbArrayData[seriesIndex].data[l][1] *
+								newArray[k][ySeriesName]=wbArrayData[seriesIndex].data[l].value *
 									factor + shift;
 							}
 							k++;
