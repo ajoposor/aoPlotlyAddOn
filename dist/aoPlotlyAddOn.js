@@ -1869,9 +1869,51 @@ function factorAndShiftDataInTableParams(tableParams) {
 	
 }
 	
+function quarterStringToMonthString(quarterString) {
+	
+	return (
+	(quarterString === "1") ? "03" 	:
+	(quarterString === "2") ? "06" 	:
+	(quarterString === "3") ? "09" 	: 
+				"12");
+	
+}
+	
+function getTransformedWBDate(dateString, timeOffsetText) {
+	
+	/* remove f */
+	dateString.replace(/f/i, "");
+	
+	if(dateString.search(/m/i) !== -1) {
+		
+		return changeDateToEndOfMonth(dateString.substr(0,4)+"-"+
+					dateString.substr(5,2)+	       
+					"-01"+" 00:00:00.000"+timeOffsetText);
+	
+	} else if(dateString.search(/q/i) !== -1) {
+		
+		return changeDateToEndOfMonth(dateString.substr(0,4)+"-"+
+					quarterStringToMonthString(dateString.substr(5,2))+	       
+					"-01"+" 00:00:00.000"+timeOffsetText);		
+	} else {
+		
+		dateString += "-12-31 00:00:00.000"+timeOffsetText;
+		return dateString;
+		
+	}
+	
+}
+
+/* test whether dateString contains f */
+function isWBForecastDate(dateString) {
+	if(dateString.search(/f/i) === -1) {
+		return false;
+	} else {
+		return true;
+	}
+}
 	
 
-	
 
 function adjustWBJsonDates(wbArrayData) {
 		
@@ -1879,11 +1921,25 @@ function adjustWBJsonDates(wbArrayData) {
 	var currentSeries = {};
 	var kMax = wbArrayData.length;
 	var seriesLimit;
+	var currentDate = "";
+	
+	
+	/* loop through all series */
 
 	for (var k=0; k< kMax; k++ ){
 		currentSeries = wbArrayData[k];
 		seriesLimit = currentSeries.data.length;
 		
+		/* find last historical period */
+		for (i=0; i < seriesLimit; i++) {
+			currentDate = currentSeries[i].date;
+			if(!isWBForecastDate(currentDate)) {
+				currentSeries.lastHistoricalPeriod = getTransformedWBDate(currentDate);
+				i = seriesLimit;	
+			} 	
+		}
+		
+		/* adjust dates formats */
 		for (i=0; i < seriesLimit; i++) {
 			if(currentSeries[i].date.length === 4) {
 				DEBUG && OTHER_DEBUGS && DEBUG_WB_FUNCTION && console.log("year date");
