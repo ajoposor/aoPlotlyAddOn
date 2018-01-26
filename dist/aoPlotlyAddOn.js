@@ -1404,7 +1404,7 @@ function wbReadDataHasErrors(readJson) {
 		   if(typeof readJson[0].message === "undefined") {
 			   
 			   /* test that there is at least one returned value */
-			   if(readJson[1].page !== 0) {
+			   if(readJson[0].page !== 0) {
 				 return false;
 			   }
 		   }
@@ -1771,11 +1771,12 @@ function processCsvData(allRows, data, tracesInitialDate, otherDataProperties, d
 	
 	
 function adjustEiaJsonDates(eiaArrayData) {
-		
+	
 	var timeOffsetText = getTimeOffsetText();
 	var currentSeries = {};
 	var kMax = eiaArrayData.length;
 	var seriesLimit;
+	var i=0;
 
 	for (var k=0; k< kMax; k++ ){
 		currentSeries = eiaArrayData[k];
@@ -1824,8 +1825,6 @@ function adjustEiaJsonDates(eiaArrayData) {
 
 	
 function processEiaData(eiaArrayData, data, tracesInitialDate, otherDataProperties, dataSources, callbackLoadSubTablesIntoData) {
-	
-	var i;
 	
 	var timeOffsetText = getTimeOffsetText();
 	var initialDateAsDate = new Date("0001-01-01");
@@ -1964,6 +1963,7 @@ function adjustWBJsonDates(wbArrayData) {
 	var kMax = wbArrayData.length;
 	var seriesLimit;
 	var currentDate = "";
+	var i=0;
 	
 	
 	/* loop through all series */
