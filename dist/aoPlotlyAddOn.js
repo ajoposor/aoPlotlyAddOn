@@ -8028,6 +8028,7 @@ function setDatesRangeAsString(minDateAsString, maxDateAsString, timeInfo) {
 		endDate = makeDateComplete(timeInfo.endDateForInitialDisplay);
 	}	
 	
+	DEBUG_WB_FUNCTION && console.log("endDate before forecast months calcs: ", endDate);
 
 	/* 3 */
 	if (typeof timeInfo.forecastMonthsFromCurrentDate !== "undefined") {
@@ -8035,6 +8036,7 @@ function setDatesRangeAsString(minDateAsString, maxDateAsString, timeInfo) {
 			currentTime = new Date();
 			currentTime = currentTime.setMonth(currentTime.getMonth +timeInfo.forecastMonthsFromCurrentDate);
 			endDate = makeDateComplete(dateToString(currentTime));
+			DEBUG_WB_FUNCTION && console.log("endDate after forecast months calcs: ", endDate);
 
 		} 
 	} 
