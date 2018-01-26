@@ -8016,7 +8016,7 @@ function setDatesRangeAsString(minDateAsString, maxDateAsString, timeInfo) {
 	endDate = maxDateAsString;
 	
 	/* 1 */
-	if (typeof timeInfo.yearsyearsToPlotBackFromCurrentToPlot !== "undefined") {
+	if (typeof timeInfo.yearsToPlotBackFromCurrent !== "undefined") {
 		currentTime = newDate();
 		endDate = makeDateComplete(dateToString(currentTime));
 
