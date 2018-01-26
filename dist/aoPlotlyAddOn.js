@@ -1930,7 +1930,7 @@ function adjustWBJsonDates(wbArrayData) {
 		currentSeries = wbArrayData[k];
 		seriesLimit = currentSeries.data.length;
 		
-		/* find last historical period */
+		/* find last historical period and set it*/
 		for (i=0; i < seriesLimit; i++) {
 			currentDate = currentSeries[i].date;
 			if(!isWBForecastDate(currentDate)) {
@@ -1941,47 +1941,7 @@ function adjustWBJsonDates(wbArrayData) {
 		
 		/* adjust dates formats */
 		for (i=0; i < seriesLimit; i++) {
-			if(currentSeries[i].date.length === 4) {
-				DEBUG && OTHER_DEBUGS && DEBUG_WB_FUNCTION && console.log("year date");
-				currentSeries[i].date += "-12-31 00:00:00.000"+timeOffsetText;
-				
-			}	
-		}
-		
-		if(currentSeries.f === "M"){
-			if (currentSeries.hasOwnProperty("lastHistoricalPeriod")) {
-				DEBUG && OTHER_DEBUGS && DEBUG_WB_FUNCTION && console.log(currentSeries.lastHistoricalPeriod.substr(0,4)+"-"+
-					currentSeries.lastHistoricalPeriod.substr(4,2)+			     
-					 "-01"+" 00:00:00.000"+timeOffsetText);
-				currentSeries.lastHistoricalPeriod = 
-					changeDateToEndOfMonth(currentSeries.lastHistoricalPeriod.substr(0,4)+"-"+
-					currentSeries.lastHistoricalPeriod.substr(4,2)+			     
-					 "-01"+" 00:00:00.000"+timeOffsetText);
-			}
-			for (i=0; i < seriesLimit; i++) currentSeries.data[i][0] = 
-				changeDateToEndOfMonth(currentSeries.data[i][0].substr(0,4)+"-"+
-					currentSeries.data[i][0].substr(4,2)+	       
-					"-01"+" 00:00:00.000"+timeOffsetText);
-		}
-
-		if(currentSeries.f === "A"){
-			if (currentSeries.hasOwnProperty("lastHistoricalPeriod")) {
-				currentSeries.lastHistoricalPeriod += "-12-31 00:00:00.000"+timeOffsetText;
-			}
-			for (i=0; i < seriesLimit; i++) currentSeries.data[i][0] += "-12-31 00:00:00.000"+timeOffsetText;
-		}
-
-		if(currentSeries.f === "D"  || currentSeries.f === "W"){
-			if (currentSeries.hasOwnProperty("lastHistoricalPeriod")) {
-				currentSeries.lastHistoricalPeriod = currentSeries.lastHistoricalPeriod.substr(0,4)+"-"+
-					currentSeries.lastHistoricalPeriod.substr(4,2)+"-"+
-					currentSeries.lastHistoricalPeriod.substr(6,2)+
-					" 00:00:00.000"+timeOffsetText;
-			}
-			for (i=0; i < seriesLimit; i++) currentSeries.data[i][0] = currentSeries.data[i][0].substr(0,4)+"-"+
-						currentSeries.data[i][0].substr(4,2)+"-"+
-						currentSeries.data[i][0].substr(6,2)+
-						" 00:00:00.000"+timeOffsetText;
+			currentSeries[i].date =  getTransformedWBDate(currentSeries[i].date, timeOffsetText)
 		}
 
 	}
