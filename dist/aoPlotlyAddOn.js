@@ -1415,6 +1415,16 @@ function wbReadDataHasErrors(readJson) {
 }
 	
 	
+function transformWBArrayIntoEiaStyleArray(readData){
+	
+	var iLimit = readData.length;
+	
+	for(var i = 0; i < iLimit; i++) {
+		readData[i] = {	data: readData[i] };
+	}
+	
+}
+	
 	
 		
 	 
@@ -1598,7 +1608,15 @@ function delayedParallelReadData(data, i, param, callback) {
 				/* check that no error message was returned within json */
 				
 				if(!wbReadDataHasErrors(readData)){
-					readData = readData[1];
+					/* remove first element of readData, which has paging information 
+					** readData will have one element (until it is possible to read more than
+					** one string for url,
+					** this one element in turn ir an array with as many elements as rows (dates, values)
+					*/
+					readData.shift();
+					
+					/* transform readData array into a structure similar to the eiaArray */
+					transformWBArrayIntoEiaStyleArray(readData);
 					if(checkDataIsAnArrayNotVoid(readData)){
 						processWBData(
 							readData,
@@ -1977,8 +1995,6 @@ function adjustWBJsonDates(wbArrayData) {
 
 	
 function processWBData(wbArrayData, data, tracesInitialDate, otherDataProperties, dataSources, callbackLoadSubTablesIntoData) {
-	
-	var i;
 	
 	var timeOffsetText = getTimeOffsetText();
 	var initialDateAsDate = new Date("0001-01-01");
@@ -6966,8 +6982,146 @@ function loadEiaArrayDataIntoTableParamsAndProcess(
 			tableParams[key].allRows = newArray;
 		}
 	}
-	DEBUG && OTHER_DEBUGS && DEBUG_EIA_FUNCTION && console.log("tableParams after loaded data",tableParams);
+	DEBUG && OTHER_DEBUGS && DEBUG_EIA_FUNCTION && console.log("tableParams after EIA data loaded",tableParams);
 }		
+	
+
+	
+	
+
+/**
+*
+*  loads wbArrayData into tableParams[x0...x1...x2].allRows 	
+*
+*/
+
+function loadWBArrayDataIntoTableParamsAndProcess(
+	wbArrayData, tableParams,
+		dataSources, initialDateAsDate) 
+{	
+	
+	var newArray=[];
+	var i=0, iLimit;
+	var j, jLimit,k, l, lStep;
+	var seriesIndex;
+	var xSeriesName, ySeriesName;
+	var dateString = "";
+	var yNamesArray, currentTrace={};
+	var traceType = "full";
+	var lastHistoricalPeriod ="";
+	var traceIndex;
+	var factor = 1.0;
+	var shift = 0.0;
+	var indexOfYSeriesName = 0;
+	
+	DEBUG && OTHER_DEBUGS && DEBUG_WB_FUNCTION && console.log("start LoadWBArrayDataIntoTableParm...");
+	DEBUG && OTHER_DEBUGS && DEBUG_WB_FUNCTION && console.log("tableParams before loaded data",tableParams);
+	
+	for (var key in tableParams) {
+		
+		if(tableParams.hasOwnProperty(key)) {
+			
+			xSeriesName = key;
+			traceIndex = parseInt(key.substr(1));
+			DEBUG && OTHER_DEBUGS && DEBUG_WB_FUNCTION && console.log("xSeriesName:",key, "   traceIndex:", traceIndex);
+			
+
+			/* get trace object from traces array */
+			currentTrace = dataSources.traces[traceIndex];
+
+			/* get index to series in the wbArrayData */
+			seriesIndex = currentTrace.seriesIndex;
+
+			/* the number of elements in wbaArrayData for correponding seriesIndex*/
+			iLimit = wbArrayData[seriesIndex].data.length;
+			
+
+			newArray =[];
+			newArray.length= iLimit;
+			DEBUG && OTHER_DEBUGS && DEBUG_WB_FUNCTION && console.log("elements in serie:", iLimit);
+
+			/**
+			* check for each type of traces (historical, forecast or none) and set marker
+			*/
+
+			if(currentTrace.hasOwnProperty("traceType")) {
+				if(currentTrace.traceType === "historical"){
+					/* read the historical portion */
+					traceType = "historical";
+					lastHistoricalPeriod = wbArrayData[seriesIndex].lastHistoricalPeriod;
+
+				}
+
+				if (currentTrace.traceType === "forecast"){
+					/* the the forecast portion */
+					traceType = "forecast";
+					lastHistoricalPeriod = wbArrayData[seriesIndex].lastHistoricalPeriod;
+				}
+
+			}
+			else {
+				/* read the whole serie */
+				traceType = "full";
+			}
+
+
+			// set reading parameter by reading order
+			if( tableParams[key].firstItemToRead === "first"){
+				l = 0; 
+				lStep = 1;
+			} else{
+				l = iLimit -1;
+				lStep = -1;
+			} 
+
+			// k: number of read items
+			k=0;
+
+			jLimit = tableParams[key].yNames.length;
+
+			yNamesArray = tableParams[key].yNames;
+
+			// read data into ordered and subtables
+			for(i=0; i < iLimit; i++){
+				dateString = wbArrayData[seriesIndex].data[l][0];
+				if(dateString !== "" && dateString !== null){
+					// DEBUG && OTHER_DEBUGS && DEBUG_WB_FUNCTION && console.log("dateString:", dateString);
+					if(new Date(dateString) >= initialDateAsDate){
+						if( traceType === "full" ||
+							 (traceType === "historical" && dateString <= lastHistoricalPeriod) || 
+							 (traceType === "forecast" && dateString >= lastHistoricalPeriod) ) {
+							newArray[k]={};
+							newArray[k][xSeriesName] = dateString;
+							for(j=0; j < jLimit; j++){
+								ySeriesName = yNamesArray[j];
+								indexOfYSeriesName =tableParams[key].yNames.indexOf(ySeriesName);
+								if(indexOfYSeriesName != j) {
+									console.log("j is not equalt to indexOfYSeriesName");
+								}
+								factor = tableParams[key].factorArray[j];
+								shift =  tableParams[key].shiftArray[j];
+								newArray[k][ySeriesName]=wbArrayData[seriesIndex].data[l][1] *
+									factor + shift;
+							}
+							k++;
+						}
+						//DEBUG && OTHER_DEBUGS && console.log("l: ", l);
+					}	
+				}
+				l+=lStep;
+			}
+			//DEBUG && OTHER_DEBUGS && console.log("k elements",k);
+			//DEBUG && OTHER_DEBUGS && console.log("new array", newArray);
+			// adjust array length to read items.
+			newArray.length=k;
+			tableParams[key].allRows = newArray;
+		}
+	}
+	DEBUG && OTHER_DEBUGS && DEBUG_WB_FUNCTION && console.log("tableParams after WB data loaded",tableParams);
+}			
+	
+	
+	
 	
 	
 	
