@@ -9,7 +9,6 @@ var aoPlotlyAddOn = {};
 // set DEBUG && OTHER_DEBUGS option (for display of console.log messages)
 // console.log will also be removed with closure compiler 
 var DEBUG = true;
-var OTHER_DEBUGS = true;
 var DEBUG_TIMES = false;
 var DEBUG_CSV = false;
 var DEBUG_TRANSFORM_BY_FREQUENCIES = false;
@@ -1976,7 +1975,7 @@ function adjustWBJsonDates(wbArrayData) {
 		for (i=0; i < seriesLimit; i++) {
 			currentDate = currentSeries.data[i].date;
 			if(!isWBForecastDate(currentDate)) {
-				currentSeries.lastHistoricalPeriod = getTransformedWBDate(currentDate);
+				currentSeries.lastHistoricalPeriod = getTransformedWBDate(currentDate, timeOffsetText);
 				DEBUG && OTHER_DEBUGS && DEBUG_WB_FUNCTION && console.log("wBLastHistoricalDate= ", currentSeries.lastHistoricalPeriod );
 				i = seriesLimit;	
 			} 	
