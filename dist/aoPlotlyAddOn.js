@@ -8034,7 +8034,7 @@ function setDatesRangeAsString(minDateAsString, maxDateAsString, timeInfo) {
 	if (typeof timeInfo.forecastMonthsFromCurrentDate !== "undefined") {
 		if (timeInfo.forecastMonthsFromCurrentDate > 0) {
 			currentTime = new Date();
-			currentTime = currentTime.setMonth(currentTime.getMonth() +timeInfo.forecastMonthsFromCurrentDate);
+			currentTime = new Date(currentTime.setMonth(currentTime.getMonth() +timeInfo.forecastMonthsFromCurrentDate));
 			endDate = makeDateComplete(dateToString(currentTime));
 			DEBUG_WB_FUNCTION && console.log("endDate after forecast months calcs: ", endDate);
 
