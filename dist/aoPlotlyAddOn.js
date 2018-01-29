@@ -1405,8 +1405,14 @@ function parallelReadDataAndMakeChart(data, param, makeChartFlag, callback) {
 			DEBUG && OTHER_DEBUGS && console.log("param.settings.dataReadFlag[0] ", param.settings.dataReadFlag[0]);
 			DEBUG && OTHER_DEBUGS && console.log("param.settings.waitForGlobalData: ", param.settings.waitForGlobalData);
 			
+			DEBUG && OTHER_DEBUGS && console.log("data before calculations: ", data);
+			
 			addCalculatedTracesWithFunctions(data, param);
+			DEBUG && OTHER_DEBUGS && console.log("calculated traces added ");
+			
 			addCalculatedRealTraces(data, param);
+			DEBUG && OTHER_DEBUGS && console.log("calculated real traces added ");
+			
 			trimNonExistingDataXY(data, param.otherDataProperties);
 			// this removes data[i], where data[i].x or y don't exist or have zero elements
 			cleanOutData(data);
