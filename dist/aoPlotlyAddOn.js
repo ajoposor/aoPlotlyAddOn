@@ -1289,7 +1289,7 @@ aoPlotlyAddOn.readSomeDataSourcesIntoData = function (
 		queueConcurrencyLimit: 10,
 		queueConcurrencyDelay: 5, //milliseconds
 		waitForGlobalData: false, // if set to true, it will , check that dataReadFlag is true before continuing
-		dataReadFlag: true
+		dataReadFlag: [true]
 	};
 
 
@@ -1389,7 +1389,7 @@ function parallelReadDataAndMakeChart(data, param, makeChartFlag, callback) {
 			//var data = [{x:[], y:[]}];
 			
 			if(param.settings.waitforGlobalData) {
-				while(!param.settings.dataReadFlag) {
+				while(!param.settings.dataReadFlag[0]) {
 					// waits until global data is read, indicated by the dataReadFlag
 				}
 			}
