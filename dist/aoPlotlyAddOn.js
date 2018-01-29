@@ -1400,6 +1400,7 @@ function parallelReadDataAndMakeChart(data, param, makeChartFlag, callback) {
 				while(!param.settings.dataReadFlag[0]) {
 					// waits until global data is read, indicated by the dataReadFlag
 				}
+				param.settings.globalDataCallback();
 			}
 			
 			DEBUG && OTHER_DEBUGS && console.log("param.settings.dataReadFlag[0] ", param.settings.dataReadFlag[0]);
