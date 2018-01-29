@@ -1248,16 +1248,103 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	DEBUG && DEBUG_TIMES && console.timeEnd("TIME: initialSettingsBeforeReadData");
 	DEBUG && OTHER_DEBUGS && console.log("passedParemeters: ", passedParameters);
 	
-	parallelReadDataAndMakeChart(data, passedParameters);
+	parallelReadDataAndMakeChart(data, passedParameters, true);
 	
 	
 }; // END OF newTimeseriesPlot FUNCTION
 
+	
+	
 
-	 
+	
+// this function reads data from some sources so that it can be used for many plots.    
+aoPlotlyAddOn.readSomeDataSourcesIntoData = function (
+	data,
+	otherDataProperties,
+	dataSources,
+	settings = {},	 
+	timeInfo = {},
+	callback
+) {
+
+	DEBUG && DEBUG_TIMES && console.time("TIME: readSomeDataSourcesIntoData");
+	
+	// test arguments are passed complete
+	if (arguments.length < 3) {
+		return "incomplete arguments";
+	}
+		
+	
+	// test that callback was passed and is a function
+	if(!(typeof callback === 'function' && callback())) {
+		callback = function() {};
+	}
+	
+ 	
+	// SET OPTIONS AND TIMEINFO DEFAULTS
+
+
+		
+	var settingsDefaults = {
+		queueConcurrencyLimit: 10,
+		queueConcurrencyDelay: 5, //milliseconds
+		waitForGlobalData: false, // if set to true, it will , check that dataReadFlag is true before continuing
+		dataReadFlag: true
+	};
+
+
+	// set settings defaults
+	setJsonDefaults(settingsDefaults, settings);
+	
+	
+	DEBUG && OTHER_DEBUGS && console.log("settings after settings default: ", settings);	
+
+		
+	var timeInfoDefaults = {
+		// no defaults
+	};
+	
+	setJsonDefaults(timeInfoDefaults, timeInfo);
+
+	
+	
+	// handles tracesInitialDate default info
+	if (typeof timeInfo.tracesInitialDate === "undefined") {
+		timeInfo.tracesInitialDate = "";
+	}
+
+	// handles tracesEndlDate default info
+	if (typeof timeInfo.tracesEndDate === "undefined") {
+		timeInfo.tracesEndDate = "";
+	}
+
+	
+	
+	var passedParameters = {
+		otherDataProperties: otherDataProperties,
+		dataSources: dataSources,
+		settings: settings,
+		timeInfo: timeInfo,
+	};
+
+
+	
+	DEBUG && DEBUG_TIMES && console.timeEnd("TIME: readSomeDataSourcesIntoData");
+	
+	parallelReadDataAndMakeChart(data, passedParameters, false, callback);
+	
+	
+}; // END OF read Sources Into Data FUNCTION
+
+	
+	
+	
+	
+	
+	
 	 
 // FUNCTION TO READ DATA AND THEN MAKE CHART - LOADS IN PARALLEL
-function parallelReadDataAndMakeChart(data, param) {
+function parallelReadDataAndMakeChart(data, param, makeChartFlag, callback) {
 	
 	DEBUG && DEBUG_TIMES && console.time("TIME: parallelReadData");
 	
@@ -1301,6 +1388,12 @@ function parallelReadDataAndMakeChart(data, param) {
 			// test with void data
 			//var data = [{x:[], y:[]}];
 			
+			if(param.settings.waitforGlobalData) {
+				while(!param.settings.dataReadFlag) {
+					// waits until global data is read, indicated by the dataReadFlag
+				}
+			}
+			
 			addCalculatedTracesWithFunctions(data, param);
 			addCalculatedRealTraces(data, param);
 			trimNonExistingDataXY(data, param.otherDataProperties);
@@ -1309,10 +1402,15 @@ function parallelReadDataAndMakeChart(data, param) {
 			if(data.length < 1) {
 				showNoLoadedDataItem(param.divInfo);
 			} else {
-				makeChart(data, param);
-				DEBUG && OTHER_DEBUGS && console.log("allread and ploted");
-				DEBUG && OTHER_DEBUGS && DEBUG_RECESSIONS &&  console.log("param.settings.newRecessionsUrl: ",
-						    param.settings.newRecessionsUrl);
+				if(makeChartFlag) {
+					makeChart(data, param);
+					DEBUG && OTHER_DEBUGS && console.log("allread and ploted");
+					DEBUG && OTHER_DEBUGS && DEBUG_RECESSIONS &&  console.log("param.settings.newRecessionsUrl: ",
+							    param.settings.newRecessionsUrl);
+				} else {
+					DEBUG && OTHER_DEBUGS && console.log("all data read and processed");
+					callback;
+				}
 
 			}
 		}
