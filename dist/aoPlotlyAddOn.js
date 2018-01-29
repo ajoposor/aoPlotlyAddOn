@@ -1393,17 +1393,17 @@ function parallelReadDataAndMakeChart(data, param, makeChartFlag, callback) {
 			//var data = [{x:[], y:[]}];
 			
 			
-			DEBUG && OTHER_DEBUGS && console.log("param.settings.waitforGlobalData: ", param.settings.waitforGlobalData);
+			DEBUG && OTHER_DEBUGS && console.log("param.settings.waitForGlobalData: ", param.settings.waitForGlobalData);
 			DEBUG && OTHER_DEBUGS && console.log("param.settings.dataReadFlag[0] ", param.settings.dataReadFlag[0]);
 			
-			if(param.settings.waitforGlobalData) {
+			if(param.settings.waitForGlobalData) {
 				while(!param.settings.dataReadFlag[0]) {
 					// waits until global data is read, indicated by the dataReadFlag
 				}
 			}
 			
 			DEBUG && OTHER_DEBUGS && console.log("param.settings.dataReadFlag[0] ", param.settings.dataReadFlag[0]);
-			DEBUG && OTHER_DEBUGS && console.log("param.settings.waitforGlobalData: ", param.settings.waitforGlobalData);
+			DEBUG && OTHER_DEBUGS && console.log("param.settings.waitForGlobalData: ", param.settings.waitForGlobalData);
 			
 			addCalculatedTracesWithFunctions(data, param);
 			addCalculatedRealTraces(data, param);
