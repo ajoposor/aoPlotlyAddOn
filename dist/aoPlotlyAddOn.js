@@ -9701,7 +9701,7 @@ function connectionIsSecure(){
 	aoPlotlyAddOn.findDateFromTodayAsString = findDateFromTodayAsString;
 	//aoPlotlyAddOn.findSpliceInfo = findSpliceInfo;       
 	//aoPlotlyAddOn.processCsvData = processCsvData; 
-
+	aoPlotlyAddOn.deepCopy = deepCopy;
   
       
     // end section of library declaration  
