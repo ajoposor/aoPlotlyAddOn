@@ -8015,9 +8015,15 @@ function setDatesRangeAsString(minDateAsString, maxDateAsString, timeInfo) {
 	}
 	
 	/* 2 */
-	if (typeof timeInfo.yearsToPlotBackFromCurrent !== "undefined") {
-		if (timeInfo.yearsToPlotBackFromCurrent > 0) {
-			yearsToPlot = timeInfo.yearsToPlotBackFromCurrent; // years to be displayed, if provided
+	if (typeof timeInfo.yearsToPlotBackFromCurrent !== "undefined" ||
+	    typeof timeInfo.yearsToPlot !== "undefined") {
+		if (timeInfo.yearsToPlotBackFromCurrent > 0 ||
+		   timeInfo.yearsToPlot > 0) {
+			if(timeInfo.yearsToPlotBackFromCurrent > 0) {
+				yearsToPlot = timeInfo.yearsToPlotBackFromCurrent; // years to be displayed, if provided
+			} else {
+				yearsToPlot = timeInfo.yearsToPlot;
+			}
 			currentTime = new Date();
 			initialDate = makeDateComplete(dateToString(
 				new Date(
@@ -8065,7 +8071,8 @@ function setDatesRangeAsString(minDateAsString, maxDateAsString, timeInfo) {
 	endDate = maxDateAsString;
 	
 	/* 1 */
-	if (typeof timeInfo.yearsToPlotBackFromCurrent !== "undefined") {
+	if (typeof timeInfo.yearsToPlotBackFromCurrent !== "undefined" || 
+	    typeof timeInfo.yearsToPlot !== "undefined" ) {
 		currentTime = new Date();
 		endDate = makeDateComplete(dateToString(currentTime));
 
