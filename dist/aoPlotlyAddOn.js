@@ -1499,7 +1499,9 @@ function parallelUpdateRecessions(newRecessionsUrl, usRecessions, callback){
 		
 		wrappedDirectXMLHttpRequest(fredZipXMLHttpRequestOptions,  myCallBackFredZip(usRecessions), callback);
 		//}(fredZipXMLHttpRequestOptions, myCallBackFredZip(usRecessions)); 
-	}			
+	} else {
+		callback(null);
+	}
 			
 }
 	
