@@ -1276,7 +1276,7 @@ aoPlotlyAddOn.readSomeDataSourcesIntoData = function (
 		
 	
 	// test that callback was passed and is a function
-	if(!(typeof callback === 'function' && callback())) {
+	if(!(typeof callback === 'function')) {
 		callback = function() {};
 	}
 	
@@ -1409,7 +1409,7 @@ function parallelReadDataAndMakeChart(data, param, makeChartFlag, callback) {
 							    param.settings.newRecessionsUrl);
 				} else {
 					DEBUG && OTHER_DEBUGS && console.log("all data read and processed");
-					callback;
+					callback();
 				}
 
 			}
