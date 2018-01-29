@@ -225,6 +225,10 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		newRecessionsUrl: fredRecessionsDefaultUrl,
 		queueConcurrencyLimit: 10,
 		queueConcurrencyDelay: 5, //milliseconds
+		
+		waitForGlobalData: false, // if set to true, it will , check that dataReadFlag is true before continuing
+		dataReadFlag: [true],
+		
 		allowCompare: false,
 		transformToBaseIndex: false, //series would be transformed to common value of 1 at beginning
 		
