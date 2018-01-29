@@ -1399,6 +1399,10 @@ function parallelReadDataAndMakeChart(data, param, makeChartFlag, callback) {
 			trimNonExistingDataXY(data, param.otherDataProperties);
 			// this removes data[i], where data[i].x or y don't exist or have zero elements
 			cleanOutData(data);
+			
+			// set dataReadFlag to true
+			param.settings.dataReadFlag[0] = true;
+			
 			if(data.length < 1) {
 				showNoLoadedDataItem(param.divInfo);
 			} else {
