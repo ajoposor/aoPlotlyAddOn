@@ -109,7 +109,8 @@ translations = setLocalesDictionaryTo("es", locales);
 	
 // function to translate tokens
 function _(token) {
-	return translations.indexOf(token) !== -1 ? translation(token) : token;
+	
+	return typeof translations[token] === "undefined" ? token : translations[token];
 }
 	
 	
