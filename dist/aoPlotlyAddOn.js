@@ -82,6 +82,117 @@ function _(token) {
 }
 	
 	
+	
+//RECESSIONS DEFINED
+
+//Recessions data. Include all available recession periods here
+
+var knownRecessionsDates =  [
+	{
+	x0: "1857-06-01",
+	x1: "1858-11-30"
+	},{
+	x0: "1860-10-01",
+	x1: "1861-05-31"
+	},{
+	x0: "1865-04-01",
+	x1: "1867-11-30"
+	},{
+	x0: "1869-06-01",
+	x1: "1870-11-30"
+	}, {
+	x0: "1873-10-01",
+	x1: "1879-02-28"
+	},{
+	x0: "1882-03-01",
+	x1: "1885-04-30"
+	},{
+	x0: "1887-03-01",
+	x1: "1888-03-31"
+	},{
+	x0: "1890-07-01",
+	x1: "1891-04-30"
+	},{
+	x0: "1893-01-01",
+	x1: "1894-05-31"
+	},{
+	x0: "1895-12-01",
+	x1: "1897-05-31"
+	},{
+	x0: "1899-06-01",
+	x1: "1900-11-30",
+	},{
+	x0: "1902-09-01",
+	x1: "1904-07-31",
+	},{
+	x0: "1907-05-01",
+	x1: "1908-05-31"
+	},{
+	x0: "1910-01-01",
+	x1: "1911-12-31"
+	},{
+	x0: "1913-01-01",
+	x1: "1914-11-30"
+	},{
+	x0: "1918-08-01",
+	x1: "1919-02-28"
+	},{
+	x0: "1920-01-01",
+	x1: "1921-06-30"
+	}, {
+	x0: "1923-05-01",
+	x1: "1924-06-30"
+	},{
+	x0: "1926-10-01",
+	x1: "1927-10-31"
+	},{
+	x0: "1929-08-01",
+	x1: "1933-02-28"
+	},{
+	x0: "1937-05-01",
+	x1: "1938-05-31"
+	},{
+	x0: "1945-02-01",
+	x1: "1945-09-30"
+	},{
+	x0: "1948-11-01",
+	x1: "1949-09-30"
+	},{
+	x0: "1953-07-01",
+	x1: "1954-04-30"
+	},{
+	x0: "1957-08-01",
+	x1: "1958-03-31"
+	},{
+	x0: "1960-04-01",
+	x1: "1961-01-31"
+	},{
+	x0: "1969-12-01",
+	x1: "1970-10-31"
+	},{
+	x0: "1973-11-01",
+	x1: "1975-02-28"
+	},{
+	x0: "1980-01-01",
+	x1: "1980-06-30"
+	},{
+	x0: "1981-07-01",
+	x1: "1982-10-31"
+	}, {
+	x0: "1990-07-01",
+	x1: "1991-02-28"
+	},{
+	x0: "2001-03-01",
+	x1: "2001-10-31"
+	},{
+	x0: "2007-12-01",
+	x1: "2009-05-31"
+	}
+];	
+
+	
+	
+	
        
 // this functions adds items and functionallity, including, buttons, responsiveness, series resampling     
 aoPlotlyAddOn.newTimeseriesPlot = function (
@@ -440,13 +551,10 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 			b: 15
 		},
 		customMarginOfObjects: 5
-		//shapes: setRecessions(usRecessions, initialDate, currentDate)
 	};
 
 	// set layout defauls
 	setJsonDefaults(layoutDefaults, layout);	
-		
-	
 		
 		
 		
@@ -1045,115 +1153,6 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	
 	setJsonDefaults(timeInfoDefaults, timeInfo);
 
-	//RECESSIONS DEFINED
-
-	//Recessions data. Include all available recession periods here
-	
-	var knownRecessionsDates =  [
-		{
-		x0: "1857-06-01",
-		x1: "1858-11-30"
-		},{
-		x0: "1860-10-01",
-		x1: "1861-05-31"
-		},{
-		x0: "1865-04-01",
-		x1: "1867-11-30"
-		},{
-		x0: "1869-06-01",
-		x1: "1870-11-30"
-		}, {
-		x0: "1873-10-01",
-		x1: "1879-02-28"
-		},{
-		x0: "1882-03-01",
-		x1: "1885-04-30"
-		},{
-		x0: "1887-03-01",
-		x1: "1888-03-31"
-		},{
-		x0: "1890-07-01",
-		x1: "1891-04-30"
-		},{
-		x0: "1893-01-01",
-		x1: "1894-05-31"
-		},{
-		x0: "1895-12-01",
-		x1: "1897-05-31"
-		},{
-		x0: "1899-06-01",
-		x1: "1900-11-30",
-		},{
-		x0: "1902-09-01",
-		x1: "1904-07-31",
-		},{
-		x0: "1907-05-01",
-		x1: "1908-05-31"
-		},{
-		x0: "1910-01-01",
-		x1: "1911-12-31"
-		},{
-		x0: "1913-01-01",
-		x1: "1914-11-30"
-		},{
-		x0: "1918-08-01",
-		x1: "1919-02-28"
-		},{
-		x0: "1920-01-01",
-		x1: "1921-06-30"
-		}, {
-		x0: "1923-05-01",
-		x1: "1924-06-30"
-		},{
-		x0: "1926-10-01",
-		x1: "1927-10-31"
-		},{
-		x0: "1929-08-01",
-		x1: "1933-02-28"
-		},{
-		x0: "1937-05-01",
-		x1: "1938-05-31"
-		},{
-		x0: "1945-02-01",
-		x1: "1945-09-30"
-		},{
-		x0: "1948-11-01",
-		x1: "1949-09-30"
-		},{
-		x0: "1953-07-01",
-		x1: "1954-04-30"
-		},{
-		x0: "1957-08-01",
-		x1: "1958-03-31"
-		},{
-		x0: "1960-04-01",
-		x1: "1961-01-31"
-		},{
-		x0: "1969-12-01",
-		x1: "1970-10-31"
-		},{
-		x0: "1973-11-01",
-		x1: "1975-02-28"
-		},{
-		x0: "1980-01-01",
-		x1: "1980-06-30"
-		},{
-		x0: "1981-07-01",
-		x1: "1982-10-31"
-		}, {
-		x0: "1990-07-01",
-		x1: "1991-02-28"
-		},{
-		x0: "2001-03-01",
-		x1: "2001-10-31"
-		},{
-		x0: "2007-12-01",
-		x1: "2009-05-31"
-		}];
-	
-	var usRecessions = createRecessionShapes(knownRecessionsDates, 
-						 settings.recessionsFillColor, 
-						 settings.recessionsOpacity);
 	
 
 	// TIME RANGE SELECTORS / a.k.a SELECTOR OPTIONS DEFINED
@@ -1213,47 +1212,6 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	};
 
 
-	// set initial x range data units
-	//var xRangeUnits= 'daily';	//use daily, weekly, monthly, quarterly or annual
-	//var xRangeAggregation= 'close'; //use average or close
-
-
-	// LOG, LINEAR UPDATEMENUS
-	// to be added to update menus
-	/*
-	var logLinearUpdateMenu = [
-		{
-			name: "logLinear",
-			visible: true,
-			active: settings.yaxisInitialScale === "linear" ? 
-					0 : 
-					1, // which button is active, from the array elements
-			y: 1.14,
-			yanchor: "top",
-			x: 0,
-			xanchor: "left",
-			pad: { t: 1, r: 1, b: 1, l: 1 },
-			direction: "down",
-			font: {
-				family: "Open Sans, Arial",
-				size: 12,
-				color: "#0d0d0d"
-			},
-			bgcolor: "#EEEEEE",
-			buttons: [
-				{
-					method: "relayout",
-					args: ["changeYaxisType", "linear"],
-					label: "lin"
-				},
-				{
-					method: "relayout",
-					args: ["changeYaxisType", "log"],
-					label: "log"
-				}
-			]
-		}
-	];*/
 
 	// COMPARE UPDATEMENUS
 	var compareUpdateMenu = [
@@ -1320,7 +1278,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		divInfo: divInfo,
 		settings: settings,
 		timeInfo: timeInfo,
-		usRecessions: usRecessions,
+		//usRecessions: usRecessions,
 		selectorOptions: typeof layout.xaxis.rangeselector === "undefined"?
 					selectorOptionsDefaults :
 					layout.xaxis.rangeselector,
@@ -1466,7 +1424,10 @@ aoPlotlyAddOn.readNewUsRecessions = function (
 	DEBUG && OTHER_DEBUGS && console.log("queueConcurrencyLimit: ", settings.queueConcurrencyLimit);
 	var plotQueue = d3.queue(settings.queueConcurrencyLimit);
 	
-	plotQueue.defer(parallelUpdateRecessions, settings.newRecessionsUrl, usRecessions);
+	
+
+	
+	plotQueue.defer(parallelUpdateRecessions, settings.newRecessionsUrl, knownRecessionsDates);
 	
 	plotQueue.awaitAll(function(error){
 		if(error){
@@ -1474,6 +1435,9 @@ aoPlotlyAddOn.readNewUsRecessions = function (
 			DEBUG && OTHER_DEBUGS && console.log("the error is", error);
 			//display blank plot
 		} else {
+			
+			
+			
 			DEBUG && OTHER_DEBUGS && DEBUG_RECESSIONS &&   console.log("param.usRecessions.length before calling makeChart: ", 
 					     usRecessions.length);
 
@@ -1491,6 +1455,11 @@ aoPlotlyAddOn.readNewUsRecessions = function (
 
 	
 }; // END OF read new us recessions, stand alone
+	
+	
+	
+	
+	
 
 
 	 
@@ -1523,6 +1492,12 @@ function parallelReadDataAndMakeChart(data, param, makeChartFlag, callback) {
 	DEBUG && OTHER_DEBUGS && DEBUG_RECESSIONS &&  console.log("adding update recessions to queue");
 	DEBUG && OTHER_DEBUGS && DEBUG_RECESSIONS &&  console.log("param.settings.newRecessionsUrl",param.settings.newRecessionsUrl);
 	DEBUG && OTHER_DEBUGS && DEBUG_RECESSIONS &&  console.log("param.usRecessions",param.usRecessions);
+	
+	// FALTA AGREGAR CONDICIONAL, SI HAY QUE ESPERAR POR LAS RECESIONES O SI SE LEEN AQUÍ MISMO, EN EL 2DO CASO ...
+		
+	var usRecessions = createRecessionShapes(knownRecessionsDates, 
+						 settings.recessionsFillColor, 
+						 settings.recessionsOpacity);
 	
 	plotQueue.defer(parallelUpdateRecessions, param.settings.newRecessionsUrl, param.usRecessions);
 	
@@ -8085,7 +8060,7 @@ function addRecessionsTo(recessionsArray,usRecessions){
 		}
 		j++;
 		usRecessions[j][x0]= recessionsArray[i][x0];
-		usRecessions[j][x1]=	recessionsArray[i][x1];
+		usRecessions[j][x1]= recessionsArray[i][x1];
 	}
 	
 	
