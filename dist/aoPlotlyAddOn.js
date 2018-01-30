@@ -132,7 +132,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		{
 			method: "relayout",
 			args: ["myAggregation", "sqrPercChange"],
-			label: "% chg 2."
+			label: "% chg.^2"
 		},
 		{
 			method: "relayout",
