@@ -75,7 +75,7 @@ aoPlotlyAddOn.register = function (objectToRegister) {
 
 /** test with spanish
 */
-
+/*
 var spanishLocale =  {
 	moduleType: "locale",
 	name: "es",
@@ -106,7 +106,7 @@ var spanishLocale =  {
 aoPlotlyAddOn.register(spanishLocale);
 translations = setLocalesDictionaryTo("es", locales); 
 	
-	
+*/	
 
 
 	
