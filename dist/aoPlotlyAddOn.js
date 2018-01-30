@@ -20,6 +20,7 @@ var DEBUG_CREATE_INDEX_MAP = false;
 var DEBUG_CREATE_TRACE_WITH_FUNCTION = false;
 var DEBUG_ADD_DATE_TO_FORMULA = true;
 var DEBUG_WB_FUNCTION = true;
+var DEBUG_LOCALE = true;
 	
 var locales = {
 	"en": {
@@ -66,6 +67,8 @@ aoPlotlyAddOn.register = function (objectToRegister) {
 		locales[o.name].dictionary = o.dictionary;
 		locales[o.name].format = o.format;
 	}
+	
+	DEBUG && DEBUG_LOCALE && console.log("locales: ", locales);
 	
 }
 	
@@ -137,7 +140,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		translations = setLocalesDictionaryTo(settings.locale, locales);
 	}
 	
-	
+	DEBUG && DEBUG_LOCALE && console.log("translations: ", translations);
 	
 	// test arguments are passed complete
 	if (arguments.length < 3) {
