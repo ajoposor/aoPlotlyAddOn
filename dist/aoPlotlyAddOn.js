@@ -101,7 +101,7 @@ var spanishLocale =  {
 		
 	
 aoPlotly.register(spanishLocale);
-traslations = setLocalesDictionaryTo("es", locales"); 
+traslations = setLocalesDictionaryTo("es", locales); 
 	
 	
 
