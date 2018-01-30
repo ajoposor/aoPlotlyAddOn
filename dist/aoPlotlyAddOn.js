@@ -300,6 +300,9 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		dataReadFlag: [true],
 		maxWaitForGlobalData: 4*60*1000, // 4 minutes in milliseconds
 		
+		waitForUpdatedRecessions: false,
+		recessionsReadFlag: [true],
+		
 		allowCompare: false,
 		transformToBaseIndex: false, //series would be transformed to common value of 1 at beginning
 		
@@ -1423,10 +1426,73 @@ aoPlotlyAddOn.readSomeDataSourcesIntoData = function (
 
 	
 	
+// this function reads new us recessions stand alone.    
+aoPlotlyAddOn.readNewUsRecessions = function (
+	settings = {},	 
+	callback
+) {
+
 	
+	// test arguments are passed complete
+	if (arguments.length < 2) {
+		return "incomplete arguments";
+	}
+
 	
+	// test that callback was passed and is a function
+	if(!(typeof callback === 'function')) {
+		callback = function() {};
+	}
 	
+ 	
+	// SET OPTIONS AND TIMEINFO DEFAULTS
+	var settingsDefaults = {
+		queueConcurrencyLimit: 10,
+		queueConcurrencyDelay: 5, //milliseconds
+		waitForUpdatedRecessions: false,
+		recessionsReadFlag: [true],
+	};
+
+
+	// set settings defaults
+	setJsonDefaults(settingsDefaults, settings);
+
+
 	
+	// set function to local variable
+	var localParallelReadData = parallelReadData;
+	
+	// define queue and set concurrenty
+	DEBUG && OTHER_DEBUGS && console.log("queueConcurrencyLimit: ", settings.queueConcurrencyLimit);
+	var plotQueue = d3.queue(settings.queueConcurrencyLimit);
+	
+	plotQueue.defer(parallelUpdateRecessions, settings.newRecessionsUrl, usRecessions);
+	
+	plotQueue.awaitAll(function(error){
+		if(error){
+			DEBUG && OTHER_DEBUGS && console.log("plotQueu await threw error on reading us recessiones");
+			DEBUG && OTHER_DEBUGS && console.log("the error is", error);
+			//display blank plot
+		} else {
+			DEBUG && OTHER_DEBUGS && DEBUG_RECESSIONS &&   console.log("param.usRecessions.length before calling makeChart: ", 
+					     usRecessions.length);
+
+			
+			// set dataReadFlag to true
+			settings.recessionsReadFlag[0] = true;
+
+			DEBUG && OTHER_DEBUGS && console.log("recessions stand alone read");
+			callback();
+		}
+		
+	});
+	
+	DEBUG && DEBUG_TIMES && console.timeEnd("TIME: readSomeDataSourcesIntoData");
+
+	
+}; // END OF read new us recessions, stand alone
+
+
 	 
 // FUNCTION TO READ DATA AND THEN MAKE CHART - LOADS IN PARALLEL
 function parallelReadDataAndMakeChart(data, param, makeChartFlag, callback) {
