@@ -5,7 +5,7 @@ aoPlotlyAddOn.register({
 		"close": "cierre",
 		"avg.": "prom.",
 		"chg.": "var.",
-		"% chg.", "%var.",
+		"% chg.": "%var.",
 		"% chg.^2": "%var.^2",
 		"cum.": "acum.",
 		"log": "log",
