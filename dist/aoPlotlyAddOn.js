@@ -49,7 +49,7 @@ function setLocalesDictionaryTo(languageCode, locales) {
 	
 // define translations object, this will contain the specified dictionary object
 // sets default dictionary to "en"
-var traslations = setLocalesDictionaryTo("en", locales"); 
+var traslations = setLocalesDictionaryTo("en", locales); 
 
 					 
 					 
@@ -133,7 +133,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	// test for locale in settings to set dictionary
 	if(typeof settings !== "undefined" &&
 	   typeof settings.locale !== undefined) {
-		traslations = setLocalesDictionaryTo(settings.locale, locales");
+		traslations = setLocalesDictionaryTo(settings.locale, locales);
 	}
 	
 	
