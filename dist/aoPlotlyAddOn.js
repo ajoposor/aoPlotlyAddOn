@@ -20,7 +20,99 @@ var DEBUG_CREATE_INDEX_MAP = false;
 var DEBUG_CREATE_TRACE_WITH_FUNCTION = false;
 var DEBUG_ADD_DATE_TO_FORMULA = true;
 var DEBUG_WB_FUNCTION = true;
-    
+	
+var locales = {
+	"en": {
+		dictionary: {
+			"close" : "close"
+		},
+		format: {
+			decimal: "."
+		}
+	
+	}
+};
+	
+// function to set dictionary to specified language
+function setLocalesDictionaryTo(languageCode, locales) {
+	if(type of locales !== undefined && typeof locales === "object") {
+		if(typeof locales[languageCode] !== "undefined") {
+			if(typeof locales[languageCode].dictionary !== "undefined" &&
+			   typeof locales[languageCode].dictionary !== "object") {
+				return 	locales[languageCode].dictionary;
+			}
+		}
+	}
+	
+	return {};
+}
+	
+// define translations object, this will contain the specified dictionary object
+// sets default dictionary to "en"
+var traslations = setLocalesDictionaryTo("en", locales"); 
+
+					 
+					 
+					 
+	
+	
+// method to register provided locales 	
+aoPlotly.register = function (objectToRegister) {
+	var o = objectToRegister;
+	
+	if(o.moduleType !== "undefined" &&
+	   o.moduleType === "locale") {
+		locales[o.name] = {};
+		locales[o.name].dictionary = o.dictionary;
+		locales[o.name].format = o.format;
+	}
+	
+}
+	
+
+/** test with spanish
+*/
+
+var spanishLocale =  {
+	moduleType: "locale",
+	name: "es",
+	dictionary: {
+		"close": "cierre",
+		"avg.": "prom.",
+		"chg.": "var.",
+		"% chg.", "%var.",
+		"% chg.^2": "%var.^2",
+		"cum.": "acum.",
+		"log": "log",
+		"linear": "lineal",
+		"real": "real",
+		"nominal": "nominal",
+		"compared": "comparados",
+		"uncompared": "no comparados",
+		"daily": "diario",
+		"weekly": "semanal",
+		"monthly": "mensual",
+		"quarterly": "trimestral",
+		"semiannual": "semestral",
+		"annual": "anual",
+	}
+};
+		
+		
+	
+aoPlotly.register(spanishLocale);
+traslations = setLocalesDictionaryTo("es", locales"); 
+	
+	
+
+
+	
+// function to traslate tokens
+function _(token) {
+	return translations.indexOf(token) !== -1 ? translation(token) : token;
+}
+	
+	
        
 // this functions adds items and functionallity, including, buttons, responsiveness, series resampling     
 aoPlotlyAddOn.newTimeseriesPlot = function (
@@ -36,6 +128,15 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 
 	DEBUG && DEBUG_TIMES && console.time("TIME: newTimeseriesPlot");
 	DEBUG && DEBUG_TIMES && console.time("TIME: initialSettingsBeforeReadData");
+	
+	
+	// test for locale in settings to set dictionary
+	if(typeof settings !== "undefined" &&
+	   typeof settings.locale !== undefined) {
+		traslations = setLocalesDictionaryTo(settings.locale, locales");
+	}
+	
+	
 	
 	// test arguments are passed complete
 	if (arguments.length < 3) {
@@ -112,32 +213,32 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		{
 			method: "relayout",
 			args: ["myAggregation", "close"],
-			label: "close"
+			label: _("close")
 		},
 		{
 			method: "relayout",
 			args: ["myAggregation", "average"],
-			label: "avg."
+			label: _("avg.")
 		},
 		{
 			method: "relayout",
 			args: ["myAggregation", "change"],
-			label: "chg."
+			label: _("chg.")
 		},
 		{
 			method: "relayout",
 			args: ["myAggregation", "percChange"],
-			label: "% chg."
+			label: _("% chg.")
 		},
 		{
 			method: "relayout",
 			args: ["myAggregation", "sqrPercChange"],
-			label: "% chg.^2"
+			label: _("% chg.^2")
 		},
 		{
 			method: "relayout",
 			args: ["myAggregation", "cumulative"],
-			label: "cum."
+			label: _("cum.")
 		}
 	];	
 		
@@ -245,6 +346,11 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 			frequency: false,
 			aggregation: false,
 		},
+		// defaultButtonLabels may be translated
+		defaultButtonLabels: {
+			frequency: _("base"),
+			aggregation: _("base")
+		},
 		allowSelectorOptions: true, // buttons for time range selection, 3m, 6m, 1y, YTD, 5y, etc.
 		allowLogLinear: false,
 		allowDownload: false,
@@ -293,8 +399,10 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		buttonsHoverStyle:buttonsHoverDefaultStyle,
 		pressedButtonDefaultStyle: pressedButtonDefaultStyle,
 		pressedButtonHoverDefaultStyle: pressedButtonHoverDefaultStyle,
-		removeDoubleClickToZoomBackOut: true
+		removeDoubleClickToZoomBackOut: true,
+		
 	};
+	
 
 	var possibleFrequencies = {
 		daily: true,
@@ -426,7 +534,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		
 		divInfo.logLinearButtonElement = 
 			createElement("button", divInfo.logLinearButtonID,
-					layout.yaxis.type==="log" ? "log" : "linear",
+					layout.yaxis.type === "log" ? _("log") : _("linear"),
 					settings.buttonsStyle );
 		
 		divInfo.logLinearButtonElement.style.marginRight = layout.externalMargin.r+"px";
@@ -510,7 +618,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		
 		divInfo.realNominalButtonElement = 
 			createElement("button", divInfo.realNominalButtonID,
-						settings.initialRealNominal === "real" ? "real":"nominal",
+						settings.initialRealNominal === "real" ? _("real") : _("nominal"),
 						settings.buttonsStyle);
 
 		if(!settings.allowDownload){
@@ -554,7 +662,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		
 		divInfo.compareButtonElement = 
 			createElement("button", divInfo.compareButtonID,
-						settings.transformToBaseIndex ? "compared":"uncompared",
+						settings.transformToBaseIndex ? _("compared") : _("uncompared"),
 						settings.buttonsStyle );
 
 		if(!settings.allowDownload && !settings.allowRealNominal){
@@ -716,7 +824,8 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 				color: "#0d0d0d"
 			},
 			bgcolor: "#EEEEEE",
-			buttons: setFrequencyButtons(settings.desiredFrequencies, possibleFrequencies)
+			buttons: setFrequencyButtons(settings.desiredFrequencies, 
+						     possibleFrequencies)
 		},
 		{
 			name: "aggregation",
@@ -758,7 +867,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		for (var i = 0; i < desiredFrequencies.length; i++) {
 			if (typeof possibleFrequencies[desiredFrequencies[i]] !== "undefined") {
 				frequencyButtons[i] = {
-					label: desiredFrequencies[i],
+					label: _(desiredFrequencies[i]),
 					method: "relayout",
 					args: ["myFrequency", desiredFrequencies[i]]
 				};
@@ -792,7 +901,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 			settings.series.baseAggregation = settings.defaultNames.aggregation;
 			settings.series.baseAggregationLabel = settings.defaultNames.aggregation;
 			settings.series.customAggregation = true;
-			singleAggregationButton[0].label = settings.defaultNames.aggregation;
+			singleAggregationButton[0].label = _(settings.defaultNames.aggregation);
 			singleAggregationButton[0].args[1] = settings.defaultNames.aggregation;	
 			frequencyUpdateMenu[1].buttons = singleAggregationButton;
 			frequencyUpdateMenu[1].visible = false;
@@ -811,16 +920,16 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 				settings.series.baseAggregation = settings.defaultNames.aggregation;
 				settings.series.baseAggregationLabel = settings.defaultNames.aggregation;
 				settings.series.customAggregation = true;
-				singleAggregationButton[0].label = settings.defaultNames.aggregation;
+				singleAggregationButton[0].label = _(settings.defaultNames.aggregation);
 				singleAggregationButton[0].args[1] = settings.defaultNames.aggregation;
 			}
 			else{
 				// settings.series.baseAggregation = settings.series.baseAggregation
 				
-				if(settings.series.baseAggregation.length > 
+				if(_(settings.series.baseAggregation).length > 
 				   settings.maxNumberOfCharactersInAggregationButton){
 					settings.series.baseAggregationLabel = 
-						settings.series.baseAggregation.substring(
+						_(settings.series.baseAggregation).substring(
 							0,
 							settings.maxNumberOfCharactersInAggregationButton-1)+'.';
 				}
@@ -829,7 +938,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 				}
 				
 				settings.series.customAggregation = true;	
-				singleAggregationButton[0].label = settings.series.baseAggregationLabel;
+				singleAggregationButton[0].label = _(settings.series.baseAggregationLabel);
 				singleAggregationButton[0].args[1] = settings.series.baseAggregationLabel;
 			}
 			
@@ -854,11 +963,11 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 
 				settings.series.baseAggregation = settings.series.baseAggregation;
 
-				if(settings.series.baseAggregation.length > 
+				if(_(settings.series.baseAggregation).length > 
 				   settings.maxNumberOfCharactersInAggregationButton){
 					
 					settings.series.baseAggregationLabel = 
-					settings.series.baseAggregation.substring(
+					_(settings.series.baseAggregation).substring(
 						0,settings.maxNumberOfCharactersInAggregationButton-1)+'.';
 					
 				}
@@ -873,7 +982,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 				settings.series.customAggregation = true;
 				singleAggregationButton[0].label = 
 						fillStringUpTo(
-							settings.series.baseAggregationLabel, 
+							_(settings.series.baseAggregationLabel), 
 							settings.singleButtonStringLengthInPixels,
 							frequencyUpdateMenu[1].font.family,
 							frequencyUpdateMenu[1].font.size,
@@ -893,7 +1002,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 				settings.series.customAggregation = false;	
 				singleAggregationButton[0].label = 
 							fillStringUpTo(
-							settings.series.baseAggregationLabel, 
+							_(settings.series.baseAggregationLabel), 
 							settings.singleButtonStringLengthInPixels,
 							frequencyUpdateMenu[1].font.family,
 							frequencyUpdateMenu[1].font.size,
@@ -8573,6 +8682,8 @@ function addToUpdateMenus(newUpdateMenu, updateMenus, layout) {
 	layout.updatemenus = updateMenus;
 }
 
+/* not used *
+/*
 function updateMenuTo(label, updateMenus, nameOfMenu) {
 	var i = findIndexOfMenu(updateMenus, nameOfMenu);
 
@@ -8582,7 +8693,7 @@ function updateMenuTo(label, updateMenus, nameOfMenu) {
 		
 	}
 	
-}
+}*/
 
 function findIndexOfMenu(updateMenus, nameOfMenu) {
 	var iLimit = updateMenus.length;
@@ -8601,6 +8712,8 @@ function findIndexOfMenu(updateMenus, nameOfMenu) {
 }
 
 // buttons array, elements are objects with property label.
+/* not used*/	
+/*	
 function getLabelLocationInButtons(label, buttons) {
 	
 	for (var i = 0; i < buttons.length; i++) {
@@ -8612,6 +8725,7 @@ function getLabelLocationInButtons(label, buttons) {
 	return 0;
 	
 }
+*/
 
 
 
@@ -8684,7 +8798,9 @@ function toggleLogLinearButton(newArg, buttonElement) {
 				label: 'average'
 			}, {...
 	*/
-
+	
+/* not used */
+/*	
 function labelInButtons(name, buttons) {
 	// check label exist in aggregation buttons
 	
@@ -8697,7 +8813,8 @@ function labelInButtons(name, buttons) {
 
 	return found;
 }
-
+*/
+	
 function methodInButtons(name, buttons){
 // checks method name exist in aggregation buttons
 // buttons are structured as array of objects with method, args, and name properties.
@@ -9341,13 +9458,14 @@ function setPeriodKeysBasedOnDesiredFrequencies(periodKeys, desiredFrequencies, 
 	var iLimit =0;
 	var key = "";
 
+	// initialiaze by setting all periodKeys to false
 	for(key in periodKeys){
 		if (periodKeys.hasOwnProperty(key)) {
 			periodKeys[key]=false;
 		}
 	}
 
-
+	// find desired periodKeys and set to true
 	iLimit = desiredFrequencies.length;
 	for(var i =0; i<iLimit; i++){
 		key = desiredFrequencies[i];
