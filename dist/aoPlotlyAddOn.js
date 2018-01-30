@@ -49,7 +49,7 @@ function setLocalesDictionaryTo(languageCode, locales) {
 	
 // define translations object, this will contain the specified dictionary object
 // sets default dictionary to "en"
-var traslations = setLocalesDictionaryTo("en", locales); 
+var translations = setLocalesDictionaryTo("en", locales); 
 
 					 
 					 
@@ -101,13 +101,13 @@ var spanishLocale =  {
 		
 	
 aoPlotlyAddOn.register(spanishLocale);
-traslations = setLocalesDictionaryTo("es", locales); 
+translations = setLocalesDictionaryTo("es", locales); 
 	
 	
 
 
 	
-// function to traslate tokens
+// function to translate tokens
 function _(token) {
 	return translations.indexOf(token) !== -1 ? translation(token) : token;
 }
@@ -133,7 +133,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	// test for locale in settings to set dictionary
 	if(typeof settings !== "undefined" &&
 	   typeof settings.locale !== undefined) {
-		traslations = setLocalesDictionaryTo(settings.locale, locales);
+		translations = setLocalesDictionaryTo(settings.locale, locales);
 	}
 	
 	
