@@ -39,7 +39,7 @@ function setLocalesDictionaryTo(languageCode, locales) {
 	if(typeof locales !== "undefined" && typeof locales === "object") {
 		if(typeof locales[languageCode] !== "undefined") {
 			if(typeof locales[languageCode].dictionary !== "undefined" &&
-			   typeof locales[languageCode].dictionary !== "object") {
+			   typeof locales[languageCode].dictionary === "object") {
 				return 	locales[languageCode].dictionary;
 			}
 		}
@@ -51,7 +51,7 @@ function setLocalesDictionaryTo(languageCode, locales) {
 // define translations object, this will contain the specified dictionary object
 // sets default dictionary to "en"
 var translations = setLocalesDictionaryTo("en", locales); 
-
+DEBUG && DEBUG_LOCALE && console.log("translations - default en: ", translations);
 					 
 					 
 					 
