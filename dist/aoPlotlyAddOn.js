@@ -73,41 +73,6 @@ aoPlotlyAddOn.register = function (objectToRegister) {
 }
 	
 
-/** test with spanish
-*/
-/*
-var spanishLocale =  {
-	moduleType: "locale",
-	name: "es",
-	dictionary: {
-		"close": "cierre",
-		"avg.": "prom.",
-		"chg.": "var.",
-		"% chg.": "%var.",
-		"% chg.^2": "%var.^2",
-		"cum.": "acum.",
-		"log": "log",
-		"linear": "lineal",
-		"real": "real",
-		"nominal": "nominal",
-		"compared": "comparados",
-		"uncompared": "no comparados",
-		"daily": "diario",
-		"weekly": "semanal",
-		"monthly": "mensual",
-		"quarterly": "trimestral",
-		"semiannual": "semestral",
-		"annual": "anual",
-	}
-};
-		
-		
-	
-aoPlotlyAddOn.register(spanishLocale);
-translations = setLocalesDictionaryTo("es", locales); 
-	
-*/	
-
 
 	
 // function to translate tokens
