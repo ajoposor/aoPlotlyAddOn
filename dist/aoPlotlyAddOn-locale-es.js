@@ -23,7 +23,7 @@ aoPlotlyAddOn.register({
 		"1m": "1m",
 		"6m": "6m",
 		"YTD": "YTD",
-		"5y": "5a,
+		"5y": "5a",
 		"10y": "10a",
 		"all": "todo"	
 		
