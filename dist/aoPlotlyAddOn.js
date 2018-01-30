@@ -35,7 +35,7 @@ var locales = {
 	
 // function to set dictionary to specified language
 function setLocalesDictionaryTo(languageCode, locales) {
-	if(typeof locales !== undefined && typeof locales === "object") {
+	if(typeof locales !== "undefined" && typeof locales === "object") {
 		if(typeof locales[languageCode] !== "undefined") {
 			if(typeof locales[languageCode].dictionary !== "undefined" &&
 			   typeof locales[languageCode].dictionary !== "object") {
@@ -133,7 +133,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	
 	// test for locale in settings to set dictionary
 	if(typeof settings !== "undefined" &&
-	   typeof settings.locale !== undefined) {
+	   typeof settings.locale !== "undefined") {
 		translations = setLocalesDictionaryTo(settings.locale, locales);
 	}
 	
