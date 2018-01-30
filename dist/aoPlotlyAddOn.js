@@ -35,7 +35,7 @@ var locales = {
 	
 // function to set dictionary to specified language
 function setLocalesDictionaryTo(languageCode, locales) {
-	if(type of locales !== undefined && typeof locales === "object") {
+	if(typeof locales !== undefined && typeof locales === "object") {
 		if(typeof locales[languageCode] !== "undefined") {
 			if(typeof locales[languageCode].dictionary !== "undefined" &&
 			   typeof locales[languageCode].dictionary !== "object") {
