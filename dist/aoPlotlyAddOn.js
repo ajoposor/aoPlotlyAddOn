@@ -57,7 +57,7 @@ var traslations = setLocalesDictionaryTo("en", locales);
 	
 	
 // method to register provided locales 	
-aoPlotly.register = function (objectToRegister) {
+aoPlotlyAddOn.register = function (objectToRegister) {
 	var o = objectToRegister;
 	
 	if(o.moduleType !== "undefined" &&
@@ -100,7 +100,7 @@ var spanishLocale =  {
 		
 		
 	
-aoPlotly.register(spanishLocale);
+aoPlotlyAddOn.register(spanishLocale);
 traslations = setLocalesDictionaryTo("es", locales); 
 	
 	
