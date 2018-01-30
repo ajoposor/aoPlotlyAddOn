@@ -1196,40 +1196,41 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 				step: "month",
 				stepmode: "backward",
 				count: 1,
-				label: "1m"
+				label: _("1m")
 			},
 			{
 				step: "month",
 				stepmode: "backward",
 				count: 6,
-				label: "6m"
+				label: _("6m")
 			},
 			{
 				step: "year",
 				stepmode: "todate",
 				count: 1,
-				label: "YTD"
+				label: _("YTD")
 			},
 			{
 				step: "year",
 				stepmode: "backward",
 				count: 1,
-				label: "1y"
+				label: _("1y")
 			},
 			{
 				step: "year",
 				stepmode: "backward",
 				count: 5,
-				label: "5y"
+				label: _("5y")
 			},
 			{
 				step: "year",
 				stepmode: "backward",
 				count: 10,
-				label: "10y"
+				label: _("10y")
 			},
 			{
 				step: "all",
+				label: _("all")
 			}
 		],
 		font: {
@@ -1251,6 +1252,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 
 	// LOG, LINEAR UPDATEMENUS
 	// to be added to update menus
+	/*
 	var logLinearUpdateMenu = [
 		{
 			name: "logLinear",
@@ -1283,7 +1285,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 				}
 			]
 		}
-	];
+	];*/
 
 	// COMPARE UPDATEMENUS
 	var compareUpdateMenu = [
@@ -1355,7 +1357,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 					selectorOptionsDefaults :
 					layout.xaxis.rangeselector,
 		frequencyUpdateMenu: frequencyUpdateMenu,
-		logLinearUpdateMenu: logLinearUpdateMenu,
+		/*logLinearUpdateMenu: logLinearUpdateMenu,*/
 		compareUpdateMenu: compareUpdateMenu,
 		layout: layout,
 		options: options
@@ -8773,19 +8775,19 @@ function xOfRightItems(divWidth, layout) {
 
 function toggleCompareButton(newArg, buttonElement) {
 	
-		buttonElement.textContent = newArg ? "compared" : "uncompared";
+		buttonElement.textContent = newArg ? _("compared") : _("uncompared");
 
 }
 
 function toggleRealNominalButton(newArg, buttonElement) {
 	
-		buttonElement.textContent = newArg ? "real" : "nominal";
+		buttonElement.textContent = newArg ? _("real") : _("nominal");
 
 }
 
 function toggleLogLinearButton(newArg, buttonElement) {
 	
-		buttonElement.textContent = newArg ? "log" : "linear";
+		buttonElement.textContent = newArg ? _("log") : _("linear");
 
 }
 
