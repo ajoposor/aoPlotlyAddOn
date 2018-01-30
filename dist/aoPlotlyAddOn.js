@@ -228,6 +228,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		
 		waitForGlobalData: false, // if set to true, it will , check that dataReadFlag is true before continuing
 		dataReadFlag: [true],
+		maxWaitForGlobalData: 4*60*1000, // 4 minutes in milliseconds
 		
 		allowCompare: false,
 		transformToBaseIndex: false, //series would be transformed to common value of 1 at beginning
@@ -1350,6 +1351,9 @@ aoPlotlyAddOn.readSomeDataSourcesIntoData = function (
 // FUNCTION TO READ DATA AND THEN MAKE CHART - LOADS IN PARALLEL
 function parallelReadDataAndMakeChart(data, param, makeChartFlag, callback) {
 	
+	var start_time = new Date();
+	
+	
 	DEBUG && DEBUG_TIMES && console.time("TIME: parallelReadData");
 	
 	// set function to local variable
@@ -1397,10 +1401,29 @@ function parallelReadDataAndMakeChart(data, param, makeChartFlag, callback) {
 			DEBUG && OTHER_DEBUGS && console.log("param.settings.dataReadFlag[0] ", param.settings.dataReadFlag[0]);
 			
 			if(param.settings.waitForGlobalData) {
+				start_time = new Date();
 				while(!param.settings.dataReadFlag[0]) {
+					
 					// waits until global data is read, indicated by the dataReadFlag
+					
+					/**
+					*  checks every 3 seconds that the maximum time limit is not reached
+					*  afterwards, breaks the while loop.
+					*/
+					setTimeout(function() { end_time = newDate(); 
+							        if(end_time-start_time > param.settings.maxWaitForGlobalData) {
+									param.settings.dataReadFlag[0] = true;
+								}
+							      }, 
+						   3000);
+					
+
 				}
-				param.settings.globalDataCallback();
+				if(typeof param.settings.globalDataCallback !== "undefined" &&
+				   typeof param.settings.globalDataCallback === "function") {
+					
+					param.settings.globalDataCallback();
+				}
 			}
 			
 			DEBUG && OTHER_DEBUGS && console.log("param.settings.dataReadFlag[0] ", param.settings.dataReadFlag[0]);
