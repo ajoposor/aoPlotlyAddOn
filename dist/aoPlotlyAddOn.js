@@ -8577,9 +8577,9 @@ function returnShallowCopyOfArray(array) {
 	
 	DEBUG && console.log("original array in shallow copy: ", array);
 	var arrayCopy = [];
-	var iLimit = array.limit
+	var iLimit = array.length
 	
-	arrayCopy.limit = iLimit;
+	arrayCopy.length = iLimit;
 	
 	for(var i = 0; i < iLimit ; i++) {
 		arrayCopy[i] = array[i];
