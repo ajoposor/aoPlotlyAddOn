@@ -8572,7 +8572,19 @@ function loadDataIntoXYFromPropertyXY(data, propertyForX, propertyForY) {
 }
 
 
-
+//
+function returnShallowCopyOfArray(array) {
+	var arrayCopy = [];
+	var iLimit = array.limit
+	
+	arrayCopy.limit = iLimit;
+	
+	for(var i = 0; i < iLimit ; i++) {
+		arrayCopy[i] = array[i];
+	}
+	
+	return arrayCopy;
+}
 
 // deep copy of objects
 function deepCopy(obj) {
@@ -9913,7 +9925,8 @@ function connectionIsSecure(){
 	aoPlotlyAddOn.findDateFromTodayAsString = findDateFromTodayAsString;
 	//aoPlotlyAddOn.findSpliceInfo = findSpliceInfo;       
 	//aoPlotlyAddOn.processCsvData = processCsvData; 
-	aoPlotlyAddOn.deepCopy = deepCopy;
+
+	aoPlotlyAddOn.arrayCopy = returnShallowCopyOfArray;
   
       
     // end section of library declaration  
