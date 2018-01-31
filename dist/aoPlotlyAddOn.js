@@ -1420,7 +1420,7 @@ aoPlotlyAddOn.updateKnowRecessions = function ( newRecessionsUrl = "") {
 			
 		} else {
 			
-			DEBUG && DEBUG_NEW_RECESSIONS_FUNCTION  &&   console.log("knowRecessionsDates updated );
+			DEBUG && DEBUG_NEW_RECESSIONS_FUNCTION  &&   console.log("knowRecessionsDates updated");
 										   
 			// set dataReadFlag to true
 			recessionDatesUpToDate[0] = true; 
