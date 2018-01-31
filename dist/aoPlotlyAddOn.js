@@ -1471,22 +1471,24 @@ function parallelReadDataAndMakeChart(data, param, makeChartFlag, callback) {
 		
 		// test whether knowRecessions are being updated outside
 		if( waitForUpdatedKnownRecessions[0] ) {
-			
+
 			
 		} else {
 			
-			// add call update recessions from external source to queue
-			DEBUG && DEBUG_NEW_RECESSIONS_FUNCTION &&  console.log("adding update recessions to queue");
-			DEBUG && DEBUG_NEW_RECESSIONS_FUNCTION &&  console.log("param.settings.newRecessionsUrl",
-									       param.settings.newRecessionsUrl);
-			DEBUG && DEBUG_NEW_RECESSIONS_FUNCTION &&  console.log("param.usRecessions",
-									       param.usRecessions);	
+			if( recessionDatesUpToDate[0] === false) {
 			
-			plotQueue.defer(parallelUpdateRecessions, 
-					param.settings.newRecessionsUrl, 
-					knownRecessionsDates //param.usRecessions
-				       );
-			
+				// add call update recessions from external source to queue
+				DEBUG && DEBUG_NEW_RECESSIONS_FUNCTION &&  console.log("adding update recessions to queue");
+				DEBUG && DEBUG_NEW_RECESSIONS_FUNCTION &&  console.log("param.settings.newRecessionsUrl",
+										       param.settings.newRecessionsUrl);
+				DEBUG && DEBUG_NEW_RECESSIONS_FUNCTION &&  console.log("param.usRecessions",
+										       param.usRecessions);	
+
+				plotQueue.defer(parallelUpdateRecessions, 
+						param.settings.newRecessionsUrl, 
+						knownRecessionsDates //param.usRecessions
+					       );
+			}
 			
 		}
 		
