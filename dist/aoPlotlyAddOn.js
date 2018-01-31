@@ -21,6 +21,7 @@ var DEBUG_CREATE_TRACE_WITH_FUNCTION = false;
 var DEBUG_ADD_DATE_TO_FORMULA = true;
 var DEBUG_WB_FUNCTION = true;
 var DEBUG_LOCALE = true;
+var DEBUG_NEW_RECESSIONS_FUNCTION = true;
 	
 var locales = {
 	"en": {
@@ -84,6 +85,8 @@ function _(token) {
 	
 	
 //RECESSIONS DEFINED
+	
+var recessionDatesUpToDate: [false];
 
 //Recessions data. Include all available recession periods here
 
@@ -184,10 +187,10 @@ var knownRecessionsDates =  [
 	},{
 	x0: "2001-03-01",
 	x1: "2001-10-31"
-	},{
+	}/*,{
 	x0: "2007-12-01",
 	x1: "2009-05-31"
-	}
+	}*/
 ];	
 
 	
@@ -395,6 +398,8 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 
 		
 	var settingsDefaults = {
+		
+		waitForUpdatedKnownRecessions: false,
 		// display shaded area during recession periods
 		displayRecessions: true,
 		// recession fill color and opacity
@@ -411,8 +416,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		dataReadFlag: [true],
 		maxWaitForGlobalData: 4*60*1000, // 4 minutes in milliseconds
 		
-		waitForUpdatedRecessions: false,
-		recessionsReadFlag: [true],
+
 		
 		allowCompare: false,
 		transformToBaseIndex: false, //series would be transformed to common value of 1 at beginning
@@ -1385,81 +1389,47 @@ aoPlotlyAddOn.readSomeDataSourcesIntoData = function (
 	
 	
 // this function reads new us recessions stand alone.    
-aoPlotlyAddOn.readNewUsRecessions = function (
-	settings = {},	 
-	callback
-) {
+aoPlotlyAddOn.updateKnowRecessions = function ( newRecessionsUrl = "") {
 
-	
-	// test arguments are passed complete
-	if (arguments.length < 2) {
-		return "incomplete arguments";
+	// check for newRecessionsUrl, if default value ( "") then use fred default
+	if(newRecessionsUrl === "") {
+		var fredRecessionsDefaultUrl = 
+		    "://kapitalvalue.com/plots_data/testing/fredRecessions-unlocked.php?observation_start=2015-12-01";
+
+		if(connectionIsSecure()) {
+			fredRecessionsDefaultUrl = "https"+fredRecessionsDefaultUrl;
+
+		} else {
+			fredRecessionsDefaultUrl = "http"+fredRecessionsDefaultUrl;
+		}
+		newRecessionsUrl = fredRecessionsDefaultUrl;
 	}
-
-	
-	// test that callback was passed and is a function
-	if(!(typeof callback === 'function')) {
-		callback = function() {};
-	}
-	
- 	
-	// SET OPTIONS AND TIMEINFO DEFAULTS
-	var settingsDefaults = {
-		queueConcurrencyLimit: 10,
-		queueConcurrencyDelay: 5, //milliseconds
-		waitForUpdatedRecessions: false,
-		recessionsReadFlag: [true],
-	};
-
-
-	// set settings defaults
-	setJsonDefaults(settingsDefaults, settings);
-
-
-	
-	// set function to local variable
-	var localParallelReadData = parallelReadData;
-	
-	// define queue and set concurrenty
-	DEBUG && OTHER_DEBUGS && console.log("queueConcurrencyLimit: ", settings.queueConcurrencyLimit);
-	var plotQueue = d3.queue(settings.queueConcurrencyLimit);
 	
 	
-
+	var plotQueue = d3.queue(1);
 	
-	plotQueue.defer(parallelUpdateRecessions, settings.newRecessionsUrl, knownRecessionsDates);
+	
+	plotQueue.defer(parallelUpdateRecessions, newRecessionsUrl, knownRecessionsDates);
 	
 	plotQueue.awaitAll(function(error){
 		if(error){
-			DEBUG && OTHER_DEBUGS && console.log("plotQueu await threw error on reading us recessiones");
-			DEBUG && OTHER_DEBUGS && console.log("the error is", error);
-			//display blank plot
+			DEBUG && DEBUG_NEW_RECESSIONS_FUNCTION && console.log("updateKnowRecessions");
+			DEBUG && DEBUG_NEW_RECESSIONS_FUNCTION && console.log("the error is", error);
+			//sets flag to true, despite error while reading the values
+			recessionDatesUpToDate[0] = true; 
+			
 		} else {
 			
-			
-			
-			DEBUG && OTHER_DEBUGS && DEBUG_RECESSIONS &&   console.log("param.usRecessions.length before calling makeChart: ", 
-					     usRecessions.length);
-
-			
+			DEBUG && DEBUG_NEW_RECESSIONS_FUNCTION  &&   console.log("knowRecessionsDates updated );
+										   
 			// set dataReadFlag to true
-			settings.recessionsReadFlag[0] = true;
-
-			DEBUG && OTHER_DEBUGS && console.log("recessions stand alone read");
-			callback();
+			recessionDatesUpToDate[0] = true; 
 		}
 		
 	});
 	
-	DEBUG && DEBUG_TIMES && console.timeEnd("TIME: readSomeDataSourcesIntoData");
-
 	
-}; // END OF read new us recessions, stand alone
-	
-	
-	
-	
-	
+}; // END OF updateKnowRecessions, stand alone
 
 
 	 
@@ -1486,20 +1456,43 @@ function parallelReadDataAndMakeChart(data, param, makeChartFlag, callback) {
 		DEBUG && OTHER_DEBUGS && console.log("add call parallelReadData to defer: ",i);
 		plotQueue.defer(localParallelReadData, data, i, param );
 	}
-	
-	
-	// add call update recessions from external source to queue
-	DEBUG && OTHER_DEBUGS && DEBUG_RECESSIONS &&  console.log("adding update recessions to queue");
-	DEBUG && OTHER_DEBUGS && DEBUG_RECESSIONS &&  console.log("param.settings.newRecessionsUrl",param.settings.newRecessionsUrl);
-	DEBUG && OTHER_DEBUGS && DEBUG_RECESSIONS &&  console.log("param.usRecessions",param.usRecessions);
-	
-	// FALTA AGREGAR CONDICIONAL, SI HAY QUE ESPERAR POR LAS RECESIONES O SI SE LEEN AQUÍ MISMO, EN EL 2DO CASO ...
+
+	// check whether recessions are to be displayed, otherwise no need to do anything about it
+	if(param.settings.displayRecessions) {
 		
-	var usRecessions = createRecessionShapes(knownRecessionsDates, 
-						 settings.recessionsFillColor, 
-						 settings.recessionsOpacity);
+		
+		
+		// test whether knowRecessions are being updated outside
+		if( param.settings.waitForUpdatedKnownRecessions ) {
+			
+			
+		} else {
+			
+			// add call update recessions from external source to queue
+			DEBUG && DEBUG_NEW_RECESSIONS_FUNCTION &&  console.log("adding update recessions to queue");
+			DEBUG && DEBUG_NEW_RECESSIONS_FUNCTION &&  console.log("param.settings.newRecessionsUrl",
+									       param.settings.newRecessionsUrl);
+			DEBUG && DEBUG_NEW_RECESSIONS_FUNCTION &&  console.log("param.usRecessions",
+									       param.usRecessions);	
+			
+			plotQueue.defer(parallelUpdateRecessions, 
+					param.settings.newRecessionsUrl, 
+					knownRecessionsDates //param.usRecessions
+				       );
+			
+			
+		}
+		
+
 	
-	plotQueue.defer(parallelUpdateRecessions, param.settings.newRecessionsUrl, param.usRecessions);
+	// FALTA AGREGAR CONDICIONAL, SI HAY QUE ESPERAR POR LAS RECESIONES O SI SE LEEN AQUÍ MISMO, EN EL 2DO CASO ...		
+		
+		
+		
+	}
+	   
+	   
+
 	
 	plotQueue.awaitAll(function(error){
 		if(error){
@@ -1520,6 +1513,43 @@ function parallelReadDataAndMakeChart(data, param, makeChartFlag, callback) {
 			
 			DEBUG && OTHER_DEBUGS && console.log("param.settings.waitForGlobalData: ", param.settings.waitForGlobalData);
 			DEBUG && OTHER_DEBUGS && console.log("param.settings.dataReadFlag[0] ", param.settings.dataReadFlag[0]);
+			
+			// if displayRecessions
+			if( param.settings.displayRecessions) {
+				
+				// wait until known recessions are updated
+				if( param.settings.waitForUpdatedKnownRecessions ) {
+					start_time = new Date();
+					while(! recessionDatesUpToDate[0]) {
+
+						// waits until know recessions reading ends
+
+						/**
+						*  checks every 3 seconds that the maximum time limit is not reached
+						*  afterwards, breaks the while loop.
+						*/
+						setTimeout(function() { end_time = newDate(); 
+									if(end_time-start_time > param.settings.maxWaitForGlobalData) {
+										recessionDatesUpToDate[0] = true;
+									}
+								      }, 
+							   3000);
+
+
+					}
+					
+					
+				} 
+				
+				// add formating options  and create shapes from knownRecessionsDates
+				var usRecessions = createRecessionShapes(knownRecessionsDates, 
+							 settings.recessionsFillColor, 
+							 settings.recessionsOpacity);
+				
+				param.usRecessions = usRecessions;
+			}
+			
+			
 			
 			if(param.settings.waitForGlobalData) {
 				start_time = new Date();
