@@ -8575,7 +8575,7 @@ function loadDataIntoXYFromPropertyXY(data, propertyForX, propertyForY) {
 //
 function returnShallowCopyOfArray(array) {
 	
-	DEBUG && console.log("original array in shallow copy: ": array);
+	DEBUG && console.log("original array in shallow copy: ", array);
 	var arrayCopy = [];
 	var iLimit = array.limit
 	
@@ -8585,7 +8585,7 @@ function returnShallowCopyOfArray(array) {
 		arrayCopy[i] = array[i];
 	}
 	
-	DEBUG && console.log("array copy in shallow copya: ": arrayCopy);
+	DEBUG && console.log("array copy in shallow copya: ", arrayCopy);
 	
 	return arrayCopy;
 }
