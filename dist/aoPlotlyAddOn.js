@@ -87,7 +87,7 @@ function _(token) {
 //RECESSIONS DEFINED
 	
 var recessionDatesUpToDate = [false];
-var waitForUpdatedKnownRecessions: [false],
+var waitForUpdatedKnownRecessions: [false];
 
 //Recessions data. Include all available recession periods here
 
@@ -1550,8 +1550,8 @@ function parallelReadDataAndMakeChart(data, param, makeChartFlag, callback) {
 				
 				// add formating options  and create shapes from knownRecessionsDates
 				var usRecessions = createRecessionShapes(knownRecessionsDates, 
-							 settings.recessionsFillColor, 
-							 settings.recessionsOpacity);
+							 param.settings.recessionsFillColor, 
+							 param.settings.recessionsOpacity);
 				
 				param.usRecessions = usRecessions;
 			}
