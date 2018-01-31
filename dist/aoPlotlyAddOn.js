@@ -86,7 +86,7 @@ function _(token) {
 	
 //RECESSIONS DEFINED
 	
-var recessionDatesUpToDate: [false];
+var recessionDatesUpToDate = [false];
 
 //Recessions data. Include all available recession periods here
 
