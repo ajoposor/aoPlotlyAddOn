@@ -87,6 +87,7 @@ function _(token) {
 //RECESSIONS DEFINED
 	
 var recessionDatesUpToDate = [false];
+var waitForUpdatedKnownRecessions: [false],
 
 //Recessions data. Include all available recession periods here
 
@@ -399,7 +400,6 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		
 	var settingsDefaults = {
 		
-		waitForUpdatedKnownRecessions: false,
 		// display shaded area during recession periods
 		displayRecessions: true,
 		// recession fill color and opacity
@@ -1390,6 +1390,8 @@ aoPlotlyAddOn.readSomeDataSourcesIntoData = function (
 	
 // this function reads new us recessions stand alone.    
 aoPlotlyAddOn.updateKnowRecessions = function ( newRecessionsUrl = "") {
+	
+	waitForUpdatedKnownRecessions[0] = true;
 
 	// check for newRecessionsUrl, if default value ( "") then use fred default
 	if(newRecessionsUrl === "") {
@@ -1412,11 +1414,13 @@ aoPlotlyAddOn.updateKnowRecessions = function ( newRecessionsUrl = "") {
 	plotQueue.defer(parallelUpdateRecessions, newRecessionsUrl, knownRecessionsDates);
 	
 	plotQueue.awaitAll(function(error){
+		
 		if(error){
 			DEBUG && DEBUG_NEW_RECESSIONS_FUNCTION && console.log("updateKnowRecessions");
 			DEBUG && DEBUG_NEW_RECESSIONS_FUNCTION && console.log("the error is", error);
 			//sets flag to true, despite error while reading the values
 			recessionDatesUpToDate[0] = true; 
+			waitForUpdatedKnownRecessions[0] = false;
 			
 		} else {
 			
@@ -1424,6 +1428,9 @@ aoPlotlyAddOn.updateKnowRecessions = function ( newRecessionsUrl = "") {
 										   
 			// set dataReadFlag to true
 			recessionDatesUpToDate[0] = true; 
+			
+			// no need to wait for updated know recession anymore, already updated
+			waitForUpdatedKnownRecessions[0] = false;
 		}
 		
 	});
@@ -1463,7 +1470,7 @@ function parallelReadDataAndMakeChart(data, param, makeChartFlag, callback) {
 		
 		
 		// test whether knowRecessions are being updated outside
-		if( param.settings.waitForUpdatedKnownRecessions ) {
+		if( waitForUpdatedKnownRecessions[0] ) {
 			
 			
 		} else {
@@ -1518,7 +1525,7 @@ function parallelReadDataAndMakeChart(data, param, makeChartFlag, callback) {
 			if( param.settings.displayRecessions) {
 				
 				// wait until known recessions are updated
-				if( param.settings.waitForUpdatedKnownRecessions ) {
+				if( waitForUpdatedKnownRecessions[0] ) {
 					start_time = new Date();
 					while(! recessionDatesUpToDate[0]) {
 
