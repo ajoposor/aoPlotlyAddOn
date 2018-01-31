@@ -1475,14 +1475,14 @@ function parallelReadDataAndMakeChart(data, param, makeChartFlag, callback) {
 			
 		} else {
 			
-			if( recessionDatesUpToDate[0] === false) {
+			if( ! recessionDatesUpToDate[0]) {
 			
 				// add call update recessions from external source to queue
 				DEBUG && DEBUG_NEW_RECESSIONS_FUNCTION &&  console.log("adding update recessions to queue");
 				DEBUG && DEBUG_NEW_RECESSIONS_FUNCTION &&  console.log("param.settings.newRecessionsUrl",
 										       param.settings.newRecessionsUrl);
-				DEBUG && DEBUG_NEW_RECESSIONS_FUNCTION &&  console.log("param.usRecessions",
-										       param.usRecessions);	
+				DEBUG && DEBUG_NEW_RECESSIONS_FUNCTION &&  console.log("knownRecessionsDates",
+										       knownRecessionsDates);	
 
 				plotQueue.defer(parallelUpdateRecessions, 
 						param.settings.newRecessionsUrl, 
@@ -1537,8 +1537,8 @@ function parallelReadDataAndMakeChart(data, param, makeChartFlag, callback) {
 						*  checks every 3 seconds that the maximum time limit is not reached
 						*  afterwards, breaks the while loop.
 						*/
-						setTimeout(function() { end_time = newDate(); 
-									if(end_time-start_time > param.settings.maxWaitForGlobalData) {
+						setTimeout(function() { 
+									if(new Date() - start_time > param.settings.maxWaitForGlobalData) {
 										recessionDatesUpToDate[0] = true;
 									}
 								      }, 
@@ -1570,8 +1570,8 @@ function parallelReadDataAndMakeChart(data, param, makeChartFlag, callback) {
 					*  checks every 3 seconds that the maximum time limit is not reached
 					*  afterwards, breaks the while loop.
 					*/
-					setTimeout(function() { end_time = newDate(); 
-							        if(end_time-start_time > param.settings.maxWaitForGlobalData) {
+					setTimeout(function() {  
+							        if(new Date() - start_time > param.settings.maxWaitForGlobalData) {
 									param.settings.dataReadFlag[0] = true;
 								}
 							      }, 
