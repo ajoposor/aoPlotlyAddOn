@@ -2930,10 +2930,11 @@ function createTraceWithFunction(data, argumentsIndexes, theFormula, indexOfCrea
 		
 	for(j = 0; j < numberOfArguments; j++) {
 		
-		if(typeof data[argumentsIndexes[j]].x === "undefined") ||
-		    Object.prototype.toString.call( data[argumentsIndexes[j]].x) !== "[object Array]" ||
-		    typeof data[argumentsIndexes[j]].y === "undefined") ||
-		    Object.prototype.toString.call( data[argumentsIndexes[j]].y) !== "[object Array]") {
+		if(typeof data[argumentsIndexes[j]].x === "undefined" ||
+		   Object.prototype.toString.call( data[argumentsIndexes[j]].x) !== "[object Array]" ||
+		   typeof data[argumentsIndexes[j]].y === "undefined" ||
+		   Object.prototype.toString.call( data[argumentsIndexes[j]].y) !== "[object Array]"
+		  ) {
 				
 			error = true;	
 			
@@ -3148,15 +3149,14 @@ function addCalculatedRealTraces(data, param) {
 			
 			error = false;
 			// check that source trace is ok
-			if(	iDeflactor === -1 ||
-			   	indexOfSourceTrace === -1 ||
-			   	typeof data[indexOfSourceTrace].x === "undefined") ||
-				Object.prototype.toString.call( data[indexOfSourceTrace].x) !== "[object Array]" ||
-				typeof data[indexOfSourceTrace].y === "undefined") ||
-				Object.prototype.toString.call( data[indexOfSourceTrace].y) !== "[object Array]" ||
-				data[indexOfSourceTrace].x.length === 0)
-				
-			) {
+			if( iDeflactor === -1 ||
+			   indexOfSourceTrace === -1 ||
+			   typeof data[indexOfSourceTrace].x === "undefined" ||
+			   Object.prototype.toString.call( data[indexOfSourceTrace].x) !== "[object Array]" ||
+			   typeof data[indexOfSourceTrace].y === "undefined" ||
+			   Object.prototype.toString.call( data[indexOfSourceTrace].y) !== "[object Array]" ||
+			   data[indexOfSourceTrace].x.length === 0
+			  ) {
 				error = true;
 			}
 			
