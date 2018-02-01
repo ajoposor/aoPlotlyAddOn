@@ -1555,82 +1555,136 @@ function parallelReadDataAndMakeChart(data, param, makeChartFlag, callback) {
 
 					
 					startTime = new Date();
-					checkForResponse(startTime, param.settings.maxWaitForGlobalData, recessionDatesUpToDate);
+					checkFlagAndCallback(startTime, 
+							 param.settings.maxWaitForGlobalData, 
+							 recessionDatesUpToDate, function () {
+						
+							param.usRecessions  = createRecessionShapes(knownRecessionsDates, 
+							 		param.settings.recessionsFillColor, 
+									 param.settings.recessionsOpacity);
+						
+						
+							 goToWaitForExternalData(
 					
-					while(!recessionDatesUpToDate[0]) {
-
-						// waiting for response or for function loop to update flag
-
+							);
 					}
+					);
 					
-					
-				} 
-				
-				// add formating options  and create shapes from knownRecessionsDates
-				var usRecessions = createRecessionShapes(knownRecessionsDates, 
-							 param.settings.recessionsFillColor, 
-							 param.settings.recessionsOpacity);
-				
-				param.usRecessions = usRecessions;
-			}
-			
-			
-			
-			if(param.settings.waitForGlobalData) {
-				
-				startTime = new Date();
-				checkForResponse(startTime, param.settings.maxWaitForGlobalData, param.settings.dataReadFlag);
-				
-				while(!param.settings.dataReadFlag[0]) {
-					
-					// waiting for response or for function loop to update flag
-
-				}
-				if(typeof param.settings.globalDataCallback !== "undefined" &&
-				   typeof param.settings.globalDataCallback === "function") {
-					
-					param.settings.globalDataCallback();
-				}
-			}
-			
-			DEBUG && OTHER_DEBUGS && console.log("param.settings.dataReadFlag[0] after loops ",
-							     param.settings.dataReadFlag[0]);
-			DEBUG && OTHER_DEBUGS && console.log("param.settings.waitForGlobalData after loops ",
-							     param.settings.waitForGlobalData);
-			
-			DEBUG && OTHER_DEBUGS && console.log("data before calculations: ", data);
-			
-			addCalculatedTracesWithFunctions(data, param);
-			DEBUG && OTHER_DEBUGS && console.log("calculated traces added ");
-			
-			addCalculatedRealTraces(data, param);
-			DEBUG && OTHER_DEBUGS && console.log("calculated real traces added ");
-			
-			trimNonExistingDataXY(data, param.otherDataProperties);
-			// this removes data[i], where data[i].x or y don't exist or have zero elements
-			cleanOutData(data);
-			
-			// set dataReadFlag to true
-			param.settings.dataReadFlag[0] = true;
-			
-			if(data.length < 1) {
-				showNoLoadedDataItem(param.divInfo);
-			} else {
-				if(makeChartFlag) {
-					makeChart(data, param);
-					DEBUG && OTHER_DEBUGS && console.log("allread and ploted");
-					DEBUG && OTHER_DEBUGS && DEBUG_RECESSIONS &&  console.log("param.settings.newRecessionsUrl: ",
-							    param.settings.newRecessionsUrl);
 				} else {
-					DEBUG && OTHER_DEBUGS && console.log("all data read and processed");
-					callback();
-				}
+				
+					// add formating options  and create shapes from knownRecessionsDates
+					param.usRecessions  = createRecessionShapes(knownRecessionsDates, 
+								 param.settings.recessionsFillColor, 
+								 param.settings.recessionsOpacity);
 
+
+					goToWaitForExternalData(
+
+								);
+					
+					
+				}
+				
+				
+			} else {
+			
+			goToWaitForExternalData(
+					
+				
+							);
+				
+				
 			}
+
 		}
 		
 	});
 } //  end of parallelReadDataAndMakeChart
+	
+	
+	
+function goToWaitForExternalData(param, 
+	
+	
+	
+	) {
+	
+	var startTime = new Date();
+
+	if(param.settings.waitForGlobalData) {
+
+		startTime = new Date();
+		checkFlagAndCallback(startTime, 
+				     param.settings.maxWaitForGlobalData, 
+				     param.settings.dataReadFlag, function() {
+			
+					if(typeof param.settings.globalDataCallback !== "undefined" &&
+		  			 typeof param.settings.globalDataCallback === "function") {
+
+						param.settings.globalDataCallback();
+					}
+			
+			               
+					continueProcessingDataAneMakingChart(    );
+			
+			
+				     }
+				     
+				     );
+
+
+
+	} else {
+	
+		continueProcessingDataAneMakingChart(    );
+		
+	}
+	
+}
+	
+	
+function continueProcessingDataAneMakingChart(data, param) {
+
+	
+	DEBUG && OTHER_DEBUGS && console.log("param.settings.dataReadFlag[0] after loops ",
+					     param.settings.dataReadFlag[0]);
+	DEBUG && OTHER_DEBUGS && console.log("param.settings.waitForGlobalData after loops ",
+					     param.settings.waitForGlobalData);
+
+	DEBUG && OTHER_DEBUGS && console.log("data before calculations: ", data);
+
+	addCalculatedTracesWithFunctions(data, param);
+	DEBUG && OTHER_DEBUGS && console.log("calculated traces added ");
+
+	addCalculatedRealTraces(data, param);
+	DEBUG && OTHER_DEBUGS && console.log("calculated real traces added ");
+
+	trimNonExistingDataXY(data, param.otherDataProperties);
+	// this removes data[i], where data[i].x or y don't exist or have zero elements
+	cleanOutData(data);
+
+	// set dataReadFlag to true
+	
+	// AJUSTAR ESTO PARA QUE SOLO SE USE CUANDO SE LEEN DATOS EXTERNOS
+	param.settings.dataReadFlag[0] = true;
+
+	if(data.length < 1) {
+		showNoLoadedDataItem(param.divInfo);
+	} else {
+		if(makeChartFlag) {
+			makeChart(data, param);
+			DEBUG && OTHER_DEBUGS && console.log("allread and ploted");
+			DEBUG && OTHER_DEBUGS && DEBUG_RECESSIONS &&  console.log("param.settings.newRecessionsUrl: ",
+					    param.settings.newRecessionsUrl);
+		} else {
+			DEBUG && OTHER_DEBUGS && console.log("all data read and processed");
+			callback();
+		}
+
+	}
+}	
+	
+	
 	
 
 function cleanOutData(data) {
