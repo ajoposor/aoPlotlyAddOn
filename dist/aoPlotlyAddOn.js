@@ -1444,7 +1444,7 @@ aoPlotlyAddOn.updateKnowRecessions = function ( newRecessionsUrl = "") {
 // FUNCTION TO READ DATA AND THEN MAKE CHART - LOADS IN PARALLEL
 function parallelReadDataAndMakeChart(data, param, makeChartFlag, callback) {
 	
-	var start_time = new Date();
+	var startTime = new Date();
 	
 	
 	DEBUG && DEBUG_TIMES && console.time("TIME: parallelReadData");
@@ -1521,15 +1521,17 @@ function parallelReadDataAndMakeChart(data, param, makeChartFlag, callback) {
 			//var data = [{x:[], y:[]}];
 			
 			
-			DEBUG && OTHER_DEBUGS && console.log("param.settings.waitForGlobalData: ", param.settings.waitForGlobalData);
-			DEBUG && OTHER_DEBUGS && console.log("param.settings.dataReadFlag[0] ", param.settings.dataReadFlag[0]);
+			DEBUG && OTHER_DEBUGS && console.log("param.settings.waitForGlobalData before loops ", 
+							     param.settings.waitForGlobalData);
+			DEBUG && OTHER_DEBUGS && console.log("param.settings.dataReadFlag[0] before loops", 
+							     param.settings.dataReadFlag[0]);
 			
 			// if displayRecessions
 			if( param.settings.displayRecessions) {
 				
 				// wait until known recessions are updated
 				if( waitForUpdatedKnownRecessions[0] ) {
-					start_time = new Date();
+					startTime = new Date();
 					while(! recessionDatesUpToDate[0]) {
 
 						// waits until know recessions reading ends
@@ -1539,7 +1541,7 @@ function parallelReadDataAndMakeChart(data, param, makeChartFlag, callback) {
 						*  afterwards, breaks the while loop.
 						*/
 						setTimeout(function() { 
-									if(new Date() - start_time > param.settings.maxWaitForGlobalData) {
+									if((new Date() - startTime) > param.settings.maxWaitForGlobalData) {
 										recessionDatesUpToDate[0] = true;
 									}
 								      }, 
@@ -1562,7 +1564,7 @@ function parallelReadDataAndMakeChart(data, param, makeChartFlag, callback) {
 			
 			
 			if(param.settings.waitForGlobalData) {
-				start_time = new Date();
+				startTime = new Date();
 				while(!param.settings.dataReadFlag[0]) {
 					
 					// waits until global data is read, indicated by the dataReadFlag
@@ -1572,7 +1574,7 @@ function parallelReadDataAndMakeChart(data, param, makeChartFlag, callback) {
 					*  afterwards, breaks the while loop.
 					*/
 					setTimeout(function() {  
-							        if(new Date() - start_time > param.settings.maxWaitForGlobalData) {
+							        if((new Date() - startTime) > param.settings.maxWaitForGlobalData) {
 									param.settings.dataReadFlag[0] = true;
 								}
 							      }, 
@@ -1587,8 +1589,10 @@ function parallelReadDataAndMakeChart(data, param, makeChartFlag, callback) {
 				}
 			}
 			
-			DEBUG && OTHER_DEBUGS && console.log("param.settings.dataReadFlag[0] ", param.settings.dataReadFlag[0]);
-			DEBUG && OTHER_DEBUGS && console.log("param.settings.waitForGlobalData: ", param.settings.waitForGlobalData);
+			DEBUG && OTHER_DEBUGS && console.log("param.settings.dataReadFlag[0] after loops ",
+							     param.settings.dataReadFlag[0]);
+			DEBUG && OTHER_DEBUGS && console.log("param.settings.waitForGlobalData after loops ",
+							     param.settings.waitForGlobalData);
 			
 			DEBUG && OTHER_DEBUGS && console.log("data before calculations: ", data);
 			
@@ -2764,7 +2768,7 @@ function verifyAndCleanDataSources(allRows, dataSources) {
 *	calculate: {
 *		type: "poly",
 *		polyFormulation : {
-*			argumentsIDs : [ traceID1, traceID2, ... } tracesIDs as defined in otherDataProperties
+*			argumentsIDs : [ traceID1, traceID2, ... ] tracesIDs as defined in otherDataProperties
 *                       traces should be already calculated, you may order traces to make calculations from calculations,
 *
 *			passDate: true or false, will include the date as the first argument,
@@ -2849,7 +2853,7 @@ function addCalculatedTracesWithFunctions(data, param) {
 				* find the indexes of the arguments ID's
 				*
 				*/
-				error = false;
+
 				if(numberOfArguments > 0) {
 					argumentsIndexes = [];
 					for (j = 0; j < numberOfArguments; j++){
@@ -2864,17 +2868,17 @@ function addCalculatedTracesWithFunctions(data, param) {
 				}
 				
 				if(!error) {
-
+					
+					// create the requested  trace
+					createTraceWithFunction(data, argumentsIndexes, polyFormulation.formula, i, daysThreshold,
+							       passDate);	
+					
 					// save data into Original if not yet done
 					if(originalDataCreated === false){
 						saveDataXYIntoPropertyXY(data, "xOriginal", "yOriginal");
 						originalDataCreated = true;
 					}
-			
-					
-					// create the requested  trace
-					createTraceWithFunction(data, argumentsIndexes, polyFormulation.formula, i, daysThreshold,
-							       passDate);			}
+				}
 			}
 		}
 	}
@@ -2899,6 +2903,7 @@ function createTraceWithFunction(data, argumentsIndexes, theFormula, indexOfCrea
 	var newDistance;
 	var commonPointFound;
 	var calculatedValue;
+	var error = false;
 	
 	DEBUG && DEBUG_CREATE_TRACE_WITH_FUNCTION && console.log("in createTraceWithFunction");
 	DEBUG && DEBUG_CREATE_TRACE_WITH_FUNCTION && console.log("argumentsIndexes: ", argumentsIndexes);
@@ -2919,137 +2924,162 @@ function createTraceWithFunction(data, argumentsIndexes, theFormula, indexOfCrea
 		functionArguments.length = numberOfArguments;
 	}
 							      
-	DEBUG && DEBUG_CREATE_TRACE_WITH_FUNCTION && console.log("limitOfArgument array: ", limitOfArgument);						      
-							      
+	DEBUG && DEBUG_CREATE_TRACE_WITH_FUNCTION && console.log("limitOfArgument array: ", limitOfArgument);	
 	
+	// check that required data is ok
+		
 	for(j = 0; j < numberOfArguments; j++) {
-		limitOfArgument[j] = data[argumentsIndexes[j]].x.length;
-		positionInArgument[j] = 0;
-		pointFound[j] = false;
-	}
-	
-	/* get first trace argument as anchor trace */
-	indexOfAnchorTrace = argumentsIndexes[0];
-	DEBUG && DEBUG_CREATE_TRACE_WITH_FUNCTION && console.log("indexOfAnchorTrace: ", indexOfAnchorTrace);
-	
-	/* get limit of anchor trace */
-	iLimit = data[indexOfAnchorTrace].x.length;
-	DEBUG && DEBUG_CREATE_TRACE_WITH_FUNCTION && console.log("limit of anchor trace: ", iLimit);						      
-	
-	/* cycle throght anchor trace points */ 
-	for(var i = 0; i < iLimit ; i++) {
 		
-		/* update position of anchor trace point */
-		positionInArgument[0] = i;
-		
-		/* if there are more than one argument */
-		if(numberOfArguments > 1) {
-			anchorDateAsDate = new Date(data[indexOfAnchorTrace].x[i]);
-			/* set pointFound to false */
-			for(j = 1; j < numberOfArguments; j++){
-				pointFound[j] = false;
-			}
+		if(typeof data[argumentsIndexes[j]].x === "undefined") ||
+		    Object.prototype.toString.call( data[argumentsIndexes[j]].x) !== "[object Array]" ||
+		    typeof data[argumentsIndexes[j]].y === "undefined") ||
+		    Object.prototype.toString.call( data[argumentsIndexes[j]].y) !== "[object Array]") {
+				
+			error = true;	
 			
-			/* find positions to lower or equal to anchorDate and threshold */
-			for(j = 1; j < numberOfArguments; j++){
-				/* test with current position */
-				currentDistance = Math.abs(anchorDateAsDate - 
-							   new Date(data[argumentsIndexes[j]].x[positionInArgument[j]]));
-				
-				
-				if(currentDistance <= millisecondsThreshold) {
-					pointFound[j] = true;
-				}
-				
-				if(currentDistance > 0) {
-					/* find closest point */
-					kLimit = limitOfArgument[j];
-					for( k = positionInArgument[j]; k < kLimit; k++) {
-						newDistance = Math.abs(anchorDateAsDate - 
-								       new Date(data[argumentsIndexes[j]].x[k]));
-						
-						DEBUG && DEBUG_CREATE_TRACE_WITH_FUNCTION && console.log("arg:", j," k: ", k, " newDistance: ", newDistance);		
-						
-						if(newDistance < currentDistance) {
-							if (newDistance <= millisecondsThreshold){
-								pointFound[j] = true;
-							}
-							currentDistance = newDistance;
-							positionInArgument[j] = k;
-						}
-						
-						if(newDistance === 0.0){
-							k = kLimit;
-						}
-						
-						if(newDistance > currentDistance) {
-							k = kLimit;
-						}
-					}
-				}
-			}
-			
-			/* test whether a common point was found and execute function and add point */
-			commonPointFound = true;
-			for (j = 1;  j < numberOfArguments; j++){
-				if(pointFound[j] === false) commonPointFound = false;
-			}
-			
-			/* make calculation and add point if commonPointFound */
-			if(commonPointFound) {
-				/* set arguments */
-				
-				/* add add date if required */
-				if(passDate) {
-					functionArguments[0] = anchorDateAsDate;
-					for (j = 0;  j < numberOfArguments; j++){
-						functionArguments[j+1] = data[argumentsIndexes[j]].y[positionInArgument[j]];
-					}
-				} else {
-					for (j = 0;  j < numberOfArguments; j++){
-						functionArguments[j] = data[argumentsIndexes[j]].y[positionInArgument[j]];
-					}
-				}
-				
-				/* calculate function */
-				calculatedValue = theFormula.apply(this, functionArguments);
-				
-				/* add calculated value and date to array */		
-				if(!isNaN(calculatedValue)) {
-					DEBUG && DEBUG_ADD_DATE_TO_FORMULA && console.log("calculatedValue: ", calculatedValue);
-					calculatedX.push(data[argumentsIndexes[0]].x[positionInArgument[0]]);
-					calculatedY.push(calculatedValue);
-				} else {
-					DEBUG && DEBUG_ADD_DATE_TO_FORMULA && console.log("NaN in date: ",
-								data[argumentsIndexes[0]].x[positionInArgument[0]]);
-				}
-			}
-
-		
-		} 
-		
-				
-		/* if there is only one argument */
-		else {
-			/* set arguments */
-			functionArguments[0] = data[argumentsIndexes[0]].y[positionInArgument[0]];
-				
-			/* calculate function */
-			calculatedValue = theFormula.apply(this, functionArguments);
-			
-			/* add calculated value and date to array */		
-			if(!isNaN(calculatedValue)) {
-				calculatedX.push(data[argumentsIndexes[0]].x[positionInArgument[0]]);
-				calculatedY.push(calculatedValue);
-			}
 		}
 
 	}
 	
-	data[indexOfCreatedTrace].x = calculatedX;
-	data[indexOfCreatedTrace].y = calculatedY;
+	
+	
+	if(! error) {						      
+	
+		for(j = 0; j < numberOfArguments; j++) {
+			limitOfArgument[j] = data[argumentsIndexes[j]].x.length;
+			positionInArgument[j] = 0;
+			pointFound[j] = false;
+		}
 
-	DEBUG && OTHER_DEBUGS && console.log("data after createTraceWithFunction: ", data);
+		/* get first trace argument as anchor trace */
+		indexOfAnchorTrace = argumentsIndexes[0];
+		DEBUG && DEBUG_CREATE_TRACE_WITH_FUNCTION && console.log("indexOfAnchorTrace: ", indexOfAnchorTrace);
+
+		/* get limit of anchor trace */
+		iLimit = data[indexOfAnchorTrace].x.length;
+		DEBUG && DEBUG_CREATE_TRACE_WITH_FUNCTION && console.log("limit of anchor trace: ", iLimit);						      
+
+		/* cycle throght anchor trace points */ 
+		for(var i = 0; i < iLimit ; i++) {
+
+			/* update position of anchor trace point */
+			positionInArgument[0] = i;
+
+			/* if there are more than one argument */
+			if(numberOfArguments > 1) {
+				anchorDateAsDate = new Date(data[indexOfAnchorTrace].x[i]);
+				/* set pointFound to false */
+				for(j = 1; j < numberOfArguments; j++){
+					pointFound[j] = false;
+				}
+
+				/* find positions to lower or equal to anchorDate and threshold */
+				for(j = 1; j < numberOfArguments; j++){
+					/* test with current position */
+					currentDistance = Math.abs(anchorDateAsDate - 
+								   new Date(data[argumentsIndexes[j]].x[positionInArgument[j]]));
+
+
+					if(currentDistance <= millisecondsThreshold) {
+						pointFound[j] = true;
+					}
+
+					if(currentDistance > 0) {
+						/* find closest point */
+						kLimit = limitOfArgument[j];
+						for( k = positionInArgument[j]; k < kLimit; k++) {
+							newDistance = Math.abs(anchorDateAsDate - 
+									       new Date(data[argumentsIndexes[j]].x[k]));
+
+							DEBUG && DEBUG_CREATE_TRACE_WITH_FUNCTION && console.log("arg:", j," k: ", k, " newDistance: ", newDistance);		
+
+							if(newDistance < currentDistance) {
+								if (newDistance <= millisecondsThreshold){
+									pointFound[j] = true;
+								}
+								currentDistance = newDistance;
+								positionInArgument[j] = k;
+							}
+
+							if(newDistance === 0.0){
+								k = kLimit;
+							}
+
+							if(newDistance > currentDistance) {
+								k = kLimit;
+							}
+						}
+					}
+				}
+
+				/* test whether a common point was found and execute function and add point */
+				commonPointFound = true;
+				for (j = 1;  j < numberOfArguments; j++){
+					if(pointFound[j] === false) commonPointFound = false;
+				}
+
+				/* make calculation and add point if commonPointFound */
+				if(commonPointFound) {
+					/* set arguments */
+
+					/* add add date if required */
+					if(passDate) {
+						functionArguments[0] = anchorDateAsDate;
+						for (j = 0;  j < numberOfArguments; j++){
+							functionArguments[j+1] = data[argumentsIndexes[j]].y[positionInArgument[j]];
+						}
+					} else {
+						for (j = 0;  j < numberOfArguments; j++){
+							functionArguments[j] = data[argumentsIndexes[j]].y[positionInArgument[j]];
+						}
+					}
+
+					/* calculate function */
+					calculatedValue = theFormula.apply(this, functionArguments);
+
+					/* add calculated value and date to array */		
+					if(!isNaN(calculatedValue)) {
+						DEBUG && DEBUG_ADD_DATE_TO_FORMULA && console.log("calculatedValue: ", calculatedValue);
+						calculatedX.push(data[argumentsIndexes[0]].x[positionInArgument[0]]);
+						calculatedY.push(calculatedValue);
+					} else {
+						DEBUG && DEBUG_ADD_DATE_TO_FORMULA && console.log("NaN in date: ",
+									data[argumentsIndexes[0]].x[positionInArgument[0]]);
+					}
+				}
+
+
+			} 
+
+
+			/* if there is only one argument */
+			else {
+				/* set arguments */
+				functionArguments[0] = data[argumentsIndexes[0]].y[positionInArgument[0]];
+
+				/* calculate function */
+				calculatedValue = theFormula.apply(this, functionArguments);
+
+				/* add calculated value and date to array */		
+				if(!isNaN(calculatedValue)) {
+					calculatedX.push(data[argumentsIndexes[0]].x[positionInArgument[0]]);
+					calculatedY.push(calculatedValue);
+				}
+			}
+
+		}
+
+		data[indexOfCreatedTrace].x = calculatedX;
+		data[indexOfCreatedTrace].y = calculatedY;
+
+		DEBUG && OTHER_DEBUGS && console.log("data after createTraceWithFunction: ", data);
+	} else {
+		// calculation not applied, returns void serie
+		data[indexOfCreatedTrace].x = [];
+		data[indexOfCreatedTrace].y = [];
+		
+	}
+	
 
 }	
 	
@@ -3094,6 +3124,8 @@ function addCalculatedRealTraces(data, param) {
 	var iDeflactor = -1;
 	var indexOfSourceTrace;
 	var calculateObject;
+	var error = false;
+	
 	
 	iDeflactor = getIDeflactor(otherDataProperties);
 	
@@ -3102,8 +3134,7 @@ function addCalculatedRealTraces(data, param) {
 		// test whether a calculate option with real is added
 		if(typeof otherDataProperties[i].calculate !== "undefined" &&
 		  typeof otherDataProperties[i].calculate.type !== "undefined" &&
-		  otherDataProperties[i].calculate.type === "real" &&
-		  iDeflactor !== -1) {
+		  otherDataProperties[i].calculate.type === "real") {
 			
 			// Following lines will create a calculated trace as a real version from another trace
 			
@@ -3115,35 +3146,60 @@ function addCalculatedRealTraces(data, param) {
 			*/
 			indexOfSourceTrace  =  findTraceIdIndex(calculateObject.sourceTrace, otherDataProperties);
 			
+			error = false;
+			// check that source trace is ok
+			if(	iDeflactor === -1 ||
+			   	indexOfSourceTrace === -1 ||
+			   	typeof data[indexOfSourceTrace].x === "undefined") ||
+				Object.prototype.toString.call( data[indexOfSourceTrace].x) !== "[object Array]" ||
+				typeof data[indexOfSourceTrace].y === "undefined") ||
+				Object.prototype.toString.call( data[indexOfSourceTrace].y) !== "[object Array]" ||
+				data[indexOfSourceTrace].x.length === 0)
+				
+			) {
+				error = true;
+			}
+			
+			
 			// save data into Original if not yet done
+			/*
 			if(originalDataCreated === false){
 				saveDataXYIntoPropertyXY(data, "xOriginal", "yOriginal");
 				originalDataCreated = true;
-			}
+			}*/
 			
-			// Create a dictionary with the deflactor values
-			// in this case the dictionary will not cover period keys because it will be an original trace being created
-			if( !deflactorValuesCreated ) {
-				deflactorValuesCreated = 
-					createDeflatorDictionary(deflactorDictionary, 
-								 data, otherDataProperties, 
-								 useVoidPeriodKeys,
-								 iDeflactor);
-			}
-			
-			// Get the target date (date that will be set to deflator = 1
-			targetDateAsString = getTargetDateAsStringForCalculatedTrace(
-				calculateObject, 
-				otherDataProperties, 
-				data);
-			
-			// Set dictionary at targetDate
-			setDeflactorDictionaryAtDate(targetDateAsString, deflactorDictionary, data[iDeflactor], 0);
+			if(! error) {
 				
-			// create the requested real trace	
-			createRealTrace(data, deflactorDictionary, targetDateAsString, otherDataProperties, 
-					indexOfSourceTrace, i);
+			
+				// Create a dictionary with the deflactor values
+				// in this case the dictionary will not cover period keys because it will be an original trace being created
+				if( !deflactorValuesCreated ) {
+					deflactorValuesCreated = 
+						createDeflatorDictionary(deflactorDictionary, 
+									 data, otherDataProperties, 
+									 useVoidPeriodKeys,
+									 iDeflactor);
+				}
 
+				// Get the target date (date that will be set to deflator = 1
+				targetDateAsString = getTargetDateAsStringForCalculatedTrace(
+					calculateObject, 
+					otherDataProperties, 
+					data);
+
+				// Set dictionary at targetDate
+				setDeflactorDictionaryAtDate(targetDateAsString, deflactorDictionary, data[iDeflactor], 0);
+
+				// create the requested real trace	
+				createRealTrace(data, deflactorDictionary, targetDateAsString, otherDataProperties, 
+						indexOfSourceTrace, i);
+			} else {
+			
+				// no trace is calculated, create void traces
+				data[i].x = [];
+				data[i].y = [];
+			
+			}
 		}
 	}
 	
@@ -8578,15 +8634,20 @@ function returnShallowCopyOfArray(array) {
 	
 	DEBUG && console.log("original array in shallow copy: ", array);
 	var arrayCopy = [];
-	var iLimit = array.length
 	
-	arrayCopy.length = iLimit;
-	
-	for(var i = 0; i < iLimit ; i++) {
-		arrayCopy[i] = array[i];
+	if(typeof array !== "undefined") {
+		if(Object.prototype.toString.call(array) === "[object Array]") {
+			var iLimit = array.length
+
+			arrayCopy.length = iLimit;
+
+			for(var i = 0; i < iLimit ; i++) {
+				arrayCopy[i] = array[i];
+			}
+
+			DEBUG && console.log("array copy in shallow copy: ", arrayCopy);
+		}
 	}
-	
-	DEBUG && console.log("array copy in shallow copya: ", arrayCopy);
 	
 	return arrayCopy;
 }
