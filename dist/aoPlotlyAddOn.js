@@ -1526,27 +1526,40 @@ function parallelReadDataAndMakeChart(data, param, makeChartFlag, callback) {
 			DEBUG && OTHER_DEBUGS && console.log("param.settings.dataReadFlag[0] before loops", 
 							     param.settings.dataReadFlag[0]);
 			
+			
+			//triggers a looping function that will update the flag at the end of time
+					
+			/**
+			*  checks every 3 seconds that the maximum time limit is not reached
+			*  afterwards, breaks the while loop.
+			*/
+			function checkForResponse (startTime, maxMilliSecs, flagArray) {
+					setTimeout(function() { 
+							if((new Date() - startTime) > maxMilliSecs ||
+							    flagArray[0]) {
+								flagArray[0] = true;
+							} else {
+								checkForResponse (startTime, maxMilliSecs, flagArray);
+							}
+						      }, 
+					  3000);
+
+			}
+					
+			
 			// if displayRecessions
 			if( param.settings.displayRecessions) {
 				
 				// wait until known recessions are updated
 				if( waitForUpdatedKnownRecessions[0] ) {
+
+					
 					startTime = new Date();
-					while(! recessionDatesUpToDate[0]) {
+					checkForResponse(startTime, param.settings.maxWaitForGlobalData, recessionDatesUpToDate);
+					
+					while(!recessionDatesUpToDate[0]) {
 
-						// waits until know recessions reading ends
-
-						/**
-						*  checks every 3 seconds that the maximum time limit is not reached
-						*  afterwards, breaks the while loop.
-						*/
-						setTimeout(function() { 
-									if((new Date() - startTime) > param.settings.maxWaitForGlobalData) {
-										recessionDatesUpToDate[0] = true;
-									}
-								      }, 
-							   3000);
-
+						// waiting for response or for function loop to update flag
 
 					}
 					
@@ -1564,22 +1577,13 @@ function parallelReadDataAndMakeChart(data, param, makeChartFlag, callback) {
 			
 			
 			if(param.settings.waitForGlobalData) {
+				
 				startTime = new Date();
+				checkForResponse(startTime, param.settings.maxWaitForGlobalData, param.settings.dataReadFlag);
+				
 				while(!param.settings.dataReadFlag[0]) {
 					
-					// waits until global data is read, indicated by the dataReadFlag
-					
-					/**
-					*  checks every 3 seconds that the maximum time limit is not reached
-					*  afterwards, breaks the while loop.
-					*/
-					setTimeout(function() {  
-							        if((new Date() - startTime) > param.settings.maxWaitForGlobalData) {
-									param.settings.dataReadFlag[0] = true;
-								}
-							      }, 
-						   3000);
-					
+					// waiting for response or for function loop to update flag
 
 				}
 				if(typeof param.settings.globalDataCallback !== "undefined" &&
