@@ -1339,7 +1339,8 @@ aoPlotlyAddOn.readSomeDataSourcesIntoData = function (
 		queueConcurrencyLimit: 10,
 		queueConcurrencyDelay: 5, //milliseconds
 		waitForGlobalData: false, // if set to true, it will , check that dataReadFlag is true before continuing
-		dataReadFlag: [true]
+		dataReadFlag: [true],
+		displayRecessions: false
 	};
 
 
