@@ -2108,7 +2108,7 @@ function processCsvData(allRows, data, tracesInitialDate, tracesEndDate,
 	// set flag for yqlGoogleCSV type and removes first row of array and translate names of columns to values
 	if(urlType === "yqlGoogleCSV"){
 		yqlGoogleCSV = true;
-		if(allRows.lenght > 1) {
+		if(allRows.length > 1) {
 			if(!processYqlGoogleCSVTags(dataSources, tags)) return false;
 			allRows.shift();
 		} else {
@@ -2891,7 +2891,9 @@ function verifyAndCleanDataSources(allRows, dataSources) {
 *                       (there should be at least on argument, so that x values are taken for that trace)
 *		},
 *
-*		daysThreshold: number of days that would be valid to considered as a same date in the x axis
+*		daysThreshold: number of days that would be valid to considered as a same date in the x axis,
+*		evaluateAllDates: true/false (default false) , will apply the formula to all existing dates, not taking into
+*		account that values exists for those dates
 *
 *
 *   }
@@ -2915,6 +2917,7 @@ function addCalculatedTracesWithFunctions(data, param) {
 	var foundIndex = -1;
 	var daysThreshold;
 	var passDate = false;
+	var evaluateAllDates= false;
 	
 	// iterate through all traces in otherDataProperties
 	iLimit = otherDataProperties.length;
@@ -2958,6 +2961,13 @@ function addCalculatedTracesWithFunctions(data, param) {
 					passDate = false;
 				}
 				
+				/* get the evaluateAllDates parameter */
+				if(typeof otherDataProperties[i].calculate.evaluateAllDates !== "undefined"){
+					evaluateAllDates = otherDataProperties[i].calculate.evaluateAllDates;
+				} else {
+					evaluateAllDates = false;
+				}
+				
 				DEBUG && DEBUG_ADD_DATE_TO_FORMULA && console.log("passDate: ", passDate);
 				
 				DEBUG && DEBUG_CREATE_TRACE_WITH_FUNCTION && console.log("daysThreshold: ", daysThreshold);
@@ -2982,9 +2992,22 @@ function addCalculatedTracesWithFunctions(data, param) {
 				
 				if(!error) {
 					
-					// create the requested  trace
-					createTraceWithFunction(data, argumentsIndexes, polyFormulation.formula, i, daysThreshold,
-							       passDate);	
+					if( !evaluateAllDates) {
+					
+						// create the requested  trace only on common points
+						createTraceWithFunction(data, argumentsIndexes, polyFormulation.formula,
+									i, daysThreshold,
+								       passDate);
+						
+					} else {
+						// create the requested trace evaluating all dates
+						createTraceWithFunctionOnAllDates(data, argumentsIndexes, 
+										  polyFormulation.formula, 
+										  i, daysThreshold,
+										  passDate);
+						
+						
+					}
 					
 					// save data into Original if not yet done
 					if(originalDataCreated === false){
@@ -2999,7 +3022,8 @@ function addCalculatedTracesWithFunctions(data, param) {
 	
 	
 		
-function createTraceWithFunction(data, argumentsIndexes, theFormula, indexOfCreatedTrace, daysThreshold, passDate){
+function createTraceWithFunction(data, argumentsIndexes, theFormula, 
+				  indexOfCreatedTrace, daysThreshold, passDate){
 	
 	var indexOfAnchorTrace;
 	var limitOfArgument = [];
@@ -3199,7 +3223,292 @@ function createTraceWithFunction(data, argumentsIndexes, theFormula, indexOfCrea
 	
 
 	
+
+		
+function createTraceWithFunctionOnAllDates(data, argumentsIndexes, theFormula, 
+				  indexOfCreatedTrace, daysThreshold, passDate){
 	
+	var indexOfAnchorTrace;
+	var limitOfArgument = [];
+	var positionInArgument = [];
+	var pointFound = [];
+	var functionArguments = [];
+	var i, iLimit, jLimit, j, k, kLimit;
+	var calculatedX = [];
+	var calculatedY = [];
+	var numberOfArguments;
+	var anchorDateAsDate;
+	var millisecondsThreshold = daysThreshold*24*60*60*1000;
+	var currentDistance;
+	var newDistance;
+	var commonPointFound;
+	var calculatedValue;
+	var error = false;
+	var indexOfTrace = 0;
+	
+	DEBUG && DEBUG_CREATE_TRACE_WITH_FUNCTION && console.log("in createTraceWithFunction on all dates");
+	DEBUG && DEBUG_CREATE_TRACE_WITH_FUNCTION && console.log("argumentsIndexes: ", argumentsIndexes);
+	DEBUG && DEBUG_CREATE_TRACE_WITH_FUNCTION && console.log("millisecondsThreshold: ", millisecondsThreshold);
+
+	
+	/* get number of arguments */
+	numberOfArguments = argumentsIndexes.length;
+	DEBUG && DEBUG_CREATE_TRACE_WITH_FUNCTION && console.log("numberOfArguments: ", numberOfArguments);
+	
+	/* assign limit of elements of argument and current position in Argument */
+	limitOfArgument.length = numberOfArguments;
+	positionInArgument.length = numberOfArguments;
+	pointFound.length = numberOfArguments;
+	if(passDate) {
+		functionArguments.length = numberOfArguments+1;
+	} else {
+		functionArguments.length = numberOfArguments;
+	}
+							      
+	DEBUG && DEBUG_CREATE_TRACE_WITH_FUNCTION && console.log("limitOfArgument array: ", limitOfArgument);	
+	
+	// check that required data is ok
+		
+	for(j = 0; j < numberOfArguments; j++) {
+		
+		if(typeof data[argumentsIndexes[j]].x === "undefined" ||
+		   Object.prototype.toString.call( data[argumentsIndexes[j]].x) !== "[object Array]" ||
+		   typeof data[argumentsIndexes[j]].y === "undefined" ||
+		   Object.prototype.toString.call( data[argumentsIndexes[j]].y) !== "[object Array]"
+		  ) {
+				
+			error = true;	
+			
+		}
+
+	}
+	
+	
+	
+	if(! error) {	
+		
+		var datesDictionary = {};
+		
+		// create a dates dictionary, with and array with the number of arguments and the position of each trace
+		for(j = 0; j < numberOfArguments; j++) {
+			indexOfTrace = argumentsIndexes[j];
+			iLimit = data[indexOfTrace].x.length;
+			for (i = 0; i < iLimit ; i++) {
+				if(typeof datesDictionary[data[indexOfTrace].x[i]] === "undefined") {
+					datesDictionary[data[indexOfTrace].x[i]] = [];
+					datesDictionary[data[indexOfTrace].x[i]].length = numberOfArguments;
+				}
+				
+				datesDictionary[data[indexOfTrace].x[i]].length = i;
+
+			}
+			
+		}
+		
+		
+		var datesArray = [];
+			
+		// cycle through dictionary and find neighbours and merge
+		
+		// first creates and array with all the dates
+		for (var key in datesDictionary) {
+			 if (datesDictionary.hasOwnProperty(key)) {
+				 datesArray.push([key]);
+			 }
+		}
+		
+		
+		// second cycle throgh dates to find neigbourghs
+		iLimit = datesArray.length-1;
+		jLimit = datesArray.length;
+		
+		for(i = 0; i < iLimit; i++) {
+			
+			if( datesArray[i].length === 1) {
+				anchorDateAsDate = new Date(datesArray[i][0]);
+			
+				for(j= i+i; j < jLimit; j++) {
+					if(datesArray[j].length === 1) {
+						currentDistance = Math.abs( anchorDateAsDate - new Date(datesArray[j][0] ));
+						if(currentDistance <= millisecondsThreshold) {
+							
+							datesArray[i].push( datesArray[j][0] ) ;
+							datesArray[j].splice(0,1);
+
+						}
+					}
+
+
+				}
+			}
+			
+		}
+		
+		
+		// the resulting datesArray has the dates and its neighbourhouds.
+		
+		// know creates a consolidated dictionary
+		var consolidatedDictionary = {};
+		
+		// create a dates dictionary, with and array with the number of arguments and the position of each trace
+		iLimit =  datesArray.length;
+		
+		for(i = 0; j < numberOfArguments; j++) {
+			indexOfTrace = argumentsIndexes[j];
+			iLimit = data[indexOfTrace].x.length;
+			for (i = 0; i < iLimit ; i++) {
+				if(typeof datesDictionary[data[indexOfTrace].x[i]] === "undefined") {
+					datesDictionary[data[indexOfTrace].x[i]] = [];
+					datesDictionary[data[indexOfTrace].x[i]].length = numberOfArguments;
+				}
+				
+				datesDictionary[data[indexOfTrace].x[i]].length = i;
+
+			}
+			
+		}
+		
+		
+		
+	
+		for(j = 0; j < numberOfArguments; j++) {
+			limitOfArgument[j] = data[argumentsIndexes[j]].x.length;
+			positionInArgument[j] = 0;
+			pointFound[j] = false;
+		}
+
+		/* get first trace argument as anchor trace */
+		indexOfAnchorTrace = argumentsIndexes[0];
+		DEBUG && DEBUG_CREATE_TRACE_WITH_FUNCTION && console.log("indexOfAnchorTrace: ", indexOfAnchorTrace);
+
+		/* get limit of anchor trace */
+		iLimit = data[indexOfAnchorTrace].x.length;
+		DEBUG && DEBUG_CREATE_TRACE_WITH_FUNCTION && console.log("limit of anchor trace: ", iLimit);						      
+
+		/* cycle throght anchor trace points */ 
+		for(var i = 0; i < iLimit ; i++) {
+
+			/* update position of anchor trace point */
+			positionInArgument[0] = i;
+
+			/* if there are more than one argument */
+			if(numberOfArguments > 1) {
+				anchorDateAsDate = new Date(data[indexOfAnchorTrace].x[i]);
+				/* set pointFound to false */
+				for(j = 1; j < numberOfArguments; j++){
+					pointFound[j] = false;
+				}
+
+				/* find positions to lower or equal to anchorDate and threshold */
+				for(j = 1; j < numberOfArguments; j++){
+					/* test with current position */
+					currentDistance = Math.abs(anchorDateAsDate - 
+								   new Date(data[argumentsIndexes[j]].x[positionInArgument[j]]));
+
+
+					if(currentDistance <= millisecondsThreshold) {
+						pointFound[j] = true;
+					}
+
+					if(currentDistance > 0) {
+						/* find closest point */
+						kLimit = limitOfArgument[j];
+						for( k = positionInArgument[j]; k < kLimit; k++) {
+							newDistance = Math.abs(anchorDateAsDate - 
+									       new Date(data[argumentsIndexes[j]].x[k]));
+
+							DEBUG && DEBUG_CREATE_TRACE_WITH_FUNCTION && console.log("arg:", j," k: ", k, " newDistance: ", newDistance);		
+
+							if(newDistance < currentDistance) {
+								if (newDistance <= millisecondsThreshold){
+									pointFound[j] = true;
+								}
+								currentDistance = newDistance;
+								positionInArgument[j] = k;
+							}
+
+							if(newDistance === 0.0){
+								k = kLimit;
+							}
+
+							if(newDistance > currentDistance) {
+								k = kLimit;
+							}
+						}
+					}
+				}
+
+				/* test whether a common point was found and execute function and add point */
+				commonPointFound = true;
+				for (j = 1;  j < numberOfArguments; j++){
+					if(pointFound[j] === false) commonPointFound = false;
+				}
+
+				/* make calculation and add point if commonPointFound */
+				if(commonPointFound) {
+					/* set arguments */
+
+					/* add add date if required */
+					if(passDate) {
+						functionArguments[0] = anchorDateAsDate;
+						for (j = 0;  j < numberOfArguments; j++){
+							functionArguments[j+1] = data[argumentsIndexes[j]].y[positionInArgument[j]];
+						}
+					} else {
+						for (j = 0;  j < numberOfArguments; j++){
+							functionArguments[j] = data[argumentsIndexes[j]].y[positionInArgument[j]];
+						}
+					}
+
+					/* calculate function */
+					calculatedValue = theFormula.apply(this, functionArguments);
+
+					/* add calculated value and date to array */		
+					if(!isNaN(calculatedValue)) {
+						DEBUG && DEBUG_ADD_DATE_TO_FORMULA && console.log("calculatedValue: ", calculatedValue);
+						calculatedX.push(data[argumentsIndexes[0]].x[positionInArgument[0]]);
+						calculatedY.push(calculatedValue);
+					} else {
+						DEBUG && DEBUG_ADD_DATE_TO_FORMULA && console.log("NaN in date: ",
+									data[argumentsIndexes[0]].x[positionInArgument[0]]);
+					}
+				}
+
+
+			} 
+
+
+			/* if there is only one argument */
+			else {
+				/* set arguments */
+				functionArguments[0] = data[argumentsIndexes[0]].y[positionInArgument[0]];
+
+				/* calculate function */
+				calculatedValue = theFormula.apply(this, functionArguments);
+
+				/* add calculated value and date to array */		
+				if(!isNaN(calculatedValue)) {
+					calculatedX.push(data[argumentsIndexes[0]].x[positionInArgument[0]]);
+					calculatedY.push(calculatedValue);
+				}
+			}
+
+		}
+
+		data[indexOfCreatedTrace].x = calculatedX;
+		data[indexOfCreatedTrace].y = calculatedY;
+
+		DEBUG && OTHER_DEBUGS && console.log("data after createTraceWithFunction: ", data);
+	} else {
+		// calculation not applied, returns void serie
+		data[indexOfCreatedTrace].x = [];
+		data[indexOfCreatedTrace].y = [];
+		
+	}
+	
+
+}	
+		
 	
  
 /**
@@ -6878,7 +7187,7 @@ function reverseOrderOfArray(allRows){
 
 /*	 
 function transformAllRowsToEndOfMonth(allRows, xSeriesName, xDateSuffix, urlType){
-	var iLimit = allRows.lenght;
+	var iLimit = allRows.length;
 	var processedDate = "";
 	var yqlGoogleCSV = false;
 	var timeOffsetText = getTimeOffsetText();
@@ -6901,7 +7210,7 @@ function transformAllRowsToEndOfMonth(allRows, xSeriesName, xDateSuffix, urlType
 
 /*	 
 function processDatesToAllRows(allRows, xSeriesName, xDateSuffix, urlType){
-	var iLimit = allRows.lenght;
+	var iLimit = allRows.length;
 	var processedDate = "";
 	var yqlGoogleCSV = false;
 	var timeOffsetText = getTimeOffsetText();
@@ -9496,7 +9805,7 @@ function propertyInObject(property, object) {
 	 
 	 
 
-// return a string with at least lenght characters
+// return a string with at least length characters
 function fillStringUpTo(baseString, stringLengthInPixels, fontFamily, fontSize, canvas){
 	var newString= baseString;
 	
