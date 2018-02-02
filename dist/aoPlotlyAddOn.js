@@ -2509,7 +2509,21 @@ function processWBData(wbArrayData, data, tracesInitialDate, tracesEndDate,
 }	
 	
 	
+function cleanOutData(allRows, xSeriesName, ySeriesName) {
 	
+	var iLimit = allRows.length;
+	
+	for (var i=0; i < iLimit; i++ ) {
+		
+		if( allRows[i][ySeriesName] === ".") {
+			allRows.splice(i, 1);
+			iLimit--;
+		}
+			
+	}
+	
+	
+}
 	
 	
 // FUNCTIONS TO ADD READ and Processed data into the data array
@@ -2570,8 +2584,14 @@ function loadSubTablesIntoData(dataSources, tableParams,
 		DEBUG && OTHER_DEBUGS && console.log("xSeriesName: ", xSeriesName, "   ySeriesName: ", 
 						     ySeriesName, "  traceID:", traceID);
 		
+		
 		// get data
 		allRows = tableParams[xSeriesName].allRows;
+		
+		//clean for non valid ydata (case for fred api returning "."
+		cleanOutData(allRows, xSeriesName, ySeriesName);
+		
+		
 		iLimit = allRows.length;
 		DEBUG && OTHER_DEBUGS && console.log("tableParams", tableParams);
 		DEBUG && OTHER_DEBUGS && console.log("allRows from table params", allRows);
