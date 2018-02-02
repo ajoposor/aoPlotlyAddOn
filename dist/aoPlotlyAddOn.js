@@ -418,7 +418,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		waitForGlobalData: false, // if set to true, it will , check that dataReadFlag is true before continuing
 		dataReadFlag: [true],
 		maxWaitForGlobalData: 4*60*1000, // 4 minutes in milliseconds
-		flagTestInterval: 100 // 100 milliseconds
+		flagTestInterval: 100, // 100 milliseconds
 		
 
 		
