@@ -22,6 +22,7 @@ var DEBUG_ADD_DATE_TO_FORMULA = true;
 var DEBUG_WB_FUNCTION = true;
 var DEBUG_LOCALE = true;
 var DEBUG_NEW_RECESSIONS_FUNCTION = true;
+var DEBUG_CALCULATE_REAL = true;
 	
 var locales = {
 	"en": {
@@ -3183,6 +3184,8 @@ function addCalculatedRealTraces(data, param) {
 	
 	iDeflactor = getIDeflactor(otherDataProperties);
 	
+	DEBUG && DEBUG_CALCULATE_REAL && console.log("iDeflactor: ", data);
+	
 	// iterate through all traces
 	for (var i=0; i < iLimit; i++) {
 		// test whether a calculate option with real is added
@@ -3214,13 +3217,13 @@ function addCalculatedRealTraces(data, param) {
 			}
 			
 			
-			// save data into Original if not yet done in this function
-			if(originalDataCreated === false){
-				saveDataXYIntoPropertyXY(data, "xOriginal", "yOriginal");
-				originalDataCreated = true;
-			}
-			
 			if(! error) {
+				
+				// save data into Original if not yet done in this function
+				if(originalDataCreated === false){
+					saveDataXYIntoPropertyXY(data, "xOriginal", "yOriginal");
+					originalDataCreated = true;
+				}
 				
 			
 				// Create a dictionary with the deflactor values
@@ -3231,6 +3234,8 @@ function addCalculatedRealTraces(data, param) {
 									 data, otherDataProperties, 
 									 useVoidPeriodKeys,
 									 iDeflactor);
+					DEBUG && DEBUG_CALCULATE_REAL && console.log("deflactorValuesCreated ", 
+										     deflactorValuesCreated);
 				}
 
 				// Get the target date (date that will be set to deflator = 1
