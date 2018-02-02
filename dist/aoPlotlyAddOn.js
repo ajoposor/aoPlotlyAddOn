@@ -1662,9 +1662,14 @@ function continueProcessingDataAneMakingChart(data, param, makeChartFlag , callb
 	// set dataReadFlag to true
 	
 	// AJUSTAR ESTO PARA QUE SOLO SE USE CUANDO SE LEEN DATOS EXTERNOS
-	param.settings.dataReadFlag[0] = true;
+	if( ! param.settings.waitForGlobalData &&
+	    ! makeChartFlag
+	  ) {
+		param.settings.dataReadFlag[0] = true;
+	}
 
-	if(data.length < 1) {
+	if(data.length < 1 &&
+	    makeChartFlag ) {
 		showNoLoadedDataItem(param.divInfo);
 	} else {
 		if(makeChartFlag) {
@@ -1680,7 +1685,7 @@ function continueProcessingDataAneMakingChart(data, param, makeChartFlag , callb
 	}
 }	
 	
-	
+
 	
 
 function cleanOutData(data) {
