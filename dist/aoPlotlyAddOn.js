@@ -209,7 +209,10 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	layout = {},
 	options = {}
 ) {
-
+	
+	// flag to make function call the make chart function
+	var makeChartFlag = true;
+	
 	DEBUG && DEBUG_TIMES && console.time("TIME: newTimeseriesPlot");
 	DEBUG && DEBUG_TIMES && console.time("TIME: initialSettingsBeforeReadData");
 	
@@ -415,6 +418,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		waitForGlobalData: false, // if set to true, it will , check that dataReadFlag is true before continuing
 		dataReadFlag: [true],
 		maxWaitForGlobalData: 4*60*1000, // 4 minutes in milliseconds
+		flagTestInterval: 100 // 100 milliseconds
 		
 
 		
@@ -1298,7 +1302,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 	DEBUG && DEBUG_TIMES && console.timeEnd("TIME: initialSettingsBeforeReadData");
 	DEBUG && OTHER_DEBUGS && console.log("passedParemeters: ", passedParameters);
 	
-	parallelReadDataAndMakeChart(data, passedParameters, true);
+	parallelReadDataAndMakeChart(data, passedParameters, makeChartFlag = true);
 	
 	
 }; // END OF newTimeseriesPlot FUNCTION
@@ -1317,6 +1321,8 @@ aoPlotlyAddOn.readSomeDataSourcesIntoData = function (
 	callback
 ) {
 
+	var makeChartFlag = false;
+	
 	DEBUG && DEBUG_TIMES && console.time("TIME: readSomeDataSourcesIntoData");
 	
 	// test arguments are passed complete
@@ -1339,7 +1345,7 @@ aoPlotlyAddOn.readSomeDataSourcesIntoData = function (
 		queueConcurrencyLimit: 10,
 		queueConcurrencyDelay: 5, //milliseconds
 		waitForGlobalData: false, // if set to true, it will , check that dataReadFlag is true before continuing
-		dataReadFlag: [true],
+		dataReadFlag: [false],
 		displayRecessions: false
 	};
 
@@ -1382,7 +1388,7 @@ aoPlotlyAddOn.readSomeDataSourcesIntoData = function (
 	
 	DEBUG && DEBUG_TIMES && console.timeEnd("TIME: readSomeDataSourcesIntoData");
 	
-	parallelReadDataAndMakeChart(data, passedParameters, false, callback);
+	parallelReadDataAndMakeChart(data, passedParameters, makeChartFlag = false, callback);
 	
 	
 }; // END OF read Sources Into Data FUNCTION
@@ -1440,6 +1446,27 @@ aoPlotlyAddOn.updateKnowRecessions = function ( newRecessionsUrl = "") {
 }; // END OF updateKnowRecessions, stand alone
 
 
+/**
+*  checks every flagTestInterval milliseconds that the maximum time limit is not reached
+*  or that the condicion is met,
+*  afterwards, stops self-calling and makes the callback
+*/
+function checkFlagAndCallback (startTime, maxMilliSecs, flagArray, flagTestInterval, callback) {
+		setTimeout(function() { 
+				if((new Date() - startTime) > maxMilliSecs ||
+				    flagArray[0]) {
+					callback();
+				} else {
+					checkFlagAndCallback (startTime, maxMilliSecs, flagArray,
+							     flagTestInterval, callback);
+				}
+			      }, 
+		  flagTestInterval);
+
+}	
+	
+	
+	
 	 
 // FUNCTION TO READ DATA AND THEN MAKE CHART - LOADS IN PARALLEL
 function parallelReadDataAndMakeChart(data, param, makeChartFlag, callback) {
@@ -1468,13 +1495,8 @@ function parallelReadDataAndMakeChart(data, param, makeChartFlag, callback) {
 	// check whether recessions are to be displayed, otherwise no need to do anything about it
 	if(param.settings.displayRecessions) {
 		
-		
-		
 		// test whether knowRecessions are being updated outside
-		if( waitForUpdatedKnownRecessions[0] ) {
-
-			
-		} else {
+		if( ! waitForUpdatedKnownRecessions[0] ) {
 			
 			if( ! recessionDatesUpToDate[0]) {
 			
@@ -1490,14 +1512,7 @@ function parallelReadDataAndMakeChart(data, param, makeChartFlag, callback) {
 						knownRecessionsDates //param.usRecessions
 					       );
 			}
-			
 		}
-		
-
-	
-	// FALTA AGREGAR CONDICIONAL, SI HAY QUE ESPERAR POR LAS RECESIONES O SI SE LEEN AQUÍ MISMO, EN EL 2DO CASO ...		
-		
-		
 		
 	}
 	   
@@ -1508,9 +1523,10 @@ function parallelReadDataAndMakeChart(data, param, makeChartFlag, callback) {
 		if(error){
 			DEBUG && OTHER_DEBUGS && console.log("plotQueu await threw error");
 			DEBUG && OTHER_DEBUGS && console.log("the error is", error);
-			//display blank plot
+			//displays blank plot
 		} else {
-			DEBUG && OTHER_DEBUGS && DEBUG_RECESSIONS &&   console.log("param.usRecessions.length before calling makeChart: ", 
+			DEBUG && OTHER_DEBUGS && DEBUG_RECESSIONS &&   
+				console.log("param.usRecessions.length before calling makeChart: ", 
 					     param.usRecessions.length);
 			// once all files all read, i.e. iS === series.length, this section is executed
 			DEBUG && OTHER_DEBUGS && console.log("data: ", data);
@@ -1529,22 +1545,7 @@ function parallelReadDataAndMakeChart(data, param, makeChartFlag, callback) {
 			
 			//triggers a looping function that will update the flag at the end of time
 					
-			/**
-			*  checks every 3 seconds that the maximum time limit is not reached
-			*  afterwards, breaks the while loop.
-			*/
-			function checkForResponse (startTime, maxMilliSecs, flagArray) {
-					setTimeout(function() { 
-							if((new Date() - startTime) > maxMilliSecs ||
-							    flagArray[0]) {
-								flagArray[0] = true;
-							} else {
-								checkForResponse (startTime, maxMilliSecs, flagArray);
-							}
-						      }, 
-					  3000);
-
-			}
+			
 					
 			
 			// if displayRecessions
@@ -1557,17 +1558,18 @@ function parallelReadDataAndMakeChart(data, param, makeChartFlag, callback) {
 					startTime = new Date();
 					checkFlagAndCallback(startTime, 
 							 param.settings.maxWaitForGlobalData, 
-							 recessionDatesUpToDate, function () {
+							 recessionDatesUpToDate,
+							 param.settings.flagTestInterval,
+							     
+							 function () {
 						
-							param.usRecessions  = createRecessionShapes(knownRecessionsDates, 
-							 		param.settings.recessionsFillColor, 
-									 param.settings.recessionsOpacity);
-						
-						
-							 goToWaitForExternalData(
-					
-							);
-					}
+								param.usRecessions  = createRecessionShapes(knownRecessionsDates, 
+										param.settings.recessionsFillColor, 
+										 param.settings.recessionsOpacity);
+
+
+								 goToWaitForExternalData(data, param, makeChartFlag , callback);
+							}
 					);
 					
 				} else {
@@ -1578,9 +1580,7 @@ function parallelReadDataAndMakeChart(data, param, makeChartFlag, callback) {
 								 param.settings.recessionsOpacity);
 
 
-					goToWaitForExternalData(
-
-								);
+					goToWaitForExternalData(data, param, makeChartFlag , callback);
 					
 					
 				}
@@ -1588,10 +1588,7 @@ function parallelReadDataAndMakeChart(data, param, makeChartFlag, callback) {
 				
 			} else {
 			
-			goToWaitForExternalData(
-					
-				
-							);
+			goToWaitForExternalData(data, param, makeChartFlag , callback);
 				
 				
 			}
@@ -1603,11 +1600,7 @@ function parallelReadDataAndMakeChart(data, param, makeChartFlag, callback) {
 	
 	
 	
-function goToWaitForExternalData(param, 
-	
-	
-	
-	) {
+function goToWaitForExternalData( data, param, makeChartFlag , callback) {
 	
 	var startTime = new Date();
 
@@ -1616,7 +1609,9 @@ function goToWaitForExternalData(param,
 		startTime = new Date();
 		checkFlagAndCallback(startTime, 
 				     param.settings.maxWaitForGlobalData, 
-				     param.settings.dataReadFlag, function() {
+				     param.settings.dataReadFlag, 
+				     param.settings.flagTestInterval,
+				     function() {
 			
 					if(typeof param.settings.globalDataCallback !== "undefined" &&
 		  			 typeof param.settings.globalDataCallback === "function") {
@@ -1625,7 +1620,7 @@ function goToWaitForExternalData(param,
 					}
 			
 			               
-					continueProcessingDataAneMakingChart(    );
+					continueProcessingDataAneMakingChart( data, param, makeChartFlag , callback );
 			
 			
 				     }
@@ -1636,14 +1631,14 @@ function goToWaitForExternalData(param,
 
 	} else {
 	
-		continueProcessingDataAneMakingChart(    );
+		continueProcessingDataAneMakingChart(data, param, makeChartFlag , callback);
 		
 	}
 	
 }
 	
 	
-function continueProcessingDataAneMakingChart(data, param) {
+function continueProcessingDataAneMakingChart(data, param, makeChartFlag , callback) {
 
 	
 	DEBUG && OTHER_DEBUGS && console.log("param.settings.dataReadFlag[0] after loops ",
