@@ -2018,11 +2018,11 @@ function delayedParallelReadData(data, i, param, callback) {
 			readData="";
 			callback(null);
 		});
-	} else if ( urlType === "FredJson") {
-		DEBUG && OTHER_DEBUGS && console.log("FredJson", i);
+	} else if ( urlType === "fredJson") {
+		DEBUG && OTHER_DEBUGS && console.log("fredJson", i);
 		Plotly.d3.json(url, function(err, readData) {
 			if(!err){
-				DEBUG && OTHER_DEBUGS && DEBUG_EIA_FUNCTION && console.log("read FredJson",readData);
+				DEBUG && OTHER_DEBUGS && DEBUG_EIA_FUNCTION && console.log("read fredJson",readData);
 				if(typeof readData.observations !== "undefined" ) {
 					readData = readData.observations;
 					if(checkDataIsAnArrayNotVoid(readData)){
