@@ -2515,9 +2515,16 @@ function RemoveNaNDataPoints(allRows, xSeriesName, ySeriesName) {
 	
 	for (var i=0; i < iLimit; i++ ) {
 		
-		if( allRows[i][ySeriesName] === ".") {
+		if( allRows[i][ySeriesName] === "." ||
+		     isNaN(allRows[i][ySeriesName])
+		  ) {
+			
+			if( allRows[i][ySeriesName] === ".") 	DEBUG && OTHER_DEBUGS && console.log("value = . found");
+			if( isNaN(allRows[i][ySeriesName])) 	DEBUG && OTHER_DEBUGS && console.log("NaN value is true");
+			
 			allRows.splice(i, 1);
 			iLimit--;
+			DEBUG && OTHER_DEBUGS && console.log("value = . found");
 		}
 			
 	}
