@@ -3352,8 +3352,27 @@ function createTraceWithFunctionOnAllDates(data, argumentsIndexes, theFormula,
 		
 		// create a dates dictionary, with and array with the number of arguments and the position of each trace
 		iLimit =  datesArray.length;
+		kLimit = numberOfArguments
 		
-		for(i = 0; j < numberOfArguments; j++) {
+		for(i = 0; i < iLimit; i++) {
+			if(datesArray[i].length  > 0 ) {
+				jLimit = datesArray[i].length;
+				currentDate = datesArray[i][0];
+				consolidatedDictionary[currentDate] = [];
+				consolidatedDictionary[currentDate].length = numberOfArguments;
+				for(j=0; j < jLimit; j++) {
+					for(k=0; k < kLimit; k++) {
+						if(	consolidatedDictionary[currentDate][k] === "undefined" &&
+							datesDictionary[datesArray[i][j]][k] !== "undefined") {
+							consolidatedDictionary[currentDate][k] =
+								datesDictionary[datesArray[i][j]][k];
+						}
+					}
+					
+				}
+				
+			}
+		}
 			indexOfTrace = argumentsIndexes[j];
 			iLimit = data[indexOfTrace].x.length;
 			for (i = 0; i < iLimit ; i++) {
