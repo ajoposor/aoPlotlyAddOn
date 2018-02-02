@@ -2018,6 +2018,32 @@ function delayedParallelReadData(data, i, param, callback) {
 			readData="";
 			callback(null);
 		});
+	} else if ( urlType === "FredJson") {
+		DEBUG && OTHER_DEBUGS && console.log("FredJson", i);
+		Plotly.d3.json(url, function(err, readData) {
+			if(!err){
+				DEBUG && OTHER_DEBUGS && DEBUG_EIA_FUNCTION && console.log("read FredJson",readData);
+				if(typeof readData.observations !== "undefined" ) {
+					readData = readData.observations;
+					if(checkDataIsAnArrayNotVoid(readData)){
+						processCsvData(
+							readData, 
+							data,
+							param.timeInfo.tracesInitialDate, 
+							param.timeInfo.tracesEndDate,
+							param.otherDataProperties,
+							param.dataSources[i],
+							loadSubTablesIntoData
+						);
+						DEBUG && OTHER_DEBUGS && console.log("process FredSeriesData",i,"finished");
+					}
+				}			
+			} else {
+				DEBUG && OTHER_DEBUGS && console.log("Plotly.d3.json returned error reading FredSeriesData",i);
+			}					
+			readData="";
+			callback(null);
+		});
 	} 
 
 	
@@ -2301,7 +2327,8 @@ function processEiaData(eiaArrayData, data, tracesInitialDate, tracesEndDate,
 	
 	
 }	
-	
+		
+
 	
 function factorAndShiftDataInTableParams(tableParams) {
 	
@@ -6757,12 +6784,12 @@ function sortByGoogleDatesAsStrings(xSeriesName, delta){
 			return delta;			
 		}
 		else {
-				return 	new Date(b[xSeriesName]==="" || b[xSeriesName]===null ? 
-						 "0001-01-01": 
-						 localGoogleMDYToYMD(b[xSeriesName]))-
-					new Date(a[xSeriesName]==="" || a[xSeriesName]===null ?
-						 "0001-01-01":
-						 localGoogleMDYToYMD(a[xSeriesName]));
+			return 	new Date(b[xSeriesName]==="" || b[xSeriesName]===null ? 
+					 "0001-01-01": 
+					 localGoogleMDYToYMD(b[xSeriesName]))-
+				new Date(a[xSeriesName]==="" || a[xSeriesName]===null ?
+					 "0001-01-01":
+					 localGoogleMDYToYMD(a[xSeriesName]));
 
 		}
 
