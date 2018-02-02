@@ -2509,7 +2509,7 @@ function processWBData(wbArrayData, data, tracesInitialDate, tracesEndDate,
 }	
 	
 	
-function cleanOutData(allRows, xSeriesName, ySeriesName) {
+function RemoveNaNDataPoints(allRows, xSeriesName, ySeriesName) {
 	
 	var iLimit = allRows.length;
 	
@@ -2589,7 +2589,7 @@ function loadSubTablesIntoData(dataSources, tableParams,
 		allRows = tableParams[xSeriesName].allRows;
 		
 		//clean for non valid ydata (case for fred api returning "."
-		cleanOutData(allRows, xSeriesName, ySeriesName);
+		RemoveNaNDataPoints(allRows, xSeriesName, ySeriesName);
 		
 		
 		iLimit = allRows.length;
