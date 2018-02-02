@@ -3214,12 +3214,11 @@ function addCalculatedRealTraces(data, param) {
 			}
 			
 			
-			// save data into Original if not yet done
-			/*
+			// save data into Original if not yet done in this function
 			if(originalDataCreated === false){
 				saveDataXYIntoPropertyXY(data, "xOriginal", "yOriginal");
 				originalDataCreated = true;
-			}*/
+			}
 			
 			if(! error) {
 				
