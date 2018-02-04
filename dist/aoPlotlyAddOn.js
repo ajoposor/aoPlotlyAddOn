@@ -2248,7 +2248,7 @@ function processEiaData(eiaArrayData, data, tracesInitialDate, tracesEndDate,
 	
 	/**
 	*
-	* The tableParams array has the following structure:
+	* The tableParams array has the following structure: (i number of data points)
 	*   tableParams[xSeriesNames].allRows[i][xSeriesName] = Dates as Strings
 	*   tableParams[xSeriesNames].allRows[i][ySeriesName1] = y values for ySeriesName1,
 	*   tableParams[xSeriesNames].allRows[i][ySeriesName2] = y values for ySeriesName2,.. etc.
@@ -7741,6 +7741,11 @@ function loadEiaArrayDataIntoTableParamsAndProcess(
 								if(indexOfYSeriesName != j) {
 									console.log("j is not equalt to indexOfYSeriesName");
 								}
+								
+								if(eiaArrayData[seriesIndex].data[l][1] === null) {
+								   DEBUG && OTHER_DEBUGS && console.log("null found");
+								}
+								
 								factor = tableParams[key].factorArray[j];
 								shift =  tableParams[key].shiftArray[j];
 								newArray[k][ySeriesName]=eiaArrayData[seriesIndex].data[l][1] *
