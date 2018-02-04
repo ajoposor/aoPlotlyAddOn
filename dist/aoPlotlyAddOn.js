@@ -7743,13 +7743,14 @@ function loadEiaArrayDataIntoTableParamsAndProcess(
 								}
 								
 								if(eiaArrayData[seriesIndex].data[l][1] === null) {
-								   DEBUG && OTHER_DEBUGS && console.log("null found");
-								}
+								   newArray[k][ySeriesName] = "NaN";
+								} else {
 								
 								factor = tableParams[key].factorArray[j];
 								shift =  tableParams[key].shiftArray[j];
 								newArray[k][ySeriesName]=eiaArrayData[seriesIndex].data[l][1] *
 									factor + shift;
+								}
 							}
 							k++;
 						}
