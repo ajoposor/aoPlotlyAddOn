@@ -2520,7 +2520,16 @@ function RemoveNaNDataPoints(allRows, xSeriesName, ySeriesName) {
 		     allRows[i][ySeriesName] === null  )
 		  ) {
 			
-			 DEBUG && OTHER_DEBUGS && console.log("value = ., null or NaN found");
+		if( allRows[i][ySeriesName] === ".") {
+			 DEBUG && OTHER_DEBUGS && console.log(". found");
+		}
+		if(  isNaN(allRows[i][ySeriesName] ) {
+			 DEBUG && OTHER_DEBUGS && console.log("NaN found");
+		}
+		if( allRows[i][ySeriesName] === null ) {
+			 DEBUG && OTHER_DEBUGS && console.log("null found");
+		}
+		
 
 			allRows.splice(i, 1);
 			iLimit--;
