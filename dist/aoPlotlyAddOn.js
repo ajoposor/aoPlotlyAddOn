@@ -1822,7 +1822,6 @@ function delayedParallelReadData(data, i, param, callback) {
 	var yqlGoogleCSVUrl = "";
 	
 	if (urlType === "csv") {
-		DEBUG && DEBUG_TIMES && console.time("Time Read File "+i);
 		Plotly.d3.csv(url, function(err, readData) {
 			DEBUG && OTHER_DEBUGS && console.log("csv", i);
 			if(!err){
@@ -1838,17 +1837,15 @@ function delayedParallelReadData(data, i, param, callback) {
 						param.timeInfo.tracesEndDate,
 						param.otherDataProperties,
 						param.dataSources[i],
-						loadSubTablesIntoData
+						callback
 						);
-					DEBUG && DEBUG_TIMES && console.timeEnd("Time ProcessCsvData "+i);
-					DEBUG && OTHER_DEBUGS && console.log("processCsvData",i,"finished");
 				}
 			} else {
+				
 				DEBUG && OTHER_DEBUGS && console.log("error reading CsvData",i);
+				readData="";
+				callback(null);
 			}		
-			readData="";
-			callback(null);
-			//readDataAndMakeChart(data, iS, param, callback);
 		});
 	} 
 	else if (urlType === "arrayOfJsons") {
@@ -1860,12 +1857,9 @@ function delayedParallelReadData(data, i, param, callback) {
 			param.timeInfo.tracesEndDate,
 			param.otherDataProperties,
 			param.dataSources[i],
-			loadSubTablesIntoData
+			callback
 			);
-		DEBUG && OTHER_DEBUGS && console.log("process ArrayOfJsons",i,"finished");
-		param.dataSources[i].arrayOfJsons = [];
-		callback(null);
-		//readDataAndMakeChart(data, iS, param, callback);
+
 	} 
 	else if (urlType === "yqlJson") {
 		DEBUG && OTHER_DEBUGS && console.log("yqlJson", i);
@@ -1884,17 +1878,15 @@ function delayedParallelReadData(data, i, param, callback) {
 							param.timeInfo.tracesEndDate,
 							param.otherDataProperties,
 							param.dataSources[i],
-							loadSubTablesIntoData
+							callback
 							);
-						DEBUG && OTHER_DEBUGS && console.log("process yqlJson",i,"finished");
 					}
 				}
 			} else {
 				DEBUG && OTHER_DEBUGS && console.log("error reading yqlJson",i);
+				readData="";
+				callback(null);
 			}
-			readData="";
-			callback(null);
-			//readDataAndMakeChart(data, iS, param, callback);
 		});
 	}   
 	else if ( urlType === "yqlGoogleCSV") {
@@ -1916,17 +1908,16 @@ function delayedParallelReadData(data, i, param, callback) {
 							param.timeInfo.tracesEndDate,
 							param.otherDataProperties,
 							param.dataSources[i],
-							loadSubTablesIntoData
+							callback
 						);
-						DEBUG && OTHER_DEBUGS && console.log("process yqlGoogleCSV",i,"finished");
 					}
-				}			
+				}
 			} else {
 				DEBUG && OTHER_DEBUGS && console.log("error reading yqlJson",i);
-			}					
-			readData="";
-			callback(null);
-			//readDataAndMakeChart(data, iS, param, callback);
+				readData="";
+				callback(null);
+			}
+
 		});
   	} 
 	else if (urlType === "pureJson") {
@@ -1941,15 +1932,15 @@ function delayedParallelReadData(data, i, param, callback) {
 						param.timeInfo.tracesEndDate,
 						param.otherDataProperties,
 						param.dataSources[i],
-						loadSubTablesIntoData
+						callback
 						);
-					DEBUG && OTHER_DEBUGS && console.log("process pureJson",i,"finished");
 				}
 			} else {
 				DEBUG && OTHER_DEBUGS && console.log("error reading yqlJson",i);
-			}				
-			readData="";
-			callback(null);
+				readData="";
+				callback(null);
+			}
+
 		});
 	} 
 	else if ( urlType === "EiaJson") {
@@ -1967,16 +1958,16 @@ function delayedParallelReadData(data, i, param, callback) {
 							param.timeInfo.tracesEndDate,
 							param.otherDataProperties,
 							param.dataSources[i],
-							loadSubTablesIntoData
+							callback
 						);
-						DEBUG && OTHER_DEBUGS && console.log("process EiaData",i,"finished");
 					}
-				}			
+				}
 			} else {
 				DEBUG && OTHER_DEBUGS && console.log("Plotly.d3.json returned error reading EiaData",i);
-			}					
-			readData="";
-			callback(null);
+				readData="";
+				callback(null);
+			}
+
 		});
 	} 
 	else if ( urlType === "WBJson") {
@@ -2005,18 +1996,21 @@ function delayedParallelReadData(data, i, param, callback) {
 							param.timeInfo.tracesEndDate,
 							param.otherDataProperties,
 							param.dataSources[i],
-							loadSubTablesIntoData
+							callback
 						);
 						DEBUG && OTHER_DEBUGS && console.log("process WBData",i,"finished");
 					}
 				} else {
 					console.log("World Bank data not read properly on WBJson:",i);
+					readData="";
+					callback(null);
 				}
 			} else {
 				console.log("Plotly.d3.json returned error reading WBData",i);
-			}					
-			readData="";
-			callback(null);
+				readData="";
+				callback(null);
+			}
+
 		});
 	} else if ( urlType === "fredJson") {
 		DEBUG && OTHER_DEBUGS && console.log("fredJson", i);
@@ -2033,16 +2027,16 @@ function delayedParallelReadData(data, i, param, callback) {
 							param.timeInfo.tracesEndDate,
 							param.otherDataProperties,
 							param.dataSources[i],
-							loadSubTablesIntoData
+							callback
 						);
 						DEBUG && OTHER_DEBUGS && console.log("process FredSeriesData",i,"finished");
 					}
-				}			
+				}
 			} else {
 				DEBUG && OTHER_DEBUGS && console.log("Plotly.d3.json returned error reading FredSeriesData",i);
-			}					
-			readData="";
-			callback(null);
+				readData="";
+				callback(null);
+			}
 		});
 	} 
 
@@ -2071,7 +2065,7 @@ function checkDataIsAnArrayNotVoid(readData){
 // FUNCTIONS TO PARSE CVS, JSON OR DIRECT SERIES
 // main code, reads cvs files and creates traces and combine them in data
 function processCsvData(allRows, data, tracesInitialDate, tracesEndDate,
-			 otherDataProperties, dataSources, callbackLoadSubTablesIntoData) {
+			 otherDataProperties, dataSources, callback) {
 	
 	var urlType = dataSources.urlType;
 	var yqlGoogleCSV = false;
@@ -2177,9 +2171,9 @@ function processCsvData(allRows, data, tracesInitialDate, tracesEndDate,
 	DEBUG && OTHER_DEBUGS && console.log("SubTable sorted");
 
 	
-	callbackLoadSubTablesIntoData(dataSources, tableParams, otherDataProperties, data, 
+	loadSubTablesIntoData(dataSources, tableParams, otherDataProperties, data, 
 				      initialDateAsDate, tracesInitialDate,
-				      endDateAsDate, tracesEndDate
+				      endDateAsDate, tracesEndDate, callback
 				     );
 }	
 	
@@ -2240,7 +2234,7 @@ function adjustEiaJsonDates(eiaArrayData) {
 
 	
 function processEiaData(eiaArrayData, data, tracesInitialDate, tracesEndDate,
-			 otherDataProperties, dataSources, callbackLoadSubTablesIntoData) {
+			 otherDataProperties, dataSources, callback) {
 	
 	var timeOffsetText = getTimeOffsetText();
 	var initialDateAsDate = new Date("0001-01-01");
@@ -2321,9 +2315,9 @@ function processEiaData(eiaArrayData, data, tracesInitialDate, tracesEndDate,
 	eiaArrayData = [];
 
 	
-	callbackLoadSubTablesIntoData(dataSources, tableParams, otherDataProperties, 
+	loadSubTablesIntoData(dataSources, tableParams, otherDataProperties, 
 			      data, initialDateAsDate, tracesInitialDate,
-				    endDateAsDate, tracesEndDate );
+				    endDateAsDate, tracesEndDate, callback );
 	
 	
 }	
@@ -2420,7 +2414,7 @@ function adjustWBJsonDates(wbArrayData) {
 
 	
 function processWBData(wbArrayData, data, tracesInitialDate, tracesEndDate, 
-			otherDataProperties, dataSources, callbackLoadSubTablesIntoData) {
+			otherDataProperties, dataSources,callback) {
 	
 	var timeOffsetText = getTimeOffsetText();
 	var initialDateAsDate = new Date("0001-01-01");
@@ -2501,9 +2495,9 @@ function processWBData(wbArrayData, data, tracesInitialDate, tracesEndDate,
 	wbArrayData = [];
 
 	
-	callbackLoadSubTablesIntoData(dataSources, tableParams, otherDataProperties, 
+	loadSubTablesIntoData(dataSources, tableParams, otherDataProperties, 
 			      data, initialDateAsDate, tracesInitialDate,
-				     endDateAsDate, tracesEndDate);
+				     endDateAsDate, tracesEndDate, callback);
 	
 	
 }	
@@ -2546,7 +2540,7 @@ function RemoveNaNDataPoints(allRows, xSeriesName, ySeriesName) {
 function loadSubTablesIntoData(dataSources, tableParams, 
 				otherDataProperties, data, 
 				initialDateAsDate, tracesInitialDate,
-			        endDateAsDate, tracesEndDate) {
+			        endDateAsDate, tracesEndDate, callback) {
 	
 	var j, jLimit;
 	var xSeriesName = "", ySeriesName = "";
@@ -2853,6 +2847,8 @@ function loadSubTablesIntoData(dataSources, tableParams,
 		
 		DEBUG && OTHER_DEBUGS && console.log("data after trace loaded: ", data);
 	}
+	
+	callback(null); 
 
 }
 
