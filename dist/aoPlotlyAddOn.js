@@ -630,6 +630,46 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 
 		divInfo.footerDivElement.appendChild(divInfo.logLinearButtonElement);
 		
+		
+		
+		function setColorAndBackgroundColorOnElement(element, backgroundColor, color) {
+
+			element.style.backgroundcolor = backgroundColor;
+			element.style.color = color;
+
+		}	
+		
+		function setHoverColorsOnElement(element, onHoverBackgroundColor,  onHoverColor, 
+						  onLeaveBackgroundColor, onLeaveColor) {
+
+			element.addEventListener('mouseover', function() {
+				// mouse is hovering over this element
+				setColorAndBackgroundColorOnElement(element, 
+								    onHoverBackgroundColor,
+								    onHoverColor
+								   );
+			});
+
+			element.addEventListener('mouseout', function() {
+   				 // mouse was hovering over this element, but no longer is
+				setColorAndBackgroundColorOnElement(element, 
+								    onLeaveBackgroundColor,
+								    onLeaveColor
+								   );
+			});
+			
+		}
+		
+		
+		setHoverColorsOnElement(divInfo.logLinearButtonElement,
+					settings.pressedButtonHoverDefaultStyle["background-color"], 
+					settings.pressedButtonHoverDefaultStyle.color, 
+					settings.pressedButtonDefaultStyle["background-color"], 
+					settings.pressedButtonDefaultStyle.color);		
+	
+	
+		
+		/*
 		$("#"+divInfo.logLinearButtonID).hover(
 			function(){
 				buttonOnHover($(this),
@@ -642,7 +682,9 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 					settings.pressedButtonDefaultStyle.color);
 
 			}
-		);
+		);*/
+		
+		/* update
 
 		
 	}	
