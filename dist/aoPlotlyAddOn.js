@@ -629,39 +629,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		divInfo.logLinearButtonElement.style.marginRight = layout.externalMargin.r+"px";
 
 		divInfo.footerDivElement.appendChild(divInfo.logLinearButtonElement);
-		
-		
-		/* update hover handling without jquery */
-		
-		
-		function setColorAndBackgroundColorOnElement(element, backgroundColor, color) {
 
-			element.style.backgroundcolor = backgroundColor;
-			element.style.color = color;
-
-		}	
-		
-		function setHoverColorsOnElement(element, onHoverBackgroundColor,  onHoverColor, 
-						  onLeaveBackgroundColor, onLeaveColor) {
-
-			element.addEventListener('mouseover', function() {
-				// mouse is hovering over this element
-				setColorAndBackgroundColorOnElement(element, 
-								    onHoverBackgroundColor,
-								    onHoverColor
-								   );
-			});
-
-			element.addEventListener('mouseout', function() {
-   				 // mouse was hovering over this element, but no longer is
-				setColorAndBackgroundColorOnElement(element, 
-								    onLeaveBackgroundColor,
-								    onLeaveColor
-								   );
-			});
-			
-		}
-		
 		
 		setHoverColorsOnElement(divInfo.logLinearButtonElement,
 					settings.pressedButtonHoverDefaultStyle["background-color"], 
@@ -715,6 +683,13 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 
 		divInfo.footerDivElement.appendChild(divInfo.downloadButtonElement);
 		
+		setHoverColorsOnElement(divInfo.downloadButtonElement,
+			settings.buttonsHoverDefaultStyle["background-color"],
+			settings.buttonsHoverDefaultStyle.color,
+			settings.buttonsDefaultStyle["background-color"], 
+			settings.buttonsDefaultStyle.color);	
+		
+		/*
 		$("#"+divInfo.downloadButtonID).hover(
 			function(){
 				buttonOnHover($(this),
@@ -728,6 +703,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 
 			}
 		);
+		*/
 		
 		
 		divInfo.downloadButtonElement.addEventListener('click', function() {
@@ -760,7 +736,14 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		
 		divInfo.footerDivElement.appendChild(divInfo.realNominalButtonElement);
 		
-				
+		setHoverColorsOnElement(divInfo.realNominalButtonElement,
+					settings.pressedButtonHoverDefaultStyle["background-color"],
+					settings.pressedButtonHoverDefaultStyle.color,
+					settings.pressedButtonDefaultStyle["background-color"], 
+					settings.pressedButtonDefaultStyle.color
+				       );	
+		
+		/*		
 		$("#"+divInfo.realNominalButtonID).hover(
 			function(){
 				buttonOnHover($(this),
@@ -773,7 +756,8 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 					settings.pressedButtonDefaultStyle.color);
 
 			}
-		);
+		);*/
+		
 	}
 		
 		
@@ -804,7 +788,15 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		
 		divInfo.footerDivElement.appendChild(divInfo.compareButtonElement);
 		
-				
+		setHoverColorsOnElement(divInfo.compareButtonElement,
+					settings.pressedButtonHoverDefaultStyle["background-color"],
+					settings.pressedButtonHoverDefaultStyle.color,
+					settings.pressedButtonDefaultStyle["background-color"], 
+					settings.pressedButtonDefaultStyle.color
+				       );			
+		
+		
+		/*
 		$("#"+divInfo.compareButtonID).hover(
 		function(){
 				buttonOnHover($(this),
@@ -818,6 +810,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 
 			}
 		);
+		*/
 
 	}	
 			
@@ -9955,14 +9948,48 @@ function numberExPx(numberPlusPx){
 	
 	return Number(myNumber);
 	
-}	
+}
+	
+	
+/* update hover handling without jquery */
 		
+		
+function setColorAndBackgroundColorOnElement(element, backgroundColor, color) {
+
+	element.style.backgroundcolor = backgroundColor;
+	element.style.color = color;
+
+}	
+
+function setHoverColorsOnElement(element, onHoverBackgroundColor,  onHoverColor, 
+				  onLeaveBackgroundColor, onLeaveColor) {
+
+	element.addEventListener('mouseover', function() {
+		// mouse is hovering over this element
+		setColorAndBackgroundColorOnElement(element, 
+						    onHoverBackgroundColor,
+						    onHoverColor
+						   );
+	});
+
+	element.addEventListener('mouseout', function() {
+		 // mouse was hovering over this element, but no longer is
+		setColorAndBackgroundColorOnElement(element, 
+						    onLeaveBackgroundColor,
+						    onLeaveColor
+						   );
+	});
+
+}	
+	
+/*		
 function buttonOnHover(x, backgroundColor, color) {
 	
 		$(x).css("background-color", backgroundColor);
 		$(x).css("color",color);
 		
-}		
+}
+*/
 		
 
 
