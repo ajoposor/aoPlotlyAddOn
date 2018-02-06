@@ -631,6 +631,8 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 		divInfo.footerDivElement.appendChild(divInfo.logLinearButtonElement);
 		
 		
+		/* update hover handling without jquery */
+		
 		
 		function setColorAndBackgroundColorOnElement(element, backgroundColor, color) {
 
@@ -684,7 +686,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 			}
 		);*/
 		
-		/* update
+
 
 		
 	}	
