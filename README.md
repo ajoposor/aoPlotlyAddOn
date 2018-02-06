@@ -900,7 +900,17 @@ Added:
    * **reading of data from Energy Information Agency api**
    * **calculate traces** with generic formula applied to loaded traces
    * **calculate real/deflated traces** from loaded traces
-   * **add factor and/or shift to read data** applicable to specific source/trace combination.   
+   * **add factor and/or shift to read data** applicable to specific source/trace combination.
+   * **separate function for reading of data** applicable to specific source/trace combination.  
+Improved:
+   * **hover event handled without jQuery**. The jQuery library is no longer required
+   * **calculate traces** with generic formula applied to loaded traces
+   
+ Debuged:
+   * **loader**
+   * **calculate traces** with generic formula applied to loaded traces
+   * **calculate real/deflated traces** from loaded traces
+   * **add factor and/or shift to read data** applicable to specific source/trace combination. 
 
 
 ## License
