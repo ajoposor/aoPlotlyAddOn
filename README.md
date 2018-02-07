@@ -972,23 +972,24 @@ Data source: <a href="https://www.quandl.com">Quandl.</a>
    #### Arguments:
 
  
-   **yourDataArray:** (array of objecs) Required. Provide a dataArray with as many elements as traces to be read. See  **aoPlotlyAddOn.newTimeseriesPlot**, data for further details.
+   * **yourDataArray:** (array of objecs) Required. Provide a dataArray with as many elements as traces to be read. See  **aoPlotlyAddOn.newTimeseriesPlot**, data for further details.
 
-   **otherDataProperties:** (array of objecs) Required. See  **aoPlotlyAddOn.newTimeseriesPlot**, otherDataParametes for further details.
+   * **otherDataProperties:** (array of objecs) Required. See  **aoPlotlyAddOn.newTimeseriesPlot**, otherDataParametes for further details.
 
-   **dataSources:** (array of objecs) Required. See  **aoPlotlyAddOn.newTimeseriesPlot**, dataSources for further details.
+   * **dataSources:** (array of objecs) Required. See  **aoPlotlyAddOn.newTimeseriesPlot**, dataSources for further details.
 
-   **settings:** (object) Parameters applicable:
+   * **settings:** (object) Parameters applicable:
 
       * **queueConcurrencyLimit:** (positive integer) Optional. Default is 10. Sets the value for maximum concurrent async tasks for reading external data from urls. ATTENTION: in case you feed a trace from many sources, set queueConcurrencyLimit to 1, so that the assembling of the trace is made synchronously, otherwise it may result in incorrect trace data values.
 
       * **dataReadFlag:** (one element array) Required. Provides a flag to signal **aoPlotlyAddOn.newTimeseriesPlot** instances when the data has been read, so that **aoPlotlyAddOn.newTimeseriesPlot**  can wait until **aoPlotlyAddOn.readSomeDataSourcesIntoData** has finished. See example below.
 
-   **timeInfo:** (object) Optional. See  **aoPlotlyAddOn.newTimeseriesPlot**, timeInfo for further details.
+   * **timeInfo:** (object) Optional. See  **aoPlotlyAddOn.newTimeseriesPlot**, timeInfo for further details.
 
-   **myCallback:** (function) Optional. In case you want to provide a callback, to be executed after **aoPlotlyAddOn.readSomeDataSourcesIntoData** finishes.
+   * **myCallback:** (function) Optional. In case you want to provide a callback, to be executed after **aoPlotlyAddOn.readSomeDataSourcesIntoData** finishes.
 
-   Example:
+   **Example**:
+   
     in your javascript:
    ```javascript
 
@@ -1101,7 +1102,7 @@ Data source: <a href="https://www.quandl.com">Quandl.</a>
    #### Arguments:
 
  
-   **array:** (array of values) The argument array has the structure `[ value 1, value 2, value 3, ... value n]`
+   * **array:** (array of values) The argument array has the structure `[ value 1, value 2, value 3, ... value n]`
 
 
 
@@ -1113,7 +1114,7 @@ Data source: <a href="https://www.quandl.com">Quandl.</a>
    #### Arguments:
 
  
-   **url:** (url to the fred recessions ) The FRED api url is `https://api.stlouisfed.org/fred/series/observations?series_id=USRECP&api_key=YourFredAPiKey&file_type=txt`
+   * **url:** (url to the fred recessions ) The FRED api url is `https://api.stlouisfed.org/fred/series/observations?series_id=USRECP&api_key=YourFredAPiKey&file_type=txt`
 
 
 
@@ -1126,11 +1127,11 @@ Data source: <a href="https://www.quandl.com">Quandl.</a>
    #### Arguments:
 
  
-   **currentDateAsDate:** Required. Pass new Date(), or any other date to be used as equivalent to currentDate.
+   * **currentDateAsDate:** Required. Pass new Date(), or any other date to be used as equivalent to currentDate.
 
-   **requestCode:** (string) Required. Any of "end of year", "end of month", "end of day". The shiftNumber will be used to calculated the date that is shiftNumber of years, months, or days ahead or before currentDateAsDate. It will return a date that is at the end of the corresponding period.
+   * **requestCode:** (string) Required. Any of "end of year", "end of month", "end of day". The shiftNumber will be used to calculated the date that is shiftNumber of years, months, or days ahead or before currentDateAsDate. It will return a date that is at the end of the corresponding period.
 
-   **shiftNumber:** (number, positive or negative) Number of years, months, or days ahead (positive) or before (negative) the currentDateAsDate.
+   * **shiftNumber:** (number, positive or negative) Number of years, months, or days ahead (positive) or before (negative) the currentDateAsDate.
 
 
 
@@ -1143,25 +1144,25 @@ Data source: <a href="https://www.quandl.com">Quandl.</a>
    #### Arguments:
 
  
-   **from:** (date strings as "yyyy-mm-dd")
+   * **from:** (date strings as "yyyy-mm-dd")
 
-   **to:** (date strings as "yyyy-mm-dd")
+   * **to:** (date strings as "yyyy-mm-dd")
 
-   **textAndSpaceToTextRatio:** (number) Ratio between (tick text + space between text) lenght to tick text length.
+   * **textAndSpaceToTextRatio:** (number) Ratio between (tick text + space between text) lenght to tick text length.
 
-   **targetFrequency:** (string) Any of "daily", "everyOtherDay", "weekly", "biweekly", "monthly", "quarterly", "semiannual", "annual", "biennial", "quinquennial", "decennial", "quadranscentennial", "semicentennial", "centennial", "bicentennial", "sestercentennial", "quincentenary", "milennial"
+   * **targetFrequency:** (string) Any of "daily", "everyOtherDay", "weekly", "biweekly", "monthly", "quarterly", "semiannual", "annual", "biennial", "quinquennial", "decennial", "quadranscentennial", "semicentennial", "centennial", "bicentennial", "sestercentennial", "quincentenary", "milennial"
 
-   The returned ticktext and tickvals would be the best minimum fit, upwards from the targetFrequency, e.g., if "monthly" is passed, it would return whichever fit best from monthly, quarterly, semiannual, annual and onwards
+      The returned ticktext and tickvals would be the best minimum fit, upwards from the targetFrequency, e.g., if "monthly" is passed, it would return whichever fit best from monthly, quarterly, semiannual, annual and onwards
 
-   **fontFamily:** (string) Font family name.
+   * **fontFamily:** (string) Font family name.
 
-   **fontSize:** (number) Font size. 
+   * **fontSize:** (number) Font size. 
 
-   **divWidth:** (number) Width in pixels of the current division
+   * **divWidth:** (number) Width in pixels of the current division
 
-   **leftMargin:** (number) Margins from plot to division in pixels. If layout.margin.l/r are defined, read from there, otherwise use 80 (plotly's default)
+   * **leftMargin:** (number) Margins from plot to division in pixels. If layout.margin.l/r are defined, read from there, otherwise use 80 (plotly's default)
 
-   **rightMargin:** (number) Margins from plot to division in pixels. If layout.margin.l/r are defined, read from there, otherwise use 80 (plotly's default)
+   * **rightMargin:** (number) Margins from plot to division in pixels. If layout.margin.l/r are defined, read from there, otherwise use 80 (plotly's default)
 
 
 
@@ -1174,11 +1175,11 @@ Data source: <a href="https://www.quandl.com">Quandl.</a>
    #### Arguments:
 
 
-   **data:** (array of data objects [{x[], y[]}, ....]) With x as date strings "yyyy-mm-dd" and y as values.
+   * **data:** (array of data objects [{x[], y[]}, ....]) With x as date strings "yyyy-mm-dd" and y as values.
 
-   **periodKeys:** (object) An object with the frequencies to be calculated, set to true or false. { day: true/false, week: true/false, month: true/false, quarter: true/false, semester: true/false, year: true }
+   * **periodKeys:** (object) An object with the frequencies to be calculated, set to true or false. { day: true/false, week: true/false, month: true/false, quarter: true/false, semester: true/false, year: true }
 
-   **endOfWeek:** (number between 0 and 6) Day of week to be end of week period. 0 for Sunday, 1 for Monday, ....
+   * **endOfWeek:** (number between 0 and 6) Day of week to be end of week period. 0 for Sunday, 1 for Monday, ....
 
 
 
