@@ -963,221 +963,222 @@ Data source: <a href="https://www.quandl.com">Quandl.</a>
 ## Miscelaneous Functions
 
 
-### aoPlotlyAddOn.readSomeDataSourcesIntoData
+* ### aoPlotlyAddOn.readSomeDataSourcesIntoData
 
 
-This function will read data from a number of sources and save the processed data into yourDataArray in a ploltly style. This data can then be used to feed multiple instances of **aoPlotlyAddOn.newTimeseriesPlot**. The arguments have the same structure as for **aoPlotlyAddOn.newTimeseriesPlot**.
+   This function will read data from a number of sources and save the processed data into yourDataArray in a ploltly style. This data can then be used to feed multiple instances of **aoPlotlyAddOn.newTimeseriesPlot**. The arguments have the same structure as for **aoPlotlyAddOn.newTimeseriesPlot**.
 
 
-#### Arguments:
+   #### Arguments:
 
  
-**yourDataArray:** (array of objecs) Required. Provide a dataArray with as many elements as traces to be read. See  **aoPlotlyAddOn.newTimeseriesPlot**, data for further details.
+   **yourDataArray:** (array of objecs) Required. Provide a dataArray with as many elements as traces to be read. See  **aoPlotlyAddOn.newTimeseriesPlot**, data for further details.
 
-**otherDataProperties:** (array of objecs) Required. See  **aoPlotlyAddOn.newTimeseriesPlot**, otherDataParametes for further details.
+   **otherDataProperties:** (array of objecs) Required. See  **aoPlotlyAddOn.newTimeseriesPlot**, otherDataParametes for further details.
 
-**dataSources:** (array of objecs) Required. See  **aoPlotlyAddOn.newTimeseriesPlot**, dataSources for further details.
+   **dataSources:** (array of objecs) Required. See  **aoPlotlyAddOn.newTimeseriesPlot**, dataSources for further details.
 
-**settings:** (object) Parameters applicable:
+   **settings:** (object) Parameters applicable:
 
-   * **queueConcurrencyLimit:** (positive integer) Optional. Default is 10. Sets the value for maximum concurrent async tasks for reading external data from urls. ATTENTION: in case you feed a trace from many sources, set queueConcurrencyLimit to 1, so that the assembling of the trace is made synchronously, otherwise it may result in incorrect trace data values.
+      * **queueConcurrencyLimit:** (positive integer) Optional. Default is 10. Sets the value for maximum concurrent async tasks for reading external data from urls. ATTENTION: in case you feed a trace from many sources, set queueConcurrencyLimit to 1, so that the assembling of the trace is made synchronously, otherwise it may result in incorrect trace data values.
 
-   * **dataReadFlag:** (one element array) Required. Provides a flag to signal **aoPlotlyAddOn.newTimeseriesPlot** instances when the data has been read, so that **aoPlotlyAddOn.newTimeseriesPlot**  can wait until **aoPlotlyAddOn.readSomeDataSourcesIntoData** has finished. See example below.
+      * **dataReadFlag:** (one element array) Required. Provides a flag to signal **aoPlotlyAddOn.newTimeseriesPlot** instances when the data has been read, so that **aoPlotlyAddOn.newTimeseriesPlot**  can wait until **aoPlotlyAddOn.readSomeDataSourcesIntoData** has finished. See example below.
 
-**timeInfo:** (object) Optional. See  **aoPlotlyAddOn.newTimeseriesPlot**, timeInfo for further details.
+   **timeInfo:** (object) Optional. See  **aoPlotlyAddOn.newTimeseriesPlot**, timeInfo for further details.
 
-**myCallback:** (function) Optional. In case you want to provide a callback, to be executed after **aoPlotlyAddOn.readSomeDataSourcesIntoData** finishes.
+   **myCallback:** (function) Optional. In case you want to provide a callback, to be executed after **aoPlotlyAddOn.readSomeDataSourcesIntoData** finishes.
 
-Example:
- in your javascript:
-```javascript
+   Example:
+    in your javascript:
+   ```javascript
 
-// you will need a data array and a flag with a proper scope, i.e., that can be passed as argument to further instances of **aoPlotlyAddOn.newTimeseriesPlot**
+   // you will need a data array and a flag with a proper scope,
+   // i.e., that can be passed as argument to further instances of **aoPlotlyAddOn.newTimeseriesPlot**
 
-var myReusableData = [{
+   var myReusableData = [{
 
-	name: "trace_1"
-}, ...{
+   	name: "trace_1"
+   }, ...{
 
-	name: "trace_n"
-}];
+   	name: "trace_n"
+   }];
 
-var myReusableDataReadFlag = [ false ];
+   var myReusableDataReadFlag = [ false ];
 
-// set and call the reusable data reading function
-(function() {
+   // set and call the reusable data reading function
+   (function() {
 
-	var timeInfo = {
-		tracesInitialDate: "1960-01-01",
-	};
+   	var timeInfo = {
+   		tracesInitialDate: "1960-01-01",
+   	};
 	
 	
-	var settings = {
-		queueConcurrencyLimit: 1,
-		dataReadFlag: myReusableDataReadFlag,
-	};
+   	var settings = {
+   		queueConcurrencyLimit: 1,
+   		dataReadFlag: myReusableDataReadFlag,
+   	};
 
 
-	var otherDataProperties = [ {
-			traceID: "traceID1"
-			}, ...{
-			traceID: "traceIDN"
-			}
-	];
+   	var otherDataProperties = [ {
+   			traceID: "traceID1"
+   			}, ...{
+   			traceID: "traceIDN"
+   			}
+   	];
 
 
-	var dataSources = [ {}, 
-			... {}
-	];
+   	var dataSources = [ {}, 
+   			... {}
+   	];
 
-	aoPlotlyAddOn.readSomeDataSourcesIntoData(data, dataSources, otherDataProperties, 
+   	aoPlotlyAddOn.readSomeDataSourcesIntoData(data, dataSources, otherDataProperties, 
 						dataSources, settings, timeInfo);
 
 	
-})();
+   })();
 
 
-// call as many instances of **aoPlotlyAddOn.newTimeseriesPlot** as required
-(function() {
+   // call as many instances of **aoPlotlyAddOn.newTimeseriesPlot** as required
+   (function() {
 
-	var divInfo = {
-		wholeDivID: "myWholeDivID",
-		plotDivID: "myDivID",
-       		onErrorHideWholeDiv: false
-	};
+   	var divInfo = {
+   		wholeDivID: "myWholeDivID",
+   		plotDivID: "myDivID",
+          		onErrorHideWholeDiv: false
+   	};
 	
 	
-	var timeInfo = {
-		tracesInitialDate: "1960-01-01",
-	};
+   	var timeInfo = {
+   		tracesInitialDate: "1960-01-01",
+   	};
 	
 	
 	
-	var data = [{
-		name: "my trace name"
-	}];
+   	var data = [{
+   		name: "my trace name"
+   	}];
 	
-	function loadDataCallback() {
-		data[0].x = aoPlotlyAddOn.arrayCopy(myReusableData[0].x);
-		data[0].y = aoPlotlyAddOn.arrayCopy(myReusableData[0].y);
-	}
+   	function loadDataCallback() {
+   		data[0].x = aoPlotlyAddOn.arrayCopy(myReusableData[0].x);
+   		data[0].y = aoPlotlyAddOn.arrayCopy(myReusableData[0].y);
+   	}
 	
-	var settings = {
-		queueConcurrencyLimit: 1,
-		dataReadFlag: myReusableDataReadFlag,
-		waitForGlobalData: true,
-		globalDataCallback: loadDataCallback
-	};
-
-
-	var otherDataProperties = [ {
-			traceID: "traceID1"
-			}
-	];
+   	var settings = {
+   		queueConcurrencyLimit: 1,
+   		dataReadFlag: myReusableDataReadFlag,
+   		waitForGlobalData: true,
+   		globalDataCallback: loadDataCallback
+   	};
 
 
+   	var otherDataProperties = [ {
+   			traceID: "traceID1"
+   			}
+   	];
+
+
 	
-	var dataSources = [ {}, 
-			... {}
-	];
+   	var dataSources = [ {}, 
+   			... {}
+   	];
 	
 	
-	aoPlotlyAddOn.newTimeSeriesPlot(divInfo, data, otherDataProperties, dataSources, 
+   	aoPlotlyAddOn.newTimeSeriesPlot(divInfo, data, otherDataProperties, dataSources, 
 						settings, timeInfo, layout, options);
 
 	
-})();
+   })();
 
-```
+   ```
 
 
 
 * ### aoPlotlyAddOn.arrayCopy
 
-Returns a new array of values (shallow copy) which is a copy of the provided array. Use together with **aoPlotlyAddOn.readSomeDataSourcesIntoData** when assigning the readData to a new data for an instance of **aoPlotlyAddOn.newTimeseriesPlot**.
+   Returns a new array of values (shallow copy) which is a copy of the provided array. Use together with **aoPlotlyAddOn.readSomeDataSourcesIntoData** when assigning the readData to a new data for an instance of **aoPlotlyAddOn.newTimeseriesPlot**.
 
 
-#### Arguments:
-
- 
-**array:** (array of values) The argument array has the structure `[ value 1, value 2, value 3, ... value n]`
-
-
-
-### aoPlotlyAddOn.updateKnowRecessions
-
-This function will update the library recessions array with new periods, using the FRED api. This can be used when creating multiple plots in a page, so that the api call is made only once. The url must return a zip file with the FRED USRECP serie, containing a txt file, with the format use by the fred api. 
-
-
-#### Arguments:
+   #### Arguments:
 
  
-**url:** (url to the fred recessions ) The FRED api url is `https://api.stlouisfed.org/fred/series/observations?series_id=USRECP&api_key=YourFredAPiKey&file_type=txt`
+   **array:** (array of values) The argument array has the structure `[ value 1, value 2, value 3, ... value n]`
 
 
 
-### aoPlotlyAddOn.findDateFromTodayAsString
+* ### aoPlotlyAddOn.updateKnowRecessions
+
+   This function will update the library recessions array with new periods, using the FRED api. This can be used when creating multiple plots in a page, so that the api call is made only once. The url must return a zip file with the FRED USRECP serie, containing a txt file, with the format use by the fred api. 
 
 
-This utility function returns a date (as a string with the format yyyy-mm-dd) that is a number of years, months or days ahead or before a specified date). Use it as help to feed the timeInfo object.
-
-
-#### Arguments:
-
- 
-**currentDateAsDate:** Required. Pass new Date(), or any other date to be used as equivalent to currentDate.
-
-**requestCode:** (string) Required. Any of "end of year", "end of month", "end of day". The shiftNumber will be used to calculated the date that is shiftNumber of years, months, or days ahead or before currentDateAsDate. It will return a date that is at the end of the corresponding period.
-
-**shiftNumber:** (number, positive or negative) Number of years, months, or days ahead (positive) or before (negative) the currentDateAsDate.
-
-
-
-### aoPlotlyAddOn.getTicktextAndTickvals
-
-
-This functions returns and object with the the tickvals and ticktext arrays for a specific time range, division width and margins, font type and size and a ratio for the space between ticks (specifically the ratio between (tick text + space between text) lenght to tick text length.
-
-
-#### Arguments:
+   #### Arguments:
 
  
-**from:** (date strings as "yyyy-mm-dd")
-
-**to:** (date strings as "yyyy-mm-dd")
-
-**textAndSpaceToTextRatio:** (number) Ratio between (tick text + space between text) lenght to tick text length.
-
-**targetFrequency:** (string) Any of "daily", "everyOtherDay", "weekly", "biweekly", "monthly", "quarterly", "semiannual", "annual", "biennial", "quinquennial", "decennial", "quadranscentennial", "semicentennial", "centennial", "bicentennial", "sestercentennial", "quincentenary", "milennial"
-
-The returned ticktext and tickvals would be the best minimum fit, upwards from the targetFrequency, e.g., if "monthly" is passed, it would return whichever fit best from monthly, quarterly, semiannual, annual and onwards
-
-**fontFamily:** (string) Font family name.
-
-**fontSize:** (number) Font size. 
-
-**divWidth:** (number) Width in pixels of the current division
-
-**leftMargin:** (number) Margins from plot to division in pixels. If layout.margin.l/r are defined, read from there, otherwise use 80 (plotly's default)
-
-**rightMargin:** (number) Margins from plot to division in pixels. If layout.margin.l/r are defined, read from there, otherwise use 80 (plotly's default)
+   **url:** (url to the fred recessions ) The FRED api url is `https://api.stlouisfed.org/fred/series/observations?series_id=USRECP&api_key=YourFredAPiKey&file_type=txt`
 
 
 
-### aoPlotlyAddOn.transformSeriesByFrequencies
+* ### aoPlotlyAddOn.findDateFromTodayAsString
 
 
-This function will populate the data object with an originalData.x, y and objects for different frequencies and methods of aggregation. This data can be used to change the frequency of displayed data.
+   This utility function returns a date (as a string with the format yyyy-mm-dd) that is a number of years, months or days ahead or before a specified date). Use it as help to feed the timeInfo object.
 
 
-#### Arguments:
+   #### Arguments:
+
+ 
+   **currentDateAsDate:** Required. Pass new Date(), or any other date to be used as equivalent to currentDate.
+
+   **requestCode:** (string) Required. Any of "end of year", "end of month", "end of day". The shiftNumber will be used to calculated the date that is shiftNumber of years, months, or days ahead or before currentDateAsDate. It will return a date that is at the end of the corresponding period.
+
+   **shiftNumber:** (number, positive or negative) Number of years, months, or days ahead (positive) or before (negative) the currentDateAsDate.
 
 
-**data:** (array of data objects [{x[], y[]}, ....]) With x as date strings "yyyy-mm-dd" and y as values.
 
-**periodKeys:** (object) An object with the frequencies to be calculated, set to true or false. { day: true/false, week: true/false, month: true/false, quarter: true/false, semester: true/false, year: true }
+* ### aoPlotlyAddOn.getTicktextAndTickvals
 
-**endOfWeek:** (number between 0 and 6) Day of week to be end of week period. 0 for Sunday, 1 for Monday, ....
+
+   This functions returns and object with the the tickvals and ticktext arrays for a specific time range, division width and margins, font type and size and a ratio for the space between ticks (specifically the ratio between (tick text + space between text) lenght to tick text length.
+
+
+   #### Arguments:
+
+ 
+   **from:** (date strings as "yyyy-mm-dd")
+
+   **to:** (date strings as "yyyy-mm-dd")
+
+   **textAndSpaceToTextRatio:** (number) Ratio between (tick text + space between text) lenght to tick text length.
+
+   **targetFrequency:** (string) Any of "daily", "everyOtherDay", "weekly", "biweekly", "monthly", "quarterly", "semiannual", "annual", "biennial", "quinquennial", "decennial", "quadranscentennial", "semicentennial", "centennial", "bicentennial", "sestercentennial", "quincentenary", "milennial"
+
+   The returned ticktext and tickvals would be the best minimum fit, upwards from the targetFrequency, e.g., if "monthly" is passed, it would return whichever fit best from monthly, quarterly, semiannual, annual and onwards
+
+   **fontFamily:** (string) Font family name.
+
+   **fontSize:** (number) Font size. 
+
+   **divWidth:** (number) Width in pixels of the current division
+
+   **leftMargin:** (number) Margins from plot to division in pixels. If layout.margin.l/r are defined, read from there, otherwise use 80 (plotly's default)
+
+   **rightMargin:** (number) Margins from plot to division in pixels. If layout.margin.l/r are defined, read from there, otherwise use 80 (plotly's default)
+
+
+
+* ### aoPlotlyAddOn.transformSeriesByFrequencies
+
+
+   This function will populate the data object with an originalData.x, y and objects for different frequencies and methods of aggregation. This data can be used to change the frequency of displayed data.
+
+
+   #### Arguments:
+
+
+   **data:** (array of data objects [{x[], y[]}, ....]) With x as date strings "yyyy-mm-dd" and y as values.
+
+   **periodKeys:** (object) An object with the frequencies to be calculated, set to true or false. { day: true/false, week: true/false, month: true/false, quarter: true/false, semester: true/false, year: true }
+
+   **endOfWeek:** (number between 0 and 6) Day of week to be end of week period. 0 for Sunday, 1 for Monday, ....
 
 
 
