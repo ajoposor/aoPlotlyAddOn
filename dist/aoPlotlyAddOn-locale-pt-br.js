@@ -13,7 +13,7 @@ aoPlotlyAddOn.register({
 		"real": "real",
 		"nominal": "nominal",
 		"compared": "comparados",
-		"uncompared": "sem comparar",
+		"uncompared": "absolutos",
 		"daily": "diario",
 		"weekly": "semanal",
 		"monthly": "mensal",
