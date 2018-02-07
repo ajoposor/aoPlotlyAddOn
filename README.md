@@ -437,10 +437,11 @@ Each object in the dataSouces will get a chunk of data, process it and feed as m
       * **postProcessDate**: (string) Optional. If set to "end of month", dates will be converted to end of month.
       * **calculateAdjustedClose**: (boolean) Optional. If set to true, traces that come from more than one source will be normalized using the overlapping date. Older values will be changed. You need to provide at least one overlapping date in order for this option to be applied.
       * **sort**: (boolean) Optional. If set to true, all values as ySeriesNames in use with this xSeriesName and this xSeriesName will be sorted. This function works with dates ordered from latest to oldest.
-      * **seriesIndex**: (integer, index from 0 onwards, required only if urlType: "EiaJson") links a trace with the read serie from the EIA api, in the order in which the series were placed in the url for the api call. 
       * **factor**: (optional, default = 1.0) Use to scale the read data before being added to a data trace.
       * **shift**: (optional, default = 0.0) Use to shift (add a constant) to the read data before being added to a data trace. 
       * **seriesIndex**: (optional except for dataSources using EiaJson  or WBJson). In case required, should be an index starting from 0, for the trace to be fed with the first item returned by the EiaJson/WBJson, an so on.
+      * **firstItemToRead**: (string) Optional. Default:  "first" Enter "first" or "last" so that the reading of data into a traces is made in the same order as provided by the source or in reverse order ("last").      
+      firstItemToRead: "last",
 
 #### Examples:
 
