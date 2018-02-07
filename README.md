@@ -651,26 +651,26 @@ This is an object that controls the features added to your plot.
    
       **Example**:
       in your javascript:
-```javascript
+      ```javascript
       function loadDataCallback() {
       	data[0].x = aoPlotlyAddOn.arrayCopy(myReusableData[0].x);
       	data[0].y = aoPlotlyAddOn.arrayCopy(myReusableData[0].y);
       }
-```
+      ```
    
    * **locale** (string) Optional. Specify the local code for the language to be used. The locale file should have been registered before. Default: true. Use to allow or remove message displayed when range in plot area is selected. This message says Double-click to zoom back out.  
    
       First, register the required language
-```javascript
+      ```javascript
       <!-- register Brazilian Portuguese support for aoPlotlyAddOn.js --> 
       <!-- place this line after you have included aoPlotlyAddOn.js -->
       <script src="https://rawgit.com/ajoposor/aoPlotlyAddOn/dist/aoPlotlyAddOn-locale-pt-br.js"></script> 
-```
+      ```
 
       Then, set the settings.locale to the language code, for example:
-```javascript
+      ```javascript
       settings.locale = "pt-BR"
-```
+      ```
 
 ### timeInfo
 
