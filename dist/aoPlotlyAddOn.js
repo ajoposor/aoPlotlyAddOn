@@ -635,27 +635,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 					settings.pressedButtonHoverDefaultStyle["background-color"], 
 					settings.pressedButtonHoverDefaultStyle.color, 
 					settings.pressedButtonDefaultStyle["background-color"], 
-					settings.pressedButtonDefaultStyle.color);		
-	
-	
-		
-		/*
-		$("#"+divInfo.logLinearButtonID).hover(
-			function(){
-				buttonOnHover($(this),
-					settings.pressedButtonHoverDefaultStyle["background-color"],
-					settings.pressedButtonHoverDefaultStyle.color);
-        }, 
-			function(){
-				buttonOnHover($(this),
-					settings.pressedButtonDefaultStyle["background-color"],
 					settings.pressedButtonDefaultStyle.color);
-
-			}
-		);*/
-		
-
-
 		
 	}	
 		
@@ -688,22 +668,6 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 			settings.buttonsHoverDefaultStyle.color,
 			settings.buttonsDefaultStyle["background-color"], 
 			settings.buttonsDefaultStyle.color);	
-		
-		/*
-		$("#"+divInfo.downloadButtonID).hover(
-			function(){
-				buttonOnHover($(this),
-					settings.buttonsHoverDefaultStyle["background-color"],
-					settings.buttonsHoverDefaultStyle.color);
-        }, 
-			function(){
-				buttonOnHover($(this),
-					settings.buttonsDefaultStyle["background-color"],
-					settings.buttonsDefaultStyle.color);
-
-			}
-		);
-		*/
 		
 		
 		divInfo.downloadButtonElement.addEventListener('click', function() {
@@ -741,22 +705,7 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 					settings.pressedButtonHoverDefaultStyle.color,
 					settings.pressedButtonDefaultStyle["background-color"], 
 					settings.pressedButtonDefaultStyle.color
-				       );	
-		
-		/*		
-		$("#"+divInfo.realNominalButtonID).hover(
-			function(){
-				buttonOnHover($(this),
-					settings.pressedButtonHoverDefaultStyle["background-color"],
-					settings.pressedButtonHoverDefaultStyle.color);
-        }, 
-			function(){
-				buttonOnHover($(this),
-					settings.pressedButtonDefaultStyle["background-color"],
-					settings.pressedButtonDefaultStyle.color);
-
-			}
-		);*/
+				       );
 		
 	}
 		
@@ -794,23 +743,6 @@ aoPlotlyAddOn.newTimeseriesPlot = function (
 					settings.pressedButtonDefaultStyle["background-color"], 
 					settings.pressedButtonDefaultStyle.color
 				       );			
-		
-		
-		/*
-		$("#"+divInfo.compareButtonID).hover(
-		function(){
-				buttonOnHover($(this),
-						settings.pressedButtonHoverDefaultStyle["background-color"],
-						settings.pressedButtonHoverDefaultStyle.color);
-        }, 
-			function(){
-				buttonOnHover($(this),
-						settings.pressedButtonDefaultStyle["background-color"],
-						settings.pressedButtonDefaultStyle.color);
-
-			}
-		);
-		*/
 
 	}	
 			
@@ -1698,7 +1630,7 @@ function continueProcessingDataAneMakingChart(data, param, makeChartFlag , callb
 
 	// set dataReadFlag to true
 	
-	// AJUSTAR ESTO PARA QUE SOLO SE USE CUANDO SE LEEN DATOS EXTERNOS
+	// only used when external sources are loaded
 	if( ! param.settings.waitForGlobalData &&
 	    ! makeChartFlag
 	  ) {
@@ -1796,7 +1728,7 @@ function parallelUpdateRecessions(newRecessionsUrl, usRecessions, callback){
 		DEBUG && OTHER_DEBUGS && DEBUG_RECESSIONS &&  console.log("calling wrappedDirectXMLHttpRequest");
 		
 		wrappedDirectXMLHttpRequest(fredZipXMLHttpRequestOptions,  myCallBackFredZip(usRecessions), callback);
-		//}(fredZipXMLHttpRequestOptions, myCallBackFredZip(usRecessions)); 
+
 	} else {
 		callback(null);
 	}
