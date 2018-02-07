@@ -1211,7 +1211,11 @@ Data source: <a href="https://www.quandl.com">Quandl.</a>
       * **hover event handled without jQuery**. The jQuery library is no longer required
    
     * Debuged:
-      * **loader** 
+      * **loader**
+      
+1.1.1
+    * Debuged:
+      * **removed use of jQuery** 
 
 
 ## License
