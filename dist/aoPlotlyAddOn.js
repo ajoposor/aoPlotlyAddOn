@@ -7917,7 +7917,7 @@ function getAdjustFactor(allRows, xSeriesName, ySeriesName, initialIndex, existi
 
 	iLimit = existingArray.x.length;
 	i= (insertPoint > 0) ? insertPoint - 1 : insertPoint;
-	for(i ; i < iLimit; i++){
+	for( ; i < iLimit; i++){
 		cutDate = new Date(existingArray.x[i]);
 		if(cutDate >= currentDate){
 			adjustFactor = existingArray.y[i] / divisor;
