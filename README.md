@@ -1,6 +1,7 @@
-# aoPlotlyAddOn.newTimeseriesPlot()
+# aoPlotlyAddOn Library
 
-## A one stop javascript function to read data and add features to <a href="https://plot.ly/javascript/">Plotly's</a> time series plots using only parameters.
+## A javascript library with functions to read data and add features to <a href="https://plot.ly/javascript/">Plotly's</a> time series plots.
+
 
 <kbd>
 <img src="https://github.com/ajoposor/aoPlotlyAddOn/blob/master/img/aoplotly.gif">
@@ -27,21 +28,41 @@
 * [Working example](#working-example)
 * [Miscelaneous functions](#miscelaneous-functions)
 * [Creators](#creators)
+* [Release Notes](#release-notes)
 * [License](#license)
 
 
 ## Description
 
-**aoPlotlyAddOn.newTimeseriesPlot**( divInfo, data, otherDataProperties, dataSources, settings, timeInfo, layout, options );
+* **aoPlotlyAddOn.newTimeseriesPlot**( divInfo, data, otherDataProperties, dataSources, settings, timeInfo, layout, options );
 
-This functions allows reading of data from various sources, processing of the data, calculation of traces and adds functionality to time series plots in <a href="https://plot.ly/javascript/">Plotly</a>. 
+   This functions allows reading of data from various sources, processing of the data, calculation of traces and adds functionality to time series plots in <a href="https://plot.ly/javascript/">Plotly</a>. 
 
-It helps you in two stages: **data sourcing** and **plot funtionality**.
+   It helps you in two stages: **data sourcing** and **plot funtionality**.
+
+   In addition, there are some utility functions to accomodate for particular cases:
+
+   * **aoPlotlyAddOn.readSomeDataSourcesIntoData**( yourDataArray, otherDataProperties, dataSources, settings, timeInfo, myCallback );
+
+      This function will read data from a number of sources and save the processed data into yourDataArray in a ploltly style. This data can then be used to feed multiple instances of **aoPlotlyAddOn.newTimeseriesPlot**.
+
+   * **aoPlotlyAddOn.arrayCopy**( array );
+
+      Returns a new array of values (shallow copy) which is a copy of the provided array. Use together with **aoPlotlyAddOn.readSomeDataSourcesIntoData** when assigning the readData to a new data for an instance of **aoPlotlyAddOn.newTimeseriesPlot**.
+
+
+   * **aoPlotlyAddOn.updateKnowRecessions**( url ); 
+
+      This function will update the library recessions array with new periods, using the FRED api. This can be used when creating multiple plots in a page, so that the api call is made only once.
+
+   * **aoPlotlyAddOn.findDateFromTodayAsString**( currentDateAsDate, requestCode, shiftNumber  ); 
+
+      This utility function helps with some date calculations. Use it to feed the timeInfo object.
 
 ## Features
 
 * **Data sources**: handle various data sources with preprocessing options. For example, include url to a csv file, provide options to sort, or change dates formats
-   * **Automatic data sourcing**: just provide the links to sources of data, like quandl's csvs, fred's jsons, eia's jsons, yql queries, or just assing data directly in the data array
+   * **Automatic data sourcing**: just provide the links to sources of data, like Quandl's csvs, FRED's jsons, EIA's jsons, World Bank json, yql queries, or just assing data directly in the data array
    * **Processing options**:
       * **preprocess dates**:
          * **end of month**: certain dates come as first of month, but actually refer to end of month. You would add a parameter so that the function makes the changes.
@@ -69,6 +90,7 @@ It helps you in two stages: **data sourcing** and **plot funtionality**.
    * **Compare/Uncompare** Plot button to compare series to a base value at the beggining of the displayed range.
    * **Responsive dates ticks** The x axis will display **xaxis ticks** better suited for dates. As you change the range displayed, dates will change from days, to weeks, to months , year-month ("yyyy-mm"), quarters (Q1-yyyy), half-years (H1-yyyy), years (yyyy) and so forth, as the case may be. You may set an option for your desired maximum granularity, for instance, if you have year series, you would use years and nothing but years or a higher aggregation will be displayed.
    * **Download** Plot button will allow to download the data in the format displayed for the whole dates range.
+   * **Multi Language** Currently supports English (en), Spanish (es) and Brazilian Portuguese (pt-BR) locales. You can add locales files for your language and set locale in settings, in a similar way to Plotly. 
    
 ## Arguments in detail
 
@@ -274,7 +296,7 @@ Each object in the dataSouces will get a chunk of data, process it and feed as m
          var url =  baseUri + uriQuery+"&format=json";
          ```
      
-      * **EiaJson**: data will be read from the Energy Information Admisnitration api. In this case, you will need to provide a seriesIndex for each of the traces read from this source (see traces array below)
+      * **EiaJson**: data will be read from the Energy Information Admisnitration api. In this case, you will need to provide a seriesIndex for each of the traces read from this source (see traces array below),  ( dataSources.traces.seriesIndex) starting from 0 in the order the api returns the data.
       
          **An example**: 
                
@@ -282,7 +304,7 @@ Each object in the dataSouces will get a chunk of data, process it and feed as m
          ```javascript
          var eiaKey = "your EIA key";
          var rootEIA = "https://api.eia.gov/series/?series_id=";
-         var eiaSuffix = "&out=js=json";
+         var eiaSuffix = "&out=json";
          var url = rootEIA + 
 	 		"TOTAL.PAPSPOC.M;TOTAL.PAPSPUS.M;TOTAL.PAPSPEU.M;TOTAL.PAPSPJA.M" + 
 			"&api_key="+eiaKey+eiaSuffix;
@@ -292,9 +314,76 @@ Each object in the dataSouces will get a chunk of data, process it and feed as m
          * in the traces array in the same order in which the traces are set in the url
          *
          */
+	 	 
+         var dataSources = [{
+         	urlType: "EiaJson",
+         	url: url,
+         	traces: [{
+         		traceID: "myTraceId1",
+         		seriesIndex: 0
+          	},...
+		
+         	{
+         		traceID: "myTraceId4",
+         		seriesIndex: 3
+          	}]
+         }];
+         
+         ``` 
+    
+     
+      * **WBJson**: data will be read from the World Bank api. In this case, you will need to provide a seriesIndex for each of the traces read from this source  ( dataSources.traces.seriesIndex) starting from 0 in the order the api returns the data. Up to this date, the World Bank api doesn't allow for multiple series, but in case it is changed, you would provided a seriesIndex for each of the traces read from this source (see traces array below). The parameter format=json is required. Provide also a high enough value for per_page parameter, so the the api returns only one page of data (the function currently loads the data from the first page returned.
+      
+         **An example**: 
+               
+         url to get data from the World Bank api (retrieves one serie):
+         ```javascript
+	 
+         var url = "https://api.worldbank.org/v2/countries/WLD/indicators/GOLD?format=json&per_page=9000";
+         
+         
+         /*
+         * In this examples, the series should be referred to as seriesIndex: 0, seriesIndex: 1,... etc.
+         * in the traces array in the same order in which the traces are set in the url
+         *
+         */
+	 
+         var dataSources = [{
+         	urlType: "WBJson",
+         	url: url,
+         	traces: [{
+         		traceID: "Monthly_Historical_Nominal",
+         		seriesIndex: 0
+          	}]
+         }];
          
          ```      
-     
+	      
+      * **fredJson**: data will be read from the FRED api. Only on serie can be read from each url (dataSource). If you need more than one serie from the FRED, place as many items in the dataSources arra. You need to use xSeriesName: "date", xSeriesName: "value", postProcessDate:"end of month" and firstItemToRead: "last".
+      
+         **An example**: 
+               
+         url to get data from  FRED's api (retrieves 1 series):
+         ```javascript
+         var SeriesId = 
+         var url = "https://api.stlouisfed.org/fred/series/observations?series_id=" +
+	 		"GNPCA&api_key=PUTYOURFREDAPIKEY&fyle_type=json"
+         
+         
+         var dataSources = [{
+         	urlType: "fredJson",
+         	url: url,
+         	traces: [{
+         		traceID: "Monthly_Historical_Nominal",
+         		xSeriesName: "date",
+			ySeriesName: "value",
+			postProcessDate: "end of month", // optional, FRED sets dates on the first day of period, use it to
+							// transform dates to end of period
+			firstItemToRead: "last" //required because FRED returns data in chronological order
+          	}]
+         }];
+         ```
+
       * **yqlGoogleCSV**: In this case, the url to be provided is a google url that returns a csv file. The yql portion will be added by the function as `"https://query.yahooapis.com/v1/public/yql?q="+encodeURIComponent("SELECT * from csv where url='"+url+"'")+"&format=json"`. From readJson returned by `$.getJSON` (or `Plotly.d3.json`), json object would be `readJson.query.results.row`.
       * **pureJson**: Use this case when you provide and url that returns an array of jsons. The url will be processed with `$.getJSON` (or `Plotly.d3.json`). An array of jons will have one object for each data point. Each object should contain at least a property for the dates vales and a property for the y value. This arrayOfJsons has the same structure as that returned by Plotly.d3.csv. 
       * **arrayOfJsons**: Use this case to provide data you sourced from elsewhere, that you would like to be processed (change of date format, or calculate adjusted values). An array of jons will have one object for each data point. Each object should contain at least a property for the dates vales and a property for the y value. This arrayOfJsons has the same structure as that returned by Plotly.d3.csv. In this case, the function will not get data from an url.
@@ -348,9 +437,11 @@ Each object in the dataSouces will get a chunk of data, process it and feed as m
       * **postProcessDate**: (string) Optional. If set to "end of month", dates will be converted to end of month.
       * **calculateAdjustedClose**: (boolean) Optional. If set to true, traces that come from more than one source will be normalized using the overlapping date. Older values will be changed. You need to provide at least one overlapping date in order for this option to be applied.
       * **sort**: (boolean) Optional. If set to true, all values as ySeriesNames in use with this xSeriesName and this xSeriesName will be sorted. This function works with dates ordered from latest to oldest.
-      * **seriesIndex**: (integer, index from 0 onwards, required only if urlType: "EiaJson") links a trace with the read serie from the EIA api, in the order in which the series were placed in the url for the api call. 
       * **factor**: (optional, default = 1.0) Use to scale the read data before being added to a data trace.
-      * **shift**: (optional, default = 0.0) Use to shift (add a constant) to the read data before being added to a data trace.      
+      * **shift**: (optional, default = 0.0) Use to shift (add a constant) to the read data before being added to a data trace. 
+      * **seriesIndex**: (optional except for dataSources using EiaJson  or WBJson). In case required, should be an index starting from 0, for the trace to be fed with the first item returned by the EiaJson/WBJson, an so on.
+      * **firstItemToRead**: (string) Optional. Default:  "first" Enter "first" or "last" so that the reading of data into a traces is made in the same order as provided by the source or in reverse order ("last").      
+      firstItemToRead: "last",
 
 #### Examples:
 
@@ -519,7 +610,7 @@ This is an object that controls the features added to your plot.
    
    * **recessionsOpacity:** (number) Optional. Default is 0.15. Set to your desired value. This will control the shapes used to mark recession periods.
    
-   * **queueConcurrencyLimit:** (positive integer) Optional. Default is 10. Sets the value for maximum concurrent async tasks for reading external data from urls.
+   * **queueConcurrencyLimit:** (positive integer) Optional. Default is 10. Sets the value for maximum concurrent async tasks for reading external data from urls. ATTENTION: in case you feed a trace from many sources, set queueConcurrencyLimit to 1, so that the assembling of the trace is made synchronously, otherwise it may result in incorrect trace data values.
    
    * **newRecessionsUrl:** (string) Optional. Set to "" to avoid looking for new recessions dates. Recessions in library are current up to 2015-12-31. If you need to include new recessions enter an address that returns a zip file as provided by the FRED api for the serie_id USRECP.
    
@@ -550,7 +641,37 @@ This is an object that controls the features added to your plot.
    * **textAndSpaceToTextRatio:** (number) Default 1.8. Sets spacing of text to void space in xaxis ticks.
    
    * **removeDoubleClickToZoomBackOut** (boolean) Default: true. Use to allow or remove message displayed when range in plot area is selected. This message says Double-click to zoom back out.
+   
+   * **waitForGlobalData** (boolean) Default: false. Set to true if you are using **aoPlotlyAddOn.readSomeDataSourcesIntoData** to load reusable data, so that execution waits (at the appropriate point) for the external data being ready.
 
+   * **dataReadFlag** (pointer to one element array containing true or false) Optional. In case you are using     **aoPlotlyAddOn.readSomeDataSourcesIntoData** to load reusable data, set to the variable you passed this latter function to flag when the reusable data is loaded. The structure of the paramenter is  `myDataReadFlag (myDataReadFlag = [true/false])`. In case you are using **aoPlotlyAddOn.readSomeDataSourcesIntoData** this dataReadFlag property must be set to point to the array with the flag in both **aoPlotlyAddOn.readSomeDataSourcesIntoData** and  each instance of **aoPlotlyAddOn.newTimeseriesPlot** where you will use the reusable data.
+   
+   * **globalDataCallback** (function) Optional. Provide a function to feed your data array x and y arrays with the reausable external data.
+   
+   
+   
+      **Example**:
+      in your javascript:
+      ```javascript
+      function loadDataCallback() {
+      	data[0].x = aoPlotlyAddOn.arrayCopy(myReusableData[0].x);
+      	data[0].y = aoPlotlyAddOn.arrayCopy(myReusableData[0].y);
+      }
+      ```
+   
+   * **locale** (string) Optional. Specify the local code for the language to be used. The locale file should have been registered before. Default: true. Use to allow or remove message displayed when range in plot area is selected. This message says Double-click to zoom back out.  
+   
+      First, register the required language
+      ```javascript
+      <!-- register Brazilian Portuguese support for aoPlotlyAddOn.js --> 
+      <!-- place this line after you have included aoPlotlyAddOn.js -->
+      <script src="https://rawgit.com/ajoposor/aoPlotlyAddOn/dist/aoPlotlyAddOn-locale-pt-br.js"></script> 
+      ```
+
+      Then, set the settings.locale to the language code, for example:
+      ```javascript
+      settings.locale = "pt-BR"
+      ```
 
 ### timeInfo
 
@@ -559,20 +680,30 @@ Use this object to instruct handling of dates range
 
 #### object properties
 
-   * **yearsToPlot:** (number) Optional. number of years to plot from current date backwards in the initial plot.
-
    * **tracesInitialDate:** (date string formatted as "yyyy-mm-dd") Optional. Traces will be trimmed for dates earlier than provided value. Data before tracesInitialDate will not be included in the data.
+   
+   * **tracesEndDate:** (date string formatted as "yyyy-mm-dd") Optional. Traces will be trimmed for dates later than provided value. Data after tracesInitialDate will not be included in the data.
 
    * **initialDateForInitialDisplay:** (date string formatted as "yyyy-mm-dd") Optional. Date at which initial display will begin.
+   
+   * **yearsToPlotBackFromCurrent or yearsToPlot:** (number) Optional. Number of years to plot from current date backwards in the initial plot. This parameter will override the information from **initialDateForInitialDisplay:**.
+   
+   * **yearsToPlotBackFromMaximum:** (number) Optional. Number of years to plot from the Maximum date in the data set backwards in the initial plot. This parameter will override the information from **initialDateForInitialDisplay** or **yearsToPlotBackFromCurrent** or **yearsToPlot**.
 
    * **endDateForInitialDisplay:** (date string formatted as "yyyy-mm-dd") Optional. Date at which initial display of traces will end.
+   
+   * **forecastMonthsFromCurrentDate:** (number) Optional. This will set the date at which initial display of traces will end. This paremeter overrides the **endDateForInitialDisplay**. 
+   
+   Attention: If no **endDateForInitialDisplay** or **forecastMonthsFromCurrentDate** is provided, but **yearsToPlotBackFromCurrent** or **yearsToPlot** if provided, then the end date for initial display will be set to the current date.
+   
 
 #### Examples
 in your javascript:
 ```javascript	
 var timeInfo = {
 
-	// affects only the initial display
+	// affects only the initial display, 
+	// it will set the initial display to start one year before the current date and end on the current date
 	yearsToPlot: 1,
 
 	// include and initial date if applicable (data will be trimmed to before this date)
@@ -638,7 +769,7 @@ var **options** = {
 
 ## Install
 
-Include libraries for plotly, d3.queue, jquery (will make adjustments to remove use of jquery), jszip (only if zip files from fred are to be sourced to update recessions, it may be omitted if url set to "") and aoPlotlyAddOn:
+Include libraries for plotly, d3.queue, jszip (only if zip files from fred are to be sourced to update recessions (it may be omitted if url set to "") and aoPlotlyAddOn:
 
 ```html
 <head>
@@ -647,9 +778,6 @@ Include libraries for plotly, d3.queue, jquery (will make adjustments to remove 
 
 <!-- d3.queue -->
 <script src="https://d3js.org/d3-queue.v3.min.js"></script>
-
-<!-- jQuery -->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 
 <!-- jszip.js -->
 <script src="https://rawgit.com/Stuk/jszip/master/dist/jszip.min.js"></script>
@@ -667,7 +795,6 @@ Include libraries for plotly, d3.queue, jquery (will make adjustments to remove 
 <head>
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 <script src="https://d3js.org/d3-queue.v3.min.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 <script src="https://rawgit.com/Stuk/jszip/master/dist/jszip.min.js"></script>
 <script src="https://rawgit.com/ajoposor/aoPlotlyAddOn/master/dist/aoPlotlyAddOn.min.js"></script>
 </head>
@@ -836,51 +963,223 @@ Data source: <a href="https://www.quandl.com">Quandl.</a>
 
 ## Miscelaneous Functions
 
-### aoPlotlyAddOn.getTicktextAndTickvals
+
+* ### aoPlotlyAddOn.readSomeDataSourcesIntoData
 
 
-This functions returns and object with the the tickvals and ticktext arrays for a specific time range, division width and margins, font type and size and a ratio for the space between ticks (specifically the ratio between (tick text + space between text) lenght to tick text length.
+   This function will read data from a number of sources and save the processed data into yourDataArray in a ploltly style. This data can then be used to feed multiple instances of **aoPlotlyAddOn.newTimeseriesPlot**. The arguments have the same structure as for **aoPlotlyAddOn.newTimeseriesPlot**.
 
 
-#### Arguments:
+   #### Arguments:
 
  
-**from:** (date strings as "yyyy-mm-dd")
+   * **yourDataArray:** (array of objecs) Required. Provide a dataArray with as many elements as traces to be read. See  **aoPlotlyAddOn.newTimeseriesPlot**, data for further details.
 
-**to:** (date strings as "yyyy-mm-dd")
+   * **otherDataProperties:** (array of objecs) Required. See  **aoPlotlyAddOn.newTimeseriesPlot**, otherDataParametes for further details.
 
-**textAndSpaceToTextRatio:** (number) Ratio between (tick text + space between text) lenght to tick text length.
+   * **dataSources:** (array of objecs) Required. See  **aoPlotlyAddOn.newTimeseriesPlot**, dataSources for further details.
 
-**targetFrequency:** (string) Any of "daily", "everyOtherDay", "weekly", "biweekly", "monthly", "quarterly", "semiannual", "annual", "biennial", "quinquennial", "decennial", "quadranscentennial", "semicentennial", "centennial", "bicentennial", "sestercentennial", "quincentenary", "milennial"
+   * **settings:** (object) Parameters applicable:
 
-The returned ticktext and tickvals would be the best minimum fit, upwards from the targetFrequency, e.g., if "monthly" is passed, it would return whichever fit best from monthly, quarterly, semiannual, annual and onwards
+      * **queueConcurrencyLimit:** (positive integer) Optional. Default is 10. Sets the value for maximum concurrent async tasks for reading external data from urls. ATTENTION: in case you feed a trace from many sources, set queueConcurrencyLimit to 1, so that the assembling of the trace is made synchronously, otherwise it may result in incorrect trace data values.
 
-**fontFamily:** (string) Font family name.
+      * **dataReadFlag:** (one element array) Required. Provides a flag to signal **aoPlotlyAddOn.newTimeseriesPlot** instances when the data has been read, so that **aoPlotlyAddOn.newTimeseriesPlot**  can wait until **aoPlotlyAddOn.readSomeDataSourcesIntoData** has finished. See example below.
 
-**fontSize:** (number) Font size. 
+   * **timeInfo:** (object) Optional. See  **aoPlotlyAddOn.newTimeseriesPlot**, timeInfo for further details.
 
-**divWidth:** (number) Width in pixels of the current division, can be read as jQuery("name of division").width()
+   * **myCallback:** (function) Optional. In case you want to provide a callback, to be executed after **aoPlotlyAddOn.readSomeDataSourcesIntoData** finishes.
 
-**leftMargin:** (number) Margins from plot to division in pixels. If layout.margin.l/r are defined, read from there, otherwise use 80 (plotly's default)
+   **Example**:
+   
+    in your javascript:
+   ```javascript
+   // you will need a data array and a flag with a proper scope,
+   // i.e., that can be passed as argument to further instances of **aoPlotlyAddOn.newTimeseriesPlot**
 
-**rightMargin:** (number) Margins from plot to division in pixels. If layout.margin.l/r are defined, read from there, otherwise use 80 (plotly's default)
+   var myReusableData = [{
+
+   	name: "trace_1"
+   }, ...{
+
+   	name: "trace_n"
+   }];
+
+   var myReusableDataReadFlag = [ false ];
+
+   // set and call the reusable data reading function
+   (function() {
+
+   	var timeInfo = {
+   		tracesInitialDate: "1960-01-01",
+   	};
+	
+	
+   	var settings = {
+   		queueConcurrencyLimit: 1,
+   		dataReadFlag: myReusableDataReadFlag,
+   	};
+
+
+   	var otherDataProperties = [ {
+   			traceID: "traceID1"
+   			}, ...{
+   			traceID: "traceIDN"
+   			}
+   	];
+
+
+   	var dataSources = [ {}, 
+   			... {}
+   	];
+
+   	aoPlotlyAddOn.readSomeDataSourcesIntoData(data, dataSources, otherDataProperties, 
+						dataSources, settings, timeInfo);
+
+	
+   })();
+
+
+   // call as many instances of **aoPlotlyAddOn.newTimeseriesPlot** as required
+   (function() {
+
+   	var divInfo = {
+   		wholeDivID: "myWholeDivID",
+   		plotDivID: "myDivID",
+          		onErrorHideWholeDiv: false
+   	};
+	
+	
+   	var timeInfo = {
+   		tracesInitialDate: "1960-01-01",
+   	};
+	
+	
+	
+   	var data = [{
+   		name: "my trace name"
+   	}];
+	
+   	function loadDataCallback() {
+   		data[0].x = aoPlotlyAddOn.arrayCopy(myReusableData[0].x);
+   		data[0].y = aoPlotlyAddOn.arrayCopy(myReusableData[0].y);
+   	}
+	
+   	var settings = {
+   		queueConcurrencyLimit: 1,
+   		dataReadFlag: myReusableDataReadFlag,
+   		waitForGlobalData: true,
+   		globalDataCallback: loadDataCallback
+   	};
+
+
+   	var otherDataProperties = [ {
+   			traceID: "traceID1"
+   			}
+   	];
+
+
+	
+   	var dataSources = [ {}, 
+   			... {}
+   	];
+	
+	
+   	aoPlotlyAddOn.newTimeSeriesPlot(divInfo, data, otherDataProperties, dataSources, 
+						settings, timeInfo, layout, options);
+
+	
+   })();
+
+   ```
 
 
 
-### aoPlotlyAddOn.transformSeriesByFrequencies
+* ### aoPlotlyAddOn.arrayCopy
+
+   Returns a new array of values (shallow copy) which is a copy of the provided array. Use together with **aoPlotlyAddOn.readSomeDataSourcesIntoData** when assigning the readData to a new data for an instance of **aoPlotlyAddOn.newTimeseriesPlot**.
 
 
-This function will populate the data object with an originalData.x, y and objects for different frequencies and methods of aggregation. This data can be used to change the frequency of displayed data.
+   #### Arguments:
+
+ 
+   * **array:** (array of values) The argument array has the structure `[ value 1, value 2, value 3, ... value n]`
 
 
-#### Arguments:
+
+* ### aoPlotlyAddOn.updateKnowRecessions
+
+   This function will update the library recessions array with new periods, using the FRED api. This can be used when creating multiple plots in a page, so that the api call is made only once. The url must return a zip file with the FRED USRECP serie, containing a txt file, with the format use by the fred api. 
 
 
-**data:** (array of data objects [{x[], y[]}, ....]) With x as date strings "yyyy-mm-dd" and y as values.
+   #### Arguments:
 
-**periodKeys:** (object) An object with the frequencies to be calculated, set to true or false. { day: true/false, week: true/false, month: true/false, quarter: true/false, semester: true/false, year: true }
+ 
+   * **url:** (url to the fred recessions ) The FRED api url is `https://api.stlouisfed.org/fred/series/observations?series_id=USRECP&api_key=YourFredAPiKey&file_type=txt`
 
-**endOfWeek:** (number between 0 and 6) Day of week to be end of week period. 0 for Sunday, 1 for Monday, ....
+
+
+* ### aoPlotlyAddOn.findDateFromTodayAsString
+
+
+   This utility function returns a date (as a string with the format yyyy-mm-dd) that is a number of years, months or days ahead or before a specified date). Use it as help to feed the timeInfo object.
+
+
+   #### Arguments:
+
+ 
+   * **currentDateAsDate:** Required. Pass new Date(), or any other date to be used as equivalent to currentDate.
+
+   * **requestCode:** (string) Required. Any of "end of year", "end of month", "end of day". The shiftNumber will be used to calculated the date that is shiftNumber of years, months, or days ahead or before currentDateAsDate. It will return a date that is at the end of the corresponding period.
+
+   * **shiftNumber:** (number, positive or negative) Number of years, months, or days ahead (positive) or before (negative) the currentDateAsDate.
+
+
+
+* ### aoPlotlyAddOn.getTicktextAndTickvals
+
+
+   This functions returns and object with the the tickvals and ticktext arrays for a specific time range, division width and margins, font type and size and a ratio for the space between ticks (specifically the ratio between (tick text + space between text) lenght to tick text length.
+
+
+   #### Arguments:
+
+ 
+   * **from:** (date strings as "yyyy-mm-dd")
+
+   * **to:** (date strings as "yyyy-mm-dd")
+
+   * **textAndSpaceToTextRatio:** (number) Ratio between (tick text + space between text) lenght to tick text length.
+
+   * **targetFrequency:** (string) Any of "daily", "everyOtherDay", "weekly", "biweekly", "monthly", "quarterly", "semiannual", "annual", "biennial", "quinquennial", "decennial", "quadranscentennial", "semicentennial", "centennial", "bicentennial", "sestercentennial", "quincentenary", "milennial"
+
+      The returned ticktext and tickvals would be the best minimum fit, upwards from the targetFrequency, e.g., if "monthly" is passed, it would return whichever fit best from monthly, quarterly, semiannual, annual and onwards
+
+   * **fontFamily:** (string) Font family name.
+
+   * **fontSize:** (number) Font size. 
+
+   * **divWidth:** (number) Width in pixels of the current division
+
+   * **leftMargin:** (number) Margins from plot to division in pixels. If layout.margin.l/r are defined, read from there, otherwise use 80 (plotly's default)
+
+   * **rightMargin:** (number) Margins from plot to division in pixels. If layout.margin.l/r are defined, read from there, otherwise use 80 (plotly's default)
+
+
+
+* ### aoPlotlyAddOn.transformSeriesByFrequencies
+
+
+   This function will populate the data object with an originalData.x, y and objects for different frequencies and methods of aggregation. This data can be used to change the frequency of displayed data.
+
+
+   #### Arguments:
+
+
+   * **data:** (array of data objects [{x[], y[]}, ....]) With x as date strings "yyyy-mm-dd" and y as values.
+
+   * **periodKeys:** (object) An object with the frequencies to be calculated, set to true or false. { day: true/false, week: true/false, month: true/false, quarter: true/false, semester: true/false, year: true }
+
+   * **endOfWeek:** (number between 0 and 6) Day of week to be end of week period. 0 for Sunday, 1 for Monday, ....
 
 
 
@@ -891,16 +1190,28 @@ This function will populate the data object with an originalData.x, y and object
 |**A. Osorio**| [@ajoposor](https://github.com/ajoposor) | |
 
 
-## Versions
+## Release Notes
 1.0.0
-Function launched
+   Function launched
 
 1.1.0
-Added:
-   * **reading of data from Energy Information Agency api**
-   * **calculate traces** with generic formula applied to loaded traces
-   * **calculate real/deflated traces** from loaded traces
-   * **add factor and/or shift to read data** applicable to specific source/trace combination.   
+   * Added:
+      * **reading of data from Energy Information Agency api**
+      * **reading of data from FRED's api**
+      * **reading of data from the World Bank api**   
+      * **calculate traces** with generic formula applied to loaded traces
+      * **calculate real/deflated traces** from loaded traces
+      * **add factor and/or shift to read data** applicable to specific source/trace combination.
+      * **aoPlotlyAddOn.readSomeDataSourcesIntoData** Separate function for reading of data. Allows reading of reusable data to feed multiple instances of **aoPlotlyAddOn.newTimeseriesPlot**
+      * **aoPlotlyAddOn.updateKnowRecessions:** function for updating US Recessions. Allows updating the internal variablewith the know recessions only once, so that if multiple instances of **aoPlotlyAddOn.newTimeseriesPlot** are being made in single page, the api call is only made once.
+      * **aoPlotlyAddOn.findDateFromTodayAsString** Function  to help making some dates calculations. Allows calculating a date that is a number of years, months, or days ahead or before a specified date. 
+   
+   
+   * Improved:
+      * **hover event handled without jQuery**. The jQuery library is no longer required
+   
+    * Debuged:
+      * **loader** 
 
 
 ## License
