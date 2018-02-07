@@ -8,8 +8,8 @@ var aoPlotlyAddOn = {};
 	 
 // set DEBUG && OTHER_DEBUGS option (for display of console.log messages)
 // console.log will also be removed with closure compiler 
-var DEBUG = true;
-var OTHER_DEBUGS = true;
+var DEBUG = false;
+var OTHER_DEBUGS = false;
 var DEBUG_TIMES = false;
 var DEBUG_CSV = false;
 var DEBUG_TRANSFORM_BY_FREQUENCIES = false;
@@ -18,11 +18,11 @@ var DEBUG_EIA_FUNCTION = false;
 var DEBUG_RECESSIONS = false; 
 var DEBUG_CREATE_INDEX_MAP = false;
 var DEBUG_CREATE_TRACE_WITH_FUNCTION = false;
-var DEBUG_ADD_DATE_TO_FORMULA = true;
-var DEBUG_WB_FUNCTION = true;
-var DEBUG_LOCALE = true;
-var DEBUG_NEW_RECESSIONS_FUNCTION = true;
-var DEBUG_CALCULATE_REAL = true;
+var DEBUG_ADD_DATE_TO_FORMULA = false;
+var DEBUG_WB_FUNCTION = false;
+var DEBUG_LOCALE = false;
+var DEBUG_NEW_RECESSIONS_FUNCTION = false;
+var DEBUG_CALCULATE_REAL = false;
 	
 var locales = {
 	"en": {
