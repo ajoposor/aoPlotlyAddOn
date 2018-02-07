@@ -44,20 +44,20 @@
 
    * **aoPlotlyAddOn.readSomeDataSourcesIntoData**( yourDataArray, otherDataProperties, dataSources, settings, timeInfo, myCallback );
 
-   This function will read data from a number of sources and save the processed data into yourDataArray in a ploltly style. This data can then be used to feed multiple instances of **aoPlotlyAddOn.newTimeseriesPlot**.
+      This function will read data from a number of sources and save the processed data into yourDataArray in a ploltly style. This data can then be used to feed multiple instances of **aoPlotlyAddOn.newTimeseriesPlot**.
 
    * **aoPlotlyAddOn.arrayCopy**( array );
 
-   Returns a new array of values (shallow copy) which is a copy of the provided array. Use together with **aoPlotlyAddOn.readSomeDataSourcesIntoData** when assigning the readData to a new data for an instance of **aoPlotlyAddOn.newTimeseriesPlot**.
+      Returns a new array of values (shallow copy) which is a copy of the provided array. Use together with **aoPlotlyAddOn.readSomeDataSourcesIntoData** when assigning the readData to a new data for an instance of **aoPlotlyAddOn.newTimeseriesPlot**.
 
 
    * **aoPlotlyAddOn.updateKnowRecessions**( url ); 
 
-   This function will update the library recessions array with new periods, using the FRED api. This can be used when creating multiple plots in a page, so that the api call is made only once.
+      This function will update the library recessions array with new periods, using the FRED api. This can be used when creating multiple plots in a page, so that the api call is made only once.
 
    * **aoPlotlyAddOn.findDateFromTodayAsString**( currentDateAsDate, requestCode, shiftNumber  ); 
 
-   This utility function helps with some date calculations. Use it to feed the timeInfo object.
+      This utility function helps with some date calculations. Use it to feed the timeInfo object.
 
 ## Features
 
