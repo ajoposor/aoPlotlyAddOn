@@ -1,4 +1,4 @@
-# aoPlotlyAddOn.newTimeseriesPlot()
+# aoPlotlyAddOn Library
 
 ## A javascript library with functions to read data and add features to <a href="https://plot.ly/javascript/">Plotly's</a> time series plots.
 
