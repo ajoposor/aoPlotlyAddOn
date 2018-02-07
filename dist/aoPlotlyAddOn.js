@@ -3939,7 +3939,7 @@ function makeChart(data, param){
 	layout.xaxis.range = [initialDate, endDate];
 
 	// read division width
-	var currentWidth = jQuery(myPlot).width();
+	var currentWidth = myPlot.offsetWidth; // prior war jQuery(myPlot).width();
 	var divWidth = currentWidth;
 
 	// set default left/right margins if not set
@@ -4224,7 +4224,7 @@ function makeChart(data, param){
 		//the x axis labels have to be redefined
 		if (relayoutData.autosize === true) {
 			// adjust frequency updatemenu buttons
-			divWidth = jQuery(myPlot).width();
+			divWidth = myPlot.offsetWidth; // prior was jQuery(myPlot).width();
 			DEBUG && DEBUG_FB && console.log("divWidth: ", divWidth);
 
 			if (divWidth != currentWidth) {
