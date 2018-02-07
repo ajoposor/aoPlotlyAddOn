@@ -1191,26 +1191,26 @@ Data source: <a href="https://www.quandl.com">Quandl.</a>
 
 ## Release Notes
 1.0.0
-Function launched
+   Function launched
 
 1.1.0
-Added:
-   * **reading of data from Energy Information Agency api**
-   * **reading of data from FRED's api**
-   * **reading of data from the World Bank api**   
-   * **calculate traces** with generic formula applied to loaded traces
-   * **calculate real/deflated traces** from loaded traces
-   * **add factor and/or shift to read data** applicable to specific source/trace combination.
-   * **aoPlotlyAddOn.readSomeDataSourcesIntoData** Separate function for reading of data. Allows reading of reusable data to feed multiple instances of **aoPlotlyAddOn.newTimeseriesPlot**
-   * **aoPlotlyAddOn.updateKnowRecessions:** function for updating US Recessions. Allows updating the internal variablewith the know recessions only once, so that if multiple instances of **aoPlotlyAddOn.newTimeseriesPlot** are being made in single page, the api call is only made once.
-   * **aoPlotlyAddOn.findDateFromTodayAsString** Function  to help making some dates calculations. Allows calculating a date that is a number of years, months, or days ahead or before a specified date. 
+   * Added:
+      * **reading of data from Energy Information Agency api**
+      * **reading of data from FRED's api**
+      * **reading of data from the World Bank api**   
+      * **calculate traces** with generic formula applied to loaded traces
+      * **calculate real/deflated traces** from loaded traces
+      * **add factor and/or shift to read data** applicable to specific source/trace combination.
+      * **aoPlotlyAddOn.readSomeDataSourcesIntoData** Separate function for reading of data. Allows reading of reusable data to feed multiple instances of **aoPlotlyAddOn.newTimeseriesPlot**
+      * **aoPlotlyAddOn.updateKnowRecessions:** function for updating US Recessions. Allows updating the internal variablewith the know recessions only once, so that if multiple instances of **aoPlotlyAddOn.newTimeseriesPlot** are being made in single page, the api call is only made once.
+      * **aoPlotlyAddOn.findDateFromTodayAsString** Function  to help making some dates calculations. Allows calculating a date that is a number of years, months, or days ahead or before a specified date. 
    
    
-Improved:
-   * **hover event handled without jQuery**. The jQuery library is no longer required
+   * Improved:
+      * **hover event handled without jQuery**. The jQuery library is no longer required
    
- Debuged:
-   * **loader** 
+    * Debuged:
+      * **loader** 
 
 
 ## License
