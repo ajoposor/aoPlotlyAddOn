@@ -992,7 +992,6 @@ Data source: <a href="https://www.quandl.com">Quandl.</a>
    
     in your javascript:
    ```javascript
-
    // you will need a data array and a flag with a proper scope,
    // i.e., that can be passed as argument to further instances of **aoPlotlyAddOn.newTimeseriesPlot**
 
